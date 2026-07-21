@@ -1,0 +1,12 @@
+/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/bin/Release/net7.0/GuildSimulator.Core.deps.json
+/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/bin/Release/net7.0/GuildSimulator.Core.dll
+/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/bin/Release/net7.0/GuildSimulator.Core.pdb
+/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/obj/Release/net7.0/GuildSimulator.Core.csproj.AssemblyReference.cache
+/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/obj/Release/net7.0/GuildSimulator.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/obj/Release/net7.0/GuildSimulator.Core.AssemblyInfoInputs.cache
+/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/obj/Release/net7.0/GuildSimulator.Core.AssemblyInfo.cs
+/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/obj/Release/net7.0/GuildSimulator.Core.csproj.CoreCompileInputs.cache
+/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/obj/Release/net7.0/GuildSimulator.Core.dll
+/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/obj/Release/net7.0/refint/GuildSimulator.Core.dll
+/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/obj/Release/net7.0/GuildSimulator.Core.pdb
+/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/obj/Release/net7.0/ref/GuildSimulator.Core.dll

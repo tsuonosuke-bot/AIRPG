@@ -1,0 +1,12 @@
+[
+  { "id": "skill_axeMastery", "skillName": "斧マスタリー", "scope": 0, "frontOnly": true, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 1, "requireArmorType": false, "add": {}, "mul": { "pAtk": 1.2 } },
+  { "id": "skill_swordMastery", "skillName": "剣マスタリー", "scope": 0, "frontOnly": true, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 0, "requireArmorType": false, "add": {}, "mul": { "pAtk": 1.2 } },
+  { "id": "skill_swordSpear", "skillName": "槍マスタリー", "scope": 0, "frontOnly": true, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 2, "requireArmorType": false, "add": {}, "mul": { "pAtk": 1.2 } },
+  { "id": "skill_bowSpear", "skillName": "弓マスタリー", "scope": 0, "frontOnly": false, "backOnly": true, "requireWeaponType": true, "requiredWeaponType": 3, "requireArmorType": false, "add": {}, "mul": { "pAtk": 1.2 } },
+  { "id": "skill_fireMastery", "skillName": "炎魔法マスタリー", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 4, "requireArmorType": false, "add": {}, "mul": { "mAtk": 1.2 } },
+  { "id": "skill_waterMastery", "skillName": "水魔法マスタリー", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 6, "requireArmorType": false, "add": {}, "mul": { "mAtk": 1.2 } },
+  { "id": "skill_earthMastery", "skillName": "土魔法マスタリー", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 7, "requireArmorType": false, "add": {}, "mul": { "mAtk": 1.2 } },
+  { "id": "skill_windMastery", "skillName": "風魔法マスタリー", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 5, "requireArmorType": false, "add": {}, "mul": { "mAtk": 1.2 } },
+  { "id": "skill_darkMastery", "skillName": "闇魔法マスタリー", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 8, "requireArmorType": false, "add": {}, "mul": { "mAtk": 1.2 } },
+  { "id": "skill_lightMastery", "skillName": "光魔法マスタリー", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 9, "requireArmorType": false, "add": {}, "mul": { "mAtk": 1.2, "heal": 1.5 } }
+]

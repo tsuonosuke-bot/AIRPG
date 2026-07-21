@@ -1,0 +1,89 @@
+{
+  "version": 3,
+  "targets": {
+    "net7.0": {
+      "GuildSimulator.Core/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v7.0",
+        "compile": {
+          "bin/placeholder/GuildSimulator.Core.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/GuildSimulator.Core.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "GuildSimulator.Core/1.0.0": {
+      "type": "project",
+      "path": "../GuildSimulator.Core/GuildSimulator.Core.csproj",
+      "msbuildProject": "../GuildSimulator.Core/GuildSimulator.Core.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net7.0": [
+      "GuildSimulator.Core >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "/Users/mk_0311/.nuget/packages/": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Cli/GuildSimulator.Cli.csproj",
+      "projectName": "GuildSimulator.Cli",
+      "projectPath": "/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Cli/GuildSimulator.Cli.csproj",
+      "packagesPath": "/Users/mk_0311/.nuget/packages/",
+      "outputPath": "/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Cli/obj/",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "/Users/mk_0311/.nuget/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net7.0"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "projectReferences": {
+            "/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/GuildSimulator.Core.csproj": {
+              "projectPath": "/Users/mk_0311/GuildSimulatorCS/GuildSimulator.Core/GuildSimulator.Core.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net7.0": {
+        "targetAlias": "net7.0",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.317/RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

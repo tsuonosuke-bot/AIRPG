@@ -1,0 +1,5 @@
+[
+  { "id": "enemy_goblin", "baseName": "ゴブリン", "exp": 5,
+    "vitality": 3, "mental": 3, "strength": 5, "agility": 5, "intelligence": 2, "constitution": 2,
+    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": [] }
+]

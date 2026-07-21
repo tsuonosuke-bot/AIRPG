@@ -1,0 +1,207 @@
+[
+  {
+    "id": "dungeon_meadow",
+    "dungeonName": "静寂の草原",
+    "rewardChoiceMin": 2,
+    "rewardChoiceMax": 3,
+    "eventTable": {
+      "EnemyEncounter": 3,
+      "Nothing": 7,
+      "Trap": 1,
+      "Treasure": 1,
+      "Heal": 1
+    },
+    "enemyLevelPerPhase": 0.1,
+    "encounterTable": [
+      { "unitId": "unit_slime_single",     "weight": 4, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_slime_pair",       "weight": 3, "minPhase": 3, "maxPhase": 0 },
+      { "unitId": "unit_slime_cluster",    "weight": 1, "minPhase": 7, "maxPhase": 0 },
+      { "unitId": "unit_raven_pair",       "weight": 3, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_raven_flock",      "weight": 2, "minPhase": 5, "maxPhase": 0 },
+      { "unitId": "unit_rabbit_pack",      "weight": 2, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_goblin_single",    "weight": 2, "minPhase": 2, "maxPhase": 0 },
+      { "unitId": "unit_goblin_group",     "weight": 1, "minPhase": 6, "maxPhase": 0 },
+      { "unitId": "unit_meadow_wanderers", "weight": 1, "minPhase": 4, "maxPhase": 0 }
+    ],
+    "rewardTable": [
+      { "type": 2, "gold": 20, "weight": 4, "unique": false },
+      { "type": 2, "gold": 30, "weight": 3, "unique": false },
+      { "type": 1, "equipmentId": "eq_cloth_01",   "weight": 2, "unique": false },
+      { "type": 1, "equipmentId": "eq_leather_01", "weight": 1, "unique": false },
+      { "type": 0, "relicId": "relic_bandage", "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_stew",    "weight": 1, "unique": true }
+    ],
+    "treasureTable": [
+      { "type": 2, "gold": 3,  "weight": 3, "unique": false },
+      { "type": 2, "gold": 5,  "weight": 2, "unique": false },
+      { "type": 2, "gold": 10, "weight": 1, "unique": false }
+    ]
+  },
+  {
+    "id": "dungeon_woods",
+    "dungeonName": "森林外縁",
+    "rewardChoiceMin": 3,
+    "rewardChoiceMax": 5,
+    "eventTable": {
+      "EnemyEncounter": 6,
+      "Nothing": 6,
+      "Trap": 2,
+      "Treasure": 2,
+      "Heal": 1
+    },
+    "enemyLevelPerPhase": 0.15,
+    "encounterTable": [
+      { "unitId": "unit_goblin_single",  "weight": 3, "minPhase": 1, "maxPhase": 6 },
+      { "unitId": "unit_goblin_group",   "weight": 3, "minPhase": 3, "maxPhase": 0 },
+      { "unitId": "unit_goblin_scouts",  "weight": 3, "minPhase": 4, "maxPhase": 0 },
+      { "unitId": "unit_goblin_warband", "weight": 2, "minPhase": 8, "maxPhase": 0 },
+      { "unitId": "unit_wolf_pair",      "weight": 3, "minPhase": 2, "maxPhase": 0 },
+      { "unitId": "unit_wolf_pack",      "weight": 2, "minPhase": 6, "maxPhase": 0 },
+      { "unitId": "unit_spider_single",  "weight": 2, "minPhase": 3, "maxPhase": 0 },
+      { "unitId": "unit_spider_nest",    "weight": 1, "minPhase": 7, "maxPhase": 0 },
+      { "unitId": "unit_bee_swarm",      "weight": 2, "minPhase": 2, "maxPhase": 0 },
+      { "unitId": "unit_treant_single",  "weight": 1, "minPhase": 8, "maxPhase": 0 },
+      { "unitId": "unit_treant_grove",   "weight": 1, "minPhase": 12, "maxPhase": 0 }
+    ],
+    "rewardTable": [
+      { "type": 2, "gold": 50, "weight": 5, "unique": false },
+      { "type": 2, "gold": 80, "weight": 3, "unique": false },
+      { "type": 1, "equipmentId": "eq_leather_01", "weight": 3, "unique": false },
+      { "type": 1, "equipmentId": "eq_bow_01",     "weight": 2, "unique": false },
+      { "type": 1, "equipmentId": "eq_wind_01",    "weight": 2, "unique": false },
+      { "type": 0, "relicId": "relic_bandage",   "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_meat",      "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_eggs",      "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_red",       "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_whetstone", "weight": 1, "unique": true }
+    ],
+    "treasureTable": [
+      { "type": 2, "gold": 5,  "weight": 5, "unique": false },
+      { "type": 2, "gold": 10, "weight": 3, "unique": false },
+      { "type": 2, "gold": 15, "weight": 1, "unique": false },
+      { "type": 1, "equipmentId": "eq_leather_01", "weight": 1, "unique": false }
+    ]
+  },
+  {
+    "id": "dungeon_highway",
+    "dungeonName": "隊商街道",
+    "rewardChoiceMin": 3,
+    "rewardChoiceMax": 4,
+    "eventTable": {
+      "EnemyEncounter": 5,
+      "Nothing": 6,
+      "Trap": 3,
+      "Treasure": 2,
+      "Heal": 3
+    },
+    "enemyLevelPerPhase": 0.2,
+    "encounterTable": [
+      { "unitId": "unit_bandit_lookout", "weight": 4, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_bandit_ambush",  "weight": 3, "minPhase": 4, "maxPhase": 0 },
+      { "unitId": "unit_bandit_gang",    "weight": 2, "minPhase": 8, "maxPhase": 0 },
+      { "unitId": "unit_wolf_pair",      "weight": 2, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_raven_flock",    "weight": 2, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_goblin_scouts",  "weight": 2, "minPhase": 2, "maxPhase": 0 }
+    ],
+    "rewardTable": [
+      { "type": 2, "gold": 120, "weight": 5, "unique": false },
+      { "type": 2, "gold": 180, "weight": 3, "unique": false },
+      { "type": 1, "equipmentId": "eq_sword_02",  "weight": 2, "unique": false },
+      { "type": 1, "equipmentId": "eq_bow_02",    "weight": 2, "unique": false },
+      { "type": 1, "equipmentId": "eq_chain_01",  "weight": 2, "unique": false },
+      { "type": 0, "relicId": "relic_ledger",   "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_contract", "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_charm",    "weight": 1, "unique": true }
+    ],
+    "treasureTable": [
+      { "type": 2, "gold": 20, "weight": 5, "unique": false },
+      { "type": 2, "gold": 35, "weight": 3, "unique": false },
+      { "type": 1, "equipmentId": "eq_leather_01", "weight": 2, "unique": false },
+      { "type": 1, "equipmentId": "eq_sword_01",   "weight": 1, "unique": false }
+    ]
+  },
+  {
+    "id": "dungeon_mine",
+    "dungeonName": "打ち捨てられた廃坑",
+    "rewardChoiceMin": 3,
+    "rewardChoiceMax": 5,
+    "eventTable": {
+      "EnemyEncounter": 6,
+      "Nothing": 5,
+      "Trap": 4,
+      "Treasure": 3,
+      "Heal": 1
+    },
+    "enemyLevelPerPhase": 0.2,
+    "encounterTable": [
+      { "unitId": "unit_bat_flock",      "weight": 4, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_rat_pack",       "weight": 4, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_mine_vermin",    "weight": 3, "minPhase": 2, "maxPhase": 0 },
+      { "unitId": "unit_kobold_patrol",  "weight": 4, "minPhase": 2, "maxPhase": 0 },
+      { "unitId": "unit_kobold_crew",    "weight": 3, "minPhase": 5, "maxPhase": 0 },
+      { "unitId": "unit_kobold_warband", "weight": 2, "minPhase": 9, "maxPhase": 0 },
+      { "unitId": "unit_wraith_single",  "weight": 2, "minPhase": 6, "maxPhase": 0 },
+      { "unitId": "unit_wraith_haunt",   "weight": 1, "minPhase": 10, "maxPhase": 0 },
+      { "unitId": "unit_golem_single",   "weight": 1, "minPhase": 12, "maxPhase": 0 }
+    ],
+    "rewardTable": [
+      { "type": 2, "gold": 150, "weight": 5, "unique": false },
+      { "type": 2, "gold": 220, "weight": 3, "unique": false },
+      { "type": 1, "equipmentId": "eq_axe_02",    "weight": 2, "unique": false },
+      { "type": 1, "equipmentId": "eq_spear_02",  "weight": 2, "unique": false },
+      { "type": 1, "equipmentId": "eq_robe_02",   "weight": 2, "unique": false },
+      { "type": 0, "relicId": "relic_lantern",   "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_ironheart", "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_whetstone", "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_charm",     "weight": 1, "unique": true }
+    ],
+    "treasureTable": [
+      { "type": 2, "gold": 25, "weight": 5, "unique": false },
+      { "type": 2, "gold": 45, "weight": 3, "unique": false },
+      { "type": 2, "gold": 70, "weight": 1, "unique": false },
+      { "type": 1, "equipmentId": "eq_chain_01", "weight": 1, "unique": false }
+    ]
+  },
+  {
+    "id": "dungeon_crypt",
+    "dungeonName": "古の墓所",
+    "rewardChoiceMin": 4,
+    "rewardChoiceMax": 5,
+    "eventTable": {
+      "EnemyEncounter": 8,
+      "Nothing": 4,
+      "Trap": 4,
+      "Treasure": 3,
+      "Heal": 1
+    },
+    "enemyLevelPerPhase": 0.25,
+    "encounterTable": [
+      { "unitId": "unit_skeleton_pair",  "weight": 4, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_zombie_horde",   "weight": 3, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_skeleton_squad", "weight": 3, "minPhase": 4, "maxPhase": 0 },
+      { "unitId": "unit_ghoul_pack",     "weight": 3, "minPhase": 4, "maxPhase": 0 },
+      { "unitId": "unit_shadow_single",  "weight": 2, "minPhase": 7, "maxPhase": 0 },
+      { "unitId": "unit_necro_ritual",   "weight": 2, "minPhase": 9, "maxPhase": 0 },
+      { "unitId": "unit_shadow_pair",    "weight": 1, "minPhase": 13, "maxPhase": 0 }
+    ],
+    "rewardTable": [
+      { "type": 2, "gold": 300, "weight": 5, "unique": false },
+      { "type": 2, "gold": 450, "weight": 3, "unique": false },
+      { "type": 1, "equipmentId": "eq_fire_02",  "weight": 2, "unique": false },
+      { "type": 1, "equipmentId": "eq_Light_02", "weight": 2, "unique": false },
+      { "type": 1, "equipmentId": "eq_dark_01",  "weight": 2, "unique": false },
+      { "type": 1, "equipmentId": "eq_plate_02", "weight": 2, "unique": false },
+      { "type": 0, "relicId": "relic_grimoire",  "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_ironheart", "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_bank",      "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_lantern",   "weight": 1, "unique": true }
+    ],
+    "treasureTable": [
+      { "type": 2, "gold": 60,  "weight": 5, "unique": false },
+      { "type": 2, "gold": 100, "weight": 3, "unique": false },
+      { "type": 2, "gold": 160, "weight": 1, "unique": false },
+      { "type": 1, "equipmentId": "eq_robe_02",  "weight": 1, "unique": false },
+      { "type": 1, "equipmentId": "eq_sword_02", "weight": 1, "unique": false }
+    ]
+  }
+]

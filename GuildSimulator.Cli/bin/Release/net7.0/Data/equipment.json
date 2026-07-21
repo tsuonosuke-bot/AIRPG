@@ -1,0 +1,14 @@
+[
+  { "id": "eq_sword_01",   "displayName": "青銅の剣",      "type": 0, "weaponType": 0, "armorType": 3, "physicalCoeff": 1.0, "magicCoeff": 0.0, "healCoeff": 0.0, "price": 30, "weight": 3,  "bonus": { "pAtk": 5,  "hit": 5  } },
+  { "id": "eq_spear_01",   "displayName": "青銅の槍",      "type": 0, "weaponType": 2, "armorType": 3, "physicalCoeff": 1.0, "magicCoeff": 0.0, "healCoeff": 0.0, "price": 35, "weight": 4,  "bonus": { "pAtk": 7,  "hit": -10 } },
+  { "id": "eq_axe_01",     "displayName": "青銅の斧",      "type": 0, "weaponType": 1, "armorType": 3, "physicalCoeff": 1.0, "magicCoeff": 0.0, "healCoeff": 0.0, "price": 40, "weight": 5,  "bonus": { "pAtk": 10, "hit": -15 } },
+  { "id": "eq_bow_01",     "displayName": "青銅の弓",      "type": 0, "weaponType": 3, "armorType": 3, "physicalCoeff": 1.0, "magicCoeff": 0.0, "healCoeff": 0.0, "price": 35, "weight": 3,  "bonus": { "pAtk": 7,  "hit": -10 } },
+  { "id": "eq_fire_01",    "displayName": "ファイア",       "type": 0, "weaponType": 4, "armorType": 3, "physicalCoeff": 0.0, "magicCoeff": 1.0, "healCoeff": 0.0, "price": 40, "weight": 3,  "bonus": { "mAtk": 15, "evade": -15 } },
+  { "id": "eq_wind_01",    "displayName": "ウィンド",       "type": 0, "weaponType": 5, "armorType": 3, "physicalCoeff": 0.0, "magicCoeff": 1.0, "healCoeff": 0.0, "price": 30, "weight": 1,  "bonus": { "mAtk": 5,  "hit": 10 } },
+  { "id": "eq_water_01",   "displayName": "ウォーター",     "type": 0, "weaponType": 6, "armorType": 3, "physicalCoeff": 0.0, "magicCoeff": 1.0, "healCoeff": 0.0, "price": 40, "weight": 4,  "bonus": { "mAtk": 8,  "mDef": 10 } },
+  { "id": "eq_earth_01",   "displayName": "アース",         "type": 0, "weaponType": 7, "armorType": 3, "physicalCoeff": 0.0, "magicCoeff": 1.0, "healCoeff": 0.0, "price": 40, "weight": 5,  "bonus": { "mAtk": 8,  "pDef": 5 } },
+  { "id": "eq_Light_01",   "displayName": "ヒール",         "type": 0, "weaponType": 9, "armorType": 3, "physicalCoeff": 0.0, "magicCoeff": 0.0, "healCoeff": 1.0, "price": 40, "weight": 3,  "bonus": { "heal": 20 } },
+  { "id": "eq_cloth_01",   "displayName": "布の服",         "type": 1, "weaponType": 10,"armorType": 0, "physicalCoeff": 1.0, "magicCoeff": 1.0, "healCoeff": 1.0, "price": 10, "weight": 1,  "bonus": { "pDef": 2 } },
+  { "id": "eq_leather_01", "displayName": "レザーアーマー", "type": 1, "weaponType": 10,"armorType": 1, "physicalCoeff": 1.0, "magicCoeff": 1.0, "healCoeff": 1.0, "price": 20, "weight": 5,  "bonus": { "pDef": 10 } },
+  { "id": "eq_plate_01",   "displayName": "プレートメイル", "type": 1, "weaponType": 10,"armorType": 2, "physicalCoeff": 1.0, "magicCoeff": 1.0, "healCoeff": 1.0, "price": 50, "weight": 15, "bonus": { "pDef": 30, "hit": -30, "evade": -30 } }
+]

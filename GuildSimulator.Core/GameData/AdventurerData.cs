@@ -1,0 +1,288 @@
+using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
+
+namespace GuildSimulator.Core.GameData;
+
+public class AdventurerData : IUnitMember
+{
+    public string id = Guid.NewGuid().ToString("N");
+    public AdventurerMasterData master;
+    public string name;
+    public int level;
+    public int experience;
+    public bool isAlive = true;
+    public int rank;
+    public int rankPoint;
+
+    public RaceMasterData? race;
+    public ClassMasterData? currentClass;
+    public EquipmentMasterData? weapon;
+    public EquipmentMasterData? armor;
+
+    public int vitality, mental, strength, agility, intelligence, constitution, appearance;
+
+    bool IUnitMember.IsAlive { get => isAlive; set => isAlive = value; }
+    public int Level => level;
+    public string Name => name;
+    public int CombatHp { get; set; }
+    public int CombatHpMax { get; set; }
+    public IReadOnlyList<SkillMasterData> Skills => GetActiveSkills();
+    public EquipmentMasterData? Weapon => weapon;
+    public EquipmentMasterData? Armor => armor;
+
+    readonly List<LearnedSkill> learnedSkills = new();
+    readonly List<SkillMasterData> activeSkillCache = new();
+    bool activeSkillDirty = true;
+
+    public class LearnedSkill
+    {
+        public SkillMasterData skill = null!;
+        public ClassMasterData? ownerClass;
+    }
+
+    // class clear counts
+    readonly Dictionary<string, int> classClearCounts = new();
+
+    public AdventurerData(AdventurerMasterData master)
+    {
+        this.master = master;
+        name = master.baseName;
+        level = master.defaultLevel;
+        rank = Math.Max(1, master.defaultRank);
+        race = master.Race;
+        currentClass = master.DefaultClass;
+        vitality = master.vitality;
+        mental = master.mental;
+        strength = master.strength;
+        agility = master.agility;
+        intelligence = master.intelligence;
+        constitution = master.constitution;
+        appearance = master.appearance;
+        weapon = master.DefaultWeapon;
+        armor = master.DefaultArmor;
+
+        foreach (var s in master.Skills)
+            LearnSkill(s, null);
+
+        GrantEntryClassSkills();
+        MarkDirty();
+    }
+
+    void MarkDirty() => activeSkillDirty = true;
+
+    IReadOnlyList<SkillMasterData> GetActiveSkills()
+    {
+        if (!activeSkillDirty) return activeSkillCache;
+        activeSkillCache.Clear();
+        foreach (var ls in learnedSkills)
+        {
+            if (ls.ownerClass == null)
+                activeSkillCache.Add(ls.skill);
+        }
+        if (currentClass != null)
+        {
+            foreach (var entry in currentClass.classSkills)
+            {
+                if (entry.Skill == null) continue;
+                if (HasLearnedAny(entry.Skill) && !activeSkillCache.Contains(entry.Skill))
+                    activeSkillCache.Add(entry.Skill);
+            }
+        }
+        activeSkillDirty = false;
+        return activeSkillCache;
+    }
+
+    bool HasLearnedAny(SkillMasterData skill)
+        => learnedSkills.Any(x => x.skill == skill);
+
+    void LearnSkill(SkillMasterData skill, ClassMasterData? ownerClass)
+    {
+        if (HasLearnedAny(skill)) return;
+        learnedSkills.Add(new LearnedSkill { skill = skill, ownerClass = ownerClass });
+        MarkDirty();
+    }
+
+    void GrantEntryClassSkills()
+    {
+        if (currentClass == null) return;
+        foreach (var e in currentClass.classSkills)
+            if (e.requiredClearCount <= 0 && e.Skill != null)
+                LearnSkill(e.Skill, currentClass);
+    }
+
+    void CheckClassSkillUnlock()
+    {
+        if (currentClass == null) return;
+        int clears = GetClassClearCount(currentClass.id);
+        foreach (var e in currentClass.classSkills)
+            if (e.Skill != null && clears >= e.requiredClearCount)
+                LearnSkill(e.Skill, currentClass);
+    }
+
+    int GetClassClearCount(string classId)
+        => classClearCounts.TryGetValue(classId, out var v) ? v : 0;
+
+    public int CurrentClassClearCount => currentClass != null ? GetClassClearCount(currentClass.id) : 0;
+
+    public void ChangeClass(ClassMasterData next)
+    {
+        if (currentClass == next) return;
+        currentClass = next;
+        GrantEntryClassSkills();
+        CheckClassSkillUnlock();
+        MarkDirty();
+    }
+
+    public void OnClearQuest(int questRank)
+    {
+        if (!isAlive || questRank < rank) return;
+        if (currentClass == null) return;
+        classClearCounts.TryGetValue(currentClass.id, out var c);
+        classClearCounts[currentClass.id] = c + 1;
+        CheckClassSkillUnlock();
+    }
+
+    // ---- Adventurer rank ----
+    public int RequiredRankPointForNextRank => 10 * Math.Max(1, rank);
+
+    public void AddRankPoints(int amount, out int rankUps)
+    {
+        rankUps = 0;
+        if (!isAlive || amount <= 0) return;
+        rankPoint += amount;
+        while (rankPoint >= RequiredRankPointForNextRank)
+        {
+            rankPoint -= RequiredRankPointForNextRank;
+            rank++;
+            rankUps++;
+        }
+    }
+
+    public int CalcRankPointGain(int questRank) => questRank < rank ? 0 : Math.Max(1, questRank);
+
+    // ---- Exp / Level ----
+    public int RequiredExpForNextLevel => 100 + (level - 1) * 50;
+
+    public bool AddExperience(int amount, out int levelUps)
+    {
+        levelUps = 0;
+        if (!isAlive || amount <= 0) return false;
+        experience += amount;
+        while (experience >= RequiredExpForNextLevel)
+        {
+            experience -= RequiredExpForNextLevel;
+            LevelUp();
+            levelUps++;
+        }
+        return true;
+    }
+
+    void LevelUp()
+    {
+        level++;
+        TryGrow(StatType.Vitality, ref vitality);
+        TryGrow(StatType.Mental, ref mental);
+        TryGrow(StatType.Strength, ref strength);
+        TryGrow(StatType.Agility, ref agility);
+        TryGrow(StatType.Intelligence, ref intelligence);
+    }
+
+    float GetRaceGrowth(StatType t) => race == null ? 0f : t switch
+    {
+        StatType.Vitality => race.vitGrowth,
+        StatType.Mental => race.mentGrowth,
+        StatType.Strength => race.strGrowth,
+        StatType.Agility => race.agiGrowth,
+        StatType.Intelligence => race.intGrowth,
+        _ => 0f,
+    };
+
+    float GetClassGrowth(StatType t) => currentClass == null ? 0f : t switch
+    {
+        StatType.Vitality => currentClass.vitGrowth,
+        StatType.Mental => currentClass.mentGrowth,
+        StatType.Strength => currentClass.strGrowth,
+        StatType.Agility => currentClass.agiGrowth,
+        StatType.Intelligence => currentClass.intGrowth,
+        _ => 0f,
+    };
+
+    void TryGrow(StatType type, ref int stat)
+    {
+        float chance = 0.2f + GetRaceGrowth(type) + GetClassGrowth(type);
+        if (chance <= 0f) return;
+        int loops = (int)Math.Ceiling(chance);
+        for (int i = 0; i < loops; i++)
+        {
+            if (chance >= 1.0f) { stat++; chance -= 1.0f; }
+            else if (GameRandom.NextFloat() < chance) stat++;
+        }
+    }
+
+    // ---- Combat ----
+    int TotalWeight => (weapon?.weight ?? 0) + (armor?.weight ?? 0);
+    int CarryLimit => constitution + (strength + vitality) / 2;
+    float OverweightRate
+    {
+        get
+        {
+            int over = TotalWeight - CarryLimit;
+            if (over <= 0) return 0f;
+            return Math.Clamp(over * 0.1f, 0f, 1f);
+        }
+    }
+
+    public StatBlock GetBaseCombatStats()
+    {
+        return new StatBlock
+        {
+            hp = vitality * 10 + constitution * 5,
+            san = mental * 10,
+            pAtk = strength * 2 + constitution / 2,
+            pDef = constitution,
+            mAtk = intelligence * 2,
+            mDef = mental * 2,
+            hit = agility,
+            evade = agility - constitution / 2,
+            heal = mental + intelligence / 2,
+        };
+    }
+
+    public StatBlock GetEquipmentBonus()
+    {
+        StatBlock b = default;
+        if (weapon != null) b += weapon.bonus;
+        if (armor != null) b += armor.bonus;
+        return b;
+    }
+
+    public StatBlock GetFinalCombatStats()
+    {
+        var s = GetBaseCombatStats() + GetEquipmentBonus();
+        float pCoef = weapon != null ? weapon.physicalCoeff : 1f;
+        float mCoef = weapon?.magicCoeff ?? 0f;
+        float hCoef = weapon?.healCoeff ?? 0f;
+        int flatP = weapon?.flatPhysicalAtk ?? 0;
+        int flatM = weapon?.flatMagicAtk ?? 0;
+        int flatH = weapon?.flatHeal ?? 0;
+
+        s.pAtk = (int)Math.Floor((s.pAtk + flatP) * pCoef);
+        s.mAtk = (int)Math.Floor((s.mAtk + flatM) * mCoef);
+        s.heal = (int)Math.Floor((s.heal + flatH) * hCoef);
+        if (pCoef <= 0f) s.pAtk = 0;
+        if (mCoef <= 0f) s.mAtk = 0;
+        if (hCoef <= 0f) s.heal = 0;
+
+        float r = OverweightRate;
+        if (r > 0f)
+        {
+            s.pAtk = (int)Math.Floor(s.pAtk * (1f - 0.5f * r));
+            s.hit = (int)Math.Floor(s.hit * (1f - 0.8f * r));
+            s.evade = (int)Math.Floor(s.evade * (1f - 0.8f * r));
+        }
+        return s;
+    }
+
+    public string ClassAndRace =>
+        $"{currentClass?.className ?? "？"} / {race?.raceName ?? "？"}";
+}

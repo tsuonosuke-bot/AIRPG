@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v7.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v7.0": {
+      "GuildSimulator.Cli/1.0.0": {
+        "dependencies": {
+          "GuildSimulator.Core": "1.0.0"
+        },
+        "runtime": {
+          "GuildSimulator.Cli.dll": {}
+        }
+      },
+      "GuildSimulator.Core/1.0.0": {
+        "runtime": {
+          "GuildSimulator.Core.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "GuildSimulator.Cli/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "GuildSimulator.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

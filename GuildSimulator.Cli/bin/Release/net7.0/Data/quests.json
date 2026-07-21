@@ -1,0 +1,31 @@
+[
+  {
+    "id": "quest_herb",
+    "questName": "薬草採取",
+    "rank": 1, "totalPhases": 10, "phasesPerTurn": 5,
+    "rewardGold": 50, "rewardGuildPoints": 5, "rewardExp": 50,
+    "dungeonId": "dungeon_meadow", "bossEnemyId": "", "bossPhase": 0,
+    "bossDrops": [], "fixedEvents": []
+  },
+  {
+    "id": "quest_investigate_woods",
+    "questName": "森の調査",
+    "rank": 1, "totalPhases": 5, "phasesPerTurn": 5,
+    "rewardGold": 50, "rewardGuildPoints": 5, "rewardExp": 100,
+    "dungeonId": "dungeon_woods", "bossEnemyId": "", "bossPhase": 0,
+    "bossDrops": [], "fixedEvents": []
+  },
+  {
+    "id": "quest_goblin_slayer",
+    "questName": "ゴブリン討伐",
+    "rank": 1, "totalPhases": 15, "phasesPerTurn": 5,
+    "rewardGold": 80, "rewardGuildPoints": 50, "rewardExp": 100,
+    "dungeonId": "dungeon_woods", "bossEnemyId": "unit_goblin_chief", "bossPhase": 15,
+    "bossDrops": [
+      { "type": 2, "gold": 200, "weight": 0, "unique": false }
+    ],
+    "fixedEvents": [
+      { "phase": 15, "type": 2 }
+    ]
+  }
+]
