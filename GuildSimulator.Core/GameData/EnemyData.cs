@@ -27,7 +27,9 @@ public class EnemyData : IUnitMember
         this.level = level;
     }
 
-    int Scaled(int baseVal) => (int)Math.Floor(baseVal * (double)level);
+    const double GROWTH_PER_LEVEL = 1.3; // レベルごとにステータスを30%ずつ伸ばす複利成長
+
+    int Scaled(int baseVal) => (int)Math.Floor(baseVal * Math.Pow(GROWTH_PER_LEVEL, level - 1));
 
     public StatBlock GetBaseCombatStats()
     {
