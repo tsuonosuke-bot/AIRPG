@@ -59,6 +59,7 @@ static bool RunGame(GameMasterData db)
         Console.WriteLine("  5. 冒険者を雇う");
         Console.WriteLine("  6. 経済ログ");
         Console.WriteLine("  7. 遺物一覧");
+        Console.WriteLine("  8. 商店（装備の購入・売却）");
         Console.WriteLine("  0. 終了");
         Console.Write("\n選択: ");
 
@@ -82,6 +83,7 @@ static bool RunGame(GameMasterData db)
             case "5": RecruitScreen.Show(recruitCandidates, guild, currentTurn); break;
             case "6": ShowEconomyLog(guild); break;
             case "7": RelicScreen.Show(guild); break;
+            case "8": ShopScreen.Show(db, guild); break;
             case "0": Console.WriteLine("ゲーム終了"); return false;
         }
     }

@@ -20,13 +20,18 @@ public static class QuestBoardScreen
             {
                 var e = board[i];
                 var q = e.quest;
-                string boss = q.BossEnemy != null ? " [ボスあり]" : "";
                 string emg = q.isEmergencyQuest ? " [緊急]" : "";
                 int estTurns = (int)Math.Ceiling((double)q.totalPhases / q.phasesPerTurn);
-                Console.WriteLine($"  {i + 1}. 【Rank{q.rank}】{q.questName}  所要:{estTurns}T  Gold:{q.rewardGold} EXP:{q.rewardExp} GP:{q.rewardGuildPoints}{boss}{emg}");
+                var diff = DungeonDifficulty.Evaluate(q);
+
+                Console.WriteLine($"  {i + 1}. 【Rank{q.rank}】{q.questName}  所要:{estTurns}T{emg}");
+                Console.WriteLine($"      難易度 {diff.StarBar}（{diff.label}）  報酬 Gold:{q.rewardGold} EXP:{q.rewardExp} GP:{q.rewardGuildPoints}");
                 if (q.IsGatherQuest)
                     ConsoleHelper.Dim($"      採取: {q.gatherItemName} x{q.gatherTargetCount}（1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還）");
-                ConsoleHelper.Dim($"      場所: {q.Dungeon?.dungeonName ?? "？"}   掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
+                string bossInfo = diff.hasBoss ? $"  ボス:Lv{diff.bossLevel}" : "";
+                ConsoleHelper.Dim($"      場所: {q.Dungeon?.dungeonName ?? "？"}  敵{diff.EnemyLevelRange}"
+                    + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
+                ConsoleHelper.Dim($"      掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
             }
             Console.WriteLine("  0. 戻る");
             Console.Write("受注するクエスト番号: ");
