@@ -38,7 +38,7 @@ public static class BattleResolver
         int actions = 0;
         int round = 0;
 
-        logs.Add($"[Turn {turn}] Phase {phase}: 戦闘開始 冒険者 vs {FirstAliveName(enemySide)}");
+        logs.Add($"[Turn {turn}] Phase {phase}: 戦闘開始 冒険者 vs {DescribeComposition(enemySide)}");
 
         // 格上との遭遇はそれ自体が士気を削る。
         int levelGap = UnitCalculator.AvgLevel(enemySide) - UnitCalculator.AvgLevel(advSide);
@@ -53,8 +53,8 @@ public static class BattleResolver
             round++;
             int partyHpAtRoundStart = SumCurrentHp(advSide);
             int partyDowned = 0;
-            var advCalc = UnitCalculator.CalcPerMember(advSide);
-            var enemyCalc = UnitCalculator.CalcPerMember(enemySide);
+            var advCalc = UnitCalculator.CalcPerMember(advSide, isAllySide: true);
+            var enemyCalc = UnitCalculator.CalcPerMember(enemySide, isAllySide: false);
             if (advCalc.Length == 0 || enemyCalc.Length == 0) break;
 
             var statsByMember = new Dictionary<IUnitMember, StatBlock>();
@@ -168,8 +168,17 @@ public static class BattleResolver
         return (float)atkStat * atkStat / (atkStat + Math.Max(0, defStat));
     }
 
-    static string FirstAliveName(IUnitMember?[] side)
-        => side.FirstOrDefault(a => a != null && a.IsAlive)?.Name ?? "敵";
+    // 敵の内訳（名前・レベル・頭数）をログに残し、戦闘ログだけで強さの見立てができるようにする。
+    static string DescribeComposition(IUnitMember?[] side)
+    {
+        var groups = side.Where(a => a != null && a.IsAlive)
+            .GroupBy(a => (a!.Name, a.Level))
+            .Select(g => g.Count() > 1
+                ? $"{g.Key.Name}(Lv{g.Key.Level})×{g.Count()}"
+                : $"{g.Key.Name}(Lv{g.Key.Level})");
+        var desc = string.Join("、", groups);
+        return desc.Length > 0 ? desc : "敵";
+    }
 
     static bool AnyAlive(IUnitMember?[] side)
         => side.Any(a => a != null && a.IsAlive);

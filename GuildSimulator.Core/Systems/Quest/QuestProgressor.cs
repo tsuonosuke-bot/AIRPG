@@ -56,7 +56,7 @@ public class QuestProgressor
 
                     // 敵は毎回フレッシュな個体なのでここでHPを初期化する。冒険者側はクエスト開始時に
                     // 初期化済みで、フェーズを跨いで持ち越す（QuestManager.TryStartQuest参照）。
-                    foreach (var (m, s) in UnitCalculator.CalcPerMember(enemyI))
+                    foreach (var (m, s) in UnitCalculator.CalcPerMember(enemyI, isAllySide: false))
                     {
                         m.CombatHpMax = s.hp;
                         m.CombatHp = s.hp;
@@ -99,7 +99,7 @@ public class QuestProgressor
                     evTitle = "休息";
                     int before = q.unitHpCurrent;
                     float restMul = RelicSystem.GetRestHealMultiplier();
-                    var perMember = UnitCalculator.CalcPerMember(q.formation.Cast<IUnitMember?>().ToArray());
+                    var perMember = UnitCalculator.CalcPerMember(q.formation.Cast<IUnitMember?>().ToArray(), isAllySide: true);
                     foreach (var (m, s) in perMember)
                     {
                         int baseHeal = (int)Math.Ceiling(Math.Max(1, m.CombatHpMax) * 0.5f);

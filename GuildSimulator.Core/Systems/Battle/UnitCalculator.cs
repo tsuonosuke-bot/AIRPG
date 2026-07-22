@@ -7,7 +7,8 @@ namespace GuildSimulator.Core.Systems.Battle;
 
 public static class UnitCalculator
 {
-    public static UnitStats Calc(IUnitMember?[] members)
+    // isAllySide: レリックのUnitバフは冒険者側にのみ適用する。敵側の計算では常にfalseを渡すこと。
+    public static UnitStats Calc(IUnitMember?[] members, bool isAllySide)
     {
         UnitStats u = default;
         if (members == null) return u;
@@ -36,20 +37,24 @@ public static class UnitCalculator
         u.heal += auraAdd.heal;
         ApplyMulToStats(ref u, auraMul);
 
-        RelicSystem.GetUnitModifiers(out var relicAdd, out var relicMul);
-        u.hp += relicAdd.hp; u.san += relicAdd.san;
-        u.pAtk += relicAdd.pAtk; u.pDef += relicAdd.pDef;
-        u.mAtk += relicAdd.mAtk; u.mDef += relicAdd.mDef;
-        u.hit += relicAdd.hit; u.evade += relicAdd.evade;
-        u.heal += relicAdd.heal;
-        ApplyMulToStats(ref u, relicMul);
+        if (isAllySide)
+        {
+            RelicSystem.GetUnitModifiers(out var relicAdd, out var relicMul);
+            u.hp += relicAdd.hp; u.san += relicAdd.san;
+            u.pAtk += relicAdd.pAtk; u.pDef += relicAdd.pDef;
+            u.mAtk += relicAdd.mAtk; u.mDef += relicAdd.mDef;
+            u.hit += relicAdd.hit; u.evade += relicAdd.evade;
+            u.heal += relicAdd.heal;
+            ApplyMulToStats(ref u, relicMul);
+        }
 
         u.hp = Math.Max(1, u.hp);
         return u;
     }
 
     // 個人単位の最終ステータス。UnitAuraスキルとRelic効果は「合計に1回」ではなく生存メンバー全員に適用する。
-    public static (IUnitMember member, StatBlock stats)[] CalcPerMember(IUnitMember?[] members)
+    // isAllySide: レリックのUnitバフは冒険者側にのみ適用する。敵側の計算では常にfalseを渡すこと。
+    public static (IUnitMember member, StatBlock stats)[] CalcPerMember(IUnitMember?[] members, bool isAllySide)
     {
         if (members == null) return Array.Empty<(IUnitMember, StatBlock)>();
 
@@ -67,7 +72,9 @@ public static class UnitCalculator
             perMemberBase.Add((m, isFront, s));
         }
 
-        RelicSystem.GetUnitModifiers(out var relicAdd, out var relicMul);
+        StatBlock relicAdd = default;
+        StatMultiplier relicMul = StatMultiplier.One;
+        if (isAllySide) RelicSystem.GetUnitModifiers(out relicAdd, out relicMul);
 
         var result = new (IUnitMember member, StatBlock stats)[perMemberBase.Count];
         for (int i = 0; i < perMemberBase.Count; i++)
