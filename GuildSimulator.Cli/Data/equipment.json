@@ -9,6 +9,8 @@
   { "id": "eq_earth_01",   "displayName": "アース",         "type": 0, "weaponType": 7, "armorType": 3, "physicalCoeff": 0.0, "magicCoeff": 1.0, "healCoeff": 0.0, "price": 40, "weight": 5,  "bonus": { "mAtk": 8,  "pDef": 5 } },
   { "id": "eq_dark_01",    "displayName": "シャドウボルト", "type": 0, "weaponType": 8, "armorType": 3, "physicalCoeff": 0.0, "magicCoeff": 1.0, "healCoeff": 0.0, "price": 45, "weight": 3,  "bonus": { "mAtk": 18, "mDef": -5, "evade": -10 } },
   { "id": "eq_Light_01",   "displayName": "ヒール",         "type": 0, "weaponType": 9, "armorType": 3, "physicalCoeff": 0.0, "magicCoeff": 0.0, "healCoeff": 1.0, "price": 40, "weight": 3,  "bonus": { "heal": 20 } },
+  { "id": "eq_dagger_01",  "displayName": "青銅の短剣",     "type": 0, "weaponType": 0, "armorType": 3, "physicalCoeff": 1.0, "magicCoeff": 0.0, "healCoeff": 0.0, "price": 25,  "weight": 2,  "bonus": { "pAtk": 3,  "hit": 10 } },
+  { "id": "eq_sling_01",   "displayName": "投石",           "type": 0, "weaponType": 3, "armorType": 3, "physicalCoeff": 1.0, "magicCoeff": 0.0, "healCoeff": 0.0, "price": 25,  "weight": 2,  "bonus": { "pAtk": 4,  "hit": 8  } },
 
   { "id": "eq_sword_02",   "displayName": "鋼の剣",        "type": 0, "weaponType": 0, "armorType": 3, "physicalCoeff": 1.25, "magicCoeff": 0.0, "healCoeff": 0.0, "price": 140, "weight": 4,  "bonus": { "pAtk": 12, "hit": 5  } },
   { "id": "eq_spear_02",   "displayName": "鋼の長槍",      "type": 0, "weaponType": 2, "armorType": 3, "physicalCoeff": 1.25, "magicCoeff": 0.0, "healCoeff": 0.0, "price": 150, "weight": 6,  "bonus": { "pAtk": 16, "hit": -10 } },

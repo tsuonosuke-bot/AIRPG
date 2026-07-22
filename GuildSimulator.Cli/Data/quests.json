@@ -180,5 +180,53 @@
     "fixedEvents": [
       { "phase": 18, "type": 2 }
     ]
+  },
+
+  {
+    "id": "quest_deep_woods_scout",
+    "questName": "森林深部の偵察",
+    "rank": 2, "totalPhases": 12, "phasesPerTurn": 5,
+    "rewardGold": 150, "rewardGuildPoints": 15, "rewardExp": 220,
+    "dungeonId": "dungeon_deep_woods", "bossEnemyId": "", "bossPhase": 0,
+    "bossDrops": [], "fixedEvents": []
+  },
+  {
+    "id": "quest_kernos_hunt",
+    "questName": "ケルノスビースト討伐",
+    "rank": 2, "totalPhases": 16, "phasesPerTurn": 5,
+    "rewardGold": 350, "rewardGuildPoints": 70, "rewardExp": 380,
+    "dungeonId": "dungeon_deep_woods", "bossEnemyId": "unit_kernos_beast", "bossPhase": 16,
+    "bossDrops": [
+      { "type": 0, "relicId": "relic_whetstone", "weight": 0, "unique": true },
+      { "type": 2, "gold": 500, "weight": 0, "unique": false }
+    ],
+    "fixedEvents": [
+      { "phase": 16, "type": 2 }
+    ]
+  },
+
+  {
+    "id": "quest_old_city_relic",
+    "questName": "旧市街の遺産探索",
+    "rank": 2, "totalPhases": 14, "phasesPerTurn": 5,
+    "rewardGold": 150, "rewardGuildPoints": 15, "rewardExp": 260,
+    "dungeonId": "dungeon_old_city", "bossEnemyId": "", "bossPhase": 0,
+    "gatherItemName": "錆びた遺物の欠片", "gatherTargetCount": 12,
+    "gatherMinPerEvent": 1, "gatherMaxPerEvent": 3, "gatherChance": 0.45, "gatherGoldPerItem": 20,
+    "bossDrops": [], "fixedEvents": []
+  },
+  {
+    "id": "quest_old_city_garrison",
+    "questName": "旧市街守備隊殲滅",
+    "rank": 2, "totalPhases": 16, "phasesPerTurn": 5,
+    "rewardGold": 380, "rewardGuildPoints": 75, "rewardExp": 400,
+    "dungeonId": "dungeon_old_city", "bossEnemyId": "unit_goblin_garrison", "bossPhase": 16,
+    "bossDrops": [
+      { "type": 0, "relicId": "relic_charm", "weight": 0, "unique": true },
+      { "type": 2, "gold": 500, "weight": 0, "unique": false }
+    ],
+    "fixedEvents": [
+      { "phase": 16, "type": 2 }
+    ]
   }
 ]
