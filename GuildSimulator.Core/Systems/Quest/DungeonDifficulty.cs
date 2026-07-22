@@ -62,8 +62,13 @@ public static class DungeonDifficulty
         }
 
         // --- ボス ---
+        // ボスも bossPhase の深さでスケーリングを受ける（QuestProgressor.AdvanceOnePhase と同じ計算式）。
         r.hasBoss = q.BossEnemy != null;
-        r.bossLevel = q.BossEnemy?.baseLevel ?? 0;
+        if (r.hasBoss)
+        {
+            int bossScale = d != null ? (int)Math.Floor((q.bossPhase - 1) * d.enemyLevelPerPhase) : 0;
+            r.bossLevel = Math.Max(1, q.BossEnemy!.baseLevel + Math.Max(0, bossScale));
+        }
 
         // --- 総合スコア ---
         // クエストランクを土台に、戦闘頻度・罠・敵Lv・ボスで上積みする。

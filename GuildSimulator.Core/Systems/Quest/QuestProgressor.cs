@@ -42,10 +42,14 @@ public class QuestProgressor
                         evTitle = "敵遭遇"; evResult = "敵テーブルが空（スキップ）"; break;
                     }
 
-                    // ボスは自身の baseLevel を尊重（フェーズスケールしない）。通常エンカのみ深部で強化。
+                    // ボスも通常エンカと同じ深部スケーリングを受ける。ボスは常に bossPhase の深さで固定し、
+                    // 通常エンカだけが遭遇したフェーズ相応にスケールする。
                     int enemyLevel = enemyTpl.baseLevel;
-                    if (!isBoss && q.def.Dungeon != null)
-                        enemyLevel += (int)Math.Floor((phase - 1) * q.def.Dungeon.enemyLevelPerPhase);
+                    if (q.def.Dungeon != null)
+                    {
+                        int scalePhase = isBoss ? q.def.bossPhase : phase;
+                        enemyLevel += (int)Math.Floor((scalePhase - 1) * q.def.Dungeon.enemyLevelPerPhase);
+                    }
                     enemyLevel = Math.Max(1, enemyLevel);
 
                     evTitle = isBoss ? $"ボス遭遇：{enemyTpl.unitName}" : $"敵遭遇：{enemyTpl.unitName}(Lv{enemyLevel})";
