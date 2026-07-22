@@ -11,7 +11,7 @@
       "Treasure": 1,
       "Heal": 1
     },
-    "enemyLevelPerPhase": 0.1,
+    "enemyLevelPerPhase": 0.15,
     "encounterTable": [
       { "unitId": "unit_slime_single",     "weight": 4, "minPhase": 1, "maxPhase": 0 },
       { "unitId": "unit_slime_pair",       "weight": 3, "minPhase": 3, "maxPhase": 0 },
@@ -94,7 +94,7 @@
       "Treasure": 2,
       "Heal": 3
     },
-    "enemyLevelPerPhase": 0.2,
+    "enemyLevelPerPhase": 0.15,
     "encounterTable": [
       { "unitId": "unit_bandit_lookout", "weight": 4, "minPhase": 1, "maxPhase": 0 },
       { "unitId": "unit_bandit_ambush",  "weight": 3, "minPhase": 4, "maxPhase": 0 },
@@ -132,7 +132,7 @@
       "Treasure": 3,
       "Heal": 1
     },
-    "enemyLevelPerPhase": 0.2,
+    "enemyLevelPerPhase": 0.15,
     "encounterTable": [
       { "unitId": "unit_bat_flock",      "weight": 4, "minPhase": 1, "maxPhase": 0 },
       { "unitId": "unit_rat_pack",       "weight": 4, "minPhase": 1, "maxPhase": 0 },
@@ -174,7 +174,7 @@
       "Treasure": 3,
       "Heal": 1
     },
-    "enemyLevelPerPhase": 0.25,
+    "enemyLevelPerPhase": 0.15,
     "encounterTable": [
       { "unitId": "unit_skeleton_pair",  "weight": 4, "minPhase": 1, "maxPhase": 0 },
       { "unitId": "unit_zombie_horde",   "weight": 3, "minPhase": 1, "maxPhase": 0 },
