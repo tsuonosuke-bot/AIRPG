@@ -11,7 +11,7 @@ public static class DungeonDifficulty
 {
     public class Rating
     {
-        public int stars;            // 1..5
+        public double score;         // 難易度の総合スコア（下限なし、段階数に縛られない目安値）
         public string label = "";
         public float combatChance;   // 1フェーズあたりの敵遭遇率 0..1
         public float trapChance;     // 1フェーズあたりの罠率 0..1
@@ -20,8 +20,6 @@ public static class DungeonDifficulty
         public bool hasBoss;
         public int bossLevel;
         public float expectedFights; // 見込み戦闘回数（ボス除く）
-
-        public string StarBar => new string('★', stars) + new string('☆', 5 - stars);
 
         public string EnemyLevelRange =>
             enemyLevelMax <= 0 ? "―"
@@ -67,29 +65,22 @@ public static class DungeonDifficulty
         r.hasBoss = q.BossEnemy != null;
         r.bossLevel = q.BossEnemy?.baseLevel ?? 0;
 
-        // --- 総合スコア → 星（1..5）---
+        // --- 総合スコア ---
         // クエストランクを土台に、戦闘頻度・罠・敵Lv・ボスで上積みする。
-        double score =
+        // 段階数に縛られる星評価はやめ、連続値のスコアとラベルで表す。
+        r.score =
             q.rank * 4.0
           + r.combatChance * 100 * 0.35
           + r.trapChance * 100 * 0.20
           + r.enemyLevelMax * 1.2
           + (r.hasBoss ? 8 : 0);
 
-        r.stars = score switch
+        r.label = r.score switch
         {
-            < 18 => 1,
-            < 26 => 2,
-            < 34 => 3,
-            < 42 => 4,
-            _ => 5,
-        };
-        r.label = r.stars switch
-        {
-            1 => "楽勝",
-            2 => "軽め",
-            3 => "標準",
-            4 => "危険",
+            < 18 => "楽勝",
+            < 26 => "軽め",
+            < 34 => "標準",
+            < 42 => "危険",
             _ => "過酷",
         };
         return r;
