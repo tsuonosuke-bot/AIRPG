@@ -46,7 +46,8 @@ static bool RunGame(GameMasterData db)
     while (true)
     {
         ConsoleHelper.Header($"ギルドシミュレーター  Turn {currentTurn}");
-        Console.WriteLine($"  Gold: {guild.Gold}G   ギルドランク: {guild.GuildRank}   GP: {guild.GuildPoints}");
+        int upkeepPerTurn = guild.adventurers.Where(a => a.isAlive).Sum(a => a.master.upkeepGold);
+        Console.WriteLine($"  Gold: {guild.Gold}G（維持費 {upkeepPerTurn}G/T）   ギルドランク: {guild.GuildRank}   GP: {guild.GuildPoints}");
         Console.WriteLine($"  冒険者: {guild.adventurers.Count}人   進行中クエスト: {questManager.activeQuests.Count}件");
         Console.WriteLine($"  クエストボード: {questManager.questBoard.Count}/{questManager.BoardCapacity}枚   遺物: {guild.relics.Count}個");
         Console.WriteLine($"  雇入れ候補: {recruitCandidates.Count}人（ターン終了で入れ替わり）");
@@ -58,6 +59,7 @@ static bool RunGame(GameMasterData db)
         Console.WriteLine("  5. 冒険者を雇う");
         Console.WriteLine("  6. 経済ログ");
         Console.WriteLine("  7. 遺物一覧");
+        Console.WriteLine("  8. 商店（装備の購入・売却）");
         Console.WriteLine("  0. 終了");
         Console.Write("\n選択: ");
 
@@ -67,11 +69,13 @@ static bool RunGame(GameMasterData db)
         switch (input.Trim())
         {
             case "1":
-                bool gameOver = NextTurn(guild, questManager, ref currentTurn);
-                if (gameOver) return ShowGameOver(currentTurn);
+                NextTurn(guild, questManager, ref currentTurn);
                 questManager.RefreshBoard(db.allQuests, currentTurn);
                 recruitCandidates = DrawCandidates(db.allAdventurers, guild, CandidateCount);
+                // 報酬を先に受け取ってから破産チェック（維持費と報酬が同ターンに確定するため）。
                 ShowQuestsNeedingAttention(questManager, guild);
+                if (guild.Gold <= 0)
+                    return ShowGameOver(currentTurn);
                 break;
             case "2": QuestBoardScreen.Show(questManager, guild, currentTurn); break;
             case "3": ActiveQuestScreen.Show(questManager, guild); break;
@@ -79,6 +83,7 @@ static bool RunGame(GameMasterData db)
             case "5": RecruitScreen.Show(recruitCandidates, guild, currentTurn); break;
             case "6": ShowEconomyLog(guild); break;
             case "7": RelicScreen.Show(guild); break;
+            case "8": ShopScreen.Show(db, guild); break;
             case "0": Console.WriteLine("ゲーム終了"); return false;
         }
     }
@@ -138,19 +143,12 @@ static void ShowQuestsNeedingAttention(QuestManager qm, GuildManager guild)
         ActiveQuestScreen.HandleQuest(q, qm, guild);
 }
 
-static bool NextTurn(GuildManager guild, QuestManager questManager, ref int currentTurn)
+static void NextTurn(GuildManager guild, QuestManager questManager, ref int currentTurn)
 {
     currentTurn++;
     questManager.AdvanceAll(currentTurn);
     guild.PayUpkeepForAll(currentTurn);
     ConsoleHelper.Info($"Turn {currentTurn} が始まりました");
-    if (guild.Gold <= 0)
-    {
-        ConsoleHelper.Error($"破産しました！ ゲームオーバー（Turn {currentTurn}）");
-        ConsoleHelper.PressAnyKey();
-        return true;
-    }
-    return false;
 }
 
 static void ShowEconomyLog(GuildManager guild)

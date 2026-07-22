@@ -1,0 +1,15 @@
+# Build output (debug only — release binaries are intentionally committed)
+**/bin/Debug/
+**/obj/
+
+# OS / editor
+.DS_Store
+*.user
+.vs/
+.vscode/
+.idea/
+
+# Temp / install files
+*.deb
+*.bak
+packages-microsoft-prod.deb

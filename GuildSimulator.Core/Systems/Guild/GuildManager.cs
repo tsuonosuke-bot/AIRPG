@@ -98,5 +98,15 @@ public class GuildManager
         return true;
     }
 
+    /// <summary>買値の半額で売却する。売値は最低1G。</summary>
+    public static int SellPrice(EquipmentMasterData item) => Math.Max(1, item.price / 2);
+
+    public bool TrySellEquipment(EquipmentMasterData item, int amount = 1)
+    {
+        if (!TryConsumeEquipment(item, amount)) return false;
+        AddGold(SellPrice(item) * amount, $"売却: {item.displayName} x{amount}");
+        return true;
+    }
+
     public IReadOnlyList<EquipmentStack> GetInventoryView() => inventory;
 }
