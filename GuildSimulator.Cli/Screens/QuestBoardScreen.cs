@@ -22,7 +22,8 @@ public static class QuestBoardScreen
                 var q = e.quest;
                 string boss = q.BossEnemy != null ? " [ボスあり]" : "";
                 string emg = q.isEmergencyQuest ? " [緊急]" : "";
-                Console.WriteLine($"  {i + 1}. 【Rank{q.rank}】{q.questName}  フェーズ:{q.totalPhases} Gold:{q.rewardGold} EXP:{q.rewardExp} GP:{q.rewardGuildPoints}{boss}{emg}");
+                int estTurns = (int)Math.Ceiling((double)q.totalPhases / q.phasesPerTurn);
+                Console.WriteLine($"  {i + 1}. 【Rank{q.rank}】{q.questName}  所要:{estTurns}T  Gold:{q.rewardGold} EXP:{q.rewardExp} GP:{q.rewardGuildPoints}{boss}{emg}");
                 if (q.IsGatherQuest)
                     ConsoleHelper.Dim($"      採取: {q.gatherItemName} x{q.gatherTargetCount}（1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還）");
                 ConsoleHelper.Dim($"      場所: {q.Dungeon?.dungeonName ?? "？"}   掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
