@@ -83,7 +83,7 @@ public class QuestProgressor
                         {
                             if (a == null || !a.isAlive) continue;
                             if (a.AddExperience(totalExp, out var ups))
-                                q.logs.Add($"  {a.name} EXP +{totalExp}（LvUp +{ups}）");
+                                q.logs.Add($"  {a.name} 経験値 +{totalExp}（レベルアップ +{ups}）");
                         }
                     }
                     else if (advWiped)
@@ -266,7 +266,7 @@ public class QuestProgressor
 
     static string DescribeLoot(RewardEntryData e) => e.type switch
     {
-        RewardType.Gold => $"Gold {e.gold}",
+        RewardType.Gold => $"資金 {e.gold}G",
         RewardType.Relic => $"遺物「{e.Relic?.relicName ?? "?"}」",
         RewardType.Equipment => $"装備「{e.Equipment?.displayName ?? "?"}」",
         RewardType.Skill => $"スキル「{e.Skill?.skillName ?? "?"}」",

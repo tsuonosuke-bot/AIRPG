@@ -38,7 +38,8 @@ public class QuestRewardService
                 if (picked == null) break;
                 var opt = ToOption(picked);
                 if (opt == null) continue;
-                if (picked.unique && IsAlreadyOwned(opt, options, guild)) continue;
+                if (IsDuplicateChoice(opt, options)) continue;
+                if (picked.unique && IsAlreadyOwned(opt, guild)) continue;
                 options.Add(opt);
             }
         }
@@ -48,6 +49,7 @@ public class QuestRewardService
         if (options.Count > choiceCount)
             options = options.Take(choiceCount).ToList();
 
+        BalanceEquipmentQuantities(options, q);
         return options;
     }
 
@@ -66,20 +68,20 @@ public class QuestRewardService
 
         int gold = (int)Math.Floor((baseGold + gatherGold) * rate * RelicSystem.GetGoldRewardMultiplier());
         guild.AddGold(gold, $"クエスト報酬: {q.def.questName}");
-        q.logs.Add($"{prefix} Gold +{gold}（Base {baseGold}{(gatherGold > 0 ? $" + 買取 {gatherGold}" : "")}）");
+        q.logs.Add($"{prefix} 資金 +{gold}G（基本 {baseGold}{(gatherGold > 0 ? $" + 買取 {gatherGold}" : "")}）");
 
         int questExp = (int)Math.Floor(q.def.rewardExp * rate);
         foreach (var a in q.formation.Where(x => x != null))
         {
             a!.AddExperience(questExp, out var ups);
-            q.logs.Add($"{prefix} {a.name} EXP +{questExp}（LvUp +{ups}）");
+            q.logs.Add($"{prefix} {a.name} 経験値 +{questExp}（レベルアップ +{ups}）");
         }
 
         // ギルドポイントは達成の証なので撤退では入らない。
         if (q.def.rewardGuildPoints != 0 && !q.retreated)
         {
             guild.AddGuildPoints(q.def.rewardGuildPoints, $"クエストGP: {q.def.questName}");
-            q.logs.Add($"{prefix} GP +{q.def.rewardGuildPoints}");
+            q.logs.Add($"{prefix} ギルドポイント +{q.def.rewardGuildPoints}");
         }
     }
 
@@ -92,7 +94,7 @@ public class QuestRewardService
             {
                 case RewardType.Gold:
                     guild.AddGold(e.gold, $"宝箱: {q.def.questName}");
-                    q.logs.Add($"{prefix} 宝箱 Gold +{e.gold}");
+                    q.logs.Add($"{prefix} 宝箱 資金 +{e.gold}G");
                     break;
                 case RewardType.Relic:
                     if (e.Relic == null) break;
@@ -120,13 +122,18 @@ public class QuestRewardService
                 if (opt.relic != null) { guild.AddRelic(opt.relic, q.def.questName); q.logs.Add($"[選択報酬] 遺物: {opt.relic.relicName}"); }
                 break;
             case RewardType.Equipment:
-                if (opt.equipment != null) { guild.AddEquipment(opt.equipment, 1, "報酬"); q.logs.Add($"[選択報酬] 装備: {opt.equipment.displayName}"); }
+                if (opt.equipment != null)
+                {
+                    int quantity = Math.Max(1, opt.quantity);
+                    guild.AddEquipment(opt.equipment, quantity, "報酬");
+                    q.logs.Add($"[選択報酬] 装備: {opt.equipment.displayName} x{quantity}");
+                }
                 break;
             case RewardType.Skill:
                 if (opt.skill != null) q.logs.Add($"[選択報酬] スキル: {opt.skill.skillName}（未実装）");
                 break;
             case RewardType.Gold:
-                guild.AddGold(opt.gold, $"選択報酬: {q.def.questName}"); q.logs.Add($"[選択報酬] Gold +{opt.gold}");
+                guild.AddGold(opt.gold, $"選択報酬: {q.def.questName}"); q.logs.Add($"[選択報酬] 資金 +{opt.gold}G");
                 break;
         }
     }
@@ -146,12 +153,34 @@ public class QuestRewardService
         return null;
     }
 
-    bool IsAlreadyOwned(RewardOption opt, List<RewardOption> options, GuildManager guild)
+    static void BalanceEquipmentQuantities(List<RewardOption> options, QuestRun q)
     {
-        bool inOptions = options.Any(o =>
+        int largestGoldChoice = options
+            .Where(o => o.type == RewardType.Gold)
+            .Select(o => o.gold)
+            .DefaultIfEmpty(0)
+            .Max();
+        int targetValue = Math.Max(largestGoldChoice, Math.Max(20, q.def.rewardGold / 2));
+
+        foreach (var opt in options.Where(o => o.type == RewardType.Equipment && o.equipment != null))
+        {
+            int unitValue = Math.Max(1, opt.equipment!.price);
+            opt.quantity = Math.Clamp(
+                (int)Math.Ceiling((double)targetValue / unitValue),
+                1,
+                4);
+        }
+    }
+
+    static bool IsDuplicateChoice(RewardOption opt, List<RewardOption> options) =>
+        options.Any(o =>
             (opt.type == RewardType.Relic && o.type == RewardType.Relic && o.relic == opt.relic) ||
-            (opt.type == RewardType.Equipment && o.type == RewardType.Equipment && o.equipment == opt.equipment));
-        if (inOptions) return true;
+            (opt.type == RewardType.Equipment && o.type == RewardType.Equipment && o.equipment == opt.equipment) ||
+            (opt.type == RewardType.Skill && o.type == RewardType.Skill && o.skill == opt.skill) ||
+            (opt.type == RewardType.Gold && o.type == RewardType.Gold && o.gold == opt.gold));
+
+    static bool IsAlreadyOwned(RewardOption opt, GuildManager guild)
+    {
         if (opt.type == RewardType.Relic && opt.relic != null && guild.relics.Contains(opt.relic)) return true;
         return false;
     }

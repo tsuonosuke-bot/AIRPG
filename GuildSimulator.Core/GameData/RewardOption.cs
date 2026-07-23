@@ -10,13 +10,16 @@ public class RewardOption
     public EquipmentMasterData? equipment;
     public SkillMasterData? skill;
     public int gold;
+    public int quantity = 1;
 
     public string Title => type switch
     {
         RewardType.Relic => relic != null ? $"遺物：{relic.relicName}" : "遺物",
-        RewardType.Equipment => equipment != null ? $"装備：{equipment.displayName}" : "装備",
+        RewardType.Equipment => equipment != null
+            ? $"装備：{equipment.displayName}{(quantity > 1 ? $" x{quantity}" : "")}"
+            : "装備",
         RewardType.Skill => skill != null ? $"スキル：{skill.skillName}" : "スキル",
-        RewardType.Gold => $"Gold +{gold}",
+        RewardType.Gold => $"資金 +{gold}G",
         _ => type.ToString(),
     };
 
@@ -24,7 +27,7 @@ public class RewardOption
     public string Detail => type switch
     {
         RewardType.Relic => relic != null ? DescribeRelic(relic) : "",
-        RewardType.Equipment => equipment != null ? DescribeEquipment(equipment) : "",
+        RewardType.Equipment => equipment != null ? DescribeEquipment(equipment, quantity) : "",
         RewardType.Skill => skill != null ? DescribeSkill(skill) : "",
         _ => "",
     };
@@ -38,26 +41,38 @@ public class RewardOption
         {
             RelicEffectType.Unit_AddFlat => $"ユニットに {DescribeStatBlock(r.add)}",
             RelicEffectType.Unit_Multiply => $"ユニットの {DescribeStatMul(r.mul)}",
-            RelicEffectType.GoldReward_Multiply => $"クエスト報酬Goldが {r.rate:0.##}倍",
+            RelicEffectType.GoldReward_Multiply => $"クエスト報酬の資金が {r.rate:0.##}倍",
             RelicEffectType.Upkeep_Multiply => $"維持費が {r.rate:0.##}倍",
             RelicEffectType.RestHeal_Multiply => $"休息時の回復量が {r.rate:0.##}倍",
             _ => "",
         };
     }
 
-    static string DescribeEquipment(EquipmentMasterData e)
+    static string DescribeEquipment(EquipmentMasterData e, int quantity)
     {
         var parts = new List<string>();
-        if (e.physicalCoeff > 0f) parts.Add($"物理係数 x{e.physicalCoeff:0.##}");
-        if (e.magicCoeff > 0f) parts.Add($"魔法係数 x{e.magicCoeff:0.##}");
-        if (e.healCoeff > 0f) parts.Add($"回復係数 x{e.healCoeff:0.##}");
-        if (e.flatPhysicalAtk != 0) parts.Add($"pAtk+{e.flatPhysicalAtk}");
-        if (e.flatMagicAtk != 0) parts.Add($"mAtk+{e.flatMagicAtk}");
-        if (e.flatHeal != 0) parts.Add($"heal+{e.flatHeal}");
+        if (e.type == EquipmentType.Weapon)
+        {
+            if (e.physicalCoeff > 0f && Math.Abs(e.physicalCoeff - 1f) > 0.001f)
+                parts.Add($"物理係数 x{e.physicalCoeff:0.##}");
+            if (e.magicCoeff > 0f && Math.Abs(e.magicCoeff - 1f) > 0.001f)
+                parts.Add($"魔法係数 x{e.magicCoeff:0.##}");
+            if (e.healCoeff > 0f && Math.Abs(e.healCoeff - 1f) > 0.001f)
+                parts.Add($"回復係数 x{e.healCoeff:0.##}");
+        }
+        AddSigned(parts, "物理攻撃", e.flatPhysicalAtk);
+        AddSigned(parts, "魔法攻撃", e.flatMagicAtk);
+        AddSigned(parts, "回復力", e.flatHeal);
         string bonus = DescribeStatBlock(e.bonus);
         if (bonus.Length > 0) parts.Add(bonus);
         parts.Add($"重量{e.weight}");
+        parts.Add($"商店価格計 {e.price * Math.Max(1, quantity)}G");
         return string.Join(" / ", parts);
+    }
+
+    static void AddSigned(List<string> parts, string label, int value)
+    {
+        if (value != 0) parts.Add($"{label}{(value > 0 ? "+" : "")}{value}");
     }
 
     static string DescribeSkill(SkillMasterData s)
@@ -79,10 +94,10 @@ public class RewardOption
     {
         var parts = new List<string>();
         void Add(string label, int v) { if (v != 0) parts.Add($"{label}{(v > 0 ? "+" : "")}{v}"); }
-        Add("HP", b.hp); Add("SAN", b.san);
-        Add("pAtk", b.pAtk); Add("pDef", b.pDef);
-        Add("mAtk", b.mAtk); Add("mDef", b.mDef);
-        Add("hit", b.hit); Add("evade", b.evade); Add("heal", b.heal);
+        Add("HP", b.hp); Add("士気", b.san);
+        Add("物理攻撃", b.pAtk); Add("物理防御", b.pDef);
+        Add("魔法攻撃", b.mAtk); Add("魔法防御", b.mDef);
+        Add("命中", b.hit); Add("回避", b.evade); Add("回復力", b.heal);
         return string.Join(" ", parts);
     }
 
@@ -90,10 +105,10 @@ public class RewardOption
     {
         var parts = new List<string>();
         void Add(string label, float v) { if (v != 0f && Math.Abs(v - 1f) > 0.001f) parts.Add($"{label} x{v:0.##}"); }
-        Add("HP", m.hp); Add("SAN", m.san);
-        Add("pAtk", m.pAtk); Add("pDef", m.pDef);
-        Add("mAtk", m.mAtk); Add("mDef", m.mDef);
-        Add("hit", m.hit); Add("evade", m.evade); Add("heal", m.heal);
+        Add("HP", m.hp); Add("士気", m.san);
+        Add("物理攻撃", m.pAtk); Add("物理防御", m.pDef);
+        Add("魔法攻撃", m.mAtk); Add("魔法防御", m.mDef);
+        Add("命中", m.hit); Add("回避", m.evade); Add("回復力", m.heal);
         return string.Join(" ", parts);
     }
 }

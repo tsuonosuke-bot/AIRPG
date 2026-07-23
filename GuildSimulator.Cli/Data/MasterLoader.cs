@@ -168,7 +168,7 @@ public static class MasterLoader
                 id = q.id, questName = q.questName, rank = q.rank, totalPhases = q.totalPhases,
                 phasesPerTurn = q.phasesPerTurn > 0 ? q.phasesPerTurn : 5,
                 rewardGold = q.rewardGold, rewardGuildPoints = q.rewardGuildPoints, rewardExp = q.rewardExp,
-                isEmergencyQuest = q.isEmergencyQuest, rankUpOnClear = q.rankUpOnClear,
+                isEmergencyQuest = q.isEmergencyQuest, rankUpOnClear = q.rankUpOnClear, requiredGuildPoints = q.requiredGuildPoints,
                 bossPhase = q.bossPhase, bossDropsAreGuaranteed = q.bossDropsAreGuaranteed,
                 gatherItemName = q.gatherItemName ?? "",
                 gatherTargetCount = q.gatherTargetCount,
@@ -188,10 +188,14 @@ public static class MasterLoader
         var advs = Load<List<AdvJson>>(dataDir, "adventurers.json");
         foreach (var a in advs)
         {
+            int recruitGuildRank = Math.Max(1, a.recruitGuildRank ?? RecruitGuildRankForLevel(a.defaultLevel));
+            int recruitWeight = Math.Max(0, a.recruitWeight ?? DefaultRecruitWeight(recruitGuildRank));
             var ad = new AdventurerMasterData
             {
                 id = a.id, baseName = a.baseName, upkeepGold = a.upkeepGold,
                 defaultLevel = a.defaultLevel, defaultRank = a.defaultRank,
+                recruitGuildRank = recruitGuildRank,
+                recruitWeight = recruitWeight,
                 vitality = a.vitality, mental = a.mental, strength = a.strength,
                 agility = a.agility, intelligence = a.intelligence,
                 constitution = a.constitution, appearance = a.appearance,
@@ -210,6 +214,24 @@ public static class MasterLoader
 
         return db;
     }
+
+    static int RecruitGuildRankForLevel(int level) => level switch
+    {
+        <= 1 => 1,
+        <= 3 => 2,
+        <= 7 => 3,
+        <= 11 => 4,
+        _ => 5,
+    };
+
+    static int DefaultRecruitWeight(int recruitGuildRank) => recruitGuildRank switch
+    {
+        <= 1 => 100,
+        2 => 60,
+        3 => 40,
+        4 => 20,
+        _ => 10,
+    };
 
     static RewardEntryData ResolveRewardEntry(RewardEntryJson re, GameMasterData db)
     {
@@ -287,12 +309,13 @@ public static class MasterLoader
     record QuestPhaseEventJson(int phase, int type);
     record QuestJson(string id, string questName, int rank, int totalPhases, int phasesPerTurn,
         int rewardGold, int rewardGuildPoints,
-        int rewardExp, bool isEmergencyQuest, int rankUpOnClear, string? dungeonId, string? bossEnemyId,
+        int rewardExp, bool isEmergencyQuest, int rankUpOnClear, int requiredGuildPoints, string? dungeonId, string? bossEnemyId,
         int bossPhase, bool bossDropsAreGuaranteed, List<RewardEntryJson>? bossDrops, List<QuestPhaseEventJson>? fixedEvents,
         string? gatherItemName, int gatherTargetCount, int gatherMinPerEvent, int gatherMaxPerEvent,
         float gatherChance, int gatherGoldPerItem);
 
     record AdvJson(string id, string baseName, int upkeepGold, int defaultLevel, int defaultRank,
+        int? recruitGuildRank, int? recruitWeight,
         int vitality, int mental, int strength, int agility, int intelligence, int constitution, int appearance,
         string? defaultClassId, string? raceId, string? defaultWeaponId, string? defaultArmorId, List<string>? skillIds);
 }

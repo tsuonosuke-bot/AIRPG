@@ -11,7 +11,7 @@ public static class RecruitScreen
         while (true)
         {
             ConsoleHelper.Header($"冒険者雇入れ  （Turn {currentTurn} の候補）");
-            Console.WriteLine($"  所持Gold: {guild.Gold}G   在籍冒険者: {guild.adventurers.Count}人");
+            Console.WriteLine($"  所持金: {guild.Gold}G   在籍冒険者: {guild.adventurers.Count}人");
             Console.WriteLine($"  ※候補は次のターンで入れ替わります");
             Console.WriteLine();
 
@@ -28,9 +28,16 @@ public static class RecruitScreen
                 bool alreadyHired = guild.adventurers.Any(a => a.master == m);
                 int hireCost = CalcHireCost(m);
                 string tag = alreadyHired ? " [雇用済]" : $"  雇用費: {hireCost}G";
-                Console.WriteLine($"  {i + 1}. {m.baseName}  Lv{m.defaultLevel} Rank{m.defaultRank}  {m.DefaultClass?.className ?? "？"}/{m.Race?.raceName ?? "？"}  維持費{m.upkeepGold}G/T{tag}");
+                int candidateAfterHire = guild.Gold - hireCost;
+                int adventurerUpkeep = GuildManager.CalculateAdventurerUpkeep(m.defaultLevel);
+                int candidateUpkeep = GuildManager.CalculateEffectiveUpkeep(guild.BaseUpkeepPerTurn + adventurerUpkeep);
+                int candidateSafeTurns = GuildManager.SafeUpkeepTurns(candidateAfterHire, candidateUpkeep);
+                string runway = candidateSafeTurns == int.MaxValue ? "∞" : candidateSafeTurns.ToString();
+                Console.WriteLine($"  {i + 1}. {m.baseName}  Lv{m.defaultLevel} Rank{m.defaultRank}  {m.DefaultClass?.className ?? "？"}/{m.Race?.raceName ?? "？"}  {RecruitRarityLabel(m.recruitWeight)}  維持費{adventurerUpkeep}G/T{tag}");
                 Console.WriteLine($"       VIT:{m.vitality} MEN:{m.mental} STR:{m.strength} AGI:{m.agility} INT:{m.intelligence} CON:{m.constitution}");
                 Console.WriteLine($"       武器:{m.DefaultWeapon?.displayName ?? "なし"}  防具:{m.DefaultArmor?.displayName ?? "なし"}");
+                if (!alreadyHired && candidateAfterHire >= 0)
+                    ConsoleHelper.Dim($"       雇用後: {candidateAfterHire}G  合計維持費:{candidateUpkeep}G/T  資金猶予:{runway}T");
             }
 
             Console.WriteLine("  0. 戻る");
@@ -49,11 +56,17 @@ public static class RecruitScreen
             int cost = CalcHireCost(chosen);
             if (guild.Gold < cost)
             {
-                ConsoleHelper.Error($"Goldが不足しています（必要: {cost}G  所持: {guild.Gold}G）");
+                ConsoleHelper.Error($"資金が不足しています（必要: {cost}G  所持: {guild.Gold}G）");
                 ConsoleHelper.PressAnyKey();
                 continue;
             }
 
+            int afterHire = guild.Gold - cost;
+            int chosenUpkeep = GuildManager.CalculateAdventurerUpkeep(chosen.defaultLevel);
+            int projectedUpkeep = GuildManager.CalculateEffectiveUpkeep(guild.BaseUpkeepPerTurn + chosenUpkeep);
+            int safeTurns = GuildManager.SafeUpkeepTurns(afterHire, projectedUpkeep);
+            if (safeTurns <= 1)
+                ConsoleHelper.Warn($"  ⚠ 雇用後の資金猶予は{safeTurns}ターンです（報酬収入を除く）");
             Console.WriteLine($"\n  {chosen.baseName} を {cost}G で雇いますか？");
             if (!ConsoleHelper.Confirm("確認")) continue;
 
@@ -67,5 +80,14 @@ public static class RecruitScreen
     }
 
     public static int CalcHireCost(AdventurerMasterData m)
-        => Math.Max(10, m.upkeepGold * 5 + m.defaultLevel * 5);
+        => Math.Max(10, GuildManager.CalculateAdventurerUpkeep(m.defaultLevel) * 5 + m.defaultLevel * 5);
+
+    static string RecruitRarityLabel(int weight) => weight switch
+    {
+        >= 100 => "コモン",
+        >= 60 => "アンコモン",
+        >= 40 => "レア",
+        >= 20 => "エピック",
+        _ => "レジェンド",
+    };
 }

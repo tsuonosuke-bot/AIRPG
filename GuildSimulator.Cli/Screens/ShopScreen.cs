@@ -12,7 +12,7 @@ public static class ShopScreen
         while (true)
         {
             ConsoleHelper.Header("商店");
-            Console.WriteLine($"  所持Gold: {guild.Gold}G");
+            Console.WriteLine($"  所持金: {guild.Gold}G");
             Console.WriteLine();
             Console.WriteLine("  1. 装備を購入する");
             Console.WriteLine("  2. 倉庫の装備を売却する");
@@ -36,7 +36,7 @@ public static class ShopScreen
         while (true)
         {
             ConsoleHelper.Header("装備を購入");
-            Console.WriteLine($"  所持Gold: {guild.Gold}G");
+            Console.WriteLine($"  所持金: {guild.Gold}G");
             Console.WriteLine();
 
             for (int i = 0; i < items.Count; i++)
@@ -57,7 +57,7 @@ public static class ShopScreen
             var item = items[sel - 1];
             if (guild.Gold < item.price)
             {
-                ConsoleHelper.Error($"Goldが不足しています（必要: {item.price}G  所持: {guild.Gold}G）");
+                ConsoleHelper.Error($"資金が不足しています（必要: {item.price}G  所持: {guild.Gold}G）");
                 ConsoleHelper.PressAnyKey();
                 continue;
             }
@@ -75,7 +75,7 @@ public static class ShopScreen
         while (true)
         {
             ConsoleHelper.Header("装備を売却");
-            Console.WriteLine($"  所持Gold: {guild.Gold}G  （売値は買値の半額）");
+            Console.WriteLine($"  所持金: {guild.Gold}G  （売値は買値の半額）");
             Console.WriteLine();
 
             var stock = guild.GetInventoryView().Where(s => s.count > 0).ToList();
@@ -115,12 +115,12 @@ public static class ShopScreen
         var parts = new List<string>();
         if (item.type == EquipmentType.Weapon)
         {
-            if (item.physicalCoeff > 0f && item.physicalCoeff != 1f) parts.Add($"物理x{item.physicalCoeff:0.##}");
-            if (item.magicCoeff > 0f) parts.Add($"魔法x{item.magicCoeff:0.##}");
-            if (item.healCoeff > 0f) parts.Add($"回復x{item.healCoeff:0.##}");
+            if (item.physicalCoeff > 0f && item.physicalCoeff != 1f) parts.Add($"物理威力x{item.physicalCoeff:0.##}");
+            if (item.magicCoeff > 0f) parts.Add($"魔法威力x{item.magicCoeff:0.##}");
+            if (item.healCoeff > 0f) parts.Add($"回復効果x{item.healCoeff:0.##}");
         }
         parts.AddRange(BonusParts(item.bonus));
-        parts.Add($"重{item.weight}");
+        parts.Add($"重量{item.weight}");
         return string.Join(" ", parts);
     }
 
@@ -129,13 +129,13 @@ public static class ShopScreen
         var parts = new List<string>();
         void Add(string name, int v) { if (v != 0) parts.Add($"{name}{(v > 0 ? "+" : "")}{v}"); }
         Add("HP", b.hp);
-        Add("pAtk", b.pAtk);
-        Add("pDef", b.pDef);
-        Add("mAtk", b.mAtk);
-        Add("mDef", b.mDef);
-        Add("hit", b.hit);
-        Add("evd", b.evade);
-        Add("heal", b.heal);
+        Add("物理攻撃", b.pAtk);
+        Add("物理防御", b.pDef);
+        Add("魔法攻撃", b.mAtk);
+        Add("魔法防御", b.mDef);
+        Add("命中", b.hit);
+        Add("回避", b.evade);
+        Add("回復力", b.heal);
         return parts;
     }
 }

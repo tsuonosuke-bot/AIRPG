@@ -7,6 +7,8 @@ public class AdventurerMasterData
     public int upkeepGold;
     public int defaultLevel = 1;
     public int defaultRank = 1;
+    public int recruitGuildRank = 1;
+    public int recruitWeight = 100;
     public int vitality;
     public int mental;
     public int strength;

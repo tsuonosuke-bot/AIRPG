@@ -111,7 +111,7 @@ public static class BattleResolver
                     int dmg = Math.Max(1, (int)Math.Floor(baseDmg * hitRate * levelBonus * randBonus));
 
                     target.CombatHp -= dmg;
-                    logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} dmg={dmg} hit={hitRate:0.00} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
+                    logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} ダメージ={dmg} 命中率={hitRate:P0} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
 
                     if (target.CombatHp <= 0)
                     {
