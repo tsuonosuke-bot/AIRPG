@@ -11,7 +11,7 @@
       "Treasure": 1,
       "Heal": 1
     },
-    "enemyLevelPerPhase": 0.1,
+    "enemyLevelPerPhase": 0.15,
     "encounterTable": [
       { "unitId": "unit_slime_single",     "weight": 4, "minPhase": 1, "maxPhase": 0 },
       { "unitId": "unit_slime_pair",       "weight": 3, "minPhase": 3, "maxPhase": 0 },
@@ -21,7 +21,8 @@
       { "unitId": "unit_rabbit_pack",      "weight": 2, "minPhase": 1, "maxPhase": 0 },
       { "unitId": "unit_goblin_single",    "weight": 2, "minPhase": 2, "maxPhase": 0 },
       { "unitId": "unit_goblin_group",     "weight": 1, "minPhase": 6, "maxPhase": 0 },
-      { "unitId": "unit_meadow_wanderers", "weight": 1, "minPhase": 4, "maxPhase": 0 }
+      { "unitId": "unit_meadow_wanderers", "weight": 1, "minPhase": 4, "maxPhase": 0 },
+      { "unitId": "unit_goblin_thrower_ambush", "weight": 1, "minPhase": 3, "maxPhase": 0 }
     ],
     "rewardTable": [
       { "type": 2, "gold": 20, "weight": 4, "unique": false },
@@ -29,7 +30,8 @@
       { "type": 2, "gold": 15, "weight": 2, "unique": false },
       { "type": 2, "gold": 40, "weight": 1, "unique": false },
       { "type": 0, "relicId": "relic_bandage", "weight": 1, "unique": true },
-      { "type": 0, "relicId": "relic_stew",    "weight": 1, "unique": true }
+      { "type": 0, "relicId": "relic_stew",    "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_clover",  "weight": 1, "unique": true }
     ],
     "treasureTable": [
       { "type": 2, "gold": 3,  "weight": 3, "unique": false },
@@ -61,7 +63,8 @@
       { "unitId": "unit_spider_nest",    "weight": 1, "minPhase": 7, "maxPhase": 0 },
       { "unitId": "unit_bee_swarm",      "weight": 2, "minPhase": 2, "maxPhase": 0 },
       { "unitId": "unit_treant_single",  "weight": 1, "minPhase": 8, "maxPhase": 0 },
-      { "unitId": "unit_treant_grove",   "weight": 1, "minPhase": 12, "maxPhase": 0 }
+      { "unitId": "unit_treant_grove",   "weight": 1, "minPhase": 12, "maxPhase": 0 },
+      { "unitId": "unit_goblin_soldier_patrol", "weight": 2, "minPhase": 5, "maxPhase": 0 }
     ],
     "rewardTable": [
       { "type": 2, "gold": 50, "weight": 5, "unique": false },
@@ -73,7 +76,9 @@
       { "type": 0, "relicId": "relic_meat",      "weight": 1, "unique": true },
       { "type": 0, "relicId": "relic_eggs",      "weight": 1, "unique": true },
       { "type": 0, "relicId": "relic_red",       "weight": 1, "unique": true },
-      { "type": 0, "relicId": "relic_whetstone", "weight": 1, "unique": true }
+      { "type": 0, "relicId": "relic_whetstone", "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_leafcloak",  "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_barkshield", "weight": 1, "unique": true }
     ],
     "treasureTable": [
       { "type": 2, "gold": 5,  "weight": 5, "unique": false },
@@ -94,7 +99,7 @@
       "Treasure": 2,
       "Heal": 3
     },
-    "enemyLevelPerPhase": 0.2,
+    "enemyLevelPerPhase": 0.15,
     "encounterTable": [
       { "unitId": "unit_bandit_lookout", "weight": 4, "minPhase": 1, "maxPhase": 0 },
       { "unitId": "unit_bandit_ambush",  "weight": 3, "minPhase": 4, "maxPhase": 0 },
@@ -111,7 +116,8 @@
       { "type": 1, "equipmentId": "eq_chain_01",  "weight": 2, "unique": false },
       { "type": 0, "relicId": "relic_ledger",   "weight": 1, "unique": true },
       { "type": 0, "relicId": "relic_contract", "weight": 1, "unique": true },
-      { "type": 0, "relicId": "relic_charm",    "weight": 1, "unique": true }
+      { "type": 0, "relicId": "relic_charm",    "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_signet",   "weight": 1, "unique": true }
     ],
     "treasureTable": [
       { "type": 2, "gold": 20, "weight": 5, "unique": false },
@@ -132,7 +138,7 @@
       "Treasure": 3,
       "Heal": 1
     },
-    "enemyLevelPerPhase": 0.2,
+    "enemyLevelPerPhase": 0.15,
     "encounterTable": [
       { "unitId": "unit_bat_flock",      "weight": 4, "minPhase": 1, "maxPhase": 0 },
       { "unitId": "unit_rat_pack",       "weight": 4, "minPhase": 1, "maxPhase": 0 },
@@ -153,7 +159,8 @@
       { "type": 0, "relicId": "relic_lantern",   "weight": 1, "unique": true },
       { "type": 0, "relicId": "relic_ironheart", "weight": 1, "unique": true },
       { "type": 0, "relicId": "relic_whetstone", "weight": 1, "unique": true },
-      { "type": 0, "relicId": "relic_charm",     "weight": 1, "unique": true }
+      { "type": 0, "relicId": "relic_charm",     "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_emberstone", "weight": 1, "unique": true }
     ],
     "treasureTable": [
       { "type": 2, "gold": 25, "weight": 5, "unique": false },
@@ -174,7 +181,7 @@
       "Treasure": 3,
       "Heal": 1
     },
-    "enemyLevelPerPhase": 0.25,
+    "enemyLevelPerPhase": 0.15,
     "encounterTable": [
       { "unitId": "unit_skeleton_pair",  "weight": 4, "minPhase": 1, "maxPhase": 0 },
       { "unitId": "unit_zombie_horde",   "weight": 3, "minPhase": 1, "maxPhase": 0 },
@@ -194,7 +201,8 @@
       { "type": 0, "relicId": "relic_grimoire",  "weight": 1, "unique": true },
       { "type": 0, "relicId": "relic_ironheart", "weight": 1, "unique": true },
       { "type": 0, "relicId": "relic_bank",      "weight": 1, "unique": true },
-      { "type": 0, "relicId": "relic_lantern",   "weight": 1, "unique": true }
+      { "type": 0, "relicId": "relic_lantern",   "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_reliquary", "weight": 1, "unique": true }
     ],
     "treasureTable": [
       { "type": 2, "gold": 60,  "weight": 5, "unique": false },
@@ -202,6 +210,76 @@
       { "type": 2, "gold": 160, "weight": 1, "unique": false },
       { "type": 1, "equipmentId": "eq_robe_02",  "weight": 1, "unique": false },
       { "type": 1, "equipmentId": "eq_sword_02", "weight": 1, "unique": false }
+    ]
+  },
+  {
+    "id": "dungeon_deep_woods",
+    "dungeonName": "森林深部",
+    "rewardChoiceMin": 3,
+    "rewardChoiceMax": 5,
+    "eventTable": {
+      "EnemyEncounter": 7,
+      "Nothing": 5,
+      "Trap": 3,
+      "Treasure": 3,
+      "Heal": 1
+    },
+    "enemyLevelPerPhase": 0.15,
+    "encounterTable": [
+      { "unitId": "unit_kernos_lone",    "weight": 3, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_kernos_thralls", "weight": 2, "minPhase": 3, "maxPhase": 0 },
+      { "unitId": "unit_wolf_pack",      "weight": 2, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_treant_grove",   "weight": 2, "minPhase": 4, "maxPhase": 0 },
+      { "unitId": "unit_spider_nest",    "weight": 1, "minPhase": 1, "maxPhase": 0 }
+    ],
+    "rewardTable": [
+      { "type": 2, "gold": 200, "weight": 5, "unique": false },
+      { "type": 2, "gold": 300, "weight": 3, "unique": false },
+      { "type": 1, "equipmentId": "eq_axe_02",   "weight": 2, "unique": false },
+      { "type": 1, "equipmentId": "eq_spear_02", "weight": 2, "unique": false },
+      { "type": 0, "relicId": "relic_whetstone", "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_ironheart", "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_eggs",      "weight": 1, "unique": true }
+    ],
+    "treasureTable": [
+      { "type": 2, "gold": 25, "weight": 5, "unique": false },
+      { "type": 2, "gold": 45, "weight": 3, "unique": false },
+      { "type": 2, "gold": 70, "weight": 1, "unique": false },
+      { "type": 1, "equipmentId": "eq_chain_01", "weight": 1, "unique": false }
+    ]
+  },
+  {
+    "id": "dungeon_old_city",
+    "dungeonName": "旧市街",
+    "rewardChoiceMin": 3,
+    "rewardChoiceMax": 5,
+    "eventTable": {
+      "EnemyEncounter": 7,
+      "Nothing": 4,
+      "Trap": 4,
+      "Treasure": 4,
+      "Heal": 1
+    },
+    "enemyLevelPerPhase": 0.15,
+    "encounterTable": [
+      { "unitId": "unit_goblin_ironclad_patrol", "weight": 4, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_goblin_heavy_squad",      "weight": 2, "minPhase": 4, "maxPhase": 0 },
+      { "unitId": "unit_goblin_warband",           "weight": 2, "minPhase": 1, "maxPhase": 0 },
+      { "unitId": "unit_goblin_scouts",            "weight": 2, "minPhase": 1, "maxPhase": 0 }
+    ],
+    "rewardTable": [
+      { "type": 2, "gold": 220, "weight": 5, "unique": false },
+      { "type": 2, "gold": 320, "weight": 3, "unique": false },
+      { "type": 1, "equipmentId": "eq_chain_01", "weight": 2, "unique": false },
+      { "type": 1, "equipmentId": "eq_sword_02", "weight": 2, "unique": false },
+      { "type": 0, "relicId": "relic_charm",     "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_ledger",    "weight": 1, "unique": true },
+      { "type": 0, "relicId": "relic_contract",  "weight": 1, "unique": true }
+    ],
+    "treasureTable": [
+      { "type": 2, "gold": 30, "weight": 5, "unique": false },
+      { "type": 2, "gold": 50, "weight": 3, "unique": false },
+      { "type": 1, "equipmentId": "eq_chain_01", "weight": 1, "unique": false }
     ]
   }
 ]

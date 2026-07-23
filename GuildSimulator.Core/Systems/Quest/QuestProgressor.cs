@@ -42,10 +42,14 @@ public class QuestProgressor
                         evTitle = "敵遭遇"; evResult = "敵テーブルが空（スキップ）"; break;
                     }
 
-                    // ボスは自身の baseLevel を尊重（フェーズスケールしない）。通常エンカのみ深部で強化。
+                    // ボスも通常エンカと同じ深部スケーリングを受ける。ボスは常に bossPhase の深さで固定し、
+                    // 通常エンカだけが遭遇したフェーズ相応にスケールする。
                     int enemyLevel = enemyTpl.baseLevel;
-                    if (!isBoss && q.def.Dungeon != null)
-                        enemyLevel += (int)Math.Floor((phase - 1) * q.def.Dungeon.enemyLevelPerPhase);
+                    if (q.def.Dungeon != null)
+                    {
+                        int scalePhase = isBoss ? q.def.bossPhase : phase;
+                        enemyLevel += (int)Math.Floor((scalePhase - 1) * q.def.Dungeon.enemyLevelPerPhase);
+                    }
                     enemyLevel = Math.Max(1, enemyLevel);
 
                     evTitle = isBoss ? $"ボス遭遇：{enemyTpl.unitName}" : $"敵遭遇：{enemyTpl.unitName}(Lv{enemyLevel})";
@@ -56,7 +60,7 @@ public class QuestProgressor
 
                     // 敵は毎回フレッシュな個体なのでここでHPを初期化する。冒険者側はクエスト開始時に
                     // 初期化済みで、フェーズを跨いで持ち越す（QuestManager.TryStartQuest参照）。
-                    foreach (var (m, s) in UnitCalculator.CalcPerMember(enemyI))
+                    foreach (var (m, s) in UnitCalculator.CalcPerMember(enemyI, isAllySide: false))
                     {
                         m.CombatHpMax = s.hp;
                         m.CombatHp = s.hp;
@@ -99,7 +103,7 @@ public class QuestProgressor
                     evTitle = "休息";
                     int before = q.unitHpCurrent;
                     float restMul = RelicSystem.GetRestHealMultiplier();
-                    var perMember = UnitCalculator.CalcPerMember(q.formation.Cast<IUnitMember?>().ToArray());
+                    var perMember = UnitCalculator.CalcPerMember(q.formation.Cast<IUnitMember?>().ToArray(), isAllySide: true);
                     foreach (var (m, s) in perMember)
                     {
                         int baseHeal = (int)Math.Ceiling(Math.Max(1, m.CombatHpMax) * 0.5f);

@@ -97,7 +97,7 @@ public class QuestManager
         Array.Copy(formation, run.formation, Math.Min(formation.Length, 6));
 
         // クエスト開始時、編成メンバーのHPを最大値まで初期化する（オーラ/遺物の加算込み）。
-        var perMember = UnitCalculator.CalcPerMember(run.formation.Cast<IUnitMember?>().ToArray());
+        var perMember = UnitCalculator.CalcPerMember(run.formation.Cast<IUnitMember?>().ToArray(), isAllySide: true);
         foreach (var (m, s) in perMember)
         {
             m.CombatHpMax = s.hp;
