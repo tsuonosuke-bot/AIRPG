@@ -30,9 +30,9 @@ public static class RelicScreen
         Console.WriteLine();
         Console.WriteLine("  ── 現在の合計効果 ──");
         RelicSystem.GetUnitModifiers(out var add, out var mul);
-        Console.WriteLine($"    ユニット加算 : HP+{add.hp} SAN+{add.san} pAtk+{add.pAtk} pDef+{add.pDef} mAtk+{add.mAtk} mDef+{add.mDef}");
-        Console.WriteLine($"    ユニット倍率 : HP x{mul.hp:0.##} pAtk x{mul.pAtk:0.##} mAtk x{mul.mAtk:0.##} pDef x{mul.pDef:0.##} mDef x{mul.mDef:0.##}");
-        Console.WriteLine($"    報酬Gold     : x{RelicSystem.GetGoldRewardMultiplier():0.##}");
+        Console.WriteLine($"    能力加算 : HP+{add.hp} 士気+{add.san} 物理攻撃+{add.pAtk} 物理防御+{add.pDef} 魔法攻撃+{add.mAtk} 魔法防御+{add.mDef}");
+        Console.WriteLine($"    能力倍率 : HP x{mul.hp:0.##} 物理攻撃 x{mul.pAtk:0.##} 魔法攻撃 x{mul.mAtk:0.##} 物理防御 x{mul.pDef:0.##} 魔法防御 x{mul.mDef:0.##}");
+        Console.WriteLine($"    報酬資金 : x{RelicSystem.GetGoldRewardMultiplier():0.##}");
         Console.WriteLine($"    維持費       : x{RelicSystem.GetUpkeepMultiplier():0.##}");
         Console.WriteLine($"    休息回復     : x{RelicSystem.GetRestHealMultiplier():0.##}");
 

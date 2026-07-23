@@ -13,7 +13,7 @@ public static class QuestBoardScreen
         {
             ConsoleHelper.Header("クエストボード");
             var board = questManager.questBoard;
-            Console.WriteLine($"  掲示 {board.Count}/{questManager.BoardCapacity} 枚   受注可能: ギルドランク{guild.GuildRank}以下");
+            Console.WriteLine($"  受注可能: ギルドランク{guild.GuildRank}以下");
             Console.WriteLine();
             if (board.Count == 0) { ConsoleHelper.Warn("掲示中のクエストはありません"); ConsoleHelper.PressAnyKey(); return; }
             for (int i = 0; i < board.Count; i++)
@@ -25,7 +25,7 @@ public static class QuestBoardScreen
                 var diff = DungeonDifficulty.Evaluate(q);
 
                 Console.WriteLine($"  {i + 1}. 【Rank{q.rank}】{q.questName}  所要:{estTurns}T{emg}");
-                Console.WriteLine($"      難易度 {diff.label}（スコア{diff.score:0}）  報酬 Gold:{q.rewardGold} EXP:{q.rewardExp} GP:{q.rewardGuildPoints}");
+                Console.WriteLine($"      難易度 {diff.label}（スコア{diff.score:0}）  報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
                 if (q.IsGatherQuest)
                     ConsoleHelper.Dim($"      採取: {q.gatherItemName} x{q.gatherTargetCount}（1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還）");
                 string bossInfo = diff.hasBoss ? $"  ボス:Lv{diff.bossLevel}" : "";
@@ -44,41 +44,63 @@ public static class QuestBoardScreen
     static void SelectAndStart(QuestMasterData def, QuestManager qm, GuildManager guild, int currentTurn)
     {
         ConsoleHelper.Header($"編成: {def.questName}");
-        Console.WriteLine("前衛スロット (0-2) と後衛スロット (3-5) に冒険者を配置してください");
+        Console.WriteLine("冒険者を選び、次に配置先を指定してください");
 
         var formation = new AdventurerData?[6];
         var advs = guild.adventurers;
 
-        for (int slot = 0; slot < 6; slot++)
+        while (formation.Any(x => x == null))
         {
-            string pos = slot < 3 ? $"前衛{slot + 1}" : $"後衛{slot - 2}";
-            Console.WriteLine($"\n  【{pos}】");
             var available = advs.Where((a, i) =>
                 a.isAlive &&
                 !qm.IsAdventurerBusy(a.id) &&
                 !formation.Contains(a)).ToList();
-            if (available.Count == 0) { ConsoleHelper.Dim("配置可能な冒険者がいません"); continue; }
+            if (available.Count == 0)
+            {
+                ConsoleHelper.Dim("  配置可能な冒険者をすべて編成しました");
+                break;
+            }
 
-            Console.WriteLine("  0. スキップ");
+            Console.WriteLine();
+            ShowFormation(formation);
+            Console.WriteLine();
+            Console.WriteLine("  0. 編成を確定");
             for (int i = 0; i < available.Count; i++)
             {
                 var a = available[i];
                 Console.WriteLine($"  {i + 1}. {a.name} Lv{a.level} {a.ClassAndRace}");
             }
-            Console.Write($"  選択 [0-{available.Count}]: ");
-            if (int.TryParse(Console.ReadLine(), out int pick) && pick >= 1 && pick <= available.Count)
-                formation[slot] = available[pick - 1];
+            Console.Write($"追加する冒険者 [0-{available.Count}]: ");
+            if (!int.TryParse(Console.ReadLine(), out int pick) || pick == 0) break;
+            if (pick < 1 || pick > available.Count)
+            {
+                ConsoleHelper.Error("無効な番号です");
+                continue;
+            }
+
+            var openSlots = Enumerable.Range(0, formation.Length)
+                .Where(slot => formation[slot] == null)
+                .ToList();
+            Console.WriteLine($"\n  {available[pick - 1].name} の配置先:");
+            for (int i = 0; i < openSlots.Count; i++)
+            {
+                Console.WriteLine($"  {i + 1}. {PositionName(openSlots[i])}");
+            }
+            Console.Write($"配置先 [1-{openSlots.Count}]: ");
+            if (!int.TryParse(Console.ReadLine(), out int slotPick)
+                || slotPick < 1 || slotPick > openSlots.Count)
+            {
+                ConsoleHelper.Warn("配置をキャンセルしました");
+                continue;
+            }
+            formation[openSlots[slotPick - 1]] = available[pick - 1];
         }
 
         int count = formation.Count(x => x != null);
         if (count == 0) { ConsoleHelper.Warn("編成が空のためキャンセル"); return; }
 
         ConsoleHelper.Header("編成確認");
-        for (int i = 0; i < 6; i++)
-        {
-            string pos = i < 3 ? $"前衛{i + 1}" : $"後衛{i - 2}";
-            Console.WriteLine($"  {pos}: {formation[i]?.name ?? "空"}");
-        }
+        ShowFormation(formation);
         if (!ConsoleHelper.Confirm("このメンバーで受注しますか？")) return;
 
         if (qm.TryStartQuest(def, formation, currentTurn, out var error))
@@ -88,4 +110,13 @@ public static class QuestBoardScreen
 
         ConsoleHelper.PressAnyKey();
     }
+
+    static void ShowFormation(AdventurerData?[] formation)
+    {
+        Console.WriteLine("  現在の編成:");
+        for (int i = 0; i < formation.Length; i++)
+            Console.WriteLine($"    {PositionName(i),-4}: {formation[i]?.name ?? "空"}");
+    }
+
+    static string PositionName(int slot) => slot < 3 ? $"前衛{slot + 1}" : $"後衛{slot - 2}";
 }

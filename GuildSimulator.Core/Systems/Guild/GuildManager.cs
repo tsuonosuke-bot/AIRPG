@@ -5,6 +5,8 @@ namespace GuildSimulator.Core.Systems.Guild;
 
 public class GuildManager
 {
+    public const int UpkeepGoldPerLevel = 10;
+
     public List<AdventurerData> adventurers = new();
     public int Gold { get; private set; }
     public int GuildRank { get; private set; }
@@ -18,7 +20,7 @@ public class GuildManager
         Gold = startGold;
         GuildRank = startRank;
         RelicSystem.SetRelics(relics);
-        economyLogs.Add($"初期資金: Gold {Gold}");
+        economyLogs.Add($"初期資金: {Gold}G");
     }
 
     public void AddGold(int amount, string reason)
@@ -32,7 +34,7 @@ public class GuildManager
     public void AddGuildPoints(int amount, string reason)
     {
         GuildPoints += amount;
-        economyLogs.Add($"{reason}: +{amount}GP（{GuildPoints}GP）");
+        economyLogs.Add($"{reason}: ギルドポイント +{amount}（合計 {GuildPoints}）");
     }
 
     public void RankUp(int amount, string reason)
@@ -45,16 +47,46 @@ public class GuildManager
     public void AddAdventurer(AdventurerData adv)
     {
         adventurers.Add(adv);
-        economyLogs.Add($"雇用: {adv.name}（維持費 {adv.master.upkeepGold}G/Turn）");
+        economyLogs.Add($"雇用: {adv.name}（維持費 {CalculateAdventurerUpkeep(adv.level)}G/Turn）");
+    }
+
+    /// <summary>セーブデータからの復元専用。経済ログは追加しない。</summary>
+    public void RestoreEconomy(int gold, int guildRank, int guildPoints)
+    {
+        Gold = gold;
+        GuildRank = guildRank;
+        GuildPoints = guildPoints;
+    }
+
+    public static int CalculateAdventurerUpkeep(int level) =>
+        Math.Max(1, level) * UpkeepGoldPerLevel;
+
+    public int BaseUpkeepPerTurn =>
+        adventurers.Where(a => a != null && a.isAlive).Sum(a => CalculateAdventurerUpkeep(a.level));
+
+    public int EffectiveUpkeepPerTurn => CalculateEffectiveUpkeep(BaseUpkeepPerTurn);
+
+    public static int CalculateEffectiveUpkeep(int baseUpkeep) =>
+        Math.Max(0, (int)Math.Floor(Math.Max(0, baseUpkeep) * RelicSystem.GetUpkeepMultiplier()));
+
+    /// <summary>
+    /// 報酬などの収入がない前提で、破産せずに支払える維持費の回数。
+    /// Gold が0以下になった支払いターンにゲームオーバーとなるため、残金1Gを安全ラインとする。
+    /// </summary>
+    public static int SafeUpkeepTurns(int gold, int effectiveUpkeep)
+    {
+        if (effectiveUpkeep <= 0) return int.MaxValue;
+        return Math.Max(0, (gold - 1) / effectiveUpkeep);
     }
 
     public int PayUpkeepForAll(int currentTurn)
     {
-        int total = adventurers.Where(a => a != null && a.isAlive).Sum(a => a.master.upkeepGold);
-        if (total > 0)
-            SpendGold((int)Math.Floor(total * RelicSystem.GetUpkeepMultiplier()),
+        int baseTotal = BaseUpkeepPerTurn;
+        int effectiveTotal = CalculateEffectiveUpkeep(baseTotal);
+        if (effectiveTotal > 0)
+            SpendGold(effectiveTotal,
                 $"[Turn {currentTurn}] 賃金支払い（{adventurers.Count}人）");
-        return total;
+        return effectiveTotal;
     }
 
     public void AddRelic(RelicMasterData relic, string reason = "")

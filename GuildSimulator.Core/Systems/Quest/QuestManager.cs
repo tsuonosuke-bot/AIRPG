@@ -11,8 +11,12 @@ public class QuestManager
     public List<QuestRun> questHistory = new();
     public List<QuestBoardEntry> questBoard = new();
 
-    /// <summary>ボードに同時掲示できる最大枚数。</summary>
-    public int BoardCapacity = 6;
+    /// <summary>通常クエストの掲示枠数。</summary>
+    public int NormalBoardCapacity = 3;
+
+    /// <summary>通常枠とは別に掲示できる緊急クエストの最大枚数。</summary>
+    public int EmergencyBoardCapacity = 1;
+    public int BoardCapacity => NormalBoardCapacity + EmergencyBoardCapacity;
 
     /// <summary>受注されないまま掲示され続けた枠を差し替えるまでのターン数。</summary>
     public int BoardExpireTurns = 7;
@@ -43,20 +47,32 @@ public class QuestManager
     /// <summary>空きスロットだけを補充する（既存の掲示は据え置き）。</summary>
     public void FillBoard(IEnumerable<QuestMasterData> pool, int currentTurn)
     {
-        var candidates = pool.Where(q => IsPostable(q)).ToList();
+        var candidates = pool.Where(IsPostable).ToList();
+        var normalCandidates = candidates.Where(q => !q.isEmergencyQuest).ToList();
 
-        while (questBoard.Count < BoardCapacity && candidates.Count > 0)
+        while (questBoard.Count(e => !e.quest.isEmergencyQuest) < NormalBoardCapacity
+            && normalCandidates.Count > 0)
         {
-            int i = GameRandom.Range(0, candidates.Count);
-            questBoard.Add(new QuestBoardEntry(candidates[i], currentTurn));
-            candidates.RemoveAt(i);
+            int i = GameRandom.Range(0, normalCandidates.Count);
+            questBoard.Add(new QuestBoardEntry(normalCandidates[i], currentTurn));
+            normalCandidates.RemoveAt(i);
+        }
+
+        var emergencyCandidates = candidates.Where(q => q.isEmergencyQuest).ToList();
+        while (questBoard.Count(e => e.quest.isEmergencyQuest) < EmergencyBoardCapacity
+            && emergencyCandidates.Count > 0)
+        {
+            int i = GameRandom.Range(0, emergencyCandidates.Count);
+            questBoard.Add(new QuestBoardEntry(emergencyCandidates[i], currentTurn));
+            emergencyCandidates.RemoveAt(i);
         }
     }
 
-    // 掲示条件: ギルドランク以下 / 掲示済みでも受注中でもない / クリア済みの一度きりクエストでない。
+    // 掲示条件: 必要GP・ギルドランクを満たす / 掲示済みでも受注中でもない / クリア済みの一度きりクエストでない。
     bool IsPostable(QuestMasterData q)
     {
         if (q.rank > guild.GuildRank) return false;
+        if (guild.GuildPoints < q.requiredGuildPoints) return false;
         if (IsOneShot(q) && clearedOneShotIds.Contains(q.id)) return false;
         if (questBoard.Any(e => e.quest == q)) return false;
         if (activeQuests.Any(r => r.def == q)) return false;
@@ -155,4 +171,22 @@ public class QuestManager
 
     void MarkBusy(QuestRun q) { foreach (var a in q.EnumerateMembers()) busyIds.Add(a.id); }
     void UnmarkBusy(QuestRun q) { foreach (var a in q.EnumerateMembers()) busyIds.Remove(a.id); }
+
+    // ---- セーブ/ロード ----
+    public IReadOnlyCollection<string> ExportClearedOneShotIds() => clearedOneShotIds;
+
+    /// <summary>セーブデータからの復元専用。掲示板・進行中クエスト・出発中フラグをまとめて置き換える。</summary>
+    public void RestoreState(List<QuestBoardEntry> board, List<QuestRun> active, IEnumerable<string> clearedOneShotIdsToRestore)
+    {
+        questBoard = board;
+        activeQuests = active;
+
+        clearedOneShotIds.Clear();
+        foreach (var id in clearedOneShotIdsToRestore)
+            clearedOneShotIds.Add(id);
+
+        busyIds.Clear();
+        foreach (var q in activeQuests)
+            MarkBusy(q);
+    }
 }

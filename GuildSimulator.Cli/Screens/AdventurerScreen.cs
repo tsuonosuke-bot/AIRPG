@@ -36,15 +36,17 @@ public static class AdventurerScreen
         {
             ConsoleHelper.Header($"冒険者詳細: {a.name}");
             Console.WriteLine($"  クラス/種族 : {a.ClassAndRace}");
-            Console.WriteLine($"  レベル      : {a.level}  (EXP {a.experience}/{a.RequiredExpForNextLevel})");
+            Console.WriteLine($"  レベル      : {a.level}  (経験値 {a.experience}/{a.RequiredExpForNextLevel})");
             Console.WriteLine($"  冒険者ランク: {a.rank}  (RP {a.rankPoint}/{a.RequiredRankPointForNextRank})");
+            Console.WriteLine($"  維持費      : {GuildManager.CalculateAdventurerUpkeep(a.level)}G/T（Lv×{GuildManager.UpkeepGoldPerLevel}G）");
             Console.WriteLine($"  状態        : {(a.isAlive ? "生存" : "死亡")}");
             Console.WriteLine();
             Console.WriteLine($"  VIT:{a.vitality} MEN:{a.mental} STR:{a.strength} AGI:{a.agility} INT:{a.intelligence} CON:{a.constitution}");
             var s = a.GetFinalCombatStats();
             int hpMax = a.CombatHpMax > 0 ? a.CombatHpMax : s.hp;
             int hpCur = a.CombatHpMax > 0 ? a.CombatHp : s.hp;
-            Console.WriteLine($"  HP:{hpCur}/{hpMax}  pAtk:{s.pAtk} pDef:{s.pDef} mAtk:{s.mAtk} mDef:{s.mDef} hit:{s.hit} evd:{s.evade} heal:{s.heal}");
+            Console.WriteLine($"  HP:{hpCur}/{hpMax}  物理攻撃:{s.pAtk} 物理防御:{s.pDef} 魔法攻撃:{s.mAtk} 魔法防御:{s.mDef}");
+            Console.WriteLine($"  命中:{s.hit} 回避:{s.evade} 回復力:{s.heal}");
             Console.WriteLine();
             Console.WriteLine($"  武器: {a.weapon?.displayName ?? "なし"}{DescribeItem(a.weapon)}");
             Console.WriteLine($"  防具: {a.armor?.displayName ?? "なし"}{DescribeItem(a.armor)}");
@@ -168,13 +170,13 @@ public static class AdventurerScreen
         var afterStats = a.GetFinalCombatStats();
         Console.WriteLine();
         Console.WriteLine("  ステータス変化:");
-        ShowStatDelta("pAtk", beforeStats.pAtk, afterStats.pAtk);
-        ShowStatDelta("pDef", beforeStats.pDef, afterStats.pDef);
-        ShowStatDelta("mAtk", beforeStats.mAtk, afterStats.mAtk);
-        ShowStatDelta("mDef", beforeStats.mDef, afterStats.mDef);
-        ShowStatDelta("hit", beforeStats.hit, afterStats.hit);
-        ShowStatDelta("evd", beforeStats.evade, afterStats.evade);
-        ShowStatDelta("heal", beforeStats.heal, afterStats.heal);
+        ShowStatDelta("物理攻撃", beforeStats.pAtk, afterStats.pAtk);
+        ShowStatDelta("物理防御", beforeStats.pDef, afterStats.pDef);
+        ShowStatDelta("魔法攻撃", beforeStats.mAtk, afterStats.mAtk);
+        ShowStatDelta("魔法防御", beforeStats.mDef, afterStats.mDef);
+        ShowStatDelta("命中", beforeStats.hit, afterStats.hit);
+        ShowStatDelta("回避", beforeStats.evade, afterStats.evade);
+        ShowStatDelta("回復力", beforeStats.heal, afterStats.heal);
         ConsoleHelper.PressAnyKey();
     }
 
@@ -194,12 +196,12 @@ public static class AdventurerScreen
         var parts = new List<string>();
         if (item.type == EquipmentType.Weapon)
         {
-            if (item.physicalCoeff > 0f && item.physicalCoeff != 1f) parts.Add($"物理x{item.physicalCoeff:0.##}");
-            if (item.magicCoeff > 0f) parts.Add($"魔法x{item.magicCoeff:0.##}");
-            if (item.healCoeff > 0f) parts.Add($"回復x{item.healCoeff:0.##}");
+            if (item.physicalCoeff > 0f && item.physicalCoeff != 1f) parts.Add($"物理威力x{item.physicalCoeff:0.##}");
+            if (item.magicCoeff > 0f) parts.Add($"魔法威力x{item.magicCoeff:0.##}");
+            if (item.healCoeff > 0f) parts.Add($"回復効果x{item.healCoeff:0.##}");
         }
         parts.AddRange(BonusParts(item.bonus));
-        parts.Add($"重{item.weight}");
+        parts.Add($"重量{item.weight}");
         return string.Join(" ", parts);
     }
 
@@ -208,13 +210,13 @@ public static class AdventurerScreen
         var parts = new List<string>();
         void Add(string name, int v) { if (v != 0) parts.Add($"{name}{(v > 0 ? "+" : "")}{v}"); }
         Add("HP", b.hp);
-        Add("pAtk", b.pAtk);
-        Add("pDef", b.pDef);
-        Add("mAtk", b.mAtk);
-        Add("mDef", b.mDef);
-        Add("hit", b.hit);
-        Add("evd", b.evade);
-        Add("heal", b.heal);
+        Add("物理攻撃", b.pAtk);
+        Add("物理防御", b.pDef);
+        Add("魔法攻撃", b.mAtk);
+        Add("魔法防御", b.mDef);
+        Add("命中", b.hit);
+        Add("回避", b.evade);
+        Add("回復力", b.heal);
         return parts;
     }
 }

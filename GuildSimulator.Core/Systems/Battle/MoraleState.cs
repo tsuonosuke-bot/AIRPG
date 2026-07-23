@@ -36,6 +36,13 @@ public class MoraleState
         Current = Max;
     }
 
+    /// <summary>セーブデータからの復元用。current は 0〜max にクランプする。</summary>
+    public MoraleState(int max, int current)
+    {
+        Max = Math.Max(1, max);
+        Current = Math.Clamp(current, 0, Max);
+    }
+
     public float Rate => Math.Clamp((float)Current / Max, 0f, 1f);
     public bool IsBroken => Current <= 0;
 

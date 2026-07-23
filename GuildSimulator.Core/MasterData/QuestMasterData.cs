@@ -12,6 +12,7 @@ public class QuestMasterData
     public int rewardExp = 100;
     public bool isEmergencyQuest;
     public int rankUpOnClear;
+    public int requiredGuildPoints;
     public string dungeonId = "";
     public string bossEnemyId = "";
     public int bossPhase = 15;
