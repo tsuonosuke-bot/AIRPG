@@ -26,8 +26,8 @@
     "rewardTable": [
       { "type": 2, "gold": 20, "weight": 4, "unique": false },
       { "type": 2, "gold": 30, "weight": 3, "unique": false },
-      { "type": 1, "equipmentId": "eq_cloth_01",   "weight": 2, "unique": false },
-      { "type": 1, "equipmentId": "eq_leather_01", "weight": 1, "unique": false },
+      { "type": 2, "gold": 15, "weight": 2, "unique": false },
+      { "type": 2, "gold": 40, "weight": 1, "unique": false },
       { "type": 0, "relicId": "relic_bandage", "weight": 1, "unique": true },
       { "type": 0, "relicId": "relic_stew",    "weight": 1, "unique": true }
     ],
