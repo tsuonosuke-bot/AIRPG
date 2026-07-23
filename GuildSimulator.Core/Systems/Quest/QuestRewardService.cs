@@ -49,7 +49,6 @@ public class QuestRewardService
         if (options.Count > choiceCount)
             options = options.Take(choiceCount).ToList();
 
-        BalanceEquipmentQuantities(options, q);
         return options;
     }
 
@@ -151,25 +150,6 @@ public class QuestRewardService
             if (r < acc) return e;
         }
         return null;
-    }
-
-    static void BalanceEquipmentQuantities(List<RewardOption> options, QuestRun q)
-    {
-        int largestGoldChoice = options
-            .Where(o => o.type == RewardType.Gold)
-            .Select(o => o.gold)
-            .DefaultIfEmpty(0)
-            .Max();
-        int targetValue = Math.Max(largestGoldChoice, Math.Max(20, q.def.rewardGold / 2));
-
-        foreach (var opt in options.Where(o => o.type == RewardType.Equipment && o.equipment != null))
-        {
-            int unitValue = Math.Max(1, opt.equipment!.price);
-            opt.quantity = Math.Clamp(
-                (int)Math.Ceiling((double)targetValue / unitValue),
-                1,
-                4);
-        }
     }
 
     static bool IsDuplicateChoice(RewardOption opt, List<RewardOption> options) =>
