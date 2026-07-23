@@ -171,4 +171,22 @@ public class QuestManager
 
     void MarkBusy(QuestRun q) { foreach (var a in q.EnumerateMembers()) busyIds.Add(a.id); }
     void UnmarkBusy(QuestRun q) { foreach (var a in q.EnumerateMembers()) busyIds.Remove(a.id); }
+
+    // ---- セーブ/ロード ----
+    public IReadOnlyCollection<string> ExportClearedOneShotIds() => clearedOneShotIds;
+
+    /// <summary>セーブデータからの復元専用。掲示板・進行中クエスト・出発中フラグをまとめて置き換える。</summary>
+    public void RestoreState(List<QuestBoardEntry> board, List<QuestRun> active, IEnumerable<string> clearedOneShotIdsToRestore)
+    {
+        questBoard = board;
+        activeQuests = active;
+
+        clearedOneShotIds.Clear();
+        foreach (var id in clearedOneShotIdsToRestore)
+            clearedOneShotIds.Add(id);
+
+        busyIds.Clear();
+        foreach (var q in activeQuests)
+            MarkBusy(q);
+    }
 }

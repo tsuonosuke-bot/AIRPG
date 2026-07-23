@@ -283,6 +283,28 @@ public class AdventurerData : IUnitMember
         return s;
     }
 
+    // ---- セーブ/ロード ----
+    public IReadOnlyList<(SkillMasterData skill, ClassMasterData? ownerClass)> ExportLearnedSkills()
+        => learnedSkills.Select(x => (x.skill, x.ownerClass)).ToList();
+
+    public IReadOnlyDictionary<string, int> ExportClassClearCounts() => classClearCounts;
+
+    /// <summary>セーブデータからの復元専用。コンストラクタが自動付与したスキル・熟練度を、保存済みの内容で置き換える。</summary>
+    public void RestoreProgress(
+        IEnumerable<(SkillMasterData skill, ClassMasterData? ownerClass)> skills,
+        IReadOnlyDictionary<string, int> clearCounts)
+    {
+        learnedSkills.Clear();
+        foreach (var (skill, ownerClass) in skills)
+            learnedSkills.Add(new LearnedSkill { skill = skill, ownerClass = ownerClass });
+
+        classClearCounts.Clear();
+        foreach (var (classId, count) in clearCounts)
+            classClearCounts[classId] = count;
+
+        MarkDirty();
+    }
+
     public string ClassAndRace =>
         $"{currentClass?.className ?? "？"} / {race?.raceName ?? "？"}";
 }

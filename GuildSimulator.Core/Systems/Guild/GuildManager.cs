@@ -50,6 +50,14 @@ public class GuildManager
         economyLogs.Add($"雇用: {adv.name}（維持費 {CalculateAdventurerUpkeep(adv.level)}G/Turn）");
     }
 
+    /// <summary>セーブデータからの復元専用。経済ログは追加しない。</summary>
+    public void RestoreEconomy(int gold, int guildRank, int guildPoints)
+    {
+        Gold = gold;
+        GuildRank = guildRank;
+        GuildPoints = guildPoints;
+    }
+
     public static int CalculateAdventurerUpkeep(int level) =>
         Math.Max(1, level) * UpkeepGoldPerLevel;
 

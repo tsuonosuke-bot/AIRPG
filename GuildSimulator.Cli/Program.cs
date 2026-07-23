@@ -22,16 +22,20 @@ if (!Directory.Exists(dataDir))
 Console.WriteLine("データ読み込み中...");
 var db = MasterLoader.Load(dataDir);
 
+string savePath = SaveManager.DefaultSavePath;
+if (SaveManager.Exists(savePath))
+    Console.WriteLine($"セーブデータが見つかりました（{savePath}）。メニューの「l」でロードできます。");
+
 // ---- ゲームループ（リスタート対応）----
 while (true)
 {
-    bool restart = RunGame(db);
+    bool restart = RunGame(db, savePath);
     if (!restart) break;
     Console.WriteLine("\nゲームをリスタートします...");
     Console.WriteLine();
 }
 
-static bool RunGame(GameMasterData db)
+static bool RunGame(GameMasterData db, string savePath)
 {
     // ---- 初期化 ----
     var guild = new GuildManager(startGold: 200, startRank: 1);
@@ -75,6 +79,10 @@ static bool RunGame(GameMasterData db)
         Console.WriteLine("    0. ゲーム終了");
         Console.WriteLine();
         Console.WriteLine("    H. ヘルプ・用語集");
+        Console.WriteLine();
+        Console.WriteLine("  【セーブデータ】");
+        Console.WriteLine("    S. セーブする");
+        Console.WriteLine("    L. ロードする");
         Console.Write("\n選択: ");
 
         var input = Console.ReadLine();
@@ -101,7 +109,62 @@ static bool RunGame(GameMasterData db)
                     return ShowGameOver(currentTurn);
                 break;
             case "0": Console.WriteLine("ゲーム終了"); return false;
+            case "S":
+                DoSave(savePath, guild, questManager, currentTurn, recruitCandidates);
+                break;
+            case "L":
+                var loaded = DoLoad(savePath, db);
+                if (loaded != null)
+                {
+                    guild = loaded.Guild;
+                    questManager = loaded.QuestManager;
+                    currentTurn = loaded.CurrentTurn;
+                    recruitCandidates = loaded.RecruitCandidates;
+                }
+                break;
         }
+    }
+}
+
+static void DoSave(
+    string savePath, GuildManager guild, QuestManager questManager,
+    int currentTurn, List<AdventurerMasterData> recruitCandidates)
+{
+    try
+    {
+        SaveManager.Save(savePath, guild, questManager, currentTurn, recruitCandidates);
+        ConsoleHelper.Info($"セーブしました（Turn {currentTurn}）");
+    }
+    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+    {
+        ConsoleHelper.Error($"セーブに失敗しました: {ex.Message}");
+    }
+    ConsoleHelper.PressAnyKey();
+}
+
+static LoadedGame? DoLoad(string savePath, GameMasterData db)
+{
+    if (!SaveManager.Exists(savePath))
+    {
+        ConsoleHelper.Error("セーブデータが見つかりません");
+        ConsoleHelper.PressAnyKey();
+        return null;
+    }
+    if (!ConsoleHelper.Confirm("現在の進行状況を破棄してロードします。よろしいですか？"))
+        return null;
+
+    try
+    {
+        var loaded = SaveManager.Load(savePath, db);
+        ConsoleHelper.Info($"ロードしました（Turn {loaded.CurrentTurn}）");
+        ConsoleHelper.PressAnyKey();
+        return loaded;
+    }
+    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException or System.Text.Json.JsonException)
+    {
+        ConsoleHelper.Error($"ロードに失敗しました: {ex.Message}");
+        ConsoleHelper.PressAnyKey();
+        return null;
     }
 }
 
