@@ -106,19 +106,26 @@ public static class BattleResolver
                         BASE_HIT_RATE + (actorStats.hit - targetStats.evade) * HIT_RATE_PER_POINT,
                         MIN_HIT_RATE, MAX_HIT_RATE);
 
-                    float levelBonus = 1f + (actor.Level - target.Level) / 100f;
-                    float randBonus = GameRandom.Range(0.95f, 1.05f);
-                    int dmg = Math.Max(1, (int)Math.Floor(baseDmg * hitRate * levelBonus * randBonus));
-
-                    target.CombatHp -= dmg;
-                    logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} ダメージ={dmg} 命中率={hitRate:P0} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
-
-                    if (target.CombatHp <= 0)
+                    if (GameRandom.NextFloat() >= hitRate)
                     {
-                        target.CombatHp = 0;
-                        target.IsAlive = false;
-                        logs.Add($"  Phase {phase}: {target.Name} 撃破！");
-                        if (!entry.isAdvSide) partyDowned++;
+                        logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} 回避！（命中率={hitRate:P0}） ダメージなし");
+                    }
+                    else
+                    {
+                        float levelBonus = 1f + (actor.Level - target.Level) / 100f;
+                        float randBonus = GameRandom.Range(0.95f, 1.05f);
+                        int dmg = Math.Max(1, (int)Math.Floor(baseDmg * levelBonus * randBonus));
+
+                        target.CombatHp -= dmg;
+                        logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} 命中！ ダメージ={dmg}（命中率={hitRate:P0}） HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
+
+                        if (target.CombatHp <= 0)
+                        {
+                            target.CombatHp = 0;
+                            target.IsAlive = false;
+                            logs.Add($"  Phase {phase}: {target.Name} 撃破！");
+                            if (!entry.isAdvSide) partyDowned++;
+                        }
                     }
                 }
 

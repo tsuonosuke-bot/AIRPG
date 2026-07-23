@@ -49,13 +49,8 @@ static bool RunGame(GameMasterData db)
         ConsoleHelper.Header($"ギルドシミュレーター  Turn {currentTurn}");
         int upkeepPerTurn = guild.EffectiveUpkeepPerTurn;
         Console.WriteLine($"  所持金: {guild.Gold}G（維持費 {upkeepPerTurn}G/T）   ギルドランク: {guild.GuildRank}   ギルドポイント: {guild.GuildPoints}");
-        Console.WriteLine($"  冒険者: {guild.adventurers.Count}人   進行中クエスト: {questManager.activeQuests.Count}件");
-        int normalBoardCount = questManager.questBoard.Count(e => !e.quest.isEmergencyQuest);
-        int emergencyBoardCount = questManager.questBoard.Count(e => e.quest.isEmergencyQuest);
-        int currentBoardCapacity = questManager.NormalBoardCapacity + emergencyBoardCount;
-        string emergencyBoardText = emergencyBoardCount > 0 ? $"（通常{normalBoardCount}＋緊急{emergencyBoardCount}）" : "（通常のみ）";
-        Console.WriteLine($"  クエストボード: {questManager.questBoard.Count}/{currentBoardCapacity}枚{emergencyBoardText}   遺物: {guild.relics.Count}個");
-        Console.WriteLine($"  雇入れ候補: {recruitCandidates.Count}人（ターン終了で入れ替わり）");
+        Console.WriteLine($"  冒険者: {guild.adventurers.Count}人   進行中クエスト: {questManager.activeQuests.Count}件   遺物: {guild.relics.Count}個");
+        Console.WriteLine($"  雇入れ候補: {recruitCandidates.Count}人");
         ShowPromotionProgress(db.allQuests, guild, questManager);
         ShowEconomyForecast(guild, upkeepPerTurn);
         Console.WriteLine();
@@ -78,12 +73,14 @@ static bool RunGame(GameMasterData db)
         Console.WriteLine("  【ターン操作】");
         Console.WriteLine("    9. ターンを進める");
         Console.WriteLine("    0. ゲーム終了");
+        Console.WriteLine();
+        Console.WriteLine("    H. ヘルプ・用語集");
         Console.Write("\n選択: ");
 
         var input = Console.ReadLine();
         if (input == null) return false;   // 標準入力が閉じられた（パイプ実行など）
 
-        switch (input.Trim())
+        switch (input.Trim().ToUpperInvariant())
         {
             case "1": QuestBoardScreen.Show(questManager, guild, currentTurn); break;
             case "2": ActiveQuestScreen.Show(questManager, guild); break;
@@ -93,6 +90,7 @@ static bool RunGame(GameMasterData db)
             case "6": ShopScreen.Show(db, guild); break;
             case "7": RelicScreen.Show(guild); break;
             case "8": ShowEconomyLog(guild); break;
+            case "H": HelpScreen.Show(); break;
             case "9":
                 NextTurn(guild, questManager, ref currentTurn);
                 recruitCandidates = RecruitmentSystem.DrawCandidates(db.allAdventurers, guild, GameRandom.Range(0, MaxCandidateCount + 1));
