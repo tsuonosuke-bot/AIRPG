@@ -69,7 +69,7 @@
     "questName": "【昇格試験】森の主を退けよ",
     "rank": 1, "totalPhases": 14, "phasesPerTurn": 5,
     "rewardGold": 150, "rewardGuildPoints": 80, "rewardExp": 150,
-    "isEmergencyQuest": true, "rankUpOnClear": 1,
+    "isEmergencyQuest": true, "rankUpOnClear": 1, "requiredGuildPoints": 100,
     "dungeonId": "dungeon_woods", "bossEnemyId": "unit_treant_grove", "bossPhase": 14,
     "bossDrops": [
       { "type": 0, "relicId": "relic_ironheart", "weight": 0, "unique": true }
@@ -139,7 +139,7 @@
     "questName": "【昇格試験】坑道の守り手を砕け",
     "rank": 2, "totalPhases": 16, "phasesPerTurn": 5,
     "rewardGold": 400, "rewardGuildPoints": 120, "rewardExp": 350,
-    "isEmergencyQuest": true, "rankUpOnClear": 1,
+    "isEmergencyQuest": true, "rankUpOnClear": 1, "requiredGuildPoints": 300,
     "dungeonId": "dungeon_mine", "bossEnemyId": "unit_mine_guardian", "bossPhase": 16,
     "bossDrops": [
       { "type": 0, "relicId": "relic_grimoire", "weight": 0, "unique": true }

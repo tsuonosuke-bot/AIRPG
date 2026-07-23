@@ -41,7 +41,7 @@ static bool RunGame(GameMasterData db)
     questManager.FillBoard(db.allQuests, currentTurn);
 
     const int MaxCandidateCount = 3;
-    var recruitCandidates = DrawCandidates(db.allAdventurers, guild, MaxCandidateCount);
+    var recruitCandidates = RecruitmentSystem.DrawCandidates(db.allAdventurers, guild, MaxCandidateCount);
 
     // ---- メインループ ----
     while (true)
@@ -95,7 +95,7 @@ static bool RunGame(GameMasterData db)
             case "8": ShowEconomyLog(guild); break;
             case "9":
                 NextTurn(guild, questManager, ref currentTurn);
-                recruitCandidates = DrawCandidates(db.allAdventurers, guild, GameRandom.Range(0, MaxCandidateCount + 1));
+                recruitCandidates = RecruitmentSystem.DrawCandidates(db.allAdventurers, guild, GameRandom.Range(0, MaxCandidateCount + 1));
                 // 報酬でGP条件を達成したターンに、昇格試験をすぐ掲示できる順序にする。
                 ShowQuestsNeedingAttention(questManager, guild);
                 questManager.RefreshBoard(db.allQuests, currentTurn);
@@ -118,43 +118,6 @@ static bool ShowGameOver(int turn)
     Console.WriteLine("  0. 終了");
     Console.Write("選択: ");
     return Console.ReadLine()?.Trim() == "1";
-}
-
-static List<AdventurerMasterData> DrawCandidates(
-    List<AdventurerMasterData> pool,
-    GuildManager guild,
-    int count)
-{
-    // 解禁済みかつ未雇用の冒険者から、募集ウェイトに従って重複なしで抽選する。
-    var available = pool
-        .Where(m => !guild.adventurers.Any(a => a.master == m)
-            && m.recruitGuildRank <= guild.GuildRank
-            && m.recruitWeight > 0)
-        .ToList();
-    var picked = new List<AdventurerMasterData>();
-
-    while (picked.Count < count && available.Count > 0)
-    {
-        int totalWeight = available.Sum(m => m.recruitWeight);
-        int roll = GameRandom.Range(0, totalWeight);
-        int accumulated = 0;
-        int pickedIndex = 0;
-
-        for (int i = 0; i < available.Count; i++)
-        {
-            accumulated += available[i].recruitWeight;
-            if (roll < accumulated)
-            {
-                pickedIndex = i;
-                break;
-            }
-        }
-
-        picked.Add(available[pickedIndex]);
-        available.RemoveAt(pickedIndex);
-    }
-
-    return picked;
 }
 
 // ターン進行で完了・失敗が確定したクエストをその場で処理させる。

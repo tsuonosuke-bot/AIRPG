@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems.Guild;
 
 namespace GuildSimulator.Cli.Data;
 
@@ -188,8 +189,8 @@ public static class MasterLoader
         var advs = Load<List<AdvJson>>(dataDir, "adventurers.json");
         foreach (var a in advs)
         {
-            int recruitGuildRank = Math.Max(1, a.recruitGuildRank ?? RecruitGuildRankForLevel(a.defaultLevel));
-            int recruitWeight = Math.Max(0, a.recruitWeight ?? DefaultRecruitWeight(recruitGuildRank));
+            int recruitGuildRank = Math.Max(1, a.recruitGuildRank ?? RecruitmentSystem.RequiredGuildRankForLevel(a.defaultLevel));
+            int recruitWeight = Math.Max(0, a.recruitWeight ?? RecruitmentSystem.DefaultWeightForGuildRank(recruitGuildRank));
             var ad = new AdventurerMasterData
             {
                 id = a.id, baseName = a.baseName, upkeepGold = a.upkeepGold,
@@ -214,24 +215,6 @@ public static class MasterLoader
 
         return db;
     }
-
-    static int RecruitGuildRankForLevel(int level) => level switch
-    {
-        <= 1 => 1,
-        <= 3 => 2,
-        <= 7 => 3,
-        <= 11 => 4,
-        _ => 5,
-    };
-
-    static int DefaultRecruitWeight(int recruitGuildRank) => recruitGuildRank switch
-    {
-        <= 1 => 100,
-        2 => 60,
-        3 => 40,
-        4 => 20,
-        _ => 10,
-    };
 
     static RewardEntryData ResolveRewardEntry(RewardEntryJson re, GameMasterData db)
     {
