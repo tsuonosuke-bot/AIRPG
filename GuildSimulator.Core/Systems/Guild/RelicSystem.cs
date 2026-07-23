@@ -9,59 +9,51 @@ public static class RelicSystem
 
     public static void SetRelics(List<RelicMasterData> relics) => _relics = relics;
 
+    // 同カテゴリの倍率レリックは「倍率-1（＝ボーナス分）」を全レリックで加算してから+1する。
+    // 単純に掛け算で連鎖させると所持数が増えるほど指数的に膨れ上がるため、
+    // 複数所持時は掛け算より緩やかな伸びになるようにする（単体所持時の数値は変わらない）。
     public static void GetUnitModifiers(out StatBlock add, out StatMultiplier mul)
     {
         add = default;
+        StatMultiplier bonusSum = default;
         mul = StatMultiplier.One;
         if (_relics == null) return;
         foreach (var r in _relics)
         {
             if (r.effectType == RelicEffectType.Unit_AddFlat) add += r.add;
-            else if (r.effectType == RelicEffectType.Unit_Multiply) mul = Mul(mul, FixMul(r.mul));
+            else if (r.effectType == RelicEffectType.Unit_Multiply) bonusSum = AddBonus(bonusSum, r.mul);
         }
+        mul.hp = CombineRate(bonusSum.hp); mul.san = CombineRate(bonusSum.san);
+        mul.pAtk = CombineRate(bonusSum.pAtk); mul.pDef = CombineRate(bonusSum.pDef);
+        mul.mAtk = CombineRate(bonusSum.mAtk); mul.mDef = CombineRate(bonusSum.mDef);
+        mul.hit = CombineRate(bonusSum.hit); mul.evade = CombineRate(bonusSum.evade);
+        mul.heal = CombineRate(bonusSum.heal);
     }
 
-    public static float GetGoldRewardMultiplier()
+    public static float GetGoldRewardMultiplier() => CombineRateSum(RelicEffectType.GoldReward_Multiply);
+
+    public static float GetUpkeepMultiplier() => CombineRateSum(RelicEffectType.Upkeep_Multiply);
+
+    public static float GetRestHealMultiplier() => CombineRateSum(RelicEffectType.RestHeal_Multiply);
+
+    static float CombineRateSum(RelicEffectType type)
     {
-        float x = 1f;
-        if (_relics == null) return x;
+        if (_relics == null) return 1f;
+        float bonus = 0f;
         foreach (var r in _relics)
-            if (r.effectType == RelicEffectType.GoldReward_Multiply) x *= Math.Max(0f, r.rate);
-        return x;
+            if (r.effectType == type) bonus += Math.Max(0f, r.rate) - 1f;
+        return CombineRate(bonus);
     }
 
-    public static float GetUpkeepMultiplier()
-    {
-        float x = 1f;
-        if (_relics == null) return x;
-        foreach (var r in _relics)
-            if (r.effectType == RelicEffectType.Upkeep_Multiply) x *= Math.Max(0f, r.rate);
-        return x;
-    }
+    static float CombineRate(float bonusSum) => Math.Max(0f, 1f + bonusSum);
 
-    public static float GetRestHealMultiplier()
+    static StatMultiplier AddBonus(StatMultiplier sum, StatMultiplier m)
     {
-        float x = 1f;
-        if (_relics == null) return x;
-        foreach (var r in _relics)
-            if (r.effectType == RelicEffectType.RestHeal_Multiply) x *= Math.Max(0f, r.rate);
-        return x;
-    }
-
-    static StatMultiplier FixMul(StatMultiplier m)
-    {
-        if (m.hp == 0f) m.hp = 1f; if (m.san == 0f) m.san = 1f;
-        if (m.pAtk == 0f) m.pAtk = 1f; if (m.pDef == 0f) m.pDef = 1f;
-        if (m.mAtk == 0f) m.mAtk = 1f; if (m.mDef == 0f) m.mDef = 1f;
-        if (m.hit == 0f) m.hit = 1f; if (m.evade == 0f) m.evade = 1f;
-        if (m.heal == 0f) m.heal = 1f;
-        return m;
-    }
-
-    static StatMultiplier Mul(StatMultiplier a, StatMultiplier b)
-    {
-        a.hp *= b.hp; a.san *= b.san; a.pAtk *= b.pAtk; a.pDef *= b.pDef;
-        a.mAtk *= b.mAtk; a.mDef *= b.mDef; a.hit *= b.hit; a.evade *= b.evade; a.heal *= b.heal;
-        return a;
+        sum.hp += m.hp - 1f; sum.san += m.san - 1f;
+        sum.pAtk += m.pAtk - 1f; sum.pDef += m.pDef - 1f;
+        sum.mAtk += m.mAtk - 1f; sum.mDef += m.mDef - 1f;
+        sum.hit += m.hit - 1f; sum.evade += m.evade - 1f;
+        sum.heal += m.heal - 1f;
+        return sum;
     }
 }
