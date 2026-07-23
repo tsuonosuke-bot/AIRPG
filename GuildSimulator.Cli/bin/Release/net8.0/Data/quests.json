@@ -3,7 +3,7 @@
     "id": "quest_herb",
     "questName": "薬草採取",
     "rank": 1, "totalPhases": 12, "phasesPerTurn": 5,
-    "rewardGold": 40, "rewardGuildPoints": 5, "rewardExp": 50,
+    "rewardGold": 40, "rewardGuildPoints": 8, "rewardExp": 50,
     "dungeonId": "dungeon_meadow", "bossEnemyId": "", "bossPhase": 0,
     "gatherItemName": "薬草", "gatherTargetCount": 10,
     "gatherMinPerEvent": 1, "gatherMaxPerEvent": 3, "gatherChance": 0.5, "gatherGoldPerItem": 6,
@@ -13,7 +13,7 @@
     "id": "quest_moonflower",
     "questName": "月光草の採取",
     "rank": 1, "totalPhases": 10, "phasesPerTurn": 5,
-    "rewardGold": 30, "rewardGuildPoints": 6, "rewardExp": 60,
+    "rewardGold": 30, "rewardGuildPoints": 9, "rewardExp": 60,
     "dungeonId": "dungeon_meadow", "bossEnemyId": "", "bossPhase": 0,
     "gatherItemName": "月光草", "gatherTargetCount": 8,
     "gatherMinPerEvent": 1, "gatherMaxPerEvent": 2, "gatherChance": 0.55, "gatherGoldPerItem": 10,
@@ -23,7 +23,7 @@
     "id": "quest_slime_cull",
     "questName": "スライム駆除",
     "rank": 1, "totalPhases": 8, "phasesPerTurn": 5,
-    "rewardGold": 60, "rewardGuildPoints": 6, "rewardExp": 70,
+    "rewardGold": 60, "rewardGuildPoints": 9, "rewardExp": 70,
     "dungeonId": "dungeon_meadow", "bossEnemyId": "", "bossPhase": 0,
     "bossDrops": [],
     "fixedEvents": [
@@ -35,7 +35,7 @@
     "id": "quest_raven_nuisance",
     "questName": "大鴉の追い払い",
     "rank": 1, "totalPhases": 6, "phasesPerTurn": 5,
-    "rewardGold": 50, "rewardGuildPoints": 5, "rewardExp": 55,
+    "rewardGold": 50, "rewardGuildPoints": 8, "rewardExp": 55,
     "dungeonId": "dungeon_meadow", "bossEnemyId": "", "bossPhase": 0,
     "bossDrops": [],
     "fixedEvents": [
@@ -47,7 +47,7 @@
     "id": "quest_investigate_woods",
     "questName": "森の調査",
     "rank": 1, "totalPhases": 5, "phasesPerTurn": 5,
-    "rewardGold": 50, "rewardGuildPoints": 5, "rewardExp": 100,
+    "rewardGold": 50, "rewardGuildPoints": 8, "rewardExp": 100,
     "dungeonId": "dungeon_woods", "bossEnemyId": "", "bossPhase": 0,
     "bossDrops": [], "fixedEvents": []
   },
@@ -55,7 +55,7 @@
     "id": "quest_goblin_slayer",
     "questName": "ゴブリン討伐",
     "rank": 1, "totalPhases": 15, "phasesPerTurn": 5,
-    "rewardGold": 80, "rewardGuildPoints": 50, "rewardExp": 100,
+    "rewardGold": 80, "rewardGuildPoints": 35, "rewardExp": 100,
     "dungeonId": "dungeon_woods", "bossEnemyId": "unit_goblin_chief", "bossPhase": 15,
     "bossDrops": [
       { "type": 2, "gold": 200, "weight": 0, "unique": false }
@@ -69,7 +69,7 @@
     "questName": "【昇格試験】森の主を退けよ",
     "rank": 1, "totalPhases": 14, "phasesPerTurn": 5,
     "rewardGold": 150, "rewardGuildPoints": 80, "rewardExp": 150,
-    "isEmergencyQuest": true, "rankUpOnClear": 1, "requiredGuildPoints": 100,
+    "isEmergencyQuest": true, "rankUpOnClear": 1, "requiredGuildPoints": 70,
     "dungeonId": "dungeon_woods", "bossEnemyId": "unit_treant_grove", "bossPhase": 14,
     "bossDrops": [
       { "type": 0, "relicId": "relic_ironheart", "weight": 0, "unique": true }
@@ -83,7 +83,7 @@
     "id": "quest_mine_survey",
     "questName": "廃坑の測量",
     "rank": 2, "totalPhases": 10, "phasesPerTurn": 5,
-    "rewardGold": 180, "rewardGuildPoints": 15, "rewardExp": 200,
+    "rewardGold": 180, "rewardGuildPoints": 20, "rewardExp": 200,
     "dungeonId": "dungeon_mine", "bossEnemyId": "", "bossPhase": 0,
     "bossDrops": [], "fixedEvents": []
   },
@@ -91,7 +91,7 @@
     "id": "quest_iron_ore",
     "questName": "鉄鉱石の採掘",
     "rank": 2, "totalPhases": 14, "phasesPerTurn": 5,
-    "rewardGold": 100, "rewardGuildPoints": 15, "rewardExp": 180,
+    "rewardGold": 100, "rewardGuildPoints": 20, "rewardExp": 180,
     "dungeonId": "dungeon_mine", "bossEnemyId": "", "bossPhase": 0,
     "gatherItemName": "鉄鉱石", "gatherTargetCount": 15,
     "gatherMinPerEvent": 2, "gatherMaxPerEvent": 4, "gatherChance": 0.45, "gatherGoldPerItem": 14,
@@ -101,7 +101,7 @@
     "id": "quest_cave_mushroom",
     "questName": "洞窟茸の採取",
     "rank": 2, "totalPhases": 11, "phasesPerTurn": 5,
-    "rewardGold": 90, "rewardGuildPoints": 12, "rewardExp": 160,
+    "rewardGold": 90, "rewardGuildPoints": 16, "rewardExp": 160,
     "dungeonId": "dungeon_mine", "bossEnemyId": "", "bossPhase": 0,
     "gatherItemName": "洞窟茸", "gatherTargetCount": 10,
     "gatherMinPerEvent": 1, "gatherMaxPerEvent": 3, "gatherChance": 0.5, "gatherGoldPerItem": 18,
@@ -111,7 +111,7 @@
     "id": "quest_caravan_escort",
     "questName": "隊商護衛",
     "rank": 2, "totalPhases": 12, "phasesPerTurn": 5,
-    "rewardGold": 250, "rewardGuildPoints": 20, "rewardExp": 220,
+    "rewardGold": 250, "rewardGuildPoints": 25, "rewardExp": 220,
     "dungeonId": "dungeon_highway", "bossEnemyId": "", "bossPhase": 0,
     "bossDrops": [],
     "fixedEvents": [
@@ -124,7 +124,7 @@
     "id": "quest_bandit_hunt",
     "questName": "街道の野盗討伐",
     "rank": 2, "totalPhases": 15, "phasesPerTurn": 5,
-    "rewardGold": 280, "rewardGuildPoints": 60, "rewardExp": 260,
+    "rewardGold": 280, "rewardGuildPoints": 45, "rewardExp": 260,
     "dungeonId": "dungeon_highway", "bossEnemyId": "unit_bandit_boss", "bossPhase": 15,
     "bossDrops": [
       { "type": 2, "gold": 400, "weight": 0, "unique": false },
@@ -139,7 +139,7 @@
     "questName": "【昇格試験】坑道の守り手を砕け",
     "rank": 2, "totalPhases": 16, "phasesPerTurn": 5,
     "rewardGold": 400, "rewardGuildPoints": 120, "rewardExp": 350,
-    "isEmergencyQuest": true, "rankUpOnClear": 1, "requiredGuildPoints": 300,
+    "isEmergencyQuest": true, "rankUpOnClear": 1, "requiredGuildPoints": 200,
     "dungeonId": "dungeon_mine", "bossEnemyId": "unit_mine_guardian", "bossPhase": 16,
     "bossDrops": [
       { "type": 0, "relicId": "relic_grimoire", "weight": 0, "unique": true }

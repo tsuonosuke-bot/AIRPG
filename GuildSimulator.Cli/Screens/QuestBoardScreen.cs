@@ -13,11 +13,7 @@ public static class QuestBoardScreen
         {
             ConsoleHelper.Header("クエストボード");
             var board = questManager.questBoard;
-            int normalCount = board.Count(e => !e.quest.isEmergencyQuest);
-            int emergencyCount = board.Count(e => e.quest.isEmergencyQuest);
-            int currentCapacity = questManager.NormalBoardCapacity + emergencyCount;
-            string emergencyText = emergencyCount > 0 ? $"（通常{normalCount}＋緊急{emergencyCount}）" : "（通常のみ）";
-            Console.WriteLine($"  掲示 {board.Count}/{currentCapacity}枚 {emergencyText}   受注可能: ギルドランク{guild.GuildRank}以下");
+            Console.WriteLine($"  受注可能: ギルドランク{guild.GuildRank}以下");
             Console.WriteLine();
             if (board.Count == 0) { ConsoleHelper.Warn("掲示中のクエストはありません"); ConsoleHelper.PressAnyKey(); return; }
             for (int i = 0; i < board.Count; i++)
