@@ -56,7 +56,7 @@
       { "unitId": "unit_goblin_single",  "weight": 3, "minPhase": 1, "maxPhase": 6 },
       { "unitId": "unit_goblin_group",   "weight": 3, "minPhase": 3, "maxPhase": 0 },
       { "unitId": "unit_goblin_scouts",  "weight": 3, "minPhase": 4, "maxPhase": 0 },
-      { "unitId": "unit_goblin_warband", "weight": 2, "minPhase": 8, "maxPhase": 0 },
+      { "unitId": "unit_goblin_warband", "weight": 2, "minPhase": 11, "maxPhase": 0 },
       { "unitId": "unit_wolf_pair",      "weight": 3, "minPhase": 2, "maxPhase": 0 },
       { "unitId": "unit_wolf_pack",      "weight": 2, "minPhase": 6, "maxPhase": 0 },
       { "unitId": "unit_spider_single",  "weight": 2, "minPhase": 3, "maxPhase": 0 },
@@ -64,7 +64,7 @@
       { "unitId": "unit_bee_swarm",      "weight": 2, "minPhase": 2, "maxPhase": 0 },
       { "unitId": "unit_treant_single",  "weight": 1, "minPhase": 8, "maxPhase": 0 },
       { "unitId": "unit_treant_grove",   "weight": 1, "minPhase": 12, "maxPhase": 0 },
-      { "unitId": "unit_goblin_soldier_patrol", "weight": 2, "minPhase": 5, "maxPhase": 0 }
+      { "unitId": "unit_goblin_soldier_patrol", "weight": 2, "minPhase": 11, "maxPhase": 0 }
     ],
     "rewardTable": [
       { "type": 2, "gold": 50, "weight": 5, "unique": false },
