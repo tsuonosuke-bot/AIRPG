@@ -54,14 +54,14 @@
   {
     "id": "quest_goblin_slayer",
     "questName": "ゴブリン討伐",
-    "rank": 1, "totalPhases": 15, "phasesPerTurn": 5,
+    "rank": 1, "totalPhases": 10, "phasesPerTurn": 5,
     "rewardGold": 80, "rewardGuildPoints": 35, "rewardExp": 100,
-    "dungeonId": "dungeon_woods", "bossEnemyId": "unit_goblin_chief", "bossPhase": 15,
+    "dungeonId": "dungeon_woods", "bossEnemyId": "unit_goblin_soldier_boss", "bossPhase": 10,
     "bossDrops": [
       { "type": 2, "gold": 200, "weight": 0, "unique": false }
     ],
     "fixedEvents": [
-      { "phase": 15, "type": 2 }
+      { "phase": 10, "type": 2 }
     ]
   },
   {

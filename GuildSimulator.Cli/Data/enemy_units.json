@@ -42,6 +42,8 @@
     "formationIds": ["enemy_goblin_chief", "enemy_goblin", "enemy_goblin", "enemy_goblin_archer", "enemy_goblin_shaman", "enemy_goblin_archer"] },
   { "id": "unit_goblin_soldier_patrol", "unitName": "ゴブリン兵士の哨戒隊", "baseLevel": 3,
     "formationIds": ["enemy_goblin_soldier", "enemy_goblin_soldier", null, null, null, null] },
+  { "id": "unit_goblin_soldier_boss", "unitName": "ゴブリン兵士とその手下", "baseLevel": 2,
+    "formationIds": ["enemy_goblin_soldier", "enemy_goblin", "enemy_goblin", null, null, null] },
 
   { "id": "unit_kernos_lone", "unitName": "ケルノス", "baseLevel": 5,
     "formationIds": ["enemy_kernos", null, null, null, null, null] },
