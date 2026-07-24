@@ -32,6 +32,7 @@ public class QuestManager
     public QuestManager(GuildManager guild) => this.guild = guild;
 
     public bool IsAdventurerBusy(string id) => busyIds.Contains(id);
+    public bool HasPendingChoices => activeQuests.Any(q => q.HasPendingChoice);
 
     // ---- クエストボード ----
 
@@ -81,7 +82,12 @@ public class QuestManager
 
     static bool IsOneShot(QuestMasterData q) => q.isEmergencyQuest || q.rankUpOnClear > 0;
 
-    public bool TryStartQuest(QuestMasterData def, AdventurerData?[] formation, int currentTurn, out string error)
+    public bool TryStartQuest(
+        QuestMasterData def,
+        AdventurerData?[] formation,
+        int currentTurn,
+        out string error,
+        IReadOnlyList<ConsumableMasterData>? carriedConsumables = null)
     {
         error = "";
         var members = formation.Where(a => a != null).ToArray();
@@ -92,6 +98,12 @@ public class QuestManager
             if (!a.isAlive) { error = $"{a.name} は死亡しています"; return false; }
             if (IsAdventurerBusy(a.id)) { error = $"{a.name} は別のクエストに出発中です"; return false; }
         }
+        foreach (var group in (carriedConsumables ?? Array.Empty<ConsumableMasterData>()).GroupBy(x => x))
+            if (guild.GetConsumableCount(group.Key) < group.Count())
+            {
+                error = $"消費アイテムが不足しています: {group.Key.displayName}";
+                return false;
+            }
 
         var run = new QuestRun(def, currentTurn);
         Array.Copy(formation, run.formation, Math.Min(formation.Length, 6));
@@ -106,6 +118,16 @@ public class QuestManager
 
         // 士気の上限は編成の san 合計（＝mental の高さ）。粘り強さは編成で決まる。
         run.morale = new MoraleState(perMember.Sum(x => x.stats.san));
+        foreach (var item in carriedConsumables ?? Array.Empty<ConsumableMasterData>())
+        {
+            if (!guild.TryConsumeConsumable(item))
+            {
+                error = $"消費アイテムを消費できませんでした: {item.displayName}";
+                return false;
+            }
+            run.ApplyConsumable(item);
+            run.logs.Add($"[出発準備] {item.displayName}: {item.description}");
+        }
 
         activeQuests.Add(run);
         MarkBusy(run);
@@ -117,9 +139,20 @@ public class QuestManager
     {
         foreach (var q in activeQuests.ToList())
         {
+            if (q.HasPendingChoice) continue;
             int steps = q.def.phasesPerTurn;
             for (int i = 0; i < steps && q.IsInProgress; i++)
                 progressor.AdvanceOnePhase(q, currentTurn);
+
+            if (q.IsInProgress)
+            {
+                var choiceEvent = PickTurnEndEvent(q.def.Dungeon);
+                if (choiceEvent != null)
+                {
+                    q.pendingChoice = new PendingQuestChoice { Event = choiceEvent, createdTurn = currentTurn };
+                    q.logs.Add($"[Turn {currentTurn}] 選択イベント発生: {choiceEvent.title}");
+                }
+            }
 
             // ランクポイント・昇格は正規クリアのみ。撤退では得られない。
             if (q.IsCleared && !q.clearProgressApplied)
@@ -134,6 +167,85 @@ public class QuestManager
                     guild.RankUp(q.def.rankUpOnClear, $"緊急クエスト完了: {q.def.questName}");
             }
         }
+    }
+
+    static QuestChoiceEventMasterData? PickTurnEndEvent(DungeonMasterData? dungeon)
+    {
+        if (dungeon == null) return null;
+        if (GameRandom.NextFloat() >= Math.Clamp(dungeon.turnEndEventChance, 0f, 1f)) return null;
+        int total = dungeon.turnEndEvents.Where(e => e.weight > 0 && e.options.Count > 0).Sum(e => e.weight);
+        if (total <= 0) return null;
+        int roll = GameRandom.Range(0, total);
+        foreach (var ev in dungeon.turnEndEvents)
+        {
+            if (ev.weight <= 0 || ev.options.Count == 0) continue;
+            roll -= ev.weight;
+            if (roll < 0) return ev;
+        }
+        return null;
+    }
+
+    public bool ResolveChoice(QuestRun q, int optionIndex, out string result)
+    {
+        result = "";
+        var pending = q.pendingChoice;
+        if (pending == null) { result = "選択待ちではありません"; return false; }
+        if (optionIndex < 0 || optionIndex >= pending.Event.options.Count)
+        {
+            result = "無効な選択です";
+            return false;
+        }
+
+        var option = pending.Event.options[optionIndex];
+        switch (option.effectType)
+        {
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.Morale:
+                if (option.value >= 0) q.morale.Restore(option.value);
+                else q.morale.Drain(-option.value);
+                break;
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.HealPercent:
+                foreach (var a in q.EnumerateMembers().Where(a => a.isAlive))
+                    a.CombatHp = Math.Min(a.CombatHpMax,
+                        a.CombatHp + (int)Math.Ceiling(a.CombatHpMax * option.value / 100f));
+                break;
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.DamagePercent:
+                foreach (var a in q.EnumerateMembers().Where(a => a.isAlive))
+                    a.CombatHp = Math.Max(1,
+                        a.CombatHp - (int)Math.Ceiling(a.CombatHpMax * option.value / 100f));
+                break;
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.Experience:
+                foreach (var a in q.EnumerateMembers().Where(a => a.isAlive))
+                    a.AddExperience(option.value, out _);
+                break;
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.Gold:
+                q.pendingLoot.Add(new RewardEntryData
+                {
+                    type = GuildSimulator.Core.Models.RewardType.Gold, gold = option.value, quantity = 1,
+                });
+                break;
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.Equipment:
+                if (option.Equipment != null)
+                    q.pendingLoot.Add(new RewardEntryData
+                    {
+                        type = GuildSimulator.Core.Models.RewardType.Equipment,
+                        Equipment = option.Equipment, equipmentId = option.Equipment.id,
+                        quantity = Math.Max(1, option.value),
+                    });
+                break;
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.Consumable:
+                if (option.Consumable != null)
+                    q.pendingLoot.Add(new RewardEntryData
+                    {
+                        type = GuildSimulator.Core.Models.RewardType.Consumable,
+                        Consumable = option.Consumable, consumableId = option.Consumable.id,
+                        quantity = Math.Max(1, option.value),
+                    });
+                break;
+        }
+        result = option.resultText;
+        q.logs.Add($"[選択] {option.text} - {option.resultText}");
+        q.pendingChoice = null;
+        return true;
     }
 
     public List<RewardOption> GetPendingRewards(QuestRun q) =>
@@ -162,7 +274,12 @@ public class QuestManager
 
         // ギルドに帰還した生存メンバーは全快させる（死亡者は蘇生しない）。
         foreach (var a in q.EnumerateMembers())
-            if (a.isAlive) a.CombatHp = a.CombatHpMax;
+            if (a.isAlive)
+            {
+                // クエスト限定の最大HP補正を帰還時に破棄する。0は画面側で平常時最大HPを再計算する印。
+                a.CombatHp = 0;
+                a.CombatHpMax = 0;
+            }
 
         UnmarkBusy(q);
         activeQuests.Remove(q);

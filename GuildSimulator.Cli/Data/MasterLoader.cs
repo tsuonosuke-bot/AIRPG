@@ -12,12 +12,14 @@ public class GameMasterData
     public Dictionary<string, ClassMasterData> classes = new();
     public Dictionary<string, RaceMasterData> races = new();
     public Dictionary<string, EquipmentMasterData> equipment = new();
+    public Dictionary<string, ConsumableMasterData> consumables = new();
     public Dictionary<string, RelicMasterData> relics = new();
     public Dictionary<string, EnemyMasterData> enemies = new();
     public Dictionary<string, EnemyUnitTemplate> enemyUnits = new();
     public Dictionary<string, DungeonMasterData> dungeons = new();
     public List<QuestMasterData> allQuests = new();
     public List<AdventurerMasterData> allAdventurers = new();
+    public Dictionary<string, QuestChoiceEventMasterData> choiceEvents = new();
 }
 
 public static class MasterLoader
@@ -86,9 +88,17 @@ public static class MasterLoader
                 weaponType = e.weaponType, armorType = e.armorType,
                 physicalCoeff = e.physicalCoeff, magicCoeff = e.magicCoeff, healCoeff = e.healCoeff,
                 flatPhysicalAtk = e.flatPhysicalAtk, flatMagicAtk = e.flatMagicAtk, flatHeal = e.flatHeal,
-                weight = e.weight, price = e.price, bonus = ParseStatBlock(e.bonus),
+                weight = e.weight, price = e.price, bonus = ParseStatBlock(e.bonus), rarity = e.rarity,
             };
         }
+
+        var consumables = Load<List<ConsumableJson>>(dataDir, "consumables.json");
+        foreach (var c in consumables)
+            db.consumables[c.id] = new ConsumableMasterData
+            {
+                id = c.id, displayName = c.displayName, description = c.description ?? "",
+                rarity = c.rarity, price = c.price, effectType = c.effectType, effectValue = c.effectValue,
+            };
 
         var relics = Load<List<RelicJson>>(dataDir, "relics.json");
         foreach (var r in relics)
@@ -114,7 +124,34 @@ public static class MasterLoader
             if (!string.IsNullOrEmpty(e.defaultArmorId) && db.equipment.TryGetValue(e.defaultArmorId, out var a)) ed.DefaultArmor = a;
             foreach (var sid in e.skillIds ?? new())
                 if (db.skills.TryGetValue(sid, out var sk)) ed.Skills.Add(sk);
+            foreach (var drop in e.dropTable ?? new())
+                ed.dropTable.Add(ResolveRewardEntry(drop, db));
             db.enemies[e.id] = ed;
+        }
+
+        var choiceEvents = Load<List<ChoiceEventJson>>(dataDir, "choice_events.json");
+        foreach (var ev in choiceEvents)
+        {
+            var master = new QuestChoiceEventMasterData
+            {
+                id = ev.id, title = ev.title, description = ev.description ?? "", weight = ev.weight,
+            };
+            foreach (var option in ev.options ?? new())
+            {
+                var resolvedOption = new QuestChoiceOptionData
+                {
+                    text = option.text, resultText = option.resultText ?? "",
+                    effectType = option.effectType, value = option.value, targetId = option.targetId ?? "",
+                };
+                if (resolvedOption.effectType == QuestChoiceEffectType.Equipment
+                    && db.equipment.TryGetValue(resolvedOption.targetId, out var choiceEquipment))
+                    resolvedOption.Equipment = choiceEquipment;
+                if (resolvedOption.effectType == QuestChoiceEffectType.Consumable
+                    && db.consumables.TryGetValue(resolvedOption.targetId, out var choiceConsumable))
+                    resolvedOption.Consumable = choiceConsumable;
+                master.options.Add(resolvedOption);
+            }
+            db.choiceEvents[master.id] = master;
         }
 
         var units = Load<List<EnemyUnitJson>>(dataDir, "enemy_units.json");
@@ -139,6 +176,7 @@ public static class MasterLoader
                 id = d.id, dungeonName = d.dungeonName,
                 rewardChoiceMin = d.rewardChoiceMin, rewardChoiceMax = d.rewardChoiceMax,
                 enemyLevelPerPhase = d.enemyLevelPerPhase,
+                turnEndEventChance = d.turnEndEventChance ?? 0.35f,
             };
             foreach (var kv in d.eventTable ?? new())
                 if (Enum.TryParse<DungeonEventType>(kv.Key, ignoreCase: true, out var et))
@@ -158,6 +196,9 @@ public static class MasterLoader
                 dd.rewardTable.Add(ResolveRewardEntry(re, db));
             foreach (var re in d.treasureTable ?? new())
                 dd.treasureTable.Add(ResolveRewardEntry(re, db));
+            foreach (var eventId in d.turnEndEventIds ?? new())
+                if (db.choiceEvents.TryGetValue(eventId, out var choiceEvent))
+                    dd.turnEndEvents.Add(choiceEvent);
             db.dungeons[d.id] = dd;
         }
 
@@ -197,6 +238,7 @@ public static class MasterLoader
                 defaultLevel = a.defaultLevel, defaultRank = a.defaultRank,
                 recruitGuildRank = recruitGuildRank,
                 recruitWeight = recruitWeight,
+                rarity = a.rarity ?? DefaultAdventurerRarity(recruitWeight),
                 vitality = a.vitality, mental = a.mental, strength = a.strength,
                 agility = a.agility, intelligence = a.intelligence,
                 constitution = a.constitution, appearance = a.appearance,
@@ -218,10 +260,17 @@ public static class MasterLoader
 
     static RewardEntryData ResolveRewardEntry(RewardEntryJson re, GameMasterData db)
     {
-        var entry = new RewardEntryData { type = (RewardType)re.type, gold = re.gold, weight = re.weight, unique = re.unique };
+        var entry = new RewardEntryData
+        {
+            type = (RewardType)re.type, gold = re.gold, weight = re.weight,
+            chance = re.chance, quantity = re.quantity > 0 ? re.quantity : 1, unique = re.unique,
+            relicId = re.relicId ?? "", equipmentId = re.equipmentId ?? "",
+            skillId = re.skillId ?? "", consumableId = re.consumableId ?? "",
+        };
         if (!string.IsNullOrEmpty(re.relicId) && db.relics.TryGetValue(re.relicId, out var rl)) entry.Relic = rl;
         if (!string.IsNullOrEmpty(re.equipmentId) && db.equipment.TryGetValue(re.equipmentId, out var eq)) entry.Equipment = eq;
         if (!string.IsNullOrEmpty(re.skillId) && db.skills.TryGetValue(re.skillId, out var sk2)) entry.Skill = sk2;
+        if (!string.IsNullOrEmpty(re.consumableId) && db.consumables.TryGetValue(re.consumableId, out var item)) entry.Consumable = item;
         return entry;
     }
 
@@ -260,6 +309,15 @@ public static class MasterLoader
         return JsonSerializer.Deserialize<T>(json, _opts)!;
     }
 
+    static Rarity DefaultAdventurerRarity(int recruitWeight) => recruitWeight switch
+    {
+        <= 10 => Rarity.Legend,
+        <= 25 => Rarity.Unique,
+        <= 45 => Rarity.Rare,
+        <= 75 => Rarity.Uncommon,
+        _ => Rarity.Common,
+    };
+
     // ---- DTO records ----
     record SkillJson(string id, string skillName, SkillScope scope,
         bool frontOnly, bool backOnly, bool requireWeaponType, WeaponType requiredWeaponType,
@@ -272,22 +330,31 @@ public static class MasterLoader
 
     record EquipJson(string id, string displayName, EquipmentType type, WeaponType weaponType, ArmorType armorType,
         float physicalCoeff, float magicCoeff, float healCoeff, int flatPhysicalAtk, int flatMagicAtk, int flatHeal,
-        int weight, int price, Dictionary<string, int>? bonus);
+        int weight, int price, Dictionary<string, int>? bonus, Rarity rarity);
+
+    record ConsumableJson(string id, string displayName, string? description, Rarity rarity,
+        int price, ConsumableEffectType effectType, int effectValue);
 
     record RelicJson(string id, string relicName, string? description, RelicEffectType effectType, float rate,
         Dictionary<string, int>? add, Dictionary<string, float>? mul);
 
     record EnemyJson(string id, string baseName, int exp, int vitality, int mental, int strength,
-        int agility, int intelligence, int constitution, string? defaultWeaponId, string? defaultArmorId, List<string>? skillIds);
+        int agility, int intelligence, int constitution, string? defaultWeaponId, string? defaultArmorId,
+        List<string>? skillIds, List<RewardEntryJson>? dropTable);
 
     record EnemyUnitJson(string id, string unitName, int baseLevel, List<string?>? formationIds);
 
-    record RewardEntryJson(int type, string? relicId, string? equipmentId, string? skillId, int gold, int weight, bool unique);
+    record RewardEntryJson(int type, string? relicId, string? equipmentId, string? skillId,
+        string? consumableId, int gold, int weight, float chance, int quantity, bool unique);
+
+    record ChoiceOptionJson(string text, string? resultText, QuestChoiceEffectType effectType, int value, string? targetId);
+    record ChoiceEventJson(string id, string title, string? description, int weight, List<ChoiceOptionJson>? options);
 
     record EncounterEntryJson(string unitId, int weight, int minPhase, int maxPhase);
     record DungeonJson(string id, string dungeonName, int rewardChoiceMin, int rewardChoiceMax,
         Dictionary<string, int>? eventTable, List<EncounterEntryJson>? encounterTable,
-        float enemyLevelPerPhase, List<RewardEntryJson>? rewardTable, List<RewardEntryJson>? treasureTable);
+        float enemyLevelPerPhase, List<RewardEntryJson>? rewardTable, List<RewardEntryJson>? treasureTable,
+        List<string>? turnEndEventIds, float? turnEndEventChance);
 
     record QuestPhaseEventJson(int phase, int type);
     record QuestJson(string id, string questName, int rank, int totalPhases, int phasesPerTurn,
@@ -300,5 +367,6 @@ public static class MasterLoader
     record AdvJson(string id, string baseName, int upkeepGold, int defaultLevel, int defaultRank,
         int? recruitGuildRank, int? recruitWeight,
         int vitality, int mental, int strength, int agility, int intelligence, int constitution, int appearance,
-        string? defaultClassId, string? raceId, string? defaultWeaponId, string? defaultArmorId, List<string>? skillIds);
+        string? defaultClassId, string? raceId, string? defaultWeaponId, string? defaultArmorId,
+        List<string>? skillIds, Rarity? rarity);
 }

@@ -15,7 +15,8 @@ public static class InventoryScreen
             .ThenBy(s => s.item.price)
             .ToList();
 
-        if (stock.Count == 0)
+        var consumables = guild.GetConsumablesView().Where(s => s.count > 0).ToList();
+        if (stock.Count == 0 && consumables.Count == 0)
         {
             ConsoleHelper.Dim("  倉庫に装備はありません");
             ConsoleHelper.Dim("  商店で購入するか、クエスト報酬で入手できます");
@@ -23,15 +24,33 @@ public static class InventoryScreen
             return;
         }
 
-        Console.WriteLine($"  装備の種類: {stock.Count}種   合計: {stock.Sum(s => s.count)}個");
-        Console.WriteLine();
-        for (int i = 0; i < stock.Count; i++)
+        if (stock.Count > 0)
         {
-            var stack = stock[i];
-            string kind = stack.item.type == EquipmentType.Weapon ? "武器" : "防具";
-            int sellPrice = GuildManager.SellPrice(stack.item);
-            Console.WriteLine($"  {i + 1}. [{kind}] {stack.item.displayName}  x{stack.count}  売値{sellPrice}G/個");
-            ConsoleHelper.Dim($"       {DescribeEquipment(stack.item)}");
+            Console.WriteLine($"  装備の種類: {stock.Count}種   合計: {stock.Sum(s => s.count)}個");
+            Console.WriteLine();
+            for (int i = 0; i < stock.Count; i++)
+            {
+                var stack = stock[i];
+                string kind = stack.item.type == EquipmentType.Weapon ? "武器" : "防具";
+                int sellPrice = GuildManager.SellPrice(stack.item);
+                Console.Write($"  {i + 1}. [{kind}] ");
+                ConsoleHelper.WriteRarityName(stack.item.displayName, stack.item.rarity);
+                Console.WriteLine($"  x{stack.count}  売値{sellPrice}G/個");
+                ConsoleHelper.Dim($"       {DescribeEquipment(stack.item)}");
+            }
+        }
+
+        if (consumables.Count > 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"  消費アイテム: {consumables.Sum(s => s.count)}個");
+            foreach (var stack in consumables)
+            {
+                Console.Write("    ・");
+                ConsoleHelper.WriteRarityName(stack.item.displayName, stack.item.rarity);
+                Console.WriteLine($" x{stack.count}");
+                ConsoleHelper.Dim($"       {stack.item.description}");
+            }
         }
 
         ConsoleHelper.PressAnyKey();

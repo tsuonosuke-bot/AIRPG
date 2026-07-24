@@ -1,4 +1,5 @@
 using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Battle;
 
 namespace GuildSimulator.Core.GameData;
@@ -34,6 +35,11 @@ public class QuestRun
 
     // 採取クエストの収集数。目標に達した時点で最終フェーズを待たずに帰還できる。
     public int gatheredCount;
+    public PendingQuestChoice? pendingChoice;
+    public List<string> usedConsumableIds = new();
+    public int goldRewardBonusPercent;
+    public int expRewardBonusPercent;
+    public int trapDamageReductionPercent;
 
     public bool GatherFulfilled => def.IsGatherQuest && gatheredCount >= def.gatherTargetCount;
 
@@ -45,6 +51,7 @@ public class QuestRun
 
     public bool IsInProgress => !failed && !retreated && !rewarded && !ReachedGoal;
     public bool CanComplete => !failed && !rewarded && (retreated || ReachedGoal);
+    public bool HasPendingChoice => pendingChoice != null;
 
     public QuestRun(QuestMasterData def, int startedTurn)
     {
@@ -61,4 +68,38 @@ public class QuestRun
     // 個人HPの合算（表示用）。実体は各formationメンバーのCombatHp/CombatHpMax。
     public int unitHpMax => EnumerateMembers().Sum(a => a.CombatHpMax);
     public int unitHpCurrent => EnumerateMembers().Where(a => a.isAlive).Sum(a => a.CombatHp);
+
+    public void ApplyConsumable(ConsumableMasterData item)
+    {
+        usedConsumableIds.Add(item.id);
+        switch (item.effectType)
+        {
+            case ConsumableEffectType.MaxHpPercent:
+                foreach (var a in EnumerateMembers())
+                {
+                    int bonus = (int)Math.Ceiling(a.CombatHpMax * item.effectValue / 100f);
+                    a.CombatHpMax += bonus;
+                    a.CombatHp += bonus;
+                }
+                break;
+            case ConsumableEffectType.MoralePercent:
+                morale.IncreaseMaxPercent(item.effectValue);
+                break;
+            case ConsumableEffectType.GoldRewardPercent:
+                goldRewardBonusPercent += item.effectValue;
+                break;
+            case ConsumableEffectType.ExpRewardPercent:
+                expRewardBonusPercent += item.effectValue;
+                break;
+            case ConsumableEffectType.TrapDamageReductionPercent:
+                trapDamageReductionPercent = Math.Clamp(trapDamageReductionPercent + item.effectValue, 0, 90);
+                break;
+        }
+    }
+}
+
+public class PendingQuestChoice
+{
+    public QuestChoiceEventMasterData Event = null!;
+    public int createdTurn;
 }

@@ -7,7 +7,7 @@ namespace GuildSimulator.Cli.Data;
 
 public class SaveGameData
 {
-    public int saveVersion = 1;
+    public int saveVersion = 2;
     public int currentTurn = 1;
     public GuildSaveData guild = new();
     public QuestManagerSaveData questManager = new();
@@ -22,6 +22,10 @@ public class GuildSaveData
     public List<string> economyLogs = new();
     public List<string> relicIds = new();
     public List<InventoryEntrySave> inventory = new();
+    public List<InventoryEntrySave> consumables = new();
+    public int lastShopRefreshTurn;
+    public Dictionary<string, int> shopEquipmentStock = new();
+    public Dictionary<string, int> shopConsumableStock = new();
     public List<AdventurerSaveData> adventurers = new();
 }
 
@@ -91,6 +95,12 @@ public class QuestRunSaveData
     public List<string> logs = new();
     public List<PendingLootSave> pendingLoot = new();
     public int gatheredCount;
+    public List<string> usedConsumableIds = new();
+    public int goldRewardBonusPercent;
+    public int expRewardBonusPercent;
+    public int trapDamageReductionPercent;
+    public string pendingChoiceEventId = "";
+    public int pendingChoiceCreatedTurn;
 }
 
 public class PendingLootSave
@@ -99,7 +109,9 @@ public class PendingLootSave
     public string relicId = "";
     public string equipmentId = "";
     public string skillId = "";
+    public string consumableId = "";
     public int gold;
     public int weight = 10;
+    public int quantity = 1;
     public bool unique = true;
 }

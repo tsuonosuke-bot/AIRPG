@@ -23,4 +23,8 @@ public class DungeonMasterData
 
     // 敵レベルのフェーズスケーリング（実効Lv = baseLevel + floor((phase-1) * これ)）
     public float enemyLevelPerPhase = 0f;
+
+    // ターン内の最終フェーズ処理後、まだ進行中なら最大1件抽選する選択イベント。
+    public List<QuestChoiceEventMasterData> turnEndEvents = new();
+    public float turnEndEventChance = 0.35f;
 }

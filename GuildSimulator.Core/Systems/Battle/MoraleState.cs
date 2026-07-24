@@ -27,7 +27,7 @@ public class MoraleState
     /// <summary>休息イベントで回復する割合。</summary>
     public const float RestRecoverRate = 0.5f;
 
-    public int Max { get; }
+    public int Max { get; private set; }
     public int Current { get; private set; }
 
     public MoraleState(int max)
@@ -65,6 +65,14 @@ public class MoraleState
     }
 
     public int RestoreRate(float rate) => Restore((int)Math.Ceiling(Max * rate));
+
+    public void IncreaseMaxPercent(int percent)
+    {
+        if (percent <= 0) return;
+        int bonus = (int)Math.Ceiling(Max * percent / 100f);
+        Max += bonus;
+        Current += bonus;
+    }
 
     /// <summary>
     /// 受けた損害で士気を削る。生の damage ではなくパーティ最大HPに対する割合で見るため、

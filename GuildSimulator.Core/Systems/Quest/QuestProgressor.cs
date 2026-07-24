@@ -81,7 +81,9 @@ public class QuestProgressor
                         int rally = q.morale.RestoreRate(MoraleState.VictoryRecoverRate);
                         evResult = $"勝利（HP {q.unitHpCurrent}/{q.unitHpMax} 士気 {q.morale.Current}/{q.morale.Max}）";
                         if (rally > 0) q.logs.Add($"  Phase {phase}: 勝利で士気を持ち直した（+{rally}）");
-                        int totalExp = enemyMembers.Sum(e => e?.master.exp ?? 0);
+                        int totalExp = (int)Math.Floor(
+                            enemyMembers.Sum(e => e?.master.exp ?? 0)
+                            * (1f + q.expRewardBonusPercent / 100f));
                         if (isBoss) { q.bossDefeated = true; q.logs.Add($"  Phase {phase}: ボス撃破！"); }
                         foreach (var a in q.formation)
                         {
@@ -89,6 +91,7 @@ public class QuestProgressor
                             if (a.AddExperience(totalExp, out var ups))
                                 q.logs.Add($"  {a.name} 経験値 +{totalExp}（レベルアップ +{ups}）");
                         }
+                        RollEnemyDrops(q, enemyMembers, phase);
                     }
                     else if (advWiped)
                     {
@@ -129,7 +132,9 @@ public class QuestProgressor
                     }
                     else
                     {
-                        int dmg = (int)Math.Ceiling(Math.Max(1, victim.CombatHpMax) * 0.15f);
+                        int rawDamage = (int)Math.Ceiling(Math.Max(1, victim.CombatHpMax) * 0.15f);
+                        int dmg = Math.Max(1, (int)Math.Ceiling(
+                            rawDamage * (1f - q.trapDamageReductionPercent / 100f)));
                         int applied = Math.Min(dmg, victim.CombatHp);
                         victim.CombatHp = Math.Max(0, victim.CombatHp - dmg);
                         q.morale.DrainFromDamage(applied, q.unitHpMax);
@@ -274,8 +279,38 @@ public class QuestProgressor
         RewardType.Relic => $"遺物「{e.Relic?.relicName ?? "?"}」",
         RewardType.Equipment => $"装備「{e.Equipment?.displayName ?? "?"}」",
         RewardType.Skill => $"スキル「{e.Skill?.skillName ?? "?"}」",
+        RewardType.Consumable => $"消費アイテム「{e.Consumable?.displayName ?? "?"}」",
         _ => e.type.ToString(),
     };
+
+    static void RollEnemyDrops(QuestRun q, IEnumerable<EnemyData?> enemies, int phase)
+    {
+        foreach (var enemy in enemies.Where(e => e != null))
+        {
+            foreach (var entry in enemy!.master.dropTable)
+            {
+                if (entry.chance <= 0f || GameRandom.NextFloat() >= entry.chance) continue;
+                var drop = new RewardEntryData
+                {
+                    type = entry.type,
+                    relicId = entry.relicId,
+                    equipmentId = entry.equipmentId,
+                    skillId = entry.skillId,
+                    consumableId = entry.consumableId,
+                    gold = entry.gold,
+                    quantity = Math.Max(1, entry.quantity),
+                    unique = entry.unique,
+                    Relic = entry.Relic,
+                    Equipment = entry.Equipment,
+                    Skill = entry.Skill,
+                    Consumable = entry.Consumable,
+                };
+                q.pendingLoot.Add(drop);
+                q.logs.Add($"  Phase {phase}: レアドロップ！ {enemy.master.baseName}から"
+                    + $"{DescribeLoot(drop)} x{drop.quantity}（帰還時に確定）");
+            }
+        }
+    }
 
     static EnemyData?[] CreateEnemyMembers(EnemyUnitTemplate tpl, int level)
     {

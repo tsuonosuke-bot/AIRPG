@@ -15,6 +15,10 @@ public class GuildManager
     public List<RelicMasterData> relics = new();
     public List<string> economyLogs = new();
     readonly List<EquipmentStack> inventory = new();
+    readonly List<ConsumableStack> consumables = new();
+    public Dictionary<string, int> shopEquipmentStock = new();
+    public Dictionary<string, int> shopConsumableStock = new();
+    public int LastShopRefreshTurn { get; private set; }
 
     public GuildManager(int startGold = 50, int startRank = 1)
     {
@@ -145,4 +149,47 @@ public class GuildManager
     }
 
     public IReadOnlyList<EquipmentStack> GetInventoryView() => inventory;
+
+    // ---- Consumables ----
+    public int GetConsumableCount(ConsumableMasterData item) =>
+        consumables.FirstOrDefault(x => x.item == item)?.count ?? 0;
+
+    public void AddConsumable(ConsumableMasterData item, int amount = 1)
+    {
+        if (amount <= 0) return;
+        var stack = consumables.FirstOrDefault(x => x.item == item);
+        if (stack == null) { stack = new ConsumableStack(item, 0); consumables.Add(stack); }
+        stack.count += amount;
+    }
+
+    public bool TryConsumeConsumable(ConsumableMasterData item, int amount = 1)
+    {
+        var stack = consumables.FirstOrDefault(x => x.item == item);
+        if (stack == null || amount <= 0 || stack.count < amount) return false;
+        stack.count -= amount;
+        if (stack.count == 0) consumables.Remove(stack);
+        return true;
+    }
+
+    public IReadOnlyList<ConsumableStack> GetConsumablesView() => consumables;
+
+    // ---- Shop stock ----
+    public bool ShopNeedsRefresh(int currentTurn) =>
+        LastShopRefreshTurn <= 0 || currentTurn - LastShopRefreshTurn >= 5;
+
+    public void ReplaceShopStock(
+        int currentTurn,
+        Dictionary<string, int> equipmentStock,
+        Dictionary<string, int> consumableStock)
+    {
+        LastShopRefreshTurn = currentTurn;
+        shopEquipmentStock = equipmentStock;
+        shopConsumableStock = consumableStock;
+    }
+
+    public void RestoreShopStock(
+        int lastRefreshTurn,
+        Dictionary<string, int> equipmentStock,
+        Dictionary<string, int> consumableStock) =>
+        ReplaceShopStock(lastRefreshTurn, equipmentStock, consumableStock);
 }

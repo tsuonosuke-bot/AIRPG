@@ -22,6 +22,25 @@ if (!Directory.Exists(dataDir))
 Console.WriteLine("データ読み込み中...");
 var db = MasterLoader.Load(dataDir);
 
+if (args.Contains("--validate-master", StringComparer.OrdinalIgnoreCase))
+{
+    var errors = MasterValidator.Validate(db);
+    if (errors.Count == 0)
+    {
+        Console.WriteLine("マスタデータ検証: OK");
+        Console.WriteLine($"  冒険者 {db.allAdventurers.Count} / 装備 {db.equipment.Count}"
+            + $" / 敵 {db.enemies.Count} / 消費アイテム {db.consumables.Count}"
+            + $" / 選択イベント {db.choiceEvents.Count}");
+    }
+    else
+    {
+        Console.WriteLine($"マスタデータ検証: {errors.Count}件のエラー");
+        foreach (var error in errors) Console.WriteLine($"  - {error}");
+        Environment.ExitCode = 1;
+    }
+    return;
+}
+
 string savePath = SaveManager.DefaultSavePath;
 if (SaveManager.Exists(savePath))
     Console.WriteLine($"セーブデータが見つかりました（{savePath}）。メニューの「l」でロードできます。");
@@ -50,6 +69,7 @@ static bool RunGame(GameMasterData db, string savePath)
     // ---- メインループ ----
     while (true)
     {
+        ShopService.RefreshIfNeeded(guild, currentTurn, db.equipment.Values, db.consumables.Values);
         ConsoleHelper.Header($"ギルドシミュレーター  Turn {currentTurn}");
         int upkeepPerTurn = guild.EffectiveUpkeepPerTurn;
         Console.WriteLine($"  所持金: {guild.Gold}G（維持費 {upkeepPerTurn}G/T）   ギルドランク: {guild.GuildRank}   ギルドポイント: {guild.GuildPoints}");
@@ -68,7 +88,7 @@ static bool RunGame(GameMasterData db, string savePath)
         Console.WriteLine();
         Console.WriteLine("  【ギルド資産】");
         Console.WriteLine("    5. 倉庫インベントリ");
-        Console.WriteLine("    6. 商店（装備の購入・売却）");
+        Console.WriteLine("    6. 商店（装備・消費アイテム）");
         Console.WriteLine("    7. 遺物一覧");
         Console.WriteLine();
         Console.WriteLine("  【ギルド管理】");
@@ -95,11 +115,17 @@ static bool RunGame(GameMasterData db, string savePath)
             case "3": AdventurerScreen.Show(guild, questManager); break;
             case "4": RecruitScreen.Show(recruitCandidates, guild, currentTurn); break;
             case "5": InventoryScreen.Show(guild); break;
-            case "6": ShopScreen.Show(db, guild); break;
+            case "6": ShopScreen.Show(db, guild, currentTurn); break;
             case "7": RelicScreen.Show(guild); break;
             case "8": ShowEconomyLog(guild); break;
             case "H": HelpScreen.Show(); break;
             case "9":
+                if (questManager.HasPendingChoices)
+                {
+                    ConsoleHelper.Warn("未解決の選択イベントがあります。すべて決定するまで次のターンへ進めません");
+                    ShowPendingChoices(questManager, guild);
+                    break;
+                }
                 NextTurn(guild, questManager, ref currentTurn);
                 recruitCandidates = RecruitmentSystem.DrawCandidates(db.allAdventurers, guild, GameRandom.Range(0, MaxCandidateCount + 1));
                 // 報酬でGP条件を達成したターンに、昇格試験をすぐ掲示できる順序にする。
@@ -185,7 +211,7 @@ static bool ShowGameOver(int turn)
 // これが無いと「進行中クエスト」画面を毎ターン自発的に覗かない限りクリアに気づけない。
 static void ShowQuestsNeedingAttention(QuestManager qm, GuildManager guild)
 {
-    var needAttention = qm.activeQuests.Where(q => q.failed || q.CanComplete).ToList();
+    var needAttention = qm.activeQuests.Where(q => q.failed || q.CanComplete || q.HasPendingChoice).ToList();
     if (needAttention.Count == 0) return;
 
     ConsoleHelper.Header("結果報告");
@@ -193,6 +219,12 @@ static void ShowQuestsNeedingAttention(QuestManager qm, GuildManager guild)
     ConsoleHelper.PressAnyKey();
 
     foreach (var q in needAttention)
+        ActiveQuestScreen.HandleQuest(q, qm, guild);
+}
+
+static void ShowPendingChoices(QuestManager qm, GuildManager guild)
+{
+    foreach (var q in qm.activeQuests.Where(q => q.HasPendingChoice).ToList())
         ActiveQuestScreen.HandleQuest(q, qm, guild);
 }
 

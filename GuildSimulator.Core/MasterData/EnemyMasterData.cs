@@ -14,6 +14,7 @@ public class EnemyMasterData
     public string defaultWeaponId = "";
     public string defaultArmorId = "";
     public List<string> skillIds = new();
+    public List<RewardEntryData> dropTable = new();
 
     public EquipmentMasterData? DefaultWeapon { get; set; }
     public EquipmentMasterData? DefaultArmor { get; set; }

@@ -2,6 +2,7 @@
   {
     "id": "dungeon_meadow",
     "dungeonName": "静寂の草原",
+    "turnEndEventIds": ["event_abandoned_camp", "event_forked_path", "event_mysterious_shrine"],
     "rewardChoiceMin": 2,
     "rewardChoiceMax": 3,
     "eventTable": {
@@ -42,6 +43,7 @@
   {
     "id": "dungeon_woods",
     "dungeonName": "森林外縁",
+    "turnEndEventIds": ["event_abandoned_camp", "event_forked_path", "event_mysterious_shrine"],
     "rewardChoiceMin": 3,
     "rewardChoiceMax": 5,
     "eventTable": {
@@ -90,6 +92,7 @@
   {
     "id": "dungeon_highway",
     "dungeonName": "隊商街道",
+    "turnEndEventIds": ["event_abandoned_camp", "event_forked_path"],
     "rewardChoiceMin": 3,
     "rewardChoiceMax": 4,
     "eventTable": {
@@ -129,6 +132,7 @@
   {
     "id": "dungeon_mine",
     "dungeonName": "打ち捨てられた廃坑",
+    "turnEndEventIds": ["event_forked_path", "event_mysterious_shrine"],
     "rewardChoiceMin": 3,
     "rewardChoiceMax": 5,
     "eventTable": {
@@ -172,6 +176,7 @@
   {
     "id": "dungeon_crypt",
     "dungeonName": "古の墓所",
+    "turnEndEventIds": ["event_mysterious_shrine", "event_forked_path"],
     "rewardChoiceMin": 4,
     "rewardChoiceMax": 5,
     "eventTable": {
@@ -215,6 +220,7 @@
   {
     "id": "dungeon_deep_woods",
     "dungeonName": "森林深部",
+    "turnEndEventIds": ["event_abandoned_camp", "event_forked_path", "event_mysterious_shrine"],
     "rewardChoiceMin": 3,
     "rewardChoiceMax": 5,
     "eventTable": {
@@ -251,6 +257,7 @@
   {
     "id": "dungeon_old_city",
     "dungeonName": "旧市街",
+    "turnEndEventIds": ["event_abandoned_camp", "event_forked_path", "event_mysterious_shrine"],
     "rewardChoiceMin": 3,
     "rewardChoiceMax": 5,
     "eventTable": {

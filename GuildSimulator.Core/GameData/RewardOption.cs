@@ -9,6 +9,7 @@ public class RewardOption
     public RelicMasterData? relic;
     public EquipmentMasterData? equipment;
     public SkillMasterData? skill;
+    public ConsumableMasterData? consumable;
     public int gold;
     public int quantity = 1;
 
@@ -19,6 +20,7 @@ public class RewardOption
             ? $"装備：{equipment.displayName}{(quantity > 1 ? $" x{quantity}" : "")}"
             : "装備",
         RewardType.Skill => skill != null ? $"スキル：{skill.skillName}" : "スキル",
+        RewardType.Consumable => consumable != null ? $"消費アイテム：{consumable.displayName}" : "消費アイテム",
         RewardType.Gold => $"資金 +{gold}G",
         _ => type.ToString(),
     };
@@ -29,6 +31,7 @@ public class RewardOption
         RewardType.Relic => relic != null ? DescribeRelic(relic) : "",
         RewardType.Equipment => equipment != null ? DescribeEquipment(equipment, quantity) : "",
         RewardType.Skill => skill != null ? DescribeSkill(skill) : "",
+        RewardType.Consumable => consumable?.description ?? "",
         _ => "",
     };
 

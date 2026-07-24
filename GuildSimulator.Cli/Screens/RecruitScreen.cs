@@ -33,7 +33,9 @@ public static class RecruitScreen
                 int candidateUpkeep = GuildManager.CalculateEffectiveUpkeep(guild.BaseUpkeepPerTurn + adventurerUpkeep);
                 int candidateSafeTurns = GuildManager.SafeUpkeepTurns(candidateAfterHire, candidateUpkeep);
                 string runway = candidateSafeTurns == int.MaxValue ? "∞" : candidateSafeTurns.ToString();
-                Console.WriteLine($"  {i + 1}. {m.baseName}  Lv{m.defaultLevel} Rank{m.defaultRank}  {m.DefaultClass?.className ?? "？"}/{m.Race?.raceName ?? "？"}  {RecruitRarityLabel(m.recruitWeight)}  維持費{adventurerUpkeep}G/T{tag}");
+                Console.Write($"  {i + 1}. ");
+                ConsoleHelper.WriteRarityName(m.baseName, m.rarity);
+                Console.WriteLine($"  Lv{m.defaultLevel} Rank{m.defaultRank}  {m.DefaultClass?.className ?? "？"}/{m.Race?.raceName ?? "？"}  {ConsoleHelper.RarityLabel(m.rarity)}  維持費{adventurerUpkeep}G/T{tag}");
                 Console.WriteLine($"       VIT:{m.vitality} MEN:{m.mental} STR:{m.strength} AGI:{m.agility} INT:{m.intelligence} CON:{m.constitution}");
                 Console.WriteLine($"       武器:{m.DefaultWeapon?.displayName ?? "なし"}  防具:{m.DefaultArmor?.displayName ?? "なし"}");
                 if (!alreadyHired && candidateAfterHire >= 0)
@@ -82,12 +84,4 @@ public static class RecruitScreen
     public static int CalcHireCost(AdventurerMasterData m)
         => Math.Max(10, GuildManager.CalculateAdventurerUpkeep(m.defaultLevel) * 5 + m.defaultLevel * 5);
 
-    static string RecruitRarityLabel(int weight) => weight switch
-    {
-        >= 100 => "コモン",
-        >= 60 => "アンコモン",
-        >= 40 => "レア",
-        >= 20 => "エピック",
-        _ => "レジェンド",
-    };
 }

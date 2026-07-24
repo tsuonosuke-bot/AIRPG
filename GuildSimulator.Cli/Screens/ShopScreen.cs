@@ -7,20 +7,26 @@ namespace GuildSimulator.Cli.Screens;
 
 public static class ShopScreen
 {
-    public static void Show(GameMasterData db, GuildManager guild)
+    public static void Show(GameMasterData db, GuildManager guild, int currentTurn)
     {
+        bool refreshed = ShopService.RefreshIfNeeded(
+            guild, currentTurn, db.equipment.Values, db.consumables.Values);
         while (true)
         {
             ConsoleHelper.Header("商店");
             Console.WriteLine($"  所持金: {guild.Gold}G");
+            Console.WriteLine($"  品ぞろえ更新: Turn {guild.LastShopRefreshTurn + ShopService.RefreshIntervalTurns}"
+                + (refreshed ? "  [入荷しました]" : ""));
             Console.WriteLine();
             Console.WriteLine("  1. 装備を購入する");
-            Console.WriteLine("  2. 倉庫の装備を売却する");
+            Console.WriteLine("  2. 消費アイテムを購入する");
+            Console.WriteLine("  3. 倉庫の装備を売却する");
             Console.WriteLine("  0. 戻る");
             Console.Write("選択: ");
             var line = Console.ReadLine()?.Trim();
             if (line == "1") Buy(db, guild);
-            else if (line == "2") Sell(guild);
+            else if (line == "2") BuyConsumables(db, guild);
+            else if (line == "3") Sell(guild);
             else return;
         }
     }
@@ -28,7 +34,9 @@ public static class ShopScreen
     static void Buy(GameMasterData db, GuildManager guild)
     {
         // 武器→防具の順、価格昇順で並べる。
-        var items = db.equipment.Values
+        var items = guild.shopEquipmentStock
+            .Where(kv => kv.Value > 0 && db.equipment.ContainsKey(kv.Key))
+            .Select(kv => db.equipment[kv.Key])
             .OrderBy(e => e.type)
             .ThenBy(e => e.price)
             .ToList();
@@ -47,7 +55,10 @@ public static class ShopScreen
                 string ownedTag = owned > 0 ? $"  (所持x{owned})" : "";
                 bool affordable = guild.Gold >= e.price;
                 string price = affordable ? $"{e.price}G" : $"{e.price}G[不足]";
-                Console.WriteLine($"  {i + 1}. [{kind}] {e.displayName}  {price}{ownedTag}");
+                int shopCount = guild.shopEquipmentStock[e.id];
+                Console.Write($"  {i + 1}. [{kind}] ");
+                ConsoleHelper.WriteRarityName(e.displayName, e.rarity);
+                Console.WriteLine($"  {price} 在庫x{shopCount}{ownedTag}");
                 ConsoleHelper.Dim($"       {DescribeEquip(e)}");
             }
             Console.WriteLine("  0. 戻る");
@@ -63,9 +74,57 @@ public static class ShopScreen
             }
             if (!ConsoleHelper.Confirm($"{item.displayName} を {item.price}G で購入しますか？")) continue;
             if (guild.TryBuyEquipment(item))
+            {
+                guild.shopEquipmentStock[item.id]--;
                 ConsoleHelper.Info($"{item.displayName} を購入しました（倉庫へ）");
+            }
             else
                 ConsoleHelper.Error("購入に失敗しました");
+            ConsoleHelper.PressAnyKey();
+        }
+    }
+
+    static void BuyConsumables(GameMasterData db, GuildManager guild)
+    {
+        while (true)
+        {
+            var items = guild.shopConsumableStock
+                .Where(kv => kv.Value > 0 && db.consumables.ContainsKey(kv.Key))
+                .Select(kv => db.consumables[kv.Key])
+                .OrderBy(c => c.price)
+                .ToList();
+            ConsoleHelper.Header("消費アイテムを購入");
+            Console.WriteLine($"  所持金: {guild.Gold}G");
+            if (items.Count == 0)
+            {
+                ConsoleHelper.Dim("  今期の在庫は売り切れです");
+                ConsoleHelper.PressAnyKey();
+                return;
+            }
+            for (int i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                Console.Write($"  {i + 1}. ");
+                ConsoleHelper.WriteRarityName(item.displayName, item.rarity);
+                Console.WriteLine($"  {item.price}G 在庫x{guild.shopConsumableStock[item.id]}"
+                    + $" (所持x{guild.GetConsumableCount(item)})");
+                ConsoleHelper.Dim($"       {item.description}");
+            }
+            Console.WriteLine("  0. 戻る");
+            Console.Write($"購入するアイテム [0-{items.Count}]: ");
+            if (!int.TryParse(Console.ReadLine(), out int selected) || selected <= 0 || selected > items.Count) return;
+            var chosen = items[selected - 1];
+            if (guild.Gold < chosen.price)
+            {
+                ConsoleHelper.Error("資金が不足しています");
+                ConsoleHelper.PressAnyKey();
+                continue;
+            }
+            if (!ConsoleHelper.Confirm($"{chosen.displayName} を {chosen.price}G で購入しますか？")) continue;
+            guild.SpendGold(chosen.price, $"購入: {chosen.displayName}");
+            guild.AddConsumable(chosen);
+            guild.shopConsumableStock[chosen.id]--;
+            ConsoleHelper.Info($"{chosen.displayName} を購入しました");
             ConsoleHelper.PressAnyKey();
         }
     }
@@ -91,7 +150,9 @@ public static class ShopScreen
             {
                 var st = stock[i];
                 string kind = st.item.type == EquipmentType.Weapon ? "武器" : "防具";
-                Console.WriteLine($"  {i + 1}. [{kind}] {st.item.displayName}  x{st.count}  売値{GuildManager.SellPrice(st.item)}G/個");
+                Console.Write($"  {i + 1}. [{kind}] ");
+                ConsoleHelper.WriteRarityName(st.item.displayName, st.item.rarity);
+                Console.WriteLine($"  x{st.count}  売値{GuildManager.SellPrice(st.item)}G/個");
             }
             Console.WriteLine("  0. 戻る");
             Console.Write($"売却する装備 [0-{stock.Count}]: ");

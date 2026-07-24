@@ -33,6 +33,12 @@ public class SaveLoadTests
 
         var relic = db.relics.Values.First();
         guild.AddRelic(relic, "テスト付与");
+        var consumable = db.consumables.Values.First();
+        guild.AddConsumable(consumable, 2);
+        guild.ReplaceShopStock(
+            currentTurn: 1,
+            new Dictionary<string, int> { [equip.id] = 2 },
+            new Dictionary<string, int> { [consumable.id] = 1 });
 
         var quest = db.allQuests.First(q => !q.isEmergencyQuest);
         var formation = new AdventurerData?[6];
@@ -50,6 +56,10 @@ public class SaveLoadTests
             relicId = relic.id,
             Relic = relic,
         });
+        run.goldRewardBonusPercent = 25;
+        run.usedConsumableIds.Add(consumable.id);
+        var choiceEvent = db.choiceEvents.Values.First();
+        run.pendingChoice = new PendingQuestChoice { Event = choiceEvent, createdTurn = 5 };
 
         questManager.FillBoard(db.allQuests, currentTurn: 1);
         var recruitCandidates = new List<AdventurerMasterData> { advMaster };
@@ -74,6 +84,9 @@ public class SaveLoadTests
             Assert.Equal(adv.vitality, loadedAdv.vitality);
 
             Assert.Equal(guild.GetCount(equip), loaded.Guild.GetCount(equip));
+            Assert.Equal(2, loaded.Guild.GetConsumableCount(consumable));
+            Assert.Equal(1, loaded.Guild.LastShopRefreshTurn);
+            Assert.Equal(2, loaded.Guild.shopEquipmentStock[equip.id]);
             Assert.Single(loaded.Guild.relics);
             Assert.Same(relic, loaded.Guild.relics[0]);   // マスタ参照はDBの同一インスタンスに解決される
 
@@ -87,6 +100,9 @@ public class SaveLoadTests
 
             var loadedLoot = Assert.Single(loadedRun.pendingLoot);
             Assert.Same(relic, loadedLoot.Relic);
+            Assert.Equal(25, loadedRun.goldRewardBonusPercent);
+            Assert.Contains(consumable.id, loadedRun.usedConsumableIds);
+            Assert.Equal(choiceEvent.id, loadedRun.pendingChoice?.Event.id);
 
             Assert.Equal(questManager.questBoard.Select(e => e.quest.id), loaded.QuestManager.questBoard.Select(e => e.quest.id));
             Assert.Equal(recruitCandidates.Select(a => a.id), loaded.RecruitCandidates.Select(a => a.id));

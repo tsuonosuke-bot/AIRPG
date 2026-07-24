@@ -18,4 +18,5 @@ public class EquipmentMasterData
     public int weight;
     public int price;
     public StatBlock bonus;
+    public Rarity rarity;
 }

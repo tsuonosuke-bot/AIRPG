@@ -19,6 +19,7 @@ public static class ActiveQuestScreen
                 var q = actives[i];
                 string status = q.failed ? "[全滅]"
                     : q.retreated ? "[撤退]"
+                    : q.HasPendingChoice ? "[選択待ち]"
                     : q.CanComplete ? "[完了可能]"
                     : $"Phase {q.currentPhase}/{q.def.totalPhases}";
                 string hp = q.unitHpMax > 0 ? $"HP {q.unitHpCurrent}/{q.unitHpMax}" : "";
@@ -27,7 +28,15 @@ public static class ActiveQuestScreen
                     ? $"  {q.def.gatherItemName} {q.gatheredCount}/{q.def.gatherTargetCount}" : "";
                 Console.WriteLine($"  {i + 1}. {q.def.questName}  {status}  {hp}{morale}{gather}");
                 var members = q.EnumerateMembers().ToList();
-                Console.WriteLine($"      メンバー: {string.Join(", ", members.Select(a => $"{a.name}({(a.isAlive ? "生" : "死")})"))}");
+                Console.Write("      メンバー: ");
+                for (int memberIndex = 0; memberIndex < members.Count; memberIndex++)
+                {
+                    if (memberIndex > 0) Console.Write(", ");
+                    var member = members[memberIndex];
+                    ConsoleHelper.WriteRarityName(member.name, member.master.rarity);
+                    Console.Write($"({(member.isAlive ? "生" : "死")})");
+                }
+                Console.WriteLine();
             }
             Console.WriteLine("  0. 戻る");
             Console.Write("詳細/完了処理: ");
@@ -42,6 +51,11 @@ public static class ActiveQuestScreen
     // ターン進行直後に結果待ちクエストを直接処理する導線からも呼べるよう公開する。
     public static void HandleQuest(QuestRun q, QuestManager qm, GuildManager guild)
     {
+        if (q.pendingChoice != null)
+        {
+            ShowChoice(q, qm);
+            return;
+        }
         int offset = 0; // 0 = 最新ページ。増えるほど過去へ遡る
         while (true)
         {
@@ -104,7 +118,21 @@ public static class ActiveQuestScreen
         Console.WriteLine("\n  追加報酬の選択:");
         for (int i = 0; i < options.Count; i++)
         {
-            Console.WriteLine($"    {i + 1}. {options[i].Title}");
+            Console.Write($"    {i + 1}. ");
+            if (options[i].equipment != null)
+            {
+                Console.Write("装備：");
+                ConsoleHelper.WriteRarityName(options[i].equipment!.displayName, options[i].equipment!.rarity);
+                if (options[i].quantity > 1) Console.Write($" x{options[i].quantity}");
+                Console.WriteLine();
+            }
+            else if (options[i].consumable != null)
+            {
+                Console.Write("消費アイテム：");
+                ConsoleHelper.WriteRarityName(options[i].consumable!.displayName, options[i].consumable!.rarity);
+                Console.WriteLine();
+            }
+            else Console.WriteLine(options[i].Title);
             string detail = options[i].Detail;
             if (detail.Length > 0) ConsoleHelper.Dim($"         {detail}");
         }
@@ -118,5 +146,28 @@ public static class ActiveQuestScreen
         qm.FinalizeQuest(q, chosen);
         ConsoleHelper.Info("クエスト完了！");
         ConsoleHelper.PressAnyKey();
+    }
+
+    static void ShowChoice(QuestRun q, QuestManager qm)
+    {
+        var pending = q.pendingChoice;
+        if (pending == null) return;
+        ConsoleHelper.Header($"選択イベント: {pending.Event.title}");
+        Console.WriteLine($"  {pending.Event.description}");
+        Console.WriteLine();
+        for (int i = 0; i < pending.Event.options.Count; i++)
+            Console.WriteLine($"  {i + 1}. {pending.Event.options[i].text}");
+        Console.WriteLine("  0. あとで決める");
+        Console.Write("選択: ");
+        if (!int.TryParse(Console.ReadLine(), out int selected)
+            || selected <= 0 || selected > pending.Event.options.Count)
+            return;
+        if (qm.ResolveChoice(q, selected - 1, out var result))
+        {
+            ConsoleHelper.Info(result);
+            ConsoleHelper.PressAnyKey();
+        }
+        else
+            ConsoleHelper.Error(result);
     }
 }

@@ -24,5 +24,10 @@
   { "id": "eq_plate_01",   "displayName": "プレートメイル", "type": 1, "weaponType": 10,"armorType": 2, "physicalCoeff": 1.0, "magicCoeff": 1.0, "healCoeff": 1.0, "price": 50,  "weight": 15, "bonus": { "pDef": 30, "hit": -30, "evade": -30 } },
   { "id": "eq_robe_02",    "displayName": "魔道士のローブ", "type": 1, "weaponType": 10,"armorType": 0, "physicalCoeff": 1.0, "magicCoeff": 1.0, "healCoeff": 1.0, "price": 120, "weight": 2,  "bonus": { "pDef": 6,  "mDef": 20 } },
   { "id": "eq_chain_01",   "displayName": "チェインメイル", "type": 1, "weaponType": 10,"armorType": 1, "physicalCoeff": 1.0, "magicCoeff": 1.0, "healCoeff": 1.0, "price": 130, "weight": 9,  "bonus": { "pDef": 22, "hit": -10, "evade": -12 } },
-  { "id": "eq_plate_02",   "displayName": "騎士の重鎧",     "type": 1, "weaponType": 10,"armorType": 2, "physicalCoeff": 1.0, "magicCoeff": 1.0, "healCoeff": 1.0, "price": 260, "weight": 18, "bonus": { "pDef": 55, "mDef": 10, "hit": -30, "evade": -35 } }
+  { "id": "eq_plate_02",   "displayName": "騎士の重鎧",     "type": 1, "weaponType": 10,"armorType": 2, "physicalCoeff": 1.0, "magicCoeff": 1.0, "healCoeff": 1.0, "price": 260, "weight": 18, "bonus": { "pDef": 55, "mDef": 10, "hit": -30, "evade": -35 } },
+
+  { "id": "eq_drop_fang", "displayName": "森狼の牙剣", "rarity": "Uncommon", "type": 0, "weaponType": 0, "armorType": 3, "physicalCoeff": 1.12, "magicCoeff": 0.0, "healCoeff": 0.0, "price": 90, "weight": 3, "bonus": { "pAtk": 9, "hit": 8 } },
+  { "id": "eq_drop_shadow", "displayName": "影獣の黒弓", "rarity": "Rare", "type": 0, "weaponType": 3, "armorType": 3, "physicalCoeff": 1.35, "magicCoeff": 0.0, "healCoeff": 0.0, "price": 260, "weight": 3, "bonus": { "pAtk": 18, "hit": 15, "evade": 8 } },
+  { "id": "eq_drop_bone", "displayName": "骸王の大剣", "rarity": "Unique", "type": 0, "weaponType": 0, "armorType": 3, "physicalCoeff": 1.55, "magicCoeff": 0.0, "healCoeff": 0.0, "price": 480, "weight": 8, "bonus": { "pAtk": 35, "pDef": 12, "hit": -8 } },
+  { "id": "eq_drop_crown", "displayName": "滅びの王冠", "rarity": "Legend", "type": 1, "weaponType": 10, "armorType": 0, "physicalCoeff": 1.0, "magicCoeff": 1.0, "healCoeff": 1.0, "price": 800, "weight": 1, "bonus": { "hp": 100, "mAtk": 35, "mDef": 35, "heal": 20 } }
 ]

@@ -76,17 +76,8 @@ public class AdventurerData : IUnitMember
         activeSkillCache.Clear();
         foreach (var ls in learnedSkills)
         {
-            if (ls.ownerClass == null)
+            if (!activeSkillCache.Contains(ls.skill))
                 activeSkillCache.Add(ls.skill);
-        }
-        if (currentClass != null)
-        {
-            foreach (var entry in currentClass.classSkills)
-            {
-                if (entry.Skill == null) continue;
-                if (HasLearnedAny(entry.Skill) && !activeSkillCache.Contains(entry.Skill))
-                    activeSkillCache.Add(entry.Skill);
-            }
         }
         activeSkillDirty = false;
         return activeSkillCache;
@@ -100,6 +91,13 @@ public class AdventurerData : IUnitMember
         if (HasLearnedAny(skill)) return;
         learnedSkills.Add(new LearnedSkill { skill = skill, ownerClass = ownerClass });
         MarkDirty();
+    }
+
+    public bool LearnPermanentSkill(SkillMasterData skill)
+    {
+        if (HasLearnedAny(skill)) return false;
+        LearnSkill(skill, null);
+        return true;
     }
 
     void GrantEntryClassSkills()

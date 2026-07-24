@@ -63,6 +63,8 @@ public static class HelpScreen
         Console.WriteLine("  ・撤退            : 士気が尽きるとパーティは自動的に撤退する。基本報酬は無しになるが、");
         Console.WriteLine("                      道中で得た戦利品（宝箱など）はそのまま持ち帰れる。");
         Console.WriteLine("  ・全滅            : 全員が戦闘不能になった場合。報酬・戦利品はすべて失われる。");
+        Console.WriteLine("  ・選択イベント    : ターン内の最終フェーズ後に発生することがある。");
+        Console.WriteLine("                      未解決の選択がある間は次のターンへ進めない。");
         ConsoleHelper.PressAnyKey();
     }
 
@@ -84,6 +86,9 @@ public static class HelpScreen
         Console.WriteLine("  ・冒険者          : 雇用して編成に加える。クエストで経験値を得てレベルアップする。");
         Console.WriteLine("                      死亡した冒険者は蘇生できない。");
         Console.WriteLine("  ・装備            : 商店で購入・売却し、冒険者一覧画面で着せ替えできる。");
+        Console.WriteLine("  ・レアリティ      : コモン、アンコモン、レア、ユニーク、レジェンドの順に希少。");
+        Console.WriteLine("  ・消費アイテム    : 出発前に最大2個選び、出発時に消費してクエスト中だけ効果を得る。");
+        Console.WriteLine("  ・商店            : 品ぞろえと在庫は5ターンごと（Turn 1、6、11…）に更新される。");
         Console.WriteLine("  ・遺物            : ギルド全体に常時効果を及ぼす特別なアイテム。クエストの選択報酬や");
         Console.WriteLine("                      道中の宝箱で入手できる。所持しているだけで効果を発揮する。");
         ConsoleHelper.PressAnyKey();

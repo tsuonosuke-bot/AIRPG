@@ -68,7 +68,9 @@ public static class QuestBoardScreen
             for (int i = 0; i < available.Count; i++)
             {
                 var a = available[i];
-                Console.WriteLine($"  {i + 1}. {a.name} Lv{a.level} {a.ClassAndRace}");
+                Console.Write($"  {i + 1}. ");
+                ConsoleHelper.WriteRarityName(a.name, a.master.rarity);
+                Console.WriteLine($" Lv{a.level} {a.ClassAndRace}");
             }
             Console.Write($"追加する冒険者 [0-{available.Count}]: ");
             if (!int.TryParse(Console.ReadLine(), out int pick) || pick == 0) break;
@@ -101,9 +103,12 @@ public static class QuestBoardScreen
 
         ConsoleHelper.Header("編成確認");
         ShowFormation(formation);
+        var carriedConsumables = SelectConsumables(guild);
+        if (carriedConsumables.Count > 0)
+            Console.WriteLine($"  持ち込み（出発時消費）: {string.Join(", ", carriedConsumables.Select(x => x.displayName))}");
         if (!ConsoleHelper.Confirm("このメンバーで受注しますか？")) return;
 
-        if (qm.TryStartQuest(def, formation, currentTurn, out var error))
+        if (qm.TryStartQuest(def, formation, currentTurn, out var error, carriedConsumables))
             ConsoleHelper.Info($"クエスト「{def.questName}」を受注しました！ （Turn {currentTurn} 開始）");
         else
             ConsoleHelper.Error($"受注失敗: {error}");
@@ -111,11 +116,39 @@ public static class QuestBoardScreen
         ConsoleHelper.PressAnyKey();
     }
 
+    static List<ConsumableMasterData> SelectConsumables(GuildManager guild)
+    {
+        var selected = new List<ConsumableMasterData>();
+        for (int slot = 1; slot <= 2; slot++)
+        {
+            var stock = guild.GetConsumablesView()
+                .Where(s => s.count > selected.Count(x => x == s.item))
+                .ToList();
+            if (stock.Count == 0) break;
+            Console.WriteLine();
+            Console.WriteLine($"  持ち込みスロット{slot}（出発時に消費）");
+            Console.WriteLine("  0. 選択を終了");
+            for (int i = 0; i < stock.Count; i++)
+                Console.WriteLine($"  {i + 1}. {stock[i].item.displayName} x{stock[i].count} - {stock[i].item.description}");
+            Console.Write("選択: ");
+            if (!int.TryParse(Console.ReadLine(), out int pick) || pick <= 0 || pick > stock.Count) break;
+            selected.Add(stock[pick - 1].item);
+        }
+        return selected;
+    }
+
     static void ShowFormation(AdventurerData?[] formation)
     {
         Console.WriteLine("  現在の編成:");
         for (int i = 0; i < formation.Length; i++)
-            Console.WriteLine($"    {PositionName(i),-4}: {formation[i]?.name ?? "空"}");
+        {
+            Console.Write($"    {PositionName(i),-4}: ");
+            if (formation[i] != null)
+                ConsoleHelper.WriteRarityName(formation[i]!.name, formation[i]!.master.rarity);
+            else
+                Console.Write("空");
+            Console.WriteLine();
+        }
     }
 
     static string PositionName(int slot) => slot < 3 ? $"前衛{slot + 1}" : $"後衛{slot - 2}";

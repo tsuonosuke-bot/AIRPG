@@ -68,11 +68,12 @@ public class QuestRewardService
         if (q.retreated)
             q.logs.Add($"{prefix} 撤退のため基本報酬は {RetreatRewardRate:P0}（戦利品はそのまま持ち帰り）");
 
-        int gold = (int)Math.Floor((baseGold + gatherGold) * rate * RelicSystem.GetGoldRewardMultiplier());
+        int gold = (int)Math.Floor((baseGold + gatherGold) * rate
+            * RelicSystem.GetGoldRewardMultiplier() * (1f + q.goldRewardBonusPercent / 100f));
         guild.AddGold(gold, $"クエスト報酬: {q.def.questName}");
         q.logs.Add($"{prefix} 資金 +{gold}G（基本 {baseGold}{(gatherGold > 0 ? $" + 買取 {gatherGold}" : "")}）");
 
-        int questExp = (int)Math.Floor(q.def.rewardExp * rate);
+        int questExp = (int)Math.Floor(q.def.rewardExp * rate * (1f + q.expRewardBonusPercent / 100f));
         foreach (var a in q.formation.Where(x => x != null))
         {
             a!.AddExperience(questExp, out var ups);
@@ -106,11 +107,22 @@ public class QuestRewardService
                     break;
                 case RewardType.Equipment:
                     if (e.Equipment == null) break;
-                    guild.AddEquipment(e.Equipment, 1, "宝箱");
-                    q.logs.Add($"{prefix} 宝箱 装備入手: {e.Equipment.displayName}");
+                    guild.AddEquipment(e.Equipment, Math.Max(1, e.quantity), "戦利品");
+                    q.logs.Add($"{prefix} 戦利品 装備入手: {e.Equipment.displayName} x{Math.Max(1, e.quantity)}");
                     break;
                 case RewardType.Skill:
-                    if (e.Skill != null) q.logs.Add($"{prefix} 宝箱 スキル「{e.Skill.skillName}」（付与先未実装）");
+                    if (e.Skill != null)
+                    {
+                        var learner = q.EnumerateMembers().FirstOrDefault(a => a.isAlive && a.LearnPermanentSkill(e.Skill));
+                        q.logs.Add(learner != null
+                            ? $"{prefix} {learner.name}がスキル「{e.Skill.skillName}」を習得"
+                            : $"{prefix} スキル「{e.Skill.skillName}」は全員習得済み");
+                    }
+                    break;
+                case RewardType.Consumable:
+                    if (e.Consumable == null) break;
+                    guild.AddConsumable(e.Consumable, Math.Max(1, e.quantity));
+                    q.logs.Add($"{prefix} 消費アイテム入手: {e.Consumable.displayName} x{Math.Max(1, e.quantity)}");
                     break;
             }
         }
@@ -132,7 +144,20 @@ public class QuestRewardService
                 }
                 break;
             case RewardType.Skill:
-                if (opt.skill != null) q.logs.Add($"[選択報酬] スキル: {opt.skill.skillName}（未実装）");
+                if (opt.skill != null)
+                {
+                    var learner = q.EnumerateMembers().FirstOrDefault(a => a.isAlive && a.LearnPermanentSkill(opt.skill));
+                    q.logs.Add(learner != null
+                        ? $"[選択報酬] {learner.name}がスキル習得: {opt.skill.skillName}"
+                        : $"[選択報酬] スキル: {opt.skill.skillName}（全員習得済み）");
+                }
+                break;
+            case RewardType.Consumable:
+                if (opt.consumable != null)
+                {
+                    guild.AddConsumable(opt.consumable, Math.Max(1, opt.quantity));
+                    q.logs.Add($"[選択報酬] 消費アイテム: {opt.consumable.displayName} x{Math.Max(1, opt.quantity)}");
+                }
                 break;
             case RewardType.Gold:
                 guild.AddGold(opt.gold, $"選択報酬: {q.def.questName}"); q.logs.Add($"[選択報酬] 資金 +{opt.gold}G");
@@ -170,6 +195,7 @@ public class QuestRewardService
 
     static RewardOption? ToOption(RewardEntryData e) => new()
     {
-        type = e.type, relic = e.Relic, equipment = e.Equipment, skill = e.Skill, gold = e.gold,
+        type = e.type, relic = e.Relic, equipment = e.Equipment, skill = e.Skill,
+        consumable = e.Consumable, gold = e.gold, quantity = Math.Max(1, e.quantity),
     };
 }

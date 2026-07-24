@@ -19,7 +19,9 @@ public static class AdventurerScreen
                 var a = advs[i];
                 string busy = questManager?.IsAdventurerBusy(a.id) == true ? "[出発中]" : "";
                 string alive = a.isAlive ? "" : "[死亡]";
-                Console.WriteLine($"  {i + 1}. {a.name} Lv{a.level} Rank{a.rank} {a.ClassAndRace} {busy}{alive}");
+                Console.Write($"  {i + 1}. ");
+                ConsoleHelper.WriteRarityName(a.name, a.master.rarity);
+                Console.WriteLine($" Lv{a.level} Rank{a.rank} {a.ClassAndRace} {busy}{alive}");
             }
             Console.WriteLine("  0. 戻る");
             Console.Write("番号を選択: ");
@@ -48,8 +50,12 @@ public static class AdventurerScreen
             Console.WriteLine($"  HP:{hpCur}/{hpMax}  物理攻撃:{s.pAtk} 物理防御:{s.pDef} 魔法攻撃:{s.mAtk} 魔法防御:{s.mDef}");
             Console.WriteLine($"  命中:{s.hit} 回避:{s.evade} 回復力:{s.heal}");
             Console.WriteLine();
-            Console.WriteLine($"  武器: {a.weapon?.displayName ?? "なし"}{DescribeItem(a.weapon)}");
-            Console.WriteLine($"  防具: {a.armor?.displayName ?? "なし"}{DescribeItem(a.armor)}");
+            Console.Write("  武器: ");
+            if (a.weapon != null) ConsoleHelper.WriteRarityName(a.weapon.displayName, a.weapon.rarity); else Console.Write("なし");
+            Console.WriteLine(DescribeItem(a.weapon));
+            Console.Write("  防具: ");
+            if (a.armor != null) ConsoleHelper.WriteRarityName(a.armor.displayName, a.armor.rarity); else Console.Write("なし");
+            Console.WriteLine(DescribeItem(a.armor));
             Console.WriteLine();
             Console.Write("  スキル: ");
             var skills = a.Skills;
@@ -133,7 +139,9 @@ public static class AdventurerScreen
         {
             int owned = guild.GetCount(item);
             string equipped = item == current ? " [装備中]" : "";
-            Console.WriteLine($"  {idx}. {item.displayName}  x{owned}{equipped}");
+            Console.Write($"  {idx}. ");
+            ConsoleHelper.WriteRarityName(item.displayName, item.rarity);
+            Console.WriteLine($"  x{owned}{equipped}");
             ConsoleHelper.Dim($"       {DescribeEquipDetail(item)}");
             pickable.Add(item);
             idx++;

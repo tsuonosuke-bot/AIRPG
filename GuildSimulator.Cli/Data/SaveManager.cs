@@ -74,6 +74,12 @@ public static class SaveManager
         inventory = guild.GetInventoryView()
             .Select(s => new InventoryEntrySave { itemId = s.item.id, count = s.count })
             .ToList(),
+        consumables = guild.GetConsumablesView()
+            .Select(s => new InventoryEntrySave { itemId = s.item.id, count = s.count })
+            .ToList(),
+        lastShopRefreshTurn = guild.LastShopRefreshTurn,
+        shopEquipmentStock = new Dictionary<string, int>(guild.shopEquipmentStock),
+        shopConsumableStock = new Dictionary<string, int>(guild.shopConsumableStock),
         adventurers = guild.adventurers.Select(ExportAdventurer).ToList(),
     };
 
@@ -139,11 +145,19 @@ public static class SaveManager
             relicId = e.relicId,
             equipmentId = e.equipmentId,
             skillId = e.skillId,
+            consumableId = e.consumableId,
             gold = e.gold,
             weight = e.weight,
+            quantity = e.quantity,
             unique = e.unique,
         }).ToList(),
         gatheredCount = q.gatheredCount,
+        usedConsumableIds = new List<string>(q.usedConsumableIds),
+        goldRewardBonusPercent = q.goldRewardBonusPercent,
+        expRewardBonusPercent = q.expRewardBonusPercent,
+        trapDamageReductionPercent = q.trapDamageReductionPercent,
+        pendingChoiceEventId = q.pendingChoice?.Event.id ?? "",
+        pendingChoiceCreatedTurn = q.pendingChoice?.createdTurn ?? 0,
     };
 
     // ---- Load ----
@@ -171,6 +185,13 @@ public static class SaveManager
         foreach (var entry in data.guild.inventory)
             if (db.equipment.TryGetValue(entry.itemId, out var item))
                 guild.AddEquipment(item, entry.count);
+        foreach (var entry in data.guild.consumables)
+            if (db.consumables.TryGetValue(entry.itemId, out var consumable))
+                guild.AddConsumable(consumable, entry.count);
+        guild.RestoreShopStock(
+            data.guild.lastShopRefreshTurn,
+            new Dictionary<string, int>(data.guild.shopEquipmentStock),
+            new Dictionary<string, int>(data.guild.shopConsumableStock));
 
         var adventurersById = new Dictionary<string, AdventurerData>();
         guild.adventurers.Clear();
@@ -258,8 +279,19 @@ public static class SaveManager
             extraRewardTaken = saved.extraRewardTaken,
             clearProgressApplied = saved.clearProgressApplied,
             gatheredCount = saved.gatheredCount,
+            goldRewardBonusPercent = saved.goldRewardBonusPercent,
+            expRewardBonusPercent = saved.expRewardBonusPercent,
+            trapDamageReductionPercent = saved.trapDamageReductionPercent,
         };
         run.logs.AddRange(saved.logs);
+        run.usedConsumableIds.AddRange(saved.usedConsumableIds);
+        if (!string.IsNullOrEmpty(saved.pendingChoiceEventId)
+            && db.choiceEvents.TryGetValue(saved.pendingChoiceEventId, out var pendingEvent))
+            run.pendingChoice = new PendingQuestChoice
+            {
+                Event = pendingEvent,
+                createdTurn = saved.pendingChoiceCreatedTurn,
+            };
 
         foreach (var loot in saved.pendingLoot)
         {
@@ -269,12 +301,15 @@ public static class SaveManager
                 relicId = loot.relicId,
                 equipmentId = loot.equipmentId,
                 skillId = loot.skillId,
+                consumableId = loot.consumableId,
                 gold = loot.gold,
                 weight = loot.weight,
+                quantity = Math.Max(1, loot.quantity),
                 unique = loot.unique,
                 Relic = db.relics.GetValueOrDefault(loot.relicId),
                 Equipment = db.equipment.GetValueOrDefault(loot.equipmentId),
                 Skill = db.skills.GetValueOrDefault(loot.skillId),
+                Consumable = db.consumables.GetValueOrDefault(loot.consumableId),
             });
         }
 

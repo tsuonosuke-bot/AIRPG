@@ -1,7 +1,10 @@
+using GuildSimulator.Core.Models;
+
 namespace GuildSimulator.Core.MasterData;
 
 public class AdventurerMasterData
 {
+    public Rarity rarity;
     public string id = "";
     public string baseName = "";
     public int upkeepGold;

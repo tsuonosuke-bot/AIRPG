@@ -28,7 +28,10 @@
     "defaultWeaponId": "eq_sword_02", "defaultArmorId": "eq_plate_01", "skillIds": ["skill_swordMastery", "skill_ironWall"] },
   { "id": "enemy_goblin_captain", "baseName": "ゴブリン隊長", "exp": 20,
     "vitality": 7, "mental": 5, "strength": 10, "agility": 6, "intelligence": 3, "constitution": 7,
-    "defaultWeaponId": "eq_axe_02", "defaultArmorId": "eq_chain_01", "skillIds": ["skill_axeMastery", "skill_battleCry"] },
+    "defaultWeaponId": "eq_axe_02", "defaultArmorId": "eq_chain_01", "skillIds": ["skill_axeMastery", "skill_battleCry"],
+    "dropTable": [
+      { "type": 4, "consumableId": "item_courage_incense", "chance": 0.08, "quantity": 1, "unique": false }
+    ] },
   { "id": "enemy_goblin_archer", "baseName": "ゴブリン射手", "exp": 7,
     "vitality": 3, "mental": 3, "strength": 4, "agility": 7, "intelligence": 2, "constitution": 2,
     "defaultWeaponId": "eq_bow_01", "defaultArmorId": "", "skillIds": ["skill_bowSpear"] },
@@ -41,7 +44,10 @@
 
   { "id": "enemy_forest_wolf", "baseName": "森狼", "exp": 8,
     "vitality": 5, "mental": 2, "strength": 7, "agility": 9, "intelligence": 1, "constitution": 4,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_beastFang"] },
+    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_beastFang"],
+    "dropTable": [
+      { "type": 1, "equipmentId": "eq_drop_fang", "chance": 0.035, "quantity": 1, "unique": false }
+    ] },
   { "id": "enemy_giant_spider", "baseName": "大蜘蛛", "exp": 9,
     "vitality": 6, "mental": 2, "strength": 6, "agility": 7, "intelligence": 1, "constitution": 5,
     "defaultWeaponId": "", "defaultArmorId": "", "skillIds": [] },
@@ -101,11 +107,19 @@
     "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_beastFang"] },
   { "id": "enemy_shadow_beast", "baseName": "影の獣", "exp": 24,
     "vitality": 8, "mental": 6, "strength": 11, "agility": 12, "intelligence": 4, "constitution": 6,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_beastFang", "skill_swiftStep"] },
+    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_beastFang", "skill_swiftStep"],
+    "dropTable": [
+      { "type": 1, "equipmentId": "eq_drop_shadow", "chance": 0.04, "quantity": 1, "unique": false },
+      { "type": 4, "consumableId": "item_lucky_coin", "chance": 0.12, "quantity": 1, "unique": false }
+    ] },
   { "id": "enemy_necromancer", "baseName": "死霊術師", "exp": 28,
     "vitality": 5, "mental": 10, "strength": 3, "agility": 6, "intelligence": 12, "constitution": 4,
     "defaultWeaponId": "eq_dark_01", "defaultArmorId": "eq_robe_02", "skillIds": ["skill_darkMastery", "skill_deathAura"] },
   { "id": "enemy_bone_lord", "baseName": "骸の王", "exp": 70,
     "vitality": 16, "mental": 12, "strength": 14, "agility": 8, "intelligence": 10, "constitution": 14,
-    "defaultWeaponId": "eq_sword_02", "defaultArmorId": "eq_plate_02", "skillIds": ["skill_swordMastery", "skill_undeadTough", "skill_deathAura", "skill_guardian"] }
+    "defaultWeaponId": "eq_sword_02", "defaultArmorId": "eq_plate_02", "skillIds": ["skill_swordMastery", "skill_undeadTough", "skill_deathAura", "skill_guardian"],
+    "dropTable": [
+      { "type": 1, "equipmentId": "eq_drop_bone", "chance": 0.25, "quantity": 1, "unique": false },
+      { "type": 1, "equipmentId": "eq_drop_crown", "chance": 0.05, "quantity": 1, "unique": true }
+    ] }
 ]
