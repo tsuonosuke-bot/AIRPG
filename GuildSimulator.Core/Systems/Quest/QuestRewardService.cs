@@ -56,10 +56,13 @@ public class QuestRewardService
     {
         int baseGold = q.def.rewardGold;
 
-        // 採取クエストは納品数に応じた買取分を基本報酬に上乗せする。
-        int gatherGold = q.def.IsGatherQuest ? q.gatheredCount * q.def.gatherGoldPerItem : 0;
+        // 目標数はクエスト達成のための納品分。目標を超えた余剰分だけを買い取る。
+        int surplusGathered = q.def.IsGatherQuest
+            ? Math.Max(0, q.gatheredCount - q.def.gatherTargetCount)
+            : 0;
+        int gatherGold = surplusGathered * q.def.gatherGoldPerItem;
         if (gatherGold > 0)
-            q.logs.Add($"{prefix} {q.def.gatherItemName} {q.gatheredCount}個 買取 +{gatherGold}G");
+            q.logs.Add($"{prefix} {q.def.gatherItemName} 余剰 {surplusGathered}個 買取 +{gatherGold}G");
 
         float rate = q.retreated ? RetreatRewardRate : 1f;
         if (q.retreated)

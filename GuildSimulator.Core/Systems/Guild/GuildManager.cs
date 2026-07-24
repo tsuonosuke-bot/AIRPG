@@ -5,6 +5,7 @@ namespace GuildSimulator.Core.Systems.Guild;
 
 public class GuildManager
 {
+    public const int GuildBaseUpkeepGoldPerTurn = 10;
     public const int UpkeepGoldPerLevel = 10;
 
     public List<AdventurerData> adventurers = new();
@@ -61,8 +62,11 @@ public class GuildManager
     public static int CalculateAdventurerUpkeep(int level) =>
         Math.Max(1, level) * UpkeepGoldPerLevel;
 
-    public int BaseUpkeepPerTurn =>
+    public int AdventurerUpkeepPerTurn =>
         adventurers.Where(a => a != null && a.isAlive).Sum(a => CalculateAdventurerUpkeep(a.level));
+
+    public int BaseUpkeepPerTurn =>
+        GuildBaseUpkeepGoldPerTurn + AdventurerUpkeepPerTurn;
 
     public int EffectiveUpkeepPerTurn => CalculateEffectiveUpkeep(BaseUpkeepPerTurn);
 
@@ -85,7 +89,7 @@ public class GuildManager
         int effectiveTotal = CalculateEffectiveUpkeep(baseTotal);
         if (effectiveTotal > 0)
             SpendGold(effectiveTotal,
-                $"[Turn {currentTurn}] 賃金支払い（{adventurers.Count}人）");
+                $"[Turn {currentTurn}] 維持費支払い（ギルド基本 {GuildBaseUpkeepGoldPerTurn}G + 冒険者 {adventurers.Count}人）");
         return effectiveTotal;
     }
 

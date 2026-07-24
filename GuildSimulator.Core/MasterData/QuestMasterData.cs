@@ -28,7 +28,7 @@ public class QuestMasterData
     public int gatherMinPerEvent = 1;
     public int gatherMaxPerEvent = 3;
     public float gatherChance = 0.5f;   // 各フェーズで採取イベントになる確率
-    public int gatherGoldPerItem;       // 採取1個あたりの追加Gold
+    public int gatherGoldPerItem;       // 目標数を超えた採取1個あたりの追加Gold
 
     public bool IsGatherQuest => gatherTargetCount > 0;
 

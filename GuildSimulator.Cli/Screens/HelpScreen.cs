@@ -1,3 +1,5 @@
+using GuildSimulator.Core.Systems.Guild;
+
 namespace GuildSimulator.Cli.Screens;
 
 public static class HelpScreen
@@ -35,7 +37,7 @@ public static class HelpScreen
         Console.WriteLine("  4) クエストが完了すると報酬（資金・経験値・選択報酬）を受け取る");
         Console.WriteLine("  5) 得た資金で雇用・装備・遺物を強化し、また次のクエストへ");
         Console.WriteLine();
-        Console.WriteLine("  毎ターン維持費（冒険者の賃金）が資金から引かれるため、");
+        Console.WriteLine($"  毎ターン、ギルド基本維持費{GuildManager.GuildBaseUpkeepGoldPerTurn}Gと冒険者の賃金が資金から引かれるため、");
         Console.WriteLine("  資金が尽きる（0以下になる）とゲームオーバーになる。");
         ConsoleHelper.PressAnyKey();
     }
@@ -43,8 +45,8 @@ public static class HelpScreen
     static void ShowGuild()
     {
         ConsoleHelper.Header("ギルド運営");
-        Console.WriteLine("  ・資金（Gold）    : クエスト報酬や採取物の買取で得る。毎ターン維持費が引かれる。");
-        Console.WriteLine("  ・維持費          : 所属冒険者のレベル合計に応じて毎ターンかかる固定支出。");
+        Console.WriteLine("  ・資金（Gold）    : クエスト報酬や目標数を超えた採取物の買取で得る。毎ターン維持費が引かれる。");
+        Console.WriteLine($"  ・維持費          : ギルド基本{GuildManager.GuildBaseUpkeepGoldPerTurn}G＋所属冒険者のレベル合計に応じた毎ターンの固定支出。");
         Console.WriteLine("  ・ギルドポイント  : クエストクリアで得る昇格試験の解禁ポイント。撤退では入らない。");
         Console.WriteLine("  ・ギルドランク    : 昇格試験（緊急クエスト）に正規クリアすると上がる。");
         Console.WriteLine("                      ランクが上がると受注できるクエストの幅が広がる。");

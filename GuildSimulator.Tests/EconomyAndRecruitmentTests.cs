@@ -23,11 +23,24 @@ public class EconomyAndRecruitmentTests
         var guild = new GuildManager();
         guild.AddAdventurer(adventurer);
 
-        Assert.Equal(10, guild.BaseUpkeepPerTurn);
+        Assert.Equal(10, guild.AdventurerUpkeepPerTurn);
+        Assert.Equal(20, guild.BaseUpkeepPerTurn);
 
         adventurer.level = 2;
 
-        Assert.Equal(20, guild.BaseUpkeepPerTurn);
+        Assert.Equal(20, guild.AdventurerUpkeepPerTurn);
+        Assert.Equal(30, guild.BaseUpkeepPerTurn);
+    }
+
+    [Fact]
+    public void GuildPaysBaseUpkeepEvenWithoutAdventurers()
+    {
+        var guild = new GuildManager(startGold: 50);
+
+        int paid = guild.PayUpkeepForAll(currentTurn: 2);
+
+        Assert.Equal(10, paid);
+        Assert.Equal(40, guild.Gold);
     }
 
     [Theory]

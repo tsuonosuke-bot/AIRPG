@@ -27,7 +27,7 @@ public static class QuestBoardScreen
                 Console.WriteLine($"  {i + 1}. 【Rank{q.rank}】{q.questName}  所要:{estTurns}T{emg}");
                 Console.WriteLine($"      難易度 {diff.label}（スコア{diff.score:0}）  報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
                 if (q.IsGatherQuest)
-                    ConsoleHelper.Dim($"      採取: {q.gatherItemName} x{q.gatherTargetCount}（1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還）");
+                    ConsoleHelper.Dim($"      採取: {q.gatherItemName} x{q.gatherTargetCount}（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還）");
                 string bossInfo = diff.hasBoss ? $"  ボス:Lv{diff.bossLevel}" : "";
                 ConsoleHelper.Dim($"      場所: {q.Dungeon?.dungeonName ?? "？"}  敵{diff.EnemyLevelRange}"
                     + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
