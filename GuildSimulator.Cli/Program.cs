@@ -262,7 +262,7 @@ static void NextTurn(GuildManager guild, QuestManager questManager, ref int curr
             .TakeLast(3)
             .ToList();
         foreach (var log in eventSummaries)
-            ConsoleHelper.Dim($"      {log}");
+            ConsoleHelper.WriteQuestLog($"      {log}");
     }
 }
 

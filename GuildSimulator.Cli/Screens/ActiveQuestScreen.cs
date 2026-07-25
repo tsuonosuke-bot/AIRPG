@@ -77,7 +77,7 @@ public static class ActiveQuestScreen
 
             Console.WriteLine($"\n  ログ ({(total == 0 ? 0 : skip + 1)}〜{skip + take} / 全{total}件):");
             foreach (var log in q.logs.Skip(skip).Take(take))
-                ConsoleHelper.Dim($"    {log}");
+                ConsoleHelper.WriteQuestLog($"    {log}");
 
             Console.WriteLine();
             var opts = new List<string>();
