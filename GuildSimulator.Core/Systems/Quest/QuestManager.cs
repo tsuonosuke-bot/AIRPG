@@ -197,53 +197,88 @@ public class QuestManager
         }
 
         var option = pending.Event.options[optionIndex];
+        string detail = "";
         switch (option.effectType)
         {
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Morale:
-                if (option.value >= 0) q.morale.Restore(option.value);
-                else q.morale.Drain(-option.value);
+                int moraleChange = option.value >= 0 ? q.morale.Restore(option.value) : -q.morale.Drain(-option.value);
+                detail = $"パーティ士気 {(moraleChange >= 0 ? "+" : "")}{moraleChange}（{q.morale.Current}/{q.morale.Max}）";
                 break;
             case GuildSimulator.Core.Models.QuestChoiceEffectType.HealPercent:
+            {
+                var changes = new List<string>();
                 foreach (var a in q.EnumerateMembers().Where(a => a.isAlive))
+                {
+                    int before = a.CombatHp;
                     a.CombatHp = Math.Min(a.CombatHpMax,
                         a.CombatHp + (int)Math.Ceiling(a.CombatHpMax * option.value / 100f));
+                    int healed = a.CombatHp - before;
+                    if (healed > 0) changes.Add($"{a.name} HP+{healed}");
+                }
+                detail = changes.Count > 0 ? string.Join("、", changes) : "HPの変化はなかった";
                 break;
+            }
             case GuildSimulator.Core.Models.QuestChoiceEffectType.DamagePercent:
+            {
+                var changes = new List<string>();
                 foreach (var a in q.EnumerateMembers().Where(a => a.isAlive))
+                {
+                    int before = a.CombatHp;
                     a.CombatHp = Math.Max(1,
                         a.CombatHp - (int)Math.Ceiling(a.CombatHpMax * option.value / 100f));
+                    int lost = before - a.CombatHp;
+                    if (lost > 0) changes.Add($"{a.name} HP-{lost}");
+                }
+                detail = changes.Count > 0 ? string.Join("、", changes) : "HPの変化はなかった";
                 break;
+            }
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Experience:
+            {
+                var changes = new List<string>();
                 foreach (var a in q.EnumerateMembers().Where(a => a.isAlive))
-                    a.AddExperience(option.value, out _);
+                {
+                    a.AddExperience(option.value, out int levelUps);
+                    changes.Add($"{a.name} 経験値+{option.value}" + (levelUps > 0 ? $"（Lv.{levelUps}アップ）" : ""));
+                }
+                detail = string.Join("、", changes);
                 break;
+            }
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Gold:
                 q.pendingLoot.Add(new RewardEntryData
                 {
                     type = GuildSimulator.Core.Models.RewardType.Gold, gold = option.value, quantity = 1,
                 });
+                detail = $"ゴールド+{option.value}（帰還時に加算）";
                 break;
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Equipment:
                 if (option.Equipment != null)
+                {
+                    int qty = Math.Max(1, option.value);
                     q.pendingLoot.Add(new RewardEntryData
                     {
                         type = GuildSimulator.Core.Models.RewardType.Equipment,
                         Equipment = option.Equipment, equipmentId = option.Equipment.id,
-                        quantity = Math.Max(1, option.value),
+                        quantity = qty,
                     });
+                    detail = $"装備「{option.Equipment.displayName}」x{qty} 入手（帰還時に加算）";
+                }
                 break;
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Consumable:
                 if (option.Consumable != null)
+                {
+                    int qty = Math.Max(1, option.value);
                     q.pendingLoot.Add(new RewardEntryData
                     {
                         type = GuildSimulator.Core.Models.RewardType.Consumable,
                         Consumable = option.Consumable, consumableId = option.Consumable.id,
-                        quantity = Math.Max(1, option.value),
+                        quantity = qty,
                     });
+                    detail = $"消費アイテム「{option.Consumable.displayName}」x{qty} 入手（帰還時に加算）";
+                }
                 break;
         }
-        result = option.resultText;
-        q.logs.Add($"[選択] {option.text} - {option.resultText}");
+        result = detail.Length > 0 ? $"{option.resultText}\n  → {detail}" : option.resultText;
+        q.logs.Add($"[選択] {option.text} - {option.resultText}" + (detail.Length > 0 ? $" ({detail})" : ""));
         q.pendingChoice = null;
         return true;
     }

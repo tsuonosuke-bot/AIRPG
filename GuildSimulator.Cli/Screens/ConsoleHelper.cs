@@ -19,6 +19,18 @@ public static class ConsoleHelper
     public static void Error(string msg) { Console.ForegroundColor = ConsoleColor.Red; Console.WriteLine(msg); Console.ResetColor(); }
     public static void Dim(string msg) { Console.ForegroundColor = ConsoleColor.DarkGray; Console.WriteLine(msg); Console.ResetColor(); }
 
+    public static void WriteQuestLog(string msg)
+    {
+        if (msg.Contains("レベルアップ"))
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(msg);
+            Console.ResetColor();
+        }
+        else
+            Dim(msg);
+    }
+
     public static void WriteRarityName(string name, Rarity rarity)
     {
         Console.ForegroundColor = rarity switch

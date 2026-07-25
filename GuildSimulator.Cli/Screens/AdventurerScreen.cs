@@ -18,10 +18,16 @@ public static class AdventurerScreen
             {
                 var a = advs[i];
                 string busy = questManager?.IsAdventurerBusy(a.id) == true ? "[出発中]" : "";
-                string alive = a.isAlive ? "" : "[死亡]";
                 Console.Write($"  {i + 1}. ");
                 ConsoleHelper.WriteRarityName(a.name, a.master.rarity);
-                Console.WriteLine($" Lv{a.level} Rank{a.rank} {a.ClassAndRace} {busy}{alive}");
+                Console.Write($" Lv{a.level} Rank{a.rank} {a.ClassAndRace} {busy}");
+                if (!a.isAlive)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("[死亡]");
+                    Console.ResetColor();
+                }
+                Console.WriteLine();
             }
             Console.WriteLine("  0. 戻る");
             Console.Write("番号を選択: ");

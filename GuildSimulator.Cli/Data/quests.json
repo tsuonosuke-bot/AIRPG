@@ -2,7 +2,7 @@
   {
     "id": "quest_herb",
     "questName": "薬草採取",
-    "rank": 1, "totalPhases": 12, "phasesPerTurn": 5,
+    "rank": 1, "totalPhases": 10, "phasesPerTurn": 5,
     "rewardGold": 40, "rewardGuildPoints": 8, "rewardExp": 50,
     "dungeonId": "dungeon_meadow", "bossEnemyId": "", "bossPhase": 0,
     "gatherItemName": "薬草", "gatherTargetCount": 10,

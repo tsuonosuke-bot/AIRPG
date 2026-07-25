@@ -73,11 +73,19 @@ public class QuestRewardService
         guild.AddGold(gold, $"クエスト報酬: {q.def.questName}");
         q.logs.Add($"{prefix} 資金 +{gold}G（基本 {baseGold}{(gatherGold > 0 ? $" + 買取 {gatherGold}" : "")}）");
 
-        int questExp = (int)Math.Floor(q.def.rewardExp * rate * (1f + q.expRewardBonusPercent / 100f));
-        foreach (var a in q.formation.Where(x => x != null))
+        int totalExp = (int)Math.Floor(q.def.rewardExp * rate * (1f + q.expRewardBonusPercent / 100f));
+        var members = q.formation.Where(x => x != null).ToList();
+        int memberCount = members.Count;
+        int share = memberCount > 0 ? totalExp / memberCount : 0;
+        int remainder = memberCount > 0 ? totalExp % memberCount : 0;
+        for (int i = 0; i < memberCount; i++)
         {
-            a!.AddExperience(questExp, out var ups);
-            q.logs.Add($"{prefix} {a.name} 経験値 +{questExp}（レベルアップ +{ups}）");
+            var a = members[i]!;
+            int questExp = share + (i < remainder ? 1 : 0);
+            int levelBefore = a.level;
+            a.AddExperience(questExp, out var ups);
+            string levelUpText = ups > 0 ? $"（レベルアップ {levelBefore}lv→{a.level}lv）" : "";
+            q.logs.Add($"{prefix} {a.name} 経験値 +{questExp}{levelUpText}");
         }
 
         // ギルドポイントは達成の証なので撤退では入らない。
