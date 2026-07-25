@@ -100,7 +100,8 @@ public class FeatureExpansionTests
         Assert.Equal(1, run.currentPhase);
 
         Assert.True(manager.ResolveChoice(run, 0, out var result));
-        Assert.Equal("資金を発見", result);
+        Assert.StartsWith("資金を発見", result);
+        Assert.Contains("ゴールド+25", result);
         Assert.False(manager.HasPendingChoices);
         Assert.Contains(run.pendingLoot, x => x.type == RewardType.Gold && x.gold == 25);
     }
