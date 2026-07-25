@@ -66,7 +66,8 @@ public class QuestProgressor
                         m.CombatHp = s.hp;
                     }
 
-                    var result = BattleResolver.Resolve(advI, enemyI, q.logs, currentTurn, phase, q.morale);
+                    var result = BattleResolver.Resolve(
+                        advI, enemyI, q.logs, currentTurn, phase, q.morale, q.policy);
 
                     bool advWiped = !q.formation.Any(a => a != null && a.isAlive);
                     bool enemyWiped = !enemyMembers.Any(e => e != null && e.isAlive);
@@ -193,6 +194,13 @@ public class QuestProgressor
 
         q.currentPhase = phase;
         q.logs.Add($"[Turn {currentTurn}] Phase {q.currentPhase}/{q.def.totalPhases}: {evTitle} - {evResult}");
+        q.AddReportEvent(
+            currentTurn,
+            phase,
+            ToReportKind(ev),
+            evTitle,
+            evResult,
+            important: isBoss || ev is DungeonEventType.Trap or DungeonEventType.Treasure);
 
         // 最終フェーズに達しても目標数に届かない採取クエストは、残りをまとめて採取して達成扱いにする。
         if (!q.failed && q.def.IsGatherQuest && !q.GatherFulfilled && q.currentPhase >= q.def.totalPhases)
@@ -207,6 +215,16 @@ public class QuestProgressor
         else if (!q.failed && q.currentPhase >= q.def.totalPhases)
             q.logs.Add($"[Turn {currentTurn}] クエスト完了！報酬を受け取れます");
     }
+
+    static ExpeditionEventKind ToReportKind(DungeonEventType type) => type switch
+    {
+        DungeonEventType.EnemyEncounter => ExpeditionEventKind.Encounter,
+        DungeonEventType.Heal => ExpeditionEventKind.Rest,
+        DungeonEventType.Trap => ExpeditionEventKind.Trap,
+        DungeonEventType.Treasure => ExpeditionEventKind.Treasure,
+        DungeonEventType.Gather => ExpeditionEventKind.Gather,
+        _ => ExpeditionEventKind.Progress,
+    };
 
     // ダンジョンの重み表からフェーズごとに1イベント抽選。未設定なら Nothing。
     static DungeonEventType RollDungeonEvent(DungeonMasterData? d, int phase)

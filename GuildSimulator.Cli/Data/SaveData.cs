@@ -7,7 +7,7 @@ namespace GuildSimulator.Cli.Data;
 
 public class SaveGameData
 {
-    public int saveVersion = 2;
+    public int saveVersion = 3;
     public int currentTurn = 1;
     public GuildSaveData guild = new();
     public QuestManagerSaveData questManager = new();
@@ -52,6 +52,10 @@ public class AdventurerSaveData
     public int vitality, mental, strength, agility, intelligence, constitution, appearance;
     public int combatHp;
     public int combatHpMax;
+    public int expeditionCount;
+    public int successfulExpeditionCount;
+    public int retreatCount;
+    public List<string> adventureHistory = new();
     public List<LearnedSkillSave> learnedSkills = new();
     public Dictionary<string, int> classClearCounts = new();
 }
@@ -67,6 +71,9 @@ public class QuestManagerSaveData
     public List<BoardEntrySave> questBoard = new();
     public List<QuestRunSaveData> activeQuests = new();
     public List<string> clearedOneShotIds = new();
+    public List<string> clearedQuestIds = new();
+    public List<string> discoveredClueIds = new();
+    public List<string> selectedBranchIds = new();
 }
 
 public class BoardEntrySave
@@ -93,6 +100,11 @@ public class QuestRunSaveData
     public bool clearProgressApplied;
     public string?[] formationAdventurerIds = new string?[6];
     public List<string> logs = new();
+    public List<ExpeditionEventSave> reportEvents = new();
+    public List<string> discoveredClueIds = new();
+    public ExpeditionPolicy policy = ExpeditionPolicy.ObjectiveFirst;
+    public Dictionary<string, int> startingLevels = new();
+    public int guildUpkeepAtStart;
     public List<PendingLootSave> pendingLoot = new();
     public int gatheredCount;
     public List<string> usedConsumableIds = new();
@@ -101,6 +113,18 @@ public class QuestRunSaveData
     public int trapDamageReductionPercent;
     public string pendingChoiceEventId = "";
     public int pendingChoiceCreatedTurn;
+}
+
+public class ExpeditionEventSave
+{
+    public int turn;
+    public int phase;
+    public ExpeditionEventKind kind;
+    public string title = "";
+    public string detail = "";
+    public string actorName = "";
+    public string clueId = "";
+    public bool important;
 }
 
 public class PendingLootSave

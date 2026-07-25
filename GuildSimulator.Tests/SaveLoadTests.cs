@@ -27,6 +27,7 @@ public class SaveLoadTests
         var adv = new AdventurerData(advMaster);
         guild.AddAdventurer(adv);
         adv.AddExperience(150, out _);   // レベルアップさせて経験値・レベルの復元を確認する
+        adv.RecordExpedition("過去の調査", "撤退");
 
         var equip = db.equipment.Values.First();
         guild.AddEquipment(equip, 3, "テスト");
@@ -43,13 +44,20 @@ public class SaveLoadTests
         var quest = db.allQuests.First(q => !q.isEmergencyQuest);
         var formation = new AdventurerData?[6];
         formation[0] = adv;
-        Assert.True(questManager.TryStartQuest(quest, formation, currentTurn: 1, out var error));
+        Assert.True(questManager.TryStartQuest(
+            quest,
+            formation,
+            currentTurn: 1,
+            out var error,
+            policy: ExpeditionPolicy.SurvivalFirst));
         Assert.True(string.IsNullOrEmpty(error));
 
         var run = questManager.activeQuests.Single();
         run.currentPhase = 2;
         run.morale.Drain(5);
         run.logs.Add("テストログ");
+        run.AddReportEvent(
+            2, 2, ExpeditionEventKind.Discovery, "テスト発見", "構造化された報告", important: true);
         run.pendingLoot.Add(new RewardEntryData
         {
             type = RewardType.Relic,
@@ -82,6 +90,9 @@ public class SaveLoadTests
             Assert.Equal(adv.level, loadedAdv.level);
             Assert.Equal(adv.experience, loadedAdv.experience);
             Assert.Equal(adv.vitality, loadedAdv.vitality);
+            Assert.Equal(adv.expeditionCount, loadedAdv.expeditionCount);
+            Assert.Equal(adv.retreatCount, loadedAdv.retreatCount);
+            Assert.Equal(adv.adventureHistory, loadedAdv.adventureHistory);
 
             Assert.Equal(guild.GetCount(equip), loaded.Guild.GetCount(equip));
             Assert.Equal(2, loaded.Guild.GetConsumableCount(consumable));
@@ -97,6 +108,11 @@ public class SaveLoadTests
             Assert.Equal(run.morale.Max, loadedRun.morale.Max);
             Assert.Contains("テストログ", loadedRun.logs);
             Assert.Same(loadedAdv, loadedRun.formation[0]);   // 編成の参照は復元済みadventurerと一致する
+            Assert.Equal(run.startingLevels, loadedRun.startingLevels);
+            Assert.Equal(run.guildUpkeepAtStart, loadedRun.guildUpkeepAtStart);
+            Assert.Equal(ExpeditionPolicy.SurvivalFirst, loadedRun.policy);
+            var loadedReport = Assert.Single(loadedRun.reportEvents, e => e.title == "テスト発見");
+            Assert.Equal("構造化された報告", loadedReport.detail);
 
             var loadedLoot = Assert.Single(loadedRun.pendingLoot);
             Assert.Same(relic, loadedLoot.Relic);

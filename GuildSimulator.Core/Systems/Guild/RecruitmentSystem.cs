@@ -4,6 +4,8 @@ namespace GuildSimulator.Core.Systems.Guild;
 
 public static class RecruitmentSystem
 {
+    public const int CandidateRerollCostGold = 20;
+
     public static int RequiredGuildRankForLevel(int level) => level switch
     {
         <= 1 => 1,
@@ -60,5 +62,20 @@ public static class RecruitmentSystem
         }
 
         return picked;
+    }
+
+    public static bool TryRerollCandidates(
+        IEnumerable<AdventurerMasterData> pool,
+        GuildManager guild,
+        int count,
+        out List<AdventurerMasterData> candidates,
+        Func<int, int, int>? range = null)
+    {
+        candidates = new();
+        if (guild.Gold < CandidateRerollCostGold) return false;
+
+        guild.SpendGold(CandidateRerollCostGold, "雇入れ候補の再抽選");
+        candidates = DrawCandidates(pool, guild, count, range);
+        return true;
     }
 }

@@ -6,7 +6,7 @@ namespace GuildSimulator.Core.Systems.Guild;
 public class GuildManager
 {
     public const int GuildBaseUpkeepGoldPerTurn = 10;
-    public const int UpkeepGoldPerLevel = 10;
+    public const int UpkeepGoldPerLevel = 5;
 
     public List<AdventurerData> adventurers = new();
     public int Gold { get; private set; }
@@ -86,6 +86,13 @@ public class GuildManager
         if (effectiveUpkeep <= 0) return int.MaxValue;
         return Math.Max(0, (gold - 1) / effectiveUpkeep);
     }
+
+    /// <summary>
+    /// 現在のギルド維持費が所要ターン中ずっと続く前提で、基本報酬から差し引いた予想収支。
+    /// ランダム報酬・採取超過・レベルアップによる維持費変動は含めない。
+    /// </summary>
+    public int EstimateNetAfterUpkeep(int rewardGold, int turns) =>
+        rewardGold - EffectiveUpkeepPerTurn * Math.Max(0, turns);
 
     public int PayUpkeepForAll(int currentTurn)
     {

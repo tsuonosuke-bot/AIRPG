@@ -43,6 +43,25 @@ public static class MasterValidator
             if (dungeon.turnEndEvents.Any(e => e.options.Count < 2))
                 errors.Add($"{dungeon.id}: 選択イベントには2個以上の選択肢が必要です");
 
+        var questIds = db.allQuests.Select(q => q.id).ToHashSet();
+        foreach (var quest in db.allQuests)
+        {
+            foreach (var requiredQuestId in quest.requiredQuestIds)
+                if (!questIds.Contains(requiredQuestId))
+                    errors.Add($"{quest.id}: 不明なrequiredQuestId '{requiredQuestId}'");
+            foreach (var clueId in quest.requiredClueIds.Concat(quest.grantedClueIds))
+                if (!db.clues.ContainsKey(clueId))
+                    errors.Add($"{quest.id}: 不明なclueId '{clueId}'");
+        }
+
+        foreach (var clue in db.clues.Values)
+        {
+            if (string.IsNullOrWhiteSpace(clue.id))
+                errors.Add("clues.json: idが空の項目があります");
+            if (string.IsNullOrWhiteSpace(clue.title))
+                errors.Add($"{clue.id}: titleが空です");
+        }
+
         return errors;
     }
 }

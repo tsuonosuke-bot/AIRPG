@@ -30,7 +30,7 @@ if (args.Contains("--validate-master", StringComparer.OrdinalIgnoreCase))
         Console.WriteLine("マスタデータ検証: OK");
         Console.WriteLine($"  冒険者 {db.allAdventurers.Count} / 装備 {db.equipment.Count}"
             + $" / 敵 {db.enemies.Count} / 消費アイテム {db.consumables.Count}"
-            + $" / 選択イベント {db.choiceEvents.Count}");
+            + $" / 選択イベント {db.choiceEvents.Count} / 手掛かり {db.clues.Count}");
     }
     else
     {
@@ -93,6 +93,7 @@ static bool RunGame(GameMasterData db, string savePath)
         Console.WriteLine();
         Console.WriteLine("  【ギルド管理】");
         Console.WriteLine("    8. 経済ログ");
+        Console.WriteLine("    J. 調査記録");
         Console.WriteLine();
         Console.WriteLine("  【ターン操作】");
         Console.WriteLine("    9. ターンを進める");
@@ -113,11 +114,15 @@ static bool RunGame(GameMasterData db, string savePath)
             case "1": QuestBoardScreen.Show(questManager, guild, currentTurn); break;
             case "2": ActiveQuestScreen.Show(questManager, guild); break;
             case "3": AdventurerScreen.Show(guild, questManager); break;
-            case "4": RecruitScreen.Show(recruitCandidates, guild, currentTurn); break;
+            case "4":
+                RecruitScreen.Show(
+                    recruitCandidates, guild, currentTurn, db.allAdventurers, MaxCandidateCount);
+                break;
             case "5": InventoryScreen.Show(guild); break;
             case "6": ShopScreen.Show(db, guild, currentTurn); break;
             case "7": RelicScreen.Show(guild); break;
             case "8": ShowEconomyLog(guild); break;
+            case "J": StoryJournalScreen.Show(db, questManager); break;
             case "H": HelpScreen.Show(); break;
             case "9":
                 if (questManager.HasPendingChoices)
@@ -126,6 +131,11 @@ static bool RunGame(GameMasterData db, string savePath)
                     ShowPendingChoices(questManager, guild);
                     break;
                 }
+                int projectedAfterUpkeep = guild.Gold - upkeepPerTurn;
+                if (projectedAfterUpkeep <= 0
+                    && !ConsoleHelper.Confirm(
+                        $"次の維持費支払い後は {projectedAfterUpkeep}Gです。完了報酬がなければ破産します。ターンを進めますか？"))
+                    break;
                 NextTurn(guild, questManager, ref currentTurn);
                 recruitCandidates = RecruitmentSystem.DrawCandidates(db.allAdventurers, guild, GameRandom.Range(0, MaxCandidateCount + 1));
                 // 報酬でGP条件を達成したターンに、昇格試験をすぐ掲示できる順序にする。

@@ -1,5 +1,6 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Quest;
 using GuildSimulator.Core.Systems.Guild;
 
@@ -21,11 +22,22 @@ public static class QuestBoardScreen
                 var e = board[i];
                 var q = e.quest;
                 string emg = q.isEmergencyQuest ? " [緊急]" : "";
+                string story = q.isStoryQuest ? " [物語]" : "";
                 int estTurns = (int)Math.Ceiling((double)q.totalPhases / q.phasesPerTurn);
                 var diff = DungeonDifficulty.Evaluate(q);
 
-                Console.WriteLine($"  {i + 1}. 【Rank{q.rank}】{q.questName}  所要:{estTurns}T{emg}");
+                Console.WriteLine($"  {i + 1}. 【Rank{q.rank}】{q.questName}  所要:{estTurns}T{emg}{story}");
+                if (!string.IsNullOrWhiteSpace(q.clientName))
+                    ConsoleHelper.Dim($"      依頼人: {q.clientName}");
+                if (!string.IsNullOrWhiteSpace(q.description))
+                    Console.WriteLine($"      {q.description}");
                 Console.WriteLine($"      難易度 {diff.label}（スコア{diff.score:0}）  報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
+                int estimatedUpkeep = guild.EffectiveUpkeepPerTurn * estTurns;
+                int estimatedNet = guild.EstimateNetAfterUpkeep(q.rewardGold, estTurns);
+                string netText = $"      予想収支: {q.rewardGold}G - 維持費{estimatedUpkeep}G = {estimatedNet:+#;-#;0}G"
+                    + "（現在の在籍構成・基本報酬のみ）";
+                if (estimatedNet < 0) ConsoleHelper.Warn(netText);
+                else ConsoleHelper.Dim(netText);
                 if (q.IsGatherQuest)
                     ConsoleHelper.Dim($"      採取: {q.gatherItemName} x{q.gatherTargetCount}（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還）");
                 string bossInfo = diff.hasBoss ? $"  ボス:Lv{diff.bossLevel}" : "";
@@ -103,17 +115,37 @@ public static class QuestBoardScreen
 
         ConsoleHelper.Header("編成確認");
         ShowFormation(formation);
+        var policy = SelectPolicy();
+        if (policy == null) return;
         var carriedConsumables = SelectConsumables(guild);
+        Console.WriteLine($"  遠征方針: {QuestManager.PolicyName(policy.Value)}");
         if (carriedConsumables.Count > 0)
             Console.WriteLine($"  持ち込み（出発時消費）: {string.Join(", ", carriedConsumables.Select(x => x.displayName))}");
         if (!ConsoleHelper.Confirm("このメンバーで受注しますか？")) return;
 
-        if (qm.TryStartQuest(def, formation, currentTurn, out var error, carriedConsumables))
+        if (qm.TryStartQuest(
+            def, formation, currentTurn, out var error, carriedConsumables, policy.Value))
             ConsoleHelper.Info($"クエスト「{def.questName}」を受注しました！ （Turn {currentTurn} 開始）");
         else
             ConsoleHelper.Error($"受注失敗: {error}");
 
         ConsoleHelper.PressAnyKey();
+    }
+
+    static ExpeditionPolicy? SelectPolicy()
+    {
+        Console.WriteLine();
+        Console.WriteLine("  遠征方針:");
+        Console.WriteLine("  1. 生還優先     損耗や士気低下が危険域へ入る前に撤退する");
+        Console.WriteLine("  2. 依頼達成優先 行動可能な限り任務を続行する");
+        Console.WriteLine("  0. 受注をやめる");
+        Console.Write("選択: ");
+        return Console.ReadLine()?.Trim() switch
+        {
+            "1" => ExpeditionPolicy.SurvivalFirst,
+            "2" => ExpeditionPolicy.ObjectiveFirst,
+            _ => null,
+        };
     }
 
     static List<ConsumableMasterData> SelectConsumables(GuildManager guild)

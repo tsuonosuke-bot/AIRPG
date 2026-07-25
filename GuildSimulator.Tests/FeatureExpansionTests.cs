@@ -57,6 +57,8 @@ public class FeatureExpansionTests
         Assert.Equal(0, guild.GetConsumableCount(tonic));
         Assert.Contains("tonic", manager.activeQuests.Single().usedConsumableIds);
         Assert.True(adventurer.CombatHpMax > adventurer.GetFinalCombatStats().hp);
+        Assert.Equal(adventurer.level, manager.activeQuests.Single().startingLevels[adventurer.id]);
+        Assert.Equal(guild.EffectiveUpkeepPerTurn, manager.activeQuests.Single().guildUpkeepAtStart);
     }
 
     [Fact]

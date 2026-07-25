@@ -1,0 +1,47 @@
+[
+  {
+    "id": "item_vital_tonic",
+    "displayName": "生命の霊薬",
+    "description": "出発時に消費し、このクエスト中の最大HPを20%増加する",
+    "rarity": "Uncommon",
+    "price": 45,
+    "effectType": "MaxHpPercent",
+    "effectValue": 20
+  },
+  {
+    "id": "item_courage_incense",
+    "displayName": "勇気の香",
+    "description": "出発時に消費し、このクエスト中の初期士気を20%増加する",
+    "rarity": "Uncommon",
+    "price": 45,
+    "effectType": "MoralePercent",
+    "effectValue": 20
+  },
+  {
+    "id": "item_lucky_coin",
+    "displayName": "幸運の銀貨",
+    "description": "出発時に消費し、このクエストの獲得資金を25%増加する",
+    "rarity": "Rare",
+    "price": 90,
+    "effectType": "GoldRewardPercent",
+    "effectValue": 25
+  },
+  {
+    "id": "item_sage_scroll",
+    "displayName": "賢者の覚書",
+    "description": "出発時に消費し、このクエストの獲得経験値を25%増加する",
+    "rarity": "Rare",
+    "price": 90,
+    "effectType": "ExpRewardPercent",
+    "effectValue": 25
+  },
+  {
+    "id": "item_trap_kit",
+    "displayName": "罠外し道具",
+    "description": "出発時に消費し、このクエスト中の罠ダメージを50%軽減する",
+    "rarity": "Common",
+    "price": 30,
+    "effectType": "TrapDamageReductionPercent",
+    "effectValue": 50
+  }
+]

@@ -113,6 +113,12 @@
   {
     "id": "quest_goblin_slayer",
     "questName": "ゴブリン討伐",
+    "clientName": "森林監視隊",
+    "description": "街道を襲うゴブリンを退け、彼らが人間の荷ではなく特定の積荷を狙う理由を調べる。",
+    "isStoryQuest": true,
+    "grantedClueIds": [
+      "clue_stolen_blue_ore"
+    ],
     "rank": 1,
     "totalPhases": 10,
     "phasesPerTurn": 5,
@@ -170,6 +176,18 @@
   {
     "id": "quest_mine_survey",
     "questName": "廃坑の測量",
+    "clientName": "鉱山組合の測量士",
+    "description": "ゴブリンが集めていた青い鉱石の出所を追い、閉鎖された廃坑の深部を測量する。",
+    "isStoryQuest": true,
+    "requiredQuestIds": [
+      "quest_goblin_slayer"
+    ],
+    "requiredClueIds": [
+      "clue_stolen_blue_ore"
+    ],
+    "grantedClueIds": [
+      "clue_resonant_vein"
+    ],
     "rank": 2,
     "totalPhases": 10,
     "phasesPerTurn": 5,
@@ -435,6 +453,18 @@
   {
     "id": "quest_old_city_relic",
     "questName": "旧市街の遺産探索",
+    "clientName": "王立古物院",
+    "description": "廃坑の鉱脈と同じ反応を示す遺物を旧市街から回収し、刻印の由来を確かめる。",
+    "isStoryQuest": true,
+    "requiredQuestIds": [
+      "quest_mine_survey"
+    ],
+    "requiredClueIds": [
+      "clue_resonant_vein"
+    ],
+    "grantedClueIds": [
+      "clue_old_city_sigil"
+    ],
     "rank": 2,
     "totalPhases": 14,
     "phasesPerTurn": 5,

@@ -7,7 +7,17 @@
 - 敵とレアドロップ: `enemies.json`
 - 消費アイテム: `consumables.json`
 - ターン末選択イベント: `choice_events.json`
+- 物語の手掛かり: `clues.json`
 - ダンジョンへのイベント割当: `dungeons.json`
+
+冒険者には戦闘能力に加えて、`background`、`personality`、`motivation`、
+`specialty`、`fear`、`creed`、`selfIntroduction` を設定できます。
+
+物語クエストでは `isStoryQuest` を `true` にし、次のIDリストで進行順を定義します。
+
+- `requiredQuestIds`: 掲示に必要な完了済みクエスト
+- `requiredClueIds`: 掲示に必要な発見済み手掛かり
+- `grantedClueIds`: 正規クリア時に発見する手掛かり
 
 レアリティには `Common`、`Uncommon`、`Rare`、`Unique`、`Legend` を指定します。
 省略時は装備がCommon、冒険者は採用ウェイトから既定値が設定されます。

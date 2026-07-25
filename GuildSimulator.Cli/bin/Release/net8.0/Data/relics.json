@@ -13,5 +13,12 @@
   { "id": "relic_lantern",   "relicName": "坑夫のランタン", "description": "ユニットの命中と回避が +20 される",         "effectType": 0, "add": { "hit": 20, "evade": 20 } },
   { "id": "relic_ironheart", "relicName": "鉄の心臓",       "description": "ユニットのHPが1.25倍になる",               "effectType": 1, "mul": { "hp": 1.25 } },
   { "id": "relic_grimoire",  "relicName": "禁書の断片",     "description": "ユニットの魔法攻撃力が1.3倍になる",         "effectType": 1, "mul": { "mAtk": 1.3 } },
-  { "id": "relic_crown",     "relicName": "骸の王冠",       "description": "ユニットのHP・攻撃力がいずれも1.2倍になる", "effectType": 1, "mul": { "hp": 1.2, "pAtk": 1.2, "mAtk": 1.2 } }
+  { "id": "relic_crown",     "relicName": "骸の王冠",       "description": "ユニットのHP・攻撃力がいずれも1.2倍になる", "effectType": 1, "mul": { "hp": 1.2, "pAtk": 1.2, "mAtk": 1.2 } },
+
+  { "id": "relic_clover",    "relicName": "四つ葉のクローバー", "description": "ユニットの精神が1.15倍になり、士気の上限が上がる", "effectType": 1, "mul": { "san": 1.15 } },
+  { "id": "relic_leafcloak", "relicName": "葉のマント",         "description": "ユニットの回避が+18される",                       "effectType": 0, "add": { "evade": 18 } },
+  { "id": "relic_barkshield","relicName": "樹皮の盾",           "description": "ユニットの物理防御力が1.15倍になる",              "effectType": 1, "mul": { "pDef": 1.15 } },
+  { "id": "relic_signet",    "relicName": "商会の印章",         "description": "クエスト報酬の金貨が1.25倍になる",               "effectType": 2, "rate": 1.25 },
+  { "id": "relic_emberstone","relicName": "熾火石",             "description": "ユニットの魔法防御力が1.2倍になる",              "effectType": 1, "mul": { "mDef": 1.2 } },
+  { "id": "relic_reliquary", "relicName": "聖遺物の欠片",       "description": "ユニットの回復力が1.3倍になる",                  "effectType": 1, "mul": { "heal": 1.3 } }
 ]

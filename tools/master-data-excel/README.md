@@ -6,6 +6,7 @@
 - `equipment.json`
 - `skills.json`
 - `consumables.json`
+- `clues.json`
 - `quests.json`
 - `dungeons.json`
 
@@ -29,7 +30,7 @@ PowerShellスクリプトの実行が許可されている環境では、同じ�
 
 Excelは `outputs/master-data-editor/マスタデータ統合_編集用.xlsx` に作成されます。
 
-`import` は、保存前の6ファイルを `outputs/master-data-editor/backups/<timestamp>/` に退避します。
+`import` は、保存前の7ファイルを `outputs/master-data-editor/backups/<timestamp>/` に退避します。
 ID重複、必須数値、親子関係、職業・種族・装備・スキル・敵・敵ユニット・レリック・選択イベントの参照を検証し、問題があればJSONを書き換えません。
 
 ## 注意

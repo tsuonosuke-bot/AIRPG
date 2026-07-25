@@ -60,6 +60,10 @@ public static class HelpScreen
         Console.WriteLine("  ・緊急クエスト    : 通常枠とは別枠に掲示される特別なクエスト。昇格試験もこれに含まれる。");
         Console.WriteLine("  ・昇格試験        : 必要ギルドポイントを満たすと出現する一度きりのクエスト。");
         Console.WriteLine("                      クリアするとギルドランクが上がる（撤退・全滅ではランクは上がらない）。");
+        Console.WriteLine("  ・遠征方針        : 出発時に「生還優先」か「依頼達成優先」を選ぶ。");
+        Console.WriteLine("                      生還優先では損耗が危険域に入る前に撤退し、依頼達成優先では任務を続行する。");
+        Console.WriteLine("  ・物語クエスト    : 調査で得た手掛かりによって次の依頼が掲示される一度きりのクエスト。");
+        Console.WriteLine("                      発見した内容はメインメニューの「J. 調査記録」で確認できる。");
         Console.WriteLine("  ・撤退            : 士気が尽きるとパーティは自動的に撤退する。基本報酬は無しになるが、");
         Console.WriteLine("                      道中で得た戦利品（宝箱など）はそのまま持ち帰れる。");
         Console.WriteLine("  ・全滅            : 全員が戦闘不能になった場合。報酬・戦利品はすべて失われる。");
@@ -85,6 +89,7 @@ public static class HelpScreen
         ConsoleHelper.Header("冒険者・装備・遺物");
         Console.WriteLine("  ・冒険者          : 雇用して編成に加える。クエストで経験値を得てレベルアップする。");
         Console.WriteLine("                      死亡した冒険者は蘇生できない。");
+        Console.WriteLine("                      人物詳細では経歴・性格・動機・得意分野と、直近の遠征履歴を確認できる。");
         Console.WriteLine("  ・装備            : 商店で購入・売却し、冒険者一覧画面で着せ替えできる。");
         Console.WriteLine("  ・レアリティ      : コモン、アンコモン、レア、ユニーク、レジェンドの順に希少。");
         Console.WriteLine("  ・消費アイテム    : 出発前に最大2個選び、出発時に消費してクエスト中だけ効果を得る。");

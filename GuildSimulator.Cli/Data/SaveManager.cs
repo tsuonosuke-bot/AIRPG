@@ -106,6 +106,10 @@ public static class SaveManager
         appearance = a.appearance,
         combatHp = a.CombatHp,
         combatHpMax = a.CombatHpMax,
+        expeditionCount = a.expeditionCount,
+        successfulExpeditionCount = a.successfulExpeditionCount,
+        retreatCount = a.retreatCount,
+        adventureHistory = new List<string>(a.adventureHistory),
         learnedSkills = a.ExportLearnedSkills()
             .Select(x => new LearnedSkillSave { skillId = x.skill.id, ownerClassId = x.ownerClass?.id })
             .ToList(),
@@ -119,6 +123,9 @@ public static class SaveManager
             .ToList(),
         activeQuests = qm.activeQuests.Select(ExportQuestRun).ToList(),
         clearedOneShotIds = qm.ExportClearedOneShotIds().ToList(),
+        clearedQuestIds = qm.ExportClearedQuestIds().ToList(),
+        discoveredClueIds = qm.ExportDiscoveredClueIds().ToList(),
+        selectedBranchIds = qm.ExportSelectedBranchIds().ToList(),
     };
 
     static QuestRunSaveData ExportQuestRun(QuestRun q) => new()
@@ -139,6 +146,21 @@ public static class SaveManager
         clearProgressApplied = q.clearProgressApplied,
         formationAdventurerIds = q.formation.Select(a => a?.id).ToArray(),
         logs = new List<string>(q.logs),
+        reportEvents = q.reportEvents.Select(e => new ExpeditionEventSave
+        {
+            turn = e.turn,
+            phase = e.phase,
+            kind = e.kind,
+            title = e.title,
+            detail = e.detail,
+            actorName = e.actorName,
+            clueId = e.clueId,
+            important = e.important,
+        }).ToList(),
+        discoveredClueIds = new List<string>(q.discoveredClueIds),
+        policy = q.policy,
+        startingLevels = new Dictionary<string, int>(q.startingLevels),
+        guildUpkeepAtStart = q.guildUpkeepAtStart,
         pendingLoot = q.pendingLoot.Select(e => new PendingLootSave
         {
             type = e.type,
@@ -212,7 +234,13 @@ public static class SaveManager
             .Where(q => questById.ContainsKey(q.questId))
             .Select(q => RestoreQuestRun(q, questById[q.questId], adventurersById, db))
             .ToList();
-        questManager.RestoreState(board, active, data.questManager.clearedOneShotIds);
+        questManager.RestoreState(
+            board,
+            active,
+            data.questManager.clearedOneShotIds ?? new(),
+            data.questManager.clearedQuestIds ?? new(),
+            data.questManager.discoveredClueIds ?? new(),
+            data.questManager.selectedBranchIds ?? new());
 
         var recruitCandidates = data.recruitCandidateIds
             .Where(adventurerMasterById.ContainsKey)
@@ -246,6 +274,10 @@ public static class SaveManager
             appearance = saved.appearance,
             CombatHp = saved.combatHp,
             CombatHpMax = saved.combatHpMax,
+            expeditionCount = saved.expeditionCount,
+            successfulExpeditionCount = saved.successfulExpeditionCount,
+            retreatCount = saved.retreatCount,
+            adventureHistory = new List<string>(saved.adventureHistory ?? new()),
         };
 
         var skills = saved.learnedSkills
@@ -278,12 +310,28 @@ public static class SaveManager
             baseRewardsApplied = saved.baseRewardsApplied,
             extraRewardTaken = saved.extraRewardTaken,
             clearProgressApplied = saved.clearProgressApplied,
+            policy = saved.policy,
+            startingLevels = new Dictionary<string, int>(saved.startingLevels),
+            guildUpkeepAtStart = saved.guildUpkeepAtStart,
             gatheredCount = saved.gatheredCount,
             goldRewardBonusPercent = saved.goldRewardBonusPercent,
             expRewardBonusPercent = saved.expRewardBonusPercent,
             trapDamageReductionPercent = saved.trapDamageReductionPercent,
         };
         run.logs.AddRange(saved.logs);
+        foreach (var e in saved.reportEvents ?? new())
+            run.reportEvents.Add(new ExpeditionEventRecord
+            {
+                turn = e.turn,
+                phase = e.phase,
+                kind = e.kind,
+                title = e.title,
+                detail = e.detail,
+                actorName = e.actorName,
+                clueId = e.clueId,
+                important = e.important,
+            });
+        run.discoveredClueIds.AddRange(saved.discoveredClueIds ?? new());
         run.usedConsumableIds.AddRange(saved.usedConsumableIds);
         if (!string.IsNullOrEmpty(saved.pendingChoiceEventId)
             && db.choiceEvents.TryGetValue(saved.pendingChoiceEventId, out var pendingEvent))

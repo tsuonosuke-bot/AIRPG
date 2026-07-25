@@ -47,6 +47,12 @@ public static class ActiveQuestScreen
     }
 
     const int LogPageSize = 10;
+    sealed record SettlementSnapshot(
+        int Gold,
+        int GuildPoints,
+        int GuildRank,
+        int Upkeep,
+        int LogCount);
 
     // ターン進行直後に結果待ちクエストを直接処理する導線からも呼べるよう公開する。
     public static void HandleQuest(QuestRun q, QuestManager qm, GuildManager guild)
@@ -62,6 +68,7 @@ public static class ActiveQuestScreen
             string state = q.failed ? "全滅" : q.retreated ? "撤退" : q.CanComplete ? "完了可能" : "進行中";
             ConsoleHelper.Header($"クエスト: {q.def.questName}");
             Console.WriteLine($"  フェーズ: {q.currentPhase}/{q.def.totalPhases}  状態: {state}");
+            Console.WriteLine($"  遠征方針  : {QuestManager.PolicyName(q.policy)}");
             Console.WriteLine($"  ユニットHP: {q.unitHpCurrent}/{q.unitHpMax}");
             Console.WriteLine($"  士気　　　: {q.morale.Current}/{q.morale.Max}"
                 + (q.morale.Rate <= 0.3f && !q.morale.IsBroken ? "  ← 危険域" : ""));
@@ -69,13 +76,15 @@ public static class ActiveQuestScreen
                 Console.WriteLine($"  採取状況　: {q.def.gatherItemName} {q.gatheredCount}/{q.def.gatherTargetCount}"
                     + (q.GatherFulfilled ? "  → 必要数を確保済み、帰還可能" : ""));
 
+            ShowExpeditionReport(q);
+
             int total = q.logs.Count;
             int maxOffset = Math.Max(0, (total - 1) / LogPageSize * LogPageSize);
             offset = Math.Clamp(offset, 0, maxOffset);
             int skip = Math.Max(0, total - LogPageSize - offset);
             int take = Math.Min(LogPageSize, total - skip);
 
-            Console.WriteLine($"\n  ログ ({(total == 0 ? 0 : skip + 1)}〜{skip + take} / 全{total}件):");
+            Console.WriteLine($"\n  詳細ログ ({(total == 0 ? 0 : skip + 1)}〜{skip + take} / 全{total}件):");
             foreach (var log in q.logs.Skip(skip).Take(take))
                 ConsoleHelper.WriteQuestLog($"    {log}");
 
@@ -99,7 +108,12 @@ public static class ActiveQuestScreen
         {
             ConsoleHelper.Error("パーティは全滅しました（報酬・戦利品はすべて失われます）");
             if (ConsoleHelper.Confirm("クエストを終了しますか？"))
+            {
+                var before = CaptureSettlement(guild, q);
                 qm.FinalizeQuest(q, null);
+                ShowCompletionSummary(q, guild, before, "全滅");
+                ConsoleHelper.PressAnyKey();
+            }
             return;
         }
 
@@ -107,9 +121,19 @@ public static class ActiveQuestScreen
         {
             ConsoleHelper.Warn("士気が尽き、パーティは撤退しました");
             ConsoleHelper.Dim($"  基本報酬は{QuestRewardService.RetreatRewardRate:P0}、ギルドポイントと選択報酬はなし");
-            ConsoleHelper.Dim("  道中で拾った戦利品は持ち帰れます。死者は出ていません");
+            ConsoleHelper.Dim("  道中で拾った戦利品は持ち帰れます");
+            var fallen = q.EnumerateMembers().Where(member => !member.isAlive).ToList();
+            if (fallen.Count == 0)
+                ConsoleHelper.Dim("  死亡者はいません");
+            else
+                ConsoleHelper.Error($"  死亡者: {string.Join("、", fallen.Select(member => member.name))}");
             if (ConsoleHelper.Confirm("引き上げを確定しますか？"))
+            {
+                var before = CaptureSettlement(guild, q);
                 qm.FinalizeQuest(q, null);
+                ShowCompletionSummary(q, guild, before, "撤退");
+                ConsoleHelper.PressAnyKey();
+            }
             return;
         }
 
@@ -143,9 +167,104 @@ public static class ActiveQuestScreen
         if (int.TryParse(Console.ReadLine(), out int pick) && pick >= 1 && pick <= options.Count)
             chosen = options[pick - 1];
 
+        var settlementBefore = CaptureSettlement(guild, q);
         qm.FinalizeQuest(q, chosen);
-        ConsoleHelper.Info("クエスト完了！");
+        ShowCompletionSummary(q, guild, settlementBefore, "成功");
         ConsoleHelper.PressAnyKey();
+    }
+
+    static SettlementSnapshot CaptureSettlement(GuildManager guild, QuestRun q) => new(
+        guild.Gold,
+        guild.GuildPoints,
+        guild.GuildRank,
+        guild.EffectiveUpkeepPerTurn,
+        q.logs.Count);
+
+    static void ShowCompletionSummary(
+        QuestRun q,
+        GuildManager guild,
+        SettlementSnapshot before,
+        string result)
+    {
+        ConsoleHelper.Header("クエスト終了サマリー");
+        if (result == "成功") ConsoleHelper.Info($"  結果: {result} － {q.def.questName}");
+        else if (result == "撤退") ConsoleHelper.Warn($"  結果: {result} － {q.def.questName}");
+        else ConsoleHelper.Error($"  結果: {result} － {q.def.questName}");
+
+        int goldDelta = guild.Gold - before.Gold;
+        int pointDelta = guild.GuildPoints - before.GuildPoints;
+        Console.WriteLine($"  資金精算: {Signed(goldDelta)}G（{before.Gold}G → {guild.Gold}G）");
+        Console.WriteLine($"  ギルドポイント: {Signed(pointDelta)}（{before.GuildPoints} → {guild.GuildPoints}）");
+        if (guild.GuildRank != before.GuildRank)
+            ConsoleHelper.Info($"  ギルドランク: {before.GuildRank} → {guild.GuildRank}");
+
+        int startUpkeep = q.guildUpkeepAtStart > 0 ? q.guildUpkeepAtStart : before.Upkeep;
+        int currentUpkeep = guild.EffectiveUpkeepPerTurn;
+        Console.WriteLine($"  維持費: 出発時 {startUpkeep}G/T → 現在 {currentUpkeep}G/T"
+            + (currentUpkeep == startUpkeep ? "" : $"（{Signed(currentUpkeep - startUpkeep)}G/T）"));
+
+        var fallen = q.EnumerateMembers().Where(member => !member.isAlive).ToList();
+        if (fallen.Count == 0)
+            Console.WriteLine("  死亡者: なし");
+        else
+            ConsoleHelper.Error($"  死亡者: {string.Join("、", fallen.Select(member => member.name))}");
+
+        Console.WriteLine("  成長:");
+        bool hasGrowth = false;
+        foreach (var member in q.EnumerateMembers())
+        {
+            if (!q.startingLevels.TryGetValue(member.id, out int startLevel))
+            {
+                ConsoleHelper.Dim($"    {member.name}: Lv{member.level}");
+                continue;
+            }
+            if (member.level <= startLevel) continue;
+            hasGrowth = true;
+            ConsoleHelper.Info($"    {member.name}: Lv{startLevel} → Lv{member.level}");
+        }
+        if (!hasGrowth && q.startingLevels.Count > 0)
+            ConsoleHelper.Dim("    レベルアップなし");
+
+        if (q.discoveredClueIds.Count > 0)
+        {
+            Console.WriteLine("  新たな手掛かり:");
+            foreach (var clueEvent in q.reportEvents
+                .Where(e => e.kind == GuildSimulator.Core.Models.ExpeditionEventKind.Discovery))
+                ConsoleHelper.Info($"    ・{clueEvent.detail}");
+        }
+
+        var settlementLogs = q.logs
+            .Skip(before.LogCount)
+            .Where(log => log.StartsWith("[完了]") || log.StartsWith("[選択報酬]"))
+            .ToList();
+        Console.WriteLine("  獲得内訳:");
+        if (settlementLogs.Count == 0)
+            ConsoleHelper.Dim("    報酬なし");
+        else
+            foreach (var log in settlementLogs)
+                ConsoleHelper.Dim($"    {log}");
+    }
+
+    static string Signed(int value) => value > 0 ? $"+{value}" : value.ToString();
+
+    static void ShowExpeditionReport(QuestRun q)
+    {
+        Console.WriteLine();
+        Console.WriteLine("  遠征報告:");
+        if (q.reportEvents.Count == 0)
+        {
+            ConsoleHelper.Dim("    まだ報告できる出来事はない");
+            return;
+        }
+
+        foreach (var e in q.reportEvents.TakeLast(8))
+        {
+            string marker = e.important ? "◆" : "・";
+            string phase = e.phase > 0 ? $" Phase {e.phase}" : "";
+            Console.WriteLine($"    {marker} Turn {e.turn}{phase}: {e.title}");
+            if (!string.IsNullOrWhiteSpace(e.detail))
+                ConsoleHelper.Dim($"       {e.detail}");
+        }
     }
 
     static void ShowChoice(QuestRun q, QuestManager qm)

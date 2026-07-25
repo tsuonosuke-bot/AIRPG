@@ -29,3 +29,26 @@ public enum QuestChoiceEffectType
     Equipment,
     Consumable,
 }
+
+/// <summary>ギルドマスターが出発前に与える遠征の優先方針。</summary>
+public enum ExpeditionPolicy
+{
+    SurvivalFirst,
+    ObjectiveFirst,
+}
+
+/// <summary>数値戦闘ログとは別に、帰還報告へ載せる出来事の分類。</summary>
+public enum ExpeditionEventKind
+{
+    Departure,
+    Progress,
+    Encounter,
+    Rest,
+    Trap,
+    Treasure,
+    Gather,
+    Decision,
+    Discovery,
+    Completion,
+    Retreat,
+}

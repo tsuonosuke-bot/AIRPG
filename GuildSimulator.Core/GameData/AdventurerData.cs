@@ -13,6 +13,10 @@ public class AdventurerData : IUnitMember
     public bool isAlive = true;
     public int rank;
     public int rankPoint;
+    public int expeditionCount;
+    public int successfulExpeditionCount;
+    public int retreatCount;
+    public List<string> adventureHistory = new();
 
     public RaceMasterData? race;
     public ClassMasterData? currentClass;
@@ -301,6 +305,17 @@ public class AdventurerData : IUnitMember
             classClearCounts[classId] = count;
 
         MarkDirty();
+    }
+
+    public void RecordExpedition(string questName, string result)
+    {
+        expeditionCount++;
+        if (result == "成功") successfulExpeditionCount++;
+        if (result == "撤退") retreatCount++;
+        adventureHistory.Add($"{questName}: {result}");
+        const int MaxHistoryEntries = 20;
+        if (adventureHistory.Count > MaxHistoryEntries)
+            adventureHistory.RemoveRange(0, adventureHistory.Count - MaxHistoryEntries);
     }
 
     public string ClassAndRace =>

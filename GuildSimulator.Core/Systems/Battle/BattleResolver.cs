@@ -32,7 +32,8 @@ public static class BattleResolver
         List<string> logs,
         int turn,
         int phase,
-        MoraleState morale)
+        MoraleState morale,
+        ExpeditionPolicy policy = ExpeditionPolicy.ObjectiveFirst)
     {
         var res = new Result();
         int actions = 0;
@@ -156,6 +157,26 @@ public static class BattleResolver
                 res.adventurersRetreated = true;
                 res.rounds = round;
                 return res;
+            }
+
+            // 生還優先では、全滅寸前まで粘らず、損耗が危険域へ入った時点で引き返す。
+            if (policy == ExpeditionPolicy.SurvivalFirst && AnyAlive(advSide) && AnyAlive(enemySide))
+            {
+                int aliveMaxHp = advSide
+                    .Where(a => a != null && a.IsAlive)
+                    .Sum(a => Math.Max(1, a!.CombatHpMax));
+                int aliveCurrentHp = SumCurrentHp(advSide);
+                bool partyBadlyHurt = aliveMaxHp > 0 && (float)aliveCurrentHp / aliveMaxHp <= 0.60f;
+                bool memberInDanger = advSide
+                    .Any(a => a != null && a.IsAlive && HpRate(a) <= 0.30f);
+                bool moraleUnsteady = morale.Rate <= 0.40f;
+                if (partyBadlyHurt || memberInDanger || moraleUnsteady)
+                {
+                    logs.Add($"  Phase {phase}: 生還優先の命令に従い、損耗が危険域へ達する前に撤退した");
+                    res.adventurersRetreated = true;
+                    res.rounds = round;
+                    return res;
+                }
             }
 
             if (lost > 0 && morale.Rate <= 0.3f)

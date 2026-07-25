@@ -9,7 +9,7 @@ const dataDir = path.join(repoRoot, "GuildSimulator.Cli", "Data");
 const outputDir = path.join(repoRoot, "outputs", "master-data-editor");
 const workbookPath = path.join(outputDir, "マスタデータ統合_編集用.xlsx");
 const previewDir = path.join(outputDir, "previews");
-const masterFiles = ["adventurers", "equipment", "skills", "consumables", "quests", "dungeons"];
+const masterFiles = ["adventurers", "equipment", "skills", "consumables", "clues", "quests", "dungeons"];
 const statKeys = ["hp", "san", "pAtk", "pDef", "mAtk", "mDef", "hit", "evade", "heal"];
 const rewardKeys = [
   "type", "relicId", "equipmentId", "skillId", "consumableId",
@@ -63,6 +63,7 @@ const sheetDefinitions = {
       "vitality", "mental", "strength", "agility", "intelligence", "constitution", "appearance",
       "defaultClassId", "raceId", "defaultWeaponId", "defaultArmorId",
       "skillId1", "skillId2", "skillId3", "skillId4", "skillId5", "skillId6",
+      "background", "personality", "motivation", "specialty", "fear", "creed", "selfIntroduction",
     ],
     labels: [
       "ID", "名前", "維持費", "初期Lv", "初期Rank",
@@ -70,6 +71,7 @@ const sheetDefinitions = {
       "生命力", "精神力", "筋力", "敏捷", "知力", "体格", "容姿",
       "初期職業", "種族", "初期武器", "初期防具",
       "スキル1", "スキル2", "スキル3", "スキル4", "スキル5", "スキル6",
+      "経歴", "性格", "動機", "得意分野", "苦手・恐怖", "信条", "自己紹介",
     ],
   },
   equipment: {
@@ -116,13 +118,23 @@ const sheetDefinitions = {
     keys: ["id", "displayName", "description", "rarity", "price", "effectType", "effectValue"],
     labels: ["ID", "表示名", "説明", "レアリティ", "価格", "効果種別", "効果値"],
   },
+  clues: {
+    name: "手掛かり",
+    title: "物語の手掛かりマスタ",
+    capacity: 120,
+    unique: true,
+    keys: ["id", "title", "description"],
+    labels: ["ID", "名称", "説明"],
+  },
   quests: {
     name: "クエスト",
     title: "クエストマスタ",
     capacity: 120,
     unique: true,
     keys: [
-      "id", "questName", "rank", "totalPhases", "phasesPerTurn",
+      "id", "questName", "clientName", "description", "isStoryQuest",
+      "requiredQuestIds", "requiredClueIds", "grantedClueIds", "storyBranchId",
+      "rank", "totalPhases", "phasesPerTurn",
       "rewardGold", "rewardGuildPoints", "rewardExp",
       "isEmergencyQuest", "rankUpOnClear", "requiredGuildPoints",
       "dungeonId", "bossEnemyId", "bossPhase", "bossDropsAreGuaranteed",
@@ -130,7 +142,10 @@ const sheetDefinitions = {
       "gatherChance", "gatherGoldPerItem",
     ],
     labels: [
-      "ID", "クエスト名", "Rank", "総フェーズ", "ターン毎フェーズ",
+      "ID", "クエスト名", "依頼人", "依頼文", "物語クエスト",
+      "必要クエストID（カンマ区切り）", "必要手掛かりID（カンマ区切り）",
+      "獲得手掛かりID（カンマ区切り）", "分岐ID",
+      "Rank", "総フェーズ", "ターン毎フェーズ",
       "報酬Gold", "Guildポイント", "経験値",
       "緊急クエスト", "クリア時RankUp", "必要Guildポイント",
       "ダンジョン", "ボス敵", "ボスフェーズ", "ボス報酬確定",
@@ -211,6 +226,8 @@ const makeRows = (data) => {
     a.vitality, a.mental, a.strength, a.agility, a.intelligence, a.constitution, a.appearance,
     clean(a.defaultClassId), clean(a.raceId), clean(a.defaultWeaponId), clean(a.defaultArmorId),
     ...Array.from({ length: 6 }, (_, index) => clean(a.skillIds?.[index])),
+    clean(a.background), clean(a.personality), clean(a.motivation), clean(a.specialty),
+    clean(a.fear), clean(a.creed), clean(a.selfIntroduction),
   ]);
   for (const a of data.adventurers) {
     if ((a.skillIds?.length ?? 0) > 6) throw new Error(`${a.id}: スキル数が6件を超えています。`);
@@ -237,8 +254,15 @@ const makeRows = (data) => {
     c.price, c.effectType, c.effectValue,
   ]);
 
+  const clues = data.clues.map((clue) => [
+    clue.id, clue.title, clean(clue.description),
+  ]);
+
   const quests = data.quests.map((q) => [
-    q.id, q.questName, q.rank, q.totalPhases, q.phasesPerTurn,
+    q.id, q.questName, clean(q.clientName), clean(q.description), clean(q.isStoryQuest),
+    clean(q.requiredQuestIds?.join(", ")), clean(q.requiredClueIds?.join(", ")),
+    clean(q.grantedClueIds?.join(", ")), clean(q.storyBranchId),
+    q.rank, q.totalPhases, q.phasesPerTurn,
     q.rewardGold, q.rewardGuildPoints, q.rewardExp,
     clean(q.isEmergencyQuest), clean(q.rankUpOnClear), clean(q.requiredGuildPoints),
     clean(q.dungeonId), clean(q.bossEnemyId), q.bossPhase, clean(q.bossDropsAreGuaranteed),
@@ -272,6 +296,7 @@ const makeRows = (data) => {
     equipment,
     skills,
     consumables,
+    clues,
     quests,
     questRewards,
     questEvents,
@@ -394,13 +419,14 @@ const addGuide = (workbook) => {
     font: { bold: true, color: colors.white, size: 16, name: bodyFont },
     rowHeight: 30,
   };
-  sheet.getRange("A3:C17").values = [
+  sheet.getRange("A3:C18").values = [
     ["区分", "編集シート", "説明"],
-    ["主要", "冒険者", "冒険者の基本値、職業・種族・装備、最大6個の初期スキル"],
+    ["主要", "冒険者", "基本値、職業・種族・装備、初期スキル、人物プロフィール"],
     ["主要", "装備", "武器・防具、係数、価格、重量、bonus各種"],
     ["主要", "スキル", "装備条件、対象範囲、add/mul各種"],
     ["主要", "道具", "消費アイテムの説明、価格、効果"],
-    ["主要", "クエスト", "クエスト本体。ボス報酬と固定イベントは下記明細シート"],
+    ["主要", "手掛かり", "物語クエストで発見し、後続クエストの解禁に使う調査情報"],
+    ["主要", "クエスト", "依頼文、物語条件、報酬など。ボス報酬と固定イベントは下記明細シート"],
     ["明細", "クエスト報酬", "questIdとorderでボス報酬配列を構成"],
     ["明細", "クエスト固定イベント", "questIdとorderでfixedEvents配列を構成"],
     ["主要", "ダンジョン", "ダンジョン本体"],
@@ -415,20 +441,20 @@ const addGuide = (workbook) => {
     fill: colors.blue,
     font: { bold: true, color: colors.white, name: bodyFont },
   };
-  sheet.getRange("A4:A17").format = {
+  sheet.getRange("A4:A18").format = {
     fill: colors.paleBlue,
     font: { bold: true, color: colors.navy, name: bodyFont },
   };
-  sheet.getRange("A3:C17").format.borders = {
+  sheet.getRange("A3:C18").format.borders = {
     insideHorizontal: { style: "thin", color: colors.lightGray },
     outside: { style: "thin", color: "#9FB4C3" },
   };
   sheet.getRange("A:A").format.columnWidth = 12;
   sheet.getRange("B:B").format.columnWidth = 28;
   sheet.getRange("C:C").format.columnWidth = 68;
-  sheet.getRange("C3:C17").format.wrapText = true;
-  sheet.getRange("A3:C17").format.font = { name: bodyFont, size: 10 };
-  sheet.getRange("A3:C17").format.autofitRows();
+  sheet.getRange("C3:C18").format.wrapText = true;
+  sheet.getRange("A3:C18").format.font = { name: bodyFont, size: 10 };
+  sheet.getRange("A3:C18").format.autofitRows();
   sheet.freezePanes.freezeRows(3);
 };
 
@@ -494,7 +520,7 @@ const exportWorkbook = async () => {
 
   const boolFields = {
     skills: ["frontOnly", "backOnly", "requireWeaponType", "requireArmorType"],
-    quests: ["isEmergencyQuest", "bossDropsAreGuaranteed"],
+    quests: ["isStoryQuest", "isEmergencyQuest", "bossDropsAreGuaranteed"],
     questRewards: ["unique"],
     dungeonRewards: ["unique"],
   };
@@ -579,6 +605,10 @@ const exportWorkbook = async () => {
 const text = (value) => String(value ?? "").trim();
 const isBlank = (value) => value === null || value === undefined || text(value) === "";
 const optionalText = (value) => (isBlank(value) ? null : text(value));
+const idList = (value) =>
+  isBlank(value)
+    ? []
+    : text(value).split(/[,、;\n]/).map((entry) => entry.trim()).filter(Boolean);
 const numberValue = (value, label, row, integer = false) => {
   if (isBlank(value)) throw new Error(`${label} (${row}行目) が空です。`);
   const result = typeof value === "number" ? value : Number(value);
@@ -808,6 +838,14 @@ const importWorkbook = async (writeMode) => {
     });
   }
 
+  const clues = rows.clues.map(({ object: x }) => ({
+    id: text(x.id),
+    title: text(x.title),
+    ...(optionalText(x.description) ? { description: optionalText(x.description) } : {}),
+  }));
+  ensureUnique(clues, "手掛かり");
+  const clueIds = new Set(clues.map((x) => x.id));
+
   const quests = rows.quests.map(({ object: x, row }) => guarded(() => {
     const id = text(x.id);
     const item = {
@@ -820,6 +858,16 @@ const importWorkbook = async (writeMode) => {
       rewardGuildPoints: numberValue(x.rewardGuildPoints, "rewardGuildPoints", row, true),
       rewardExp: numberValue(x.rewardExp, "rewardExp", row, true),
     };
+    optionalAssign(item, "clientName", optionalText(x.clientName));
+    optionalAssign(item, "description", optionalText(x.description));
+    optionalAssign(item, "isStoryQuest", optionalBool(x.isStoryQuest, "isStoryQuest", row));
+    const requiredQuestIds = idList(x.requiredQuestIds);
+    const requiredClueIds = idList(x.requiredClueIds);
+    const grantedClueIds = idList(x.grantedClueIds);
+    if (requiredQuestIds.length > 0) item.requiredQuestIds = requiredQuestIds;
+    if (requiredClueIds.length > 0) item.requiredClueIds = requiredClueIds;
+    if (grantedClueIds.length > 0) item.grantedClueIds = grantedClueIds;
+    optionalAssign(item, "storyBranchId", optionalText(x.storyBranchId));
     optionalAssign(item, "isEmergencyQuest", optionalBool(x.isEmergencyQuest, "isEmergencyQuest", row));
     optionalAssign(item, "rankUpOnClear", optionalNumber(x.rankUpOnClear, "rankUpOnClear", row, true));
     optionalAssign(item, "requiredGuildPoints", optionalNumber(x.requiredGuildPoints, "requiredGuildPoints", row, true));
@@ -841,6 +889,16 @@ const importWorkbook = async (writeMode) => {
   })).filter(Boolean);
   ensureUnique(quests, "クエスト");
   const questIds = new Set(quests.map((x) => x.id));
+  for (const quest of quests) {
+    for (const requiredQuestId of quest.requiredQuestIds ?? []) {
+      if (!questIds.has(requiredQuestId)) {
+        errors.push(`${quest.id}: 不正なrequiredQuestId「${requiredQuestId}」`);
+      }
+    }
+    for (const clueId of [...(quest.requiredClueIds ?? []), ...(quest.grantedClueIds ?? [])]) {
+      if (!clueIds.has(clueId)) errors.push(`${quest.id}: 不正なclueId「${clueId}」`);
+    }
+  }
   for (const entry of rows.questRewards) assertRef(questIds, entry.object.questId, "クエスト報酬.questId", entry.row);
   for (const entry of rows.questEvents) assertRef(questIds, entry.object.questId, "クエスト固定イベント.questId", entry.row);
 
@@ -934,6 +992,12 @@ const importWorkbook = async (writeMode) => {
     item.skillIds = [x.skillId1, x.skillId2, x.skillId3, x.skillId4, x.skillId5, x.skillId6]
       .map(optionalText).filter(Boolean);
     optionalAssign(item, "rarity", optionalText(x.rarity));
+    for (const key of [
+      "background", "personality", "motivation", "specialty",
+      "fear", "creed", "selfIntroduction",
+    ]) {
+      optionalAssign(item, key, optionalText(x[key]));
+    }
     assertRef(refs.classes, item.defaultClassId, "冒険者.defaultClassId", row);
     assertRef(refs.races, item.raceId, "冒険者.raceId", row);
     assertRef(weaponIds, item.defaultWeaponId, "冒険者.defaultWeaponId", row);
@@ -943,7 +1007,7 @@ const importWorkbook = async (writeMode) => {
   })).filter(Boolean);
   ensureUnique(adventurers, "冒険者");
 
-  const reconstructed = { adventurers, equipment, skills, consumables, quests, dungeons };
+  const reconstructed = { adventurers, equipment, skills, consumables, clues, quests, dungeons };
   if (errors.length > 0) {
     console.error(`VALIDATION_ERRORS=${errors.length}`);
     errors.forEach((error) => console.error(`- ${error}`));

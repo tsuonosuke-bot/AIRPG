@@ -67,6 +67,16 @@ public static class AdventurerScreen
             var skills = a.Skills;
             Console.WriteLine(skills.Count == 0 ? "なし" : string.Join(", ", skills.Select(x => x.skillName)));
             Console.WriteLine();
+            ShowProfile(a);
+            Console.WriteLine();
+            Console.WriteLine($"  遠征記録: {a.expeditionCount}回"
+                + $"（成功 {a.successfulExpeditionCount} / 撤退 {a.retreatCount}）");
+            if (a.adventureHistory.Count == 0)
+                ConsoleHelper.Dim("    まだ遠征記録はない");
+            else
+                foreach (var history in a.adventureHistory.TakeLast(5))
+                    ConsoleHelper.Dim($"    ・{history}");
+            Console.WriteLine();
 
             bool busy = questManager?.IsAdventurerBusy(a.id) == true;
             if (!a.isAlive)
@@ -81,6 +91,30 @@ public static class AdventurerScreen
             if (input == "e" && a.isAlive && !busy) { ManageEquipment(a, guild); continue; }
             return;
         }
+    }
+
+    static void ShowProfile(AdventurerData a)
+    {
+        var m = a.master;
+        Console.WriteLine("  人物記録:");
+        if (!string.IsNullOrWhiteSpace(m.selfIntroduction))
+            Console.WriteLine($"    「{m.selfIntroduction}」");
+        ShowProfileLine("経歴", m.background);
+        ShowProfileLine("性格", m.personality);
+        ShowProfileLine("動機", m.motivation);
+        ShowProfileLine("得意", m.specialty);
+        ShowProfileLine("苦手・恐怖", m.fear);
+        ShowProfileLine("信条", m.creed);
+        if (string.IsNullOrWhiteSpace(m.background)
+            && string.IsNullOrWhiteSpace(m.personality)
+            && string.IsNullOrWhiteSpace(m.selfIntroduction))
+            ConsoleHelper.Dim("    詳しい人物記録はまだない");
+    }
+
+    static void ShowProfileLine(string label, string value)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+            Console.WriteLine($"    {label}: {value}");
     }
 
     static string DescribeItem(EquipmentMasterData? item)

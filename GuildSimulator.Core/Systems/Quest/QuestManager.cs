@@ -1,5 +1,6 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
 
@@ -28,6 +29,9 @@ public class QuestManager
 
     // 一度きりのクエスト（緊急/昇格試験）はクリア後に再掲示しない。
     readonly HashSet<string> clearedOneShotIds = new();
+    readonly HashSet<string> clearedQuestIds = new();
+    readonly HashSet<string> discoveredClueIds = new();
+    readonly HashSet<string> selectedBranchIds = new();
 
     public QuestManager(GuildManager guild) => this.guild = guild;
 
@@ -74,20 +78,27 @@ public class QuestManager
     {
         if (q.rank > guild.GuildRank) return false;
         if (guild.GuildPoints < q.requiredGuildPoints) return false;
+        if (!MeetsStoryRequirements(q)) return false;
         if (IsOneShot(q) && clearedOneShotIds.Contains(q.id)) return false;
         if (questBoard.Any(e => e.quest == q)) return false;
         if (activeQuests.Any(r => r.def == q)) return false;
         return true;
     }
 
-    static bool IsOneShot(QuestMasterData q) => q.isEmergencyQuest || q.rankUpOnClear > 0;
+    bool MeetsStoryRequirements(QuestMasterData q) =>
+        q.requiredQuestIds.All(clearedQuestIds.Contains)
+        && q.requiredClueIds.All(discoveredClueIds.Contains);
+
+    static bool IsOneShot(QuestMasterData q) =>
+        q.isEmergencyQuest || q.rankUpOnClear > 0 || q.isStoryQuest;
 
     public bool TryStartQuest(
         QuestMasterData def,
         AdventurerData?[] formation,
         int currentTurn,
         out string error,
-        IReadOnlyList<ConsumableMasterData>? carriedConsumables = null)
+        IReadOnlyList<ConsumableMasterData>? carriedConsumables = null,
+        ExpeditionPolicy policy = ExpeditionPolicy.ObjectiveFirst)
     {
         error = "";
         var members = formation.Where(a => a != null).ToArray();
@@ -106,7 +117,11 @@ public class QuestManager
             }
 
         var run = new QuestRun(def, currentTurn);
+        run.policy = policy;
         Array.Copy(formation, run.formation, Math.Min(formation.Length, 6));
+        run.guildUpkeepAtStart = guild.EffectiveUpkeepPerTurn;
+        foreach (var member in run.EnumerateMembers())
+            run.startingLevels[member.id] = member.level;
 
         // クエスト開始時、編成メンバーのHPを最大値まで初期化する（オーラ/遺物の加算込み）。
         var perMember = UnitCalculator.CalcPerMember(run.formation.Cast<IUnitMember?>().ToArray(), isAllySide: true);
@@ -128,6 +143,13 @@ public class QuestManager
             run.ApplyConsumable(item);
             run.logs.Add($"[出発準備] {item.displayName}: {item.description}");
         }
+        run.AddReportEvent(
+            currentTurn,
+            0,
+            ExpeditionEventKind.Departure,
+            "ギルドを出発",
+            $"遠征方針は「{PolicyName(policy)}」。{run.EnumerateMembers().Count()}名で任務へ向かった。",
+            important: true);
 
         activeQuests.Add(run);
         MarkBusy(run);
@@ -279,6 +301,13 @@ public class QuestManager
         }
         result = detail.Length > 0 ? $"{option.resultText}\n  → {detail}" : option.resultText;
         q.logs.Add($"[選択] {option.text} - {option.resultText}" + (detail.Length > 0 ? $" ({detail})" : ""));
+        q.AddReportEvent(
+            pending.createdTurn,
+            q.currentPhase,
+            ExpeditionEventKind.Decision,
+            pending.Event.title,
+            $"{option.text}。{option.resultText}" + (detail.Length > 0 ? $" {detail}" : ""),
+            important: true);
         q.pendingChoice = null;
         return true;
     }
@@ -305,7 +334,52 @@ public class QuestManager
         }
         q.rewarded = true;
         q.completed = q.IsCleared;
-        if (q.completed && IsOneShot(q.def)) clearedOneShotIds.Add(q.def.id);
+        if (q.completed)
+        {
+            clearedQuestIds.Add(q.def.id);
+            if (IsOneShot(q.def)) clearedOneShotIds.Add(q.def.id);
+            if (!string.IsNullOrWhiteSpace(q.def.storyBranchId))
+                selectedBranchIds.Add(q.def.storyBranchId);
+
+            int reportTurn = q.reportEvents.LastOrDefault()?.turn ?? q.startedTurn;
+            foreach (var clueId in q.def.grantedClueIds)
+            {
+                if (!discoveredClueIds.Add(clueId)) continue;
+                q.discoveredClueIds.Add(clueId);
+                string clueTitle = q.def.GrantedClues
+                    .FirstOrDefault(clue => clue.id == clueId)?.title ?? clueId;
+                q.AddReportEvent(
+                    reportTurn,
+                    q.currentPhase,
+                    ExpeditionEventKind.Discovery,
+                    "新たな手掛かり",
+                    $"調査記録「{clueTitle}」をギルドへ持ち帰った。",
+                    important: true,
+                    clueId: clueId);
+            }
+            q.AddReportEvent(
+                reportTurn,
+                q.currentPhase,
+                ExpeditionEventKind.Completion,
+                "依頼達成",
+                $"{q.def.questName}を完遂し、ギルドへ帰還した。",
+                important: true);
+        }
+        else if (q.retreated)
+        {
+            int reportTurn = q.reportEvents.LastOrDefault()?.turn ?? q.startedTurn;
+            q.AddReportEvent(
+                reportTurn,
+                q.currentPhase,
+                ExpeditionEventKind.Retreat,
+                "撤退",
+                "生存者は任務の続行を断念し、ギルドへ帰還した。",
+                important: true);
+        }
+
+        string expeditionResult = q.completed ? "成功" : q.retreated ? "撤退" : "失敗";
+        foreach (var a in q.EnumerateMembers())
+            a.RecordExpedition(q.def.questName, expeditionResult);
 
         // ギルドに帰還した生存メンバーは全快させる（死亡者は蘇生しない）。
         foreach (var a in q.EnumerateMembers())
@@ -326,9 +400,21 @@ public class QuestManager
 
     // ---- セーブ/ロード ----
     public IReadOnlyCollection<string> ExportClearedOneShotIds() => clearedOneShotIds;
+    public IReadOnlyCollection<string> ExportClearedQuestIds() => clearedQuestIds;
+    public IReadOnlyCollection<string> ExportDiscoveredClueIds() => discoveredClueIds;
+    public IReadOnlyCollection<string> ExportSelectedBranchIds() => selectedBranchIds;
+
+    public bool HasClearedQuest(string id) => clearedQuestIds.Contains(id);
+    public bool HasDiscoveredClue(string id) => discoveredClueIds.Contains(id);
 
     /// <summary>セーブデータからの復元専用。掲示板・進行中クエスト・出発中フラグをまとめて置き換える。</summary>
-    public void RestoreState(List<QuestBoardEntry> board, List<QuestRun> active, IEnumerable<string> clearedOneShotIdsToRestore)
+    public void RestoreState(
+        List<QuestBoardEntry> board,
+        List<QuestRun> active,
+        IEnumerable<string> clearedOneShotIdsToRestore,
+        IEnumerable<string>? clearedQuestIdsToRestore = null,
+        IEnumerable<string>? discoveredClueIdsToRestore = null,
+        IEnumerable<string>? selectedBranchIdsToRestore = null)
     {
         questBoard = board;
         activeQuests = active;
@@ -337,8 +423,34 @@ public class QuestManager
         foreach (var id in clearedOneShotIdsToRestore)
             clearedOneShotIds.Add(id);
 
+        clearedQuestIds.Clear();
+        var restoredClears = (clearedQuestIdsToRestore ?? Array.Empty<string>()).ToList();
+        if (restoredClears.Count == 0)
+            restoredClears.AddRange(clearedOneShotIds);
+        foreach (var id in restoredClears)
+            clearedQuestIds.Add(id);
+
+        discoveredClueIds.Clear();
+        foreach (var id in discoveredClueIdsToRestore ?? Array.Empty<string>())
+            discoveredClueIds.Add(id);
+
+        selectedBranchIds.Clear();
+        foreach (var id in selectedBranchIdsToRestore ?? Array.Empty<string>())
+            selectedBranchIds.Add(id);
+
+        questBoard.RemoveAll(entry =>
+            !MeetsStoryRequirements(entry.quest)
+            || (IsOneShot(entry.quest) && clearedOneShotIds.Contains(entry.quest.id)));
+
         busyIds.Clear();
         foreach (var q in activeQuests)
             MarkBusy(q);
     }
+
+    public static string PolicyName(ExpeditionPolicy policy) => policy switch
+    {
+        ExpeditionPolicy.SurvivalFirst => "生還優先",
+        ExpeditionPolicy.ObjectiveFirst => "依頼達成優先",
+        _ => policy.ToString(),
+    };
 }

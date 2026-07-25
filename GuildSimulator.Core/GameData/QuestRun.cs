@@ -13,7 +13,7 @@ public class QuestRun
     /// <summary>全滅。報酬も戦利品も失う。</summary>
     public bool failed;
 
-    /// <summary>士気が尽きての撤退。全滅とは違い、戦利品は持ち帰れて死者も出ない。</summary>
+    /// <summary>士気が尽きての撤退。全滅とは違い、道中の戦利品は持ち帰れる。</summary>
     public bool retreated;
 
     /// <summary>パーティの士気。クエスト開始時に QuestManager が san 合計で張り直す。</summary>
@@ -29,6 +29,11 @@ public class QuestRun
 
     public AdventurerData?[] formation = new AdventurerData?[6];
     public List<string> logs = new();
+    public List<ExpeditionEventRecord> reportEvents = new();
+    public List<string> discoveredClueIds = new();
+    public ExpeditionPolicy policy = ExpeditionPolicy.ObjectiveFirst;
+    public Dictionary<string, int> startingLevels = new();
+    public int guildUpkeepAtStart;
 
     // 道中の宝箱で拾った戦利品（クエスト成功時にまとめて付与、失敗時は失う）
     public List<RewardEntryData> pendingLoot = new();
@@ -57,6 +62,29 @@ public class QuestRun
     {
         this.def = def;
         this.startedTurn = startedTurn;
+    }
+
+    public void AddReportEvent(
+        int turn,
+        int phase,
+        ExpeditionEventKind kind,
+        string title,
+        string detail,
+        bool important = false,
+        string actorName = "",
+        string clueId = "")
+    {
+        reportEvents.Add(new ExpeditionEventRecord
+        {
+            turn = turn,
+            phase = phase,
+            kind = kind,
+            title = title,
+            detail = detail,
+            important = important,
+            actorName = actorName,
+            clueId = clueId,
+        });
     }
 
     public IEnumerable<AdventurerData> EnumerateMembers()

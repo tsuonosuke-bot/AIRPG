@@ -4,6 +4,8 @@ public class QuestMasterData
 {
     public string id = "";
     public string questName = "";
+    public string clientName = "";
+    public string description = "";
     public int rank = 1;
     public int totalPhases = 15;
     public int phasesPerTurn = 5;
@@ -19,6 +21,14 @@ public class QuestMasterData
     public List<RewardEntryData> bossDrops = new();
     public bool bossDropsAreGuaranteed;
     public List<QuestPhaseEvent> fixedEvents = new();
+
+    // ---- ストーリー進行 ----
+    public bool isStoryQuest;
+    public List<string> requiredQuestIds = new();
+    public List<string> requiredClueIds = new();
+    public List<string> grantedClueIds = new();
+    public string storyBranchId = "";
+    public List<StoryClueMasterData> GrantedClues { get; set; } = new();
 
     // ---- 採取クエスト ----
     // gatherTargetCount > 0 のとき採取クエストとして扱う。道中で採取イベントが抽選され、

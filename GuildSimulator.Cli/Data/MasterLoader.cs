@@ -17,6 +17,7 @@ public class GameMasterData
     public Dictionary<string, EnemyMasterData> enemies = new();
     public Dictionary<string, EnemyUnitTemplate> enemyUnits = new();
     public Dictionary<string, DungeonMasterData> dungeons = new();
+    public Dictionary<string, StoryClueMasterData> clues = new();
     public List<QuestMasterData> allQuests = new();
     public List<AdventurerMasterData> allAdventurers = new();
     public Dictionary<string, QuestChoiceEventMasterData> choiceEvents = new();
@@ -202,16 +203,32 @@ public static class MasterLoader
             db.dungeons[d.id] = dd;
         }
 
+        var clues = Load<List<StoryClueJson>>(dataDir, "clues.json");
+        foreach (var clue in clues)
+            db.clues[clue.id] = new StoryClueMasterData
+            {
+                id = clue.id,
+                title = clue.title,
+                description = clue.description ?? "",
+            };
+
         var quests = Load<List<QuestJson>>(dataDir, "quests.json");
         foreach (var q in quests)
         {
             var qd = new QuestMasterData
             {
-                id = q.id, questName = q.questName, rank = q.rank, totalPhases = q.totalPhases,
+                id = q.id, questName = q.questName,
+                clientName = q.clientName ?? "", description = q.description ?? "",
+                rank = q.rank, totalPhases = q.totalPhases,
                 phasesPerTurn = q.phasesPerTurn > 0 ? q.phasesPerTurn : 5,
                 rewardGold = q.rewardGold, rewardGuildPoints = q.rewardGuildPoints, rewardExp = q.rewardExp,
                 isEmergencyQuest = q.isEmergencyQuest, rankUpOnClear = q.rankUpOnClear, requiredGuildPoints = q.requiredGuildPoints,
                 bossPhase = q.bossPhase, bossDropsAreGuaranteed = q.bossDropsAreGuaranteed,
+                isStoryQuest = q.isStoryQuest,
+                requiredQuestIds = q.requiredQuestIds ?? new(),
+                requiredClueIds = q.requiredClueIds ?? new(),
+                grantedClueIds = q.grantedClueIds ?? new(),
+                storyBranchId = q.storyBranchId ?? "",
                 gatherItemName = q.gatherItemName ?? "",
                 gatherTargetCount = q.gatherTargetCount,
                 gatherMinPerEvent = q.gatherMinPerEvent > 0 ? q.gatherMinPerEvent : 1,
@@ -224,6 +241,9 @@ public static class MasterLoader
             foreach (var re in q.bossDrops ?? new()) qd.bossDrops.Add(ResolveRewardEntry(re, db));
             foreach (var fe in q.fixedEvents ?? new())
                 qd.fixedEvents.Add(new QuestPhaseEvent { phase = fe.phase, type = (QuestEventType)fe.type });
+            foreach (var clueId in qd.grantedClueIds)
+                if (db.clues.TryGetValue(clueId, out var clue))
+                    qd.GrantedClues.Add(clue);
             db.allQuests.Add(qd);
         }
 
@@ -245,6 +265,13 @@ public static class MasterLoader
                 defaultClassId = a.defaultClassId ?? "", raceId = a.raceId ?? "",
                 defaultWeaponId = a.defaultWeaponId ?? "", defaultArmorId = a.defaultArmorId ?? "",
                 skillIds = a.skillIds ?? new(),
+                background = a.background ?? "",
+                personality = a.personality ?? "",
+                motivation = a.motivation ?? "",
+                specialty = a.specialty ?? "",
+                fear = a.fear ?? "",
+                creed = a.creed ?? "",
+                selfIntroduction = a.selfIntroduction ?? "",
             };
             if (!string.IsNullOrEmpty(a.defaultClassId) && db.classes.TryGetValue(a.defaultClassId, out var cls)) ad.DefaultClass = cls;
             if (!string.IsNullOrEmpty(a.raceId) && db.races.TryGetValue(a.raceId, out var race)) ad.Race = race;
@@ -356,17 +383,24 @@ public static class MasterLoader
         float enemyLevelPerPhase, List<RewardEntryJson>? rewardTable, List<RewardEntryJson>? treasureTable,
         List<string>? turnEndEventIds, float? turnEndEventChance);
 
+    record StoryClueJson(string id, string title, string? description);
+
     record QuestPhaseEventJson(int phase, int type);
     record QuestJson(string id, string questName, int rank, int totalPhases, int phasesPerTurn,
         int rewardGold, int rewardGuildPoints,
         int rewardExp, bool isEmergencyQuest, int rankUpOnClear, int requiredGuildPoints, string? dungeonId, string? bossEnemyId,
         int bossPhase, bool bossDropsAreGuaranteed, List<RewardEntryJson>? bossDrops, List<QuestPhaseEventJson>? fixedEvents,
         string? gatherItemName, int gatherTargetCount, int gatherMinPerEvent, int gatherMaxPerEvent,
-        float gatherChance, int gatherGoldPerItem);
+        float gatherChance, int gatherGoldPerItem,
+        string? clientName, string? description, bool isStoryQuest,
+        List<string>? requiredQuestIds, List<string>? requiredClueIds, List<string>? grantedClueIds,
+        string? storyBranchId);
 
     record AdvJson(string id, string baseName, int upkeepGold, int defaultLevel, int defaultRank,
         int? recruitGuildRank, int? recruitWeight,
         int vitality, int mental, int strength, int agility, int intelligence, int constitution, int appearance,
         string? defaultClassId, string? raceId, string? defaultWeaponId, string? defaultArmorId,
-        List<string>? skillIds, Rarity? rarity);
+        List<string>? skillIds, Rarity? rarity,
+        string? background, string? personality, string? motivation, string? specialty,
+        string? fear, string? creed, string? selfIntroduction);
 }

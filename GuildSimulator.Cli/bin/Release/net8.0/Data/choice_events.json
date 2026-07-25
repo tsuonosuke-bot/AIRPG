@@ -1,0 +1,35 @@
+[
+  {
+    "id": "event_abandoned_camp",
+    "title": "打ち捨てられた野営地",
+    "description": "火の消えた野営地に、まだ使えそうな物資が残っている。",
+    "weight": 4,
+    "options": [
+      { "text": "慎重に休息する", "resultText": "交代で見張りながら体を休めた。", "effectType": "HealPercent", "value": 15 },
+      { "text": "物資を探す", "resultText": "売れそうな物資を見つけた。", "effectType": "Gold", "value": 20 },
+      { "text": "不吉なので先を急ぐ", "resultText": "一行は警戒を保ったまま進んだ。", "effectType": "Morale", "value": 5 }
+    ]
+  },
+  {
+    "id": "event_forked_path",
+    "title": "二股の道",
+    "description": "安全そうな迂回路と、危険だが近い獣道に分かれている。",
+    "weight": 3,
+    "options": [
+      { "text": "迂回路を進む", "resultText": "堅実な判断が仲間を安心させた。", "effectType": "Morale", "value": 8 },
+      { "text": "獣道を突破する", "resultText": "険しい道で傷ついたが、多くを学んだ。", "effectType": "Experience", "value": 20 },
+      { "text": "地形を調べてから決める", "resultText": "調査中に古い貨幣を見つけた。", "effectType": "Gold", "value": 15 }
+    ]
+  },
+  {
+    "id": "event_mysterious_shrine",
+    "title": "苔むした祠",
+    "description": "古い祠から、かすかな温もりが漂っている。",
+    "weight": 2,
+    "options": [
+      { "text": "祈りを捧げる", "resultText": "穏やかな光が一行の傷を癒した。", "effectType": "HealPercent", "value": 25 },
+      { "text": "供物を探す", "resultText": "祠の裏で薬品を見つけた。", "effectType": "Consumable", "targetId": "item_vital_tonic", "value": 1 },
+      { "text": "触れずに立ち去る", "resultText": "畏敬の念が一行の心を引き締めた。", "effectType": "Morale", "value": 10 }
+    ]
+  }
+]
