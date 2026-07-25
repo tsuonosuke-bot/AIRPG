@@ -27,9 +27,9 @@ public class EnemyData : IUnitMember
         this.level = level;
     }
 
-    const double GROWTH_PER_LEVEL = 1.3; // レベルごとにステータスを30%ずつ伸ばす複利成長
+    const double GROWTH_PER_LEVEL = 0.3; // レベルごとにステータスを30%ずつ伸ばす線形成長（冒険者と同様、複利にしない）
 
-    int Scaled(int baseVal) => (int)Math.Floor(baseVal * Math.Pow(GROWTH_PER_LEVEL, level - 1));
+    int Scaled(int baseVal) => (int)Math.Floor(baseVal * (1.0 + GROWTH_PER_LEVEL * (level - 1)));
 
     public StatBlock GetBaseCombatStats()
     {
