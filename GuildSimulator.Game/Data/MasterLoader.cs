@@ -108,6 +108,7 @@ public static class MasterLoader
                 flatPhysicalAtk = e.flatPhysicalAtk, flatMagicAtk = e.flatMagicAtk, flatHeal = e.flatHeal,
                 weight = e.weight, price = e.price, bonus = ParseStatBlock(e.bonus), rarity = e.rarity,
                 shopTier = Math.Max(1, e.shopTier),
+                damageDice = e.damageDice ?? "", maxAtkBonus = Math.Max(0, e.maxAtkBonus),
             };
         }
 
@@ -151,6 +152,7 @@ public static class MasterLoader
                 id = e.id, baseName = e.baseName, exp = e.exp,
                 vitality = e.vitality, mental = e.mental, strength = e.strength,
                 agility = e.agility, intelligence = e.intelligence, constitution = e.constitution,
+                naturalDamageDice = e.naturalDamageDice ?? "",
             };
             if (!string.IsNullOrEmpty(e.defaultWeaponId) && db.equipment.TryGetValue(e.defaultWeaponId, out var w)) ed.DefaultWeapon = w;
             if (!string.IsNullOrEmpty(e.defaultArmorId) && db.equipment.TryGetValue(e.defaultArmorId, out var a)) ed.DefaultArmor = a;
@@ -381,7 +383,8 @@ public static class MasterLoader
 
     record EquipJson(string id, string displayName, EquipmentType type, WeaponType weaponType, ArmorType armorType,
         float physicalCoeff, float magicCoeff, float healCoeff, int flatPhysicalAtk, int flatMagicAtk, int flatHeal,
-        int weight, int price, Dictionary<string, int>? bonus, Rarity rarity, int shopTier = 1);
+        int weight, int price, Dictionary<string, int>? bonus, Rarity rarity, int shopTier = 1,
+        string? damageDice = null, int maxAtkBonus = 0);
 
     record ConsumableJson(string id, string displayName, string? description, Rarity rarity,
         int price, ConsumableEffectType effectType, int effectValue);
@@ -394,7 +397,7 @@ public static class MasterLoader
 
     record EnemyJson(string id, string baseName, int exp, int vitality, int mental, int strength,
         int agility, int intelligence, int constitution, string? defaultWeaponId, string? defaultArmorId,
-        List<string>? skillIds, List<RewardEntryJson>? dropTable);
+        List<string>? skillIds, List<RewardEntryJson>? dropTable, string? naturalDamageDice = null);
 
     record EnemyUnitJson(string id, string unitName, int baseLevel, List<string?>? formationIds);
 

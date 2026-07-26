@@ -18,6 +18,12 @@ public class EquipmentMasterData
 
     /// <summary>攻撃時に振るダメージダイス（例: "1d6", "2d4+1"）。未設定なら素手・自然攻撃扱いの既定値を使う。</summary>
     public string damageDice = "";
+
+    /// <summary>
+    /// 能力（物攻/魔攻）でダメージを増幅できる上限。0以下なら無制限。
+    /// 短剣や投石のような軽い得物は腕力を乗せきれず頭打ちになり、斧や大剣は青天井に伸びる。
+    /// </summary>
+    public int maxAtkBonus;
     public int weight;
     public int price;
     public StatBlock bonus;
