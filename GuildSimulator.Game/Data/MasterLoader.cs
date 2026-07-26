@@ -14,6 +14,7 @@ public class GameMasterData
     public Dictionary<string, EquipmentMasterData> equipment = new();
     public Dictionary<string, ConsumableMasterData> consumables = new();
     public Dictionary<string, RelicMasterData> relics = new();
+    public Dictionary<string, FacilityMasterData> facilities = new();
     public Dictionary<string, EnemyMasterData> enemies = new();
     public Dictionary<string, EnemyUnitTemplate> enemyUnits = new();
     public Dictionary<string, DungeonMasterData> dungeons = new();
@@ -35,7 +36,7 @@ public static class MasterLoader
     public static readonly IReadOnlyList<string> DataFileNames = new[]
     {
         "skills.json", "classes.json", "races.json", "equipment.json", "consumables.json",
-        "relics.json", "enemies.json", "choice_events.json", "enemy_units.json",
+        "relics.json", "facilities.json", "enemies.json", "choice_events.json", "enemy_units.json",
         "dungeons.json", "clues.json", "quests.json", "adventurers.json",
     };
 
@@ -106,6 +107,7 @@ public static class MasterLoader
                 physicalCoeff = e.physicalCoeff, magicCoeff = e.magicCoeff, healCoeff = e.healCoeff,
                 flatPhysicalAtk = e.flatPhysicalAtk, flatMagicAtk = e.flatMagicAtk, flatHeal = e.flatHeal,
                 weight = e.weight, price = e.price, bonus = ParseStatBlock(e.bonus), rarity = e.rarity,
+                shopTier = Math.Max(1, e.shopTier),
             };
         }
 
@@ -125,6 +127,19 @@ public static class MasterLoader
                 id = r.id, relicName = r.relicName, description = r.description ?? "",
                 effectType = r.effectType, rate = r.rate,
                 add = ParseStatBlock(r.add), mul = ParseMul(r.mul),
+            };
+        }
+
+        var facilities = Load<List<FacilityJson>>(readJson, "facilities.json");
+        foreach (var f in facilities)
+        {
+            db.facilities[f.id] = new FacilityMasterData
+            {
+                id = f.id, displayName = f.displayName, description = f.description ?? "",
+                buildCostGold = f.buildCostGold, upkeepGoldPerTurn = f.upkeepGoldPerTurn,
+                requiredGuildRank = Math.Max(1, f.requiredGuildRank),
+                questBoardBonus = f.questBoardBonus, shopLevelBonus = f.shopLevelBonus,
+                restHealBonusPercent = f.restHealBonusPercent, growthRateBonusPercent = f.growthRateBonusPercent,
             };
         }
 
@@ -369,13 +384,16 @@ public static class MasterLoader
 
     record EquipJson(string id, string displayName, EquipmentType type, WeaponType weaponType, ArmorType armorType,
         float physicalCoeff, float magicCoeff, float healCoeff, int flatPhysicalAtk, int flatMagicAtk, int flatHeal,
-        int weight, int price, Dictionary<string, int>? bonus, Rarity rarity);
+        int weight, int price, Dictionary<string, int>? bonus, Rarity rarity, int shopTier = 1);
 
     record ConsumableJson(string id, string displayName, string? description, Rarity rarity,
         int price, ConsumableEffectType effectType, int effectValue);
 
     record RelicJson(string id, string relicName, string? description, RelicEffectType effectType, float rate,
         Dictionary<string, int>? add, Dictionary<string, float>? mul);
+
+    record FacilityJson(string id, string displayName, string? description, int buildCostGold, int upkeepGoldPerTurn,
+        int requiredGuildRank, int questBoardBonus, int shopLevelBonus, int restHealBonusPercent, int growthRateBonusPercent);
 
     record EnemyJson(string id, string baseName, int exp, int vitality, int mental, int strength,
         int agility, int intelligence, int constitution, string? defaultWeaponId, string? defaultArmorId,
