@@ -104,6 +104,7 @@ public class QuestRunSaveData
     public Dictionary<string, int> startingLevels = new();
     public int guildUpkeepAtStart;
     public List<PendingLootSave> pendingLoot = new();
+    public List<TreasureChestSave> chests = new();
     public int gatheredCount;
     public List<string> usedConsumableIds = new();
     public int goldRewardBonusPercent;
@@ -123,6 +124,12 @@ public class ExpeditionEventSave
     public string actorName = "";
     public string clueId = "";
     public bool important;
+}
+
+public class TreasureChestSave
+{
+    public TreasureChestKind kind;
+    public int foundPhase;
 }
 
 public class PendingLootSave

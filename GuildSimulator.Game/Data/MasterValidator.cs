@@ -44,10 +44,15 @@ public static class MasterValidator
             if (dungeon.turnEndEvents.Any(e => e.options.Count < 2))
                 errors.Add($"{dungeon.id}: 選択イベントには2個以上の選択肢が必要です");
 
-            // 宝箱を引く選択肢は treasureTable から抽選する。空だと選んでも何も出ない。
-            if (dungeon.treasureTable.Count == 0 && dungeon.turnEndEvents.Any(
-                    e => e.options.Any(o => o.effectType == QuestChoiceEffectType.Treasure)))
-                errors.Add($"{dungeon.id}: 宝箱の選択肢があるのにtreasureTableが空です");
+            // 宝箱の中身は帰還後に treasureTable から抽選する。空だと必ず空っぽになる。
+            if (dungeon.treasureTable.Count == 0)
+            {
+                if (dungeon.eventTable.GetValueOrDefault(DungeonEventType.Treasure) > 0)
+                    errors.Add($"{dungeon.id}: 宝箱イベントがあるのにtreasureTableが空です");
+                if (dungeon.turnEndEvents.Any(
+                        e => e.options.Any(o => o.effectType == QuestChoiceEffectType.Treasure)))
+                    errors.Add($"{dungeon.id}: 宝箱の選択肢があるのにtreasureTableが空です");
+            }
         }
 
         var questIds = db.allQuests.Select(q => q.id).ToHashSet();

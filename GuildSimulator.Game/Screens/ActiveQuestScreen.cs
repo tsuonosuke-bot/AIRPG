@@ -34,7 +34,8 @@ public static class ActiveQuestScreen
                 string morale = $"  士気 {q.morale.Current}/{q.morale.Max}";
                 string gather = q.def.IsGatherQuest
                     ? $"  {q.def.gatherItemName} {q.gatheredCount}/{q.def.gatherTargetCount}" : "";
-                Ui.WriteLine($"  {i + 1}. {q.def.questName}  {status}  {hp}{morale}{gather}");
+                string chests = q.chests.Count > 0 ? $"  宝箱 {q.chests.Count}個（未開封）" : "";
+                Ui.WriteLine($"  {i + 1}. {q.def.questName}  {status}  {hp}{morale}{gather}{chests}");
                 var members = q.EnumerateMembers().ToList();
                 Ui.Write("      メンバー: ");
                 for (int memberIndex = 0; memberIndex < members.Count; memberIndex++)
@@ -121,7 +122,7 @@ public static class ActiveQuestScreen
         Ui.WriteLine();
         if (q.failed)
         {
-            Ui.Error("パーティは全滅しました（報酬・戦利品はすべて失われます）");
+            Ui.Error("パーティは全滅しました（報酬・戦利品・宝箱はすべて失われます）");
             if (await Ui.ConfirmAsync("クエストを終了しますか？"))
             {
                 var before = CaptureSettlement(guild, q);
@@ -136,7 +137,7 @@ public static class ActiveQuestScreen
         {
             Ui.Warn("士気が尽き、パーティは撤退しました");
             Ui.Dim($"  基本報酬は{QuestRewardService.RetreatRewardRate:P0}、ギルドポイントはなし");
-            Ui.Dim("  道中で拾った戦利品は持ち帰れます");
+            Ui.Dim("  道中で拾った戦利品と宝箱は持ち帰れます");
             var fallen = q.EnumerateMembers().Where(member => !member.isAlive).ToList();
             if (fallen.Count == 0)
                 Ui.Dim("  死亡者はいません");
@@ -152,7 +153,7 @@ public static class ActiveQuestScreen
             return;
         }
 
-        Ui.Info("クエストクリア！");
+        Ui.Info("クエストクリア！" + (q.chests.Count > 0 ? $" 持ち帰った宝箱 {q.chests.Count}個を開けます" : ""));
 
         var settlementBefore = CaptureSettlement(guild, q);
         qm.FinalizeQuest(q);

@@ -164,7 +164,7 @@ public class QuestManager
             if (q.HasPendingChoice) continue;
             int steps = q.def.phasesPerTurn;
             for (int i = 0; i < steps && q.IsInProgress; i++)
-                progressor.AdvanceOnePhase(q, currentTurn, guild.relics);
+                progressor.AdvanceOnePhase(q, currentTurn);
 
             if (q.IsInProgress)
             {
@@ -300,18 +300,14 @@ public class QuestManager
                 break;
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Treasure:
             {
-                // 中身はダンジョンの宝箱テーブル任せ。何が入っているかは開けるまで分からない。
-                var found = new List<string>();
-                for (int i = 0; i < Math.Max(1, option.value); i++)
-                {
-                    var loot = QuestProgressor.PickTreasure(q.def.Dungeon, guild.relics);
-                    if (loot == null) break;
-                    q.pendingLoot.Add(loot);
-                    found.Add(RewardDescription.DescribeLoot(loot) + RewardDescription.DescribeQuantity(loot));
-                }
-                detail = found.Count > 0
-                    ? $"{string.Join("、", found)} 入手（帰還時に加算）"
-                    : "めぼしい物は残っていなかった";
+                int count = Math.Max(1, option.value);
+                for (int i = 0; i < count; i++)
+                    q.chests.Add(new TreasureChest
+                    {
+                        kind = GuildSimulator.Core.Models.TreasureChestKind.Dungeon,
+                        foundPhase = q.currentPhase,
+                    });
+                detail = $"宝箱 x{count} を持ち帰った（帰還後に開封）";
                 break;
             }
         }
@@ -336,6 +332,8 @@ public class QuestManager
             if (!q.failed)
             {
                 rewardService.ApplyBaseRewards(q, guild, "[完了]");
+                // 宝箱は持ち帰ってから開ける。中身が決まるのはこの瞬間。
+                rewardService.OpenChests(q, guild, "[完了]");
                 rewardService.ApplyPendingLoot(q, guild, "[完了]");
             }
         }

@@ -8,7 +8,7 @@ namespace GuildSimulator.Core.Systems.Quest;
 
 public class QuestProgressor
 {
-    public void AdvanceOnePhase(QuestRun q, int currentTurn, IReadOnlyCollection<RelicMasterData> ownedRelics)
+    public void AdvanceOnePhase(QuestRun q, int currentTurn)
     {
         int phase = q.currentPhase + 1;
         var qe = ResolveQuestEvent(q.def, phase);
@@ -89,7 +89,7 @@ public class QuestProgressor
                         {
                             q.bossDefeated = true;
                             q.logs.Add($"  Phase {phase}: ボス撃破！");
-                            RollBossDrops(q, phase);
+                            AddChest(q, TreasureChestKind.Boss, phase);
                         }
                         foreach (var a in q.formation)
                         {
@@ -168,16 +168,8 @@ public class QuestProgressor
             case DungeonEventType.Treasure:
                 {
                     evTitle = "宝箱";
-                    var loot = PickTreasure(q.def.Dungeon, ownedRelics);
-                    if (loot == null)
-                    {
-                        evResult = "空っぽだった";
-                    }
-                    else
-                    {
-                        q.pendingLoot.Add(loot);
-                        evResult = $"{RewardDescription.DescribeLoot(loot)} を発見（クリアで獲得）";
-                    }
+                    AddChest(q, TreasureChestKind.Dungeon, phase);
+                    evResult = "封の固い宝箱を担ぎ上げた（帰還後に開封）";
                     break;
                 }
 
@@ -277,32 +269,14 @@ public class QuestProgressor
         return null;
     }
 
-    // 宝箱の重み表から戦利品を1件抽選。未設定なら null。
-    // 所持済みの遺物は拾っても捨てるだけなので、抽選の対象から外す。
-    // 選択イベントの宝箱もここを通す（QuestManager.ResolveChoice）。
-    public static RewardEntryData? PickTreasure(DungeonMasterData? d, IReadOnlyCollection<RelicMasterData> ownedRelics)
+    // 見つけた宝箱は中身を決めずに積む。開封は帰還後（QuestRewardService.OpenChests）。
+    static void AddChest(QuestRun q, TreasureChestKind kind, int phase)
     {
-        if (d == null || d.treasureTable.Count == 0) return null;
-
-        var candidates = d.treasureTable
-            .Where(e => e.weight > 0 && !IsOwnedRelic(e, ownedRelics))
-            .ToList();
-
-        int total = 0;
-        foreach (var e in candidates) total += e.weight;
-        if (total <= 0) return null;
-
-        int roll = GameRandom.Range(0, total);
-        foreach (var e in candidates)
-        {
-            roll -= e.weight;
-            if (roll < 0) return e;
-        }
-        return null;
+        var chest = new TreasureChest { kind = kind, foundPhase = phase };
+        q.chests.Add(chest);
+        if (kind == TreasureChestKind.Boss)
+            q.logs.Add($"  Phase {phase}: ボスの宝箱を手に入れた（帰還後に開封）");
     }
-
-    static bool IsOwnedRelic(RewardEntryData e, IReadOnlyCollection<RelicMasterData> ownedRelics) =>
-        e.type == RewardType.Relic && e.Relic != null && ownedRelics.Contains(e.Relic);
 
     static void RollEnemyDrops(QuestRun q, IEnumerable<EnemyData?> enemies, int phase)
     {
@@ -310,47 +284,14 @@ public class QuestProgressor
         {
             foreach (var entry in enemy!.master.dropTable)
             {
-                if (!Hits(entry)) continue;
-                var drop = CopyLoot(entry);
+                if (entry.chance <= 0f || GameRandom.NextFloat() >= entry.chance) continue;
+                var drop = entry.Copy();
                 q.pendingLoot.Add(drop);
                 q.logs.Add($"  Phase {phase}: レアドロップ！ {enemy.master.baseName}から"
                     + $"{RewardDescription.DescribeLoot(drop)}{RewardDescription.DescribeQuantity(drop)}（帰還時に確定）");
             }
         }
     }
-
-    // ボス撃破時の取り分。宝箱や敵ドロップと同じく pendingLoot に積み、帰還できたぶんだけ持ち帰る。
-    // 物語進行に必要な報酬を落とすクエストは bossDropsAreGuaranteed で抽選を飛ばす。
-    static void RollBossDrops(QuestRun q, int phase)
-    {
-        bool guaranteed = q.def.bossDropsAreGuaranteed;
-        foreach (var entry in q.def.bossDrops)
-        {
-            if (!guaranteed && !Hits(entry)) continue;
-            var drop = CopyLoot(entry);
-            q.pendingLoot.Add(drop);
-            q.logs.Add($"  Phase {phase}: ボスドロップ！ {RewardDescription.DescribeLoot(drop)}{RewardDescription.DescribeQuantity(drop)}（帰還時に確定）");
-        }
-    }
-
-    static bool Hits(RewardEntryData entry) =>
-        entry.chance > 0f && GameRandom.NextFloat() < entry.chance;
-
-    static RewardEntryData CopyLoot(RewardEntryData entry) => new()
-    {
-        type = entry.type,
-        relicId = entry.relicId,
-        equipmentId = entry.equipmentId,
-        skillId = entry.skillId,
-        consumableId = entry.consumableId,
-        gold = entry.gold,
-        quantity = Math.Max(1, entry.quantity),
-        unique = entry.unique,
-        Relic = entry.Relic,
-        Equipment = entry.Equipment,
-        Skill = entry.Skill,
-        Consumable = entry.Consumable,
-    };
 
     static EnemyData?[] CreateEnemyMembers(EnemyUnitTemplate tpl, int level)
     {

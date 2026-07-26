@@ -37,7 +37,7 @@ public class QuestRewardTests
     }
 
     [Fact]
-    public void BossDropWithFullChanceGoesIntoLootAndIsPaidOnReturn()
+    public void BossDefeatYieldsAnUnopenedChestOpenedOnReturn()
     {
         var relic = new RelicMasterData { id = "relic", relicName = "試練の証" };
         var run = DefeatBoss(new()
@@ -46,14 +46,37 @@ public class QuestRewardTests
             new() { type = RewardType.Relic, relicId = relic.id, Relic = relic, chance = 1f },
         });
 
-        Assert.Equal(2, run.pendingLoot.Count);
-        Assert.Contains(run.logs, log => log.Contains("ボスドロップ！"));
+        // 撃破した時点では未開封の宝箱があるだけで、中身はまだ決まっていない。
+        var chest = Assert.Single(run.chests);
+        Assert.True(chest.IsBossChest);
+        Assert.Empty(run.pendingLoot);
 
         var guild = new GuildManager(startGold: 0);
+        new QuestRewardService().OpenChests(run, guild, "[完了]");
         new QuestRewardService().ApplyPendingLoot(run, guild, "[完了]");
 
+        Assert.Empty(run.chests);
         Assert.Equal(300, guild.Gold);
         Assert.Contains(relic, guild.relics);
+        Assert.Contains(run.logs, log => log.Contains("ボスの宝箱を開けた"));
+    }
+
+    [Fact]
+    public void BossChestIsNeverEmptiedByTheEmptyRoll()
+    {
+        var guild = new GuildManager(startGold: 0);
+        var service = new QuestRewardService();
+
+        // 空っぽ抽選を受けるなら200回のうち何度かは空になる確率がほぼ1。
+        for (int i = 0; i < 200; i++)
+        {
+            var run = DefeatBoss(new()
+            {
+                new() { type = RewardType.Gold, gold = 10, chance = 1f },
+            });
+            service.OpenChests(run, guild, "[完了]");
+            Assert.Single(run.pendingLoot);
+        }
     }
 
     [Fact]
@@ -64,7 +87,10 @@ public class QuestRewardTests
             new() { type = RewardType.Gold, gold = 300, chance = 0f },
         });
 
+        new QuestRewardService().OpenChests(run, new GuildManager(startGold: 0), "[完了]");
+
         Assert.Empty(run.pendingLoot);
+        Assert.Contains(run.logs, log => log.Contains("空っぽだった"));
     }
 
     [Fact]
@@ -73,6 +99,8 @@ public class QuestRewardTests
         var run = DefeatBoss(
             new() { new() { type = RewardType.Gold, gold = 300, chance = 0f } },
             guaranteed: true);
+
+        new QuestRewardService().OpenChests(run, new GuildManager(startGold: 0), "[完了]");
 
         Assert.Equal(300, Assert.Single(run.pendingLoot).gold);
     }
@@ -97,18 +125,66 @@ public class QuestRewardTests
             Dungeon = dungeon,
             fixedEvents = { new QuestPhaseEvent { phase = 1, type = QuestEventType.ForceTreasure } },
         };
-        var run = new QuestRun(definition, startedTurn: 1) { morale = new MoraleState(999) };
+        var service = new QuestRewardService();
 
-        new QuestProgressor().AdvanceOnePhase(run, currentTurn: 1, new[] { owned });
-        Assert.Empty(run.pendingLoot);
+        // 所持済みなら候補から外れるので、何度開けても出てこない。
+        var owner = new GuildManager(startGold: 0);
+        owner.AddRelic(owned, "先の依頼");
+        var ownerRun = FindChests(definition, 30);
+        service.OpenChests(ownerRun, owner, "[完了]");
+        Assert.Empty(ownerRun.pendingLoot);
 
-        var freshRun = new QuestRun(definition, startedTurn: 1) { morale = new MoraleState(999) };
-        new QuestProgressor().AdvanceOnePhase(freshRun, currentTurn: 1, Array.Empty<RelicMasterData>());
-        Assert.Equal(owned, Assert.Single(freshRun.pendingLoot).Relic);
+        // 持っていないギルドなら、空っぽ抽選をすり抜けたぶんが出る。
+        var newcomer = new GuildManager(startGold: 0);
+        var newcomerRun = FindChests(definition, 30);
+        service.OpenChests(newcomerRun, newcomer, "[完了]");
+        Assert.Contains(newcomerRun.pendingLoot, e => e.Relic == owned);
     }
 
     [Fact]
-    public void TreasureChoiceDrawsFromTheDungeonChestTable()
+    public void DungeonChestsAreSometimesEmptyButNotAlways()
+    {
+        var dungeon = new DungeonMasterData { id = "dungeon", dungeonName = "試験場" };
+        dungeon.treasureTable.Add(new RewardEntryData
+        {
+            type = RewardType.Gold, gold = 10, weight = 1,
+        });
+        var definition = new QuestMasterData
+        {
+            id = "treasure_quest", questName = "宝探し", totalPhases = 1, bossPhase = 0,
+            dungeonId = dungeon.id, Dungeon = dungeon,
+            fixedEvents = { new QuestPhaseEvent { phase = 1, type = QuestEventType.ForceTreasure } },
+        };
+
+        const int chestCount = 400;
+        var run = FindChests(definition, chestCount);
+        Assert.Equal(chestCount, run.chests.Count);
+
+        new QuestRewardService().OpenChests(run, new GuildManager(startGold: 0), "[完了]");
+
+        // 空っぽ率は2割。400個も開ければ全部当たり／全部ハズレは事実上起きない。
+        int opened = run.pendingLoot.Count;
+        Assert.InRange(opened, 1, chestCount - 1);
+        Assert.Contains(run.logs, log => log.Contains("空っぽだった"));
+    }
+
+    // 宝箱イベントだけが起きるクエストを回して、未開封の宝箱を count 個ためる。
+    static QuestRun FindChests(QuestMasterData definition, int count)
+    {
+        var run = new QuestRun(definition, startedTurn: 1) { morale = new MoraleState(999) };
+        var progressor = new QuestProgressor();
+        for (int i = 0; i < count; i++)
+        {
+            run.currentPhase = 0;
+            progressor.AdvanceOnePhase(run, currentTurn: 1);
+        }
+        Assert.Equal(count, run.chests.Count);
+        Assert.Empty(run.pendingLoot);
+        return run;
+    }
+
+    [Fact]
+    public void TreasureChoiceHandsOutUnopenedChests()
     {
         var guild = new GuildManager(startGold: 0);
         var adventurer = new AdventurerData(new AdventurerMasterData
@@ -157,8 +233,11 @@ public class QuestRewardTests
         Assert.True(manager.HasPendingChoices);
         Assert.True(manager.ResolveChoice(run, 0, out var result));
 
-        Assert.Equal(2, run.pendingLoot.Count(x => x.type == RewardType.Gold && x.gold == 40));
-        Assert.Contains("資金 40G", result);
+        // 選択した時点では未開封のまま。中身が決まるのは帰還後。
+        Assert.Equal(2, run.chests.Count);
+        Assert.All(run.chests, chest => Assert.False(chest.IsBossChest));
+        Assert.Empty(run.pendingLoot);
+        Assert.Contains("宝箱 x2", result);
     }
 
     // ボスを必ず倒せる編成で bossPhase を1フェーズだけ進め、ドロップ抽選の結果を返す。
@@ -200,7 +279,7 @@ public class QuestRewardTests
         };
         run.formation[0] = hero;
 
-        new QuestProgressor().AdvanceOnePhase(run, currentTurn: 1, Array.Empty<RelicMasterData>());
+        new QuestProgressor().AdvanceOnePhase(run, currentTurn: 1);
 
         Assert.True(run.bossDefeated);
         return run;

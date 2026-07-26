@@ -19,14 +19,21 @@
 - `requiredClueIds`: 掲示に必要な発見済み手掛かり
 - `grantedClueIds`: 正規クリア時に発見する手掛かり
 
-アイテムの入手経路は2つで、どちらも `pendingLoot` に積まれ、帰還できたときにまとめて手に入ります。
+アイテムは宝箱で手に入ります。道中では未開封のまま持ち運び、**帰還後に開けて中身を抽選します**
+（全滅すると開ける前に失います）。宝箱は2種類です。
 
-- 宝箱: `dungeons.json` の `treasureTable`。`weight` で出やすさを決めます。
-  このダンジョンで拾えるアイテムはすべてここに書きます。
-  道中の宝箱イベントのほか、`choice_events.json` の選択肢に
-  `"effectType": "Treasure"` を置くと、その選択肢でも `value` 個ぶん抽選できます。
-- ボスドロップ: `quests.json` の `bossDrops`。エントリごとに `chance`（0より大きく1以下）で抽選します。
-  物語進行に必要で落とすと詰むものは、クエスト側の `bossDropsAreGuaranteed` を `true` にすると抽選せず確定します。
+- 道中の宝箱: 中身は `dungeons.json` の `treasureTable` から1件。`weight` で出やすさを決めます。
+  このダンジョンで拾えるアイテムはすべてここに書きます。**2割の確率で空っぽ**になります
+  （`QuestRewardService.EmptyChestRate`）。所持済みの遺物は抽選対象から外れます。
+  入手経路は道中の宝箱イベントと、`choice_events.json` の選択肢に
+  `"effectType": "Treasure"` を置いたもの（`value` 個ぶん渡す）です。
+- ボスの宝箱: ボス撃破で手に入り、中身は `quests.json` の `bossDrops`。
+  エントリごとに `chance`（0より大きく1以下）で抽選し、**空っぽ抽選は受けません**。
+  物語進行に必要で落とすと詰むものは、クエスト側の `bossDropsAreGuaranteed` を `true` にすると
+  `chance` も無視して全て確定します。
+
+宝箱以外に、敵のレアドロップ（`enemies.json` の `dropTable`）と選択イベントの拾い物は
+中身が分かっている戦利品としてそのまま持ち帰ります。
 
 レアリティには `Common`、`Uncommon`、`Rare`、`Unique`、`Legend` を指定します。
 省略時は装備がCommon、冒険者は採用ウェイトから既定値が設定されます。

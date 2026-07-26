@@ -1,4 +1,5 @@
 using GuildSimulator.Core.GameData;
+using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Guild;
 
@@ -8,6 +9,78 @@ public class QuestRewardService
 {
     /// <summary>撤退時に受け取れる基本報酬の割合。道中の戦利品は減額せず全て持ち帰れる。</summary>
     public const float RetreatRewardRate = 0f;
+
+    /// <summary>宝箱がハズレ（空っぽ）になる確率。ボスの宝箱はこの抽選を受けない。</summary>
+    public const float EmptyChestRate = 0.2f;
+
+    /// <summary>
+    /// 持ち帰った宝箱を開ける。中身は開封時に抽選するので、道中では何が入っているか分からない。
+    /// 出た中身は pendingLoot に積み、付与自体は ApplyPendingLoot に任せる。
+    /// </summary>
+    public void OpenChests(QuestRun q, GuildManager guild, string prefix)
+    {
+        foreach (var chest in q.chests)
+        {
+            var contents = chest.IsBossChest
+                ? RollBossChest(q)
+                : RollDungeonChest(q, guild);
+
+            if (contents.Count == 0)
+            {
+                q.logs.Add($"{prefix} {chest.Label}を開けた → 空っぽだった");
+                continue;
+            }
+
+            q.pendingLoot.AddRange(contents);
+            string found = string.Join("、", contents.Select(
+                e => RewardDescription.DescribeLoot(e) + RewardDescription.DescribeQuantity(e)));
+            q.logs.Add($"{prefix} {chest.Label}を開けた → {found}");
+        }
+        q.chests.Clear();
+    }
+
+    // ボスの宝箱はクエストのボスドロップから。エントリごとの chance 抽選は残るが、
+    // 空っぽ抽選は受けない（bossDropsAreGuaranteed なら chance も無視して全部入る）。
+    static List<RewardEntryData> RollBossChest(QuestRun q)
+    {
+        var contents = new List<RewardEntryData>();
+        foreach (var entry in q.def.bossDrops)
+        {
+            if (!q.def.bossDropsAreGuaranteed
+                && (entry.chance <= 0f || GameRandom.NextFloat() >= entry.chance)) continue;
+            contents.Add(entry.Copy());
+        }
+        return contents;
+    }
+
+    // 道中の宝箱はダンジョンの宝箱テーブルから1件。一定確率で空っぽ。
+    // 所持済みの遺物は開けても捨てるだけなので抽選から外す。
+    static List<RewardEntryData> RollDungeonChest(QuestRun q, GuildManager guild)
+    {
+        if (GameRandom.NextFloat() < EmptyChestRate) return new();
+
+        var table = q.def.Dungeon?.treasureTable;
+        if (table == null) return new();
+
+        var candidates = table
+            .Where(e => e.weight > 0 && !IsOwnedRelic(e, guild))
+            .ToList();
+
+        int total = 0;
+        foreach (var e in candidates) total += e.weight;
+        if (total <= 0) return new();
+
+        int roll = GameRandom.Range(0, total);
+        foreach (var e in candidates)
+        {
+            roll -= e.weight;
+            if (roll < 0) return new() { e.Copy() };
+        }
+        return new();
+    }
+
+    static bool IsOwnedRelic(RewardEntryData e, GuildManager guild) =>
+        e.type == RewardType.Relic && e.Relic != null && guild.relics.Contains(e.Relic);
 
     public void ApplyBaseRewards(QuestRun q, GuildManager guild, string prefix)
     {
@@ -53,7 +126,7 @@ public class QuestRewardService
         }
     }
 
-    // 道中の宝箱で拾った戦利品を付与する（クエスト成功時のみ呼ばれる想定）。
+    // 持ち帰った戦利品を付与する（全滅以外で呼ばれる。宝箱の中身は OpenChests 済み）。
     public void ApplyPendingLoot(QuestRun q, GuildManager guild, string prefix)
     {
         foreach (var e in q.pendingLoot)
@@ -61,14 +134,14 @@ public class QuestRewardService
             switch (e.type)
             {
                 case RewardType.Gold:
-                    guild.AddGold(e.gold, $"宝箱: {q.def.questName}");
-                    q.logs.Add($"{prefix} 宝箱 資金 +{e.gold}G");
+                    guild.AddGold(e.gold, $"戦利品: {q.def.questName}");
+                    q.logs.Add($"{prefix} 戦利品 資金 +{e.gold}G");
                     break;
                 case RewardType.Relic:
                     if (e.Relic == null) break;
                     if (guild.relics.Contains(e.Relic))
-                        q.logs.Add($"{prefix} 宝箱 遺物「{e.Relic.relicName}」は所持済みのため見送り");
-                    else { guild.AddRelic(e.Relic, q.def.questName); q.logs.Add($"{prefix} 宝箱 遺物入手: {e.Relic.relicName}"); }
+                        q.logs.Add($"{prefix} 戦利品 遺物「{e.Relic.relicName}」は所持済みのため見送り");
+                    else { guild.AddRelic(e.Relic, q.def.questName); q.logs.Add($"{prefix} 戦利品 遺物入手: {e.Relic.relicName}"); }
                     break;
                 case RewardType.Equipment:
                     if (e.Equipment == null) break;
@@ -87,7 +160,7 @@ public class QuestRewardService
                 case RewardType.Consumable:
                     if (e.Consumable == null) break;
                     guild.AddConsumable(e.Consumable, Math.Max(1, e.quantity));
-                    q.logs.Add($"{prefix} 消費アイテム入手: {e.Consumable.displayName} x{Math.Max(1, e.quantity)}");
+                    q.logs.Add($"{prefix} 戦利品 消費アイテム入手: {e.Consumable.displayName} x{Math.Max(1, e.quantity)}");
                     break;
             }
         }

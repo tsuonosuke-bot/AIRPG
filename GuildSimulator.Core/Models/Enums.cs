@@ -9,6 +9,9 @@ public enum RelicEffectType { Unit_AddFlat, Unit_Multiply, GoldReward_Multiply, 
 public enum DungeonEventType { EnemyEncounter, Heal, Trap, Treasure, Nothing, Gather }
 public enum QuestEventType { None, ForceEnemyEncounter, ForceBossEncounter, ForceTreasure, ForceTrap, ForceHeal, ForceGather }
 public enum RewardType { Relic, Equipment, Gold, Skill, Consumable }
+
+/// <summary>宝箱の種別。ボスの宝箱だけは空っぽ抽選を受けない。</summary>
+public enum TreasureChestKind { Dungeon, Boss }
 public enum Rarity { Common, Uncommon, Rare, Unique, Legend }
 public enum ConsumableEffectType
 {

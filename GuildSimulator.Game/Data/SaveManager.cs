@@ -184,6 +184,9 @@ public static class SaveManager
             quantity = e.quantity,
             unique = e.unique,
         }).ToList(),
+        chests = q.chests
+            .Select(c => new TreasureChestSave { kind = c.kind, foundPhase = c.foundPhase })
+            .ToList(),
         gatheredCount = q.gatheredCount,
         usedConsumableIds = new List<string>(q.usedConsumableIds),
         goldRewardBonusPercent = q.goldRewardBonusPercent,
@@ -372,6 +375,9 @@ public static class SaveManager
                 Consumable = db.consumables.GetValueOrDefault(loot.consumableId),
             });
         }
+
+        foreach (var chest in saved.chests)
+            run.chests.Add(new TreasureChest { kind = chest.kind, foundPhase = chest.foundPhase });
 
         for (int i = 0; i < run.formation.Length && i < saved.formationAdventurerIds.Length; i++)
         {

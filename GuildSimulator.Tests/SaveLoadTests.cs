@@ -64,6 +64,8 @@ public class SaveLoadTests
             relicId = relic.id,
             Relic = relic,
         });
+        run.chests.Add(new TreasureChest { kind = TreasureChestKind.Dungeon, foundPhase = 2 });
+        run.chests.Add(new TreasureChest { kind = TreasureChestKind.Boss, foundPhase = 2 });
         run.goldRewardBonusPercent = 25;
         run.usedConsumableIds.Add(consumable.id);
         var choiceEvent = db.choiceEvents.Values.First();
@@ -116,6 +118,9 @@ public class SaveLoadTests
 
             var loadedLoot = Assert.Single(loadedRun.pendingLoot);
             Assert.Same(relic, loadedLoot.Relic);
+            Assert.Equal(2, loadedRun.chests.Count);
+            Assert.Single(loadedRun.chests, chest => chest.IsBossChest);
+            Assert.All(loadedRun.chests, chest => Assert.Equal(2, chest.foundPhase));
             Assert.Equal(25, loadedRun.goldRewardBonusPercent);
             Assert.Contains(consumable.id, loadedRun.usedConsumableIds);
             Assert.Equal(choiceEvent.id, loadedRun.pendingChoice?.Event.id);
