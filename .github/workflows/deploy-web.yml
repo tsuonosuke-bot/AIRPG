@@ -1,0 +1,68 @@
+name: ブラウザ版をGitHub Pagesへデプロイ
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "GuildSimulator.Core/**"
+      - "GuildSimulator.Game/**"
+      - "GuildSimulator.Web/**"
+      - ".github/workflows/deploy-web.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 進行中のデプロイは中断せず、最新のコミットを1件だけ待たせる。
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: publish
+        run: dotnet publish GuildSimulator.Web -c Release -o publish
+
+      # GitHub Pagesではリポジトリ名のサブパス（/airpg/）で配信されるため、
+      # ルート前提で生成されたパスを書き換える。
+      - name: サブパス向けにベースURLを書き換え
+        run: |
+          set -eu
+          base="/${GITHUB_REPOSITORY#*/}/"
+          sed -i "s|<base href=\"/\" />|<base href=\"${base}\" />|g" publish/wwwroot/index.html
+          sed -i "s|^const base = \"/\";|const base = \"${base}\";|g" publish/wwwroot/service-worker.js
+          grep -o '<base href="[^"]*" />' publish/wwwroot/index.html
+          grep -n '^const base' publish/wwwroot/service-worker.js
+
+      # index.html を書き換えるとサービスワーカーの整合性ハッシュと合わなくなり、
+      # インストールに失敗してオフライン動作とホーム画面追加が効かなくなる。
+      - name: サービスワーカーの整合性ハッシュを再計算
+        run: python3 .github/scripts/fix_sw_integrity.py publish/wwwroot index.html
+
+      # _framework など下線で始まるディレクトリをJekyllに無視されないようにする。
+      - name: .nojekyll を配置
+        run: touch publish/wwwroot/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: publish/wwwroot
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

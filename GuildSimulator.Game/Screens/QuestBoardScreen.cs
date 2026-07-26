@@ -1,0 +1,207 @@
+using GuildSimulator.Core.GameData;
+using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems.Quest;
+using GuildSimulator.Core.Systems.Guild;
+using GuildSimulator.Game.Presentation;
+
+namespace GuildSimulator.Game.Screens;
+
+public static class QuestBoardScreen
+{
+    public static async Task ShowAsync(QuestManager questManager, GuildManager guild, int currentTurn)
+    {
+        while (true)
+        {
+            Ui.BeginScreen();
+            Ui.Header("クエストボード");
+            var board = questManager.questBoard;
+            Ui.WriteLine($"  受注可能: ギルドランク{guild.GuildRank}以下");
+            Ui.WriteLine();
+            if (board.Count == 0)
+            {
+                Ui.Warn("掲示中のクエストはありません");
+                await Ui.PauseAsync();
+                return;
+            }
+
+            var entries = new List<MenuOption>();
+            for (int i = 0; i < board.Count; i++)
+            {
+                var e = board[i];
+                var q = e.quest;
+                string emg = q.isEmergencyQuest ? " [緊急]" : "";
+                string story = q.isStoryQuest ? " [物語]" : "";
+                int estTurns = (int)Math.Ceiling((double)q.totalPhases / q.phasesPerTurn);
+                var diff = DungeonDifficulty.Evaluate(q);
+
+                Ui.WriteLine($"  {i + 1}. 【Rank{q.rank}】{q.questName}  所要:{estTurns}T{emg}{story}");
+                if (!string.IsNullOrWhiteSpace(q.clientName))
+                    Ui.Dim($"      依頼人: {q.clientName}");
+                if (!string.IsNullOrWhiteSpace(q.description))
+                    Ui.WriteLine($"      {q.description}");
+                Ui.WriteLine($"      難易度 {diff.label}（スコア{diff.score:0}）  報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
+                int estimatedUpkeep = guild.EffectiveUpkeepPerTurn * estTurns;
+                int estimatedNet = guild.EstimateNetAfterUpkeep(q.rewardGold, estTurns);
+                string netText = $"      予想収支: {q.rewardGold}G - 維持費{estimatedUpkeep}G = {estimatedNet:+#;-#;0}G"
+                    + "（現在の在籍構成・基本報酬のみ）";
+                if (estimatedNet < 0) Ui.Warn(netText);
+                else Ui.Dim(netText);
+                if (q.IsGatherQuest)
+                    Ui.Dim($"      採取: {q.gatherItemName} x{q.gatherTargetCount}（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還）");
+                string bossInfo = diff.hasBoss ? $"  ボス:Lv{diff.bossLevel}" : "";
+                Ui.Dim($"      場所: {q.Dungeon?.dungeonName ?? "？"}  敵{diff.EnemyLevelRange}"
+                    + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
+                Ui.Dim($"      掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
+
+                entries.Add(new MenuOption(
+                    (i + 1).ToString(),
+                    $"{i + 1}. 【Rank{q.rank}】{q.questName}{emg}{story}",
+                    $"所要{estTurns}T  難易度{diff.label}  報酬{q.rewardGold}G"));
+            }
+
+            int? sel = await Ui.SelectIndexAsync("受注するクエスト", entries);
+            if (sel == null) return;
+            await SelectAndStartAsync(board[sel.Value - 1].quest, questManager, guild, currentTurn);
+        }
+    }
+
+    static async Task SelectAndStartAsync(
+        QuestMasterData def, QuestManager qm, GuildManager guild, int currentTurn)
+    {
+        Ui.BeginScreen();
+        Ui.Header($"編成: {def.questName}");
+        Ui.WriteLine("冒険者を選び、次に配置先を指定してください");
+
+        var formation = new AdventurerData?[6];
+        var advs = guild.adventurers;
+
+        while (formation.Any(x => x == null))
+        {
+            var available = advs.Where((a, i) =>
+                a.isAlive &&
+                !qm.IsAdventurerBusy(a.id) &&
+                !formation.Contains(a)).ToList();
+            if (available.Count == 0)
+            {
+                Ui.Dim("  配置可能な冒険者をすべて編成しました");
+                break;
+            }
+
+            Ui.WriteLine();
+            ShowFormation(formation);
+            Ui.WriteLine();
+
+            var memberOptions = new List<MenuOption>();
+            for (int i = 0; i < available.Count; i++)
+            {
+                var a = available[i];
+                memberOptions.Add(new MenuOption(
+                    (i + 1).ToString(),
+                    $"{a.name} Lv{a.level}",
+                    a.ClassAndRace,
+                    Ui.RarityStyle(a.master.rarity)));
+            }
+
+            int? pick = await Ui.SelectIndexAsync("追加する冒険者", memberOptions, "編成を確定");
+            if (pick == null) break;
+
+            var openSlots = Enumerable.Range(0, formation.Length)
+                .Where(slot => formation[slot] == null)
+                .ToList();
+            var slotOptions = openSlots
+                .Select((slot, i) => new MenuOption((i + 1).ToString(), PositionName(slot)))
+                .ToList();
+
+            int? slotPick = await Ui.SelectIndexAsync(
+                $"{available[pick.Value - 1].name} の配置先", slotOptions, "配置をやめる");
+            if (slotPick == null)
+            {
+                Ui.Warn("配置をキャンセルしました");
+                continue;
+            }
+            formation[openSlots[slotPick.Value - 1]] = available[pick.Value - 1];
+        }
+
+        int count = formation.Count(x => x != null);
+        if (count == 0) { Ui.Warn("編成が空のためキャンセル"); return; }
+
+        Ui.BeginScreen();
+        Ui.Header("編成確認");
+        ShowFormation(formation);
+        var policy = await SelectPolicyAsync();
+        if (policy == null) return;
+        var carriedConsumables = await SelectConsumablesAsync(guild);
+        Ui.WriteLine($"  遠征方針: {QuestManager.PolicyName(policy.Value)}");
+        if (carriedConsumables.Count > 0)
+            Ui.WriteLine($"  持ち込み（出発時消費）: {string.Join(", ", carriedConsumables.Select(x => x.displayName))}");
+        if (!await Ui.ConfirmAsync("このメンバーで受注しますか？")) return;
+
+        if (qm.TryStartQuest(
+            def, formation, currentTurn, out var error, carriedConsumables, policy.Value))
+            Ui.Info($"クエスト「{def.questName}」を受注しました！ （Turn {currentTurn} 開始）");
+        else
+            Ui.Error($"受注失敗: {error}");
+
+        await Ui.PauseAsync();
+    }
+
+    static async Task<ExpeditionPolicy?> SelectPolicyAsync()
+    {
+        Ui.WriteLine();
+        string key = await Ui.SelectAsync("遠征方針", new[]
+        {
+            new MenuOption("1", "生還優先", "損耗（HP）が危険域へ入る前に撤退する"),
+            new MenuOption("2", "依頼達成優先", "行動可能な限り任務を続行する"),
+            new MenuOption("0", "受注をやめる", Style: TextStyle.Dim),
+        });
+        return key switch
+        {
+            "1" => ExpeditionPolicy.SurvivalFirst,
+            "2" => ExpeditionPolicy.ObjectiveFirst,
+            _ => null,
+        };
+    }
+
+    static async Task<List<ConsumableMasterData>> SelectConsumablesAsync(GuildManager guild)
+    {
+        var selected = new List<ConsumableMasterData>();
+        for (int slot = 1; slot <= 2; slot++)
+        {
+            var stock = guild.GetConsumablesView()
+                .Where(s => s.count > selected.Count(x => x == s.item))
+                .ToList();
+            if (stock.Count == 0) break;
+
+            var options = stock
+                .Select((s, i) => new MenuOption(
+                    (i + 1).ToString(),
+                    $"{s.item.displayName} x{s.count}",
+                    s.item.description,
+                    Ui.RarityStyle(s.item.rarity)))
+                .ToList();
+
+            int? pick = await Ui.SelectIndexAsync(
+                $"持ち込みスロット{slot}（出発時に消費）", options, "選択を終了");
+            if (pick == null) break;
+            selected.Add(stock[pick.Value - 1].item);
+        }
+        return selected;
+    }
+
+    static void ShowFormation(AdventurerData?[] formation)
+    {
+        Ui.WriteLine("  現在の編成:");
+        for (int i = 0; i < formation.Length; i++)
+        {
+            Ui.Write($"    {PositionName(i),-4}: ");
+            if (formation[i] != null)
+                Ui.WriteRarityName(formation[i]!.name, formation[i]!.master.rarity);
+            else
+                Ui.Write("空");
+            Ui.WriteLine();
+        }
+    }
+
+    static string PositionName(int slot) => slot < 3 ? $"前衛{slot + 1}" : $"後衛{slot - 2}";
+}

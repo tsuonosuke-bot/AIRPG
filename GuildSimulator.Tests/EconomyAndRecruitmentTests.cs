@@ -1,7 +1,7 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Systems.Guild;
-using GuildSimulator.Cli.Screens;
+using GuildSimulator.Game.Screens;
 using Xunit;
 
 namespace GuildSimulator.Tests;

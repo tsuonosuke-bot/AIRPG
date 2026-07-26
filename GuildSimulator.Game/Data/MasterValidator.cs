@@ -1,6 +1,6 @@
 using GuildSimulator.Core.Models;
 
-namespace GuildSimulator.Cli.Data;
+namespace GuildSimulator.Game.Data;
 
 public static class MasterValidator
 {

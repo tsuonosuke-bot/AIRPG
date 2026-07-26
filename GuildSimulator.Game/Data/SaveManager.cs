@@ -6,7 +6,7 @@ using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Core.Systems.Quest;
 
-namespace GuildSimulator.Cli.Data;
+namespace GuildSimulator.Game.Data;
 
 public record LoadedGame(
     GuildManager Guild,
@@ -42,8 +42,11 @@ public static class SaveManager
 
     // ---- Save ----
 
-    public static void Save(
-        string path,
+    /// <summary>
+    /// セーブ内容をJSON文字列にする。保存先を持たないホスト（ブラウザのlocalStorage等）は
+    /// この結果を自前で永続化する。
+    /// </summary>
+    public static string Serialize(
         GuildManager guild,
         QuestManager questManager,
         int currentTurn,
@@ -56,11 +59,21 @@ public static class SaveManager
             questManager = ExportQuestManager(questManager),
             recruitCandidateIds = recruitCandidates.Select(a => a.id).ToList(),
         };
+        return JsonSerializer.Serialize(data, _opts);
+    }
+
+    public static void Save(
+        string path,
+        GuildManager guild,
+        QuestManager questManager,
+        int currentTurn,
+        List<AdventurerMasterData> recruitCandidates)
+    {
+        string json = Serialize(guild, questManager, currentTurn, recruitCandidates);
 
         string? dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
 
-        string json = JsonSerializer.Serialize(data, _opts);
         File.WriteAllText(path, json);
     }
 
@@ -184,9 +197,12 @@ public static class SaveManager
 
     // ---- Load ----
 
-    public static LoadedGame Load(string path, GameMasterData db)
+    public static LoadedGame Load(string path, GameMasterData db) =>
+        Deserialize(File.ReadAllText(path), db);
+
+    /// <summary><see cref="Serialize"/> が作ったJSONからゲーム状態を復元する。</summary>
+    public static LoadedGame Deserialize(string json, GameMasterData db)
     {
-        string json = File.ReadAllText(path);
         var data = JsonSerializer.Deserialize<SaveGameData>(json, _opts)
             ?? throw new InvalidDataException("セーブデータの読み込みに失敗しました");
 

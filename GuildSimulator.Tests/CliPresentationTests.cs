@@ -1,4 +1,6 @@
-using GuildSimulator.Cli.Screens;
+using GuildSimulator.Cli;
+using GuildSimulator.Game.Presentation;
+using GuildSimulator.Game.Screens;
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Systems.Guild;
@@ -16,7 +18,7 @@ public sealed class ConsolePresentationCollection
 public class CliPresentationTests
 {
     [Fact]
-    public void RetreatReportNamesActualCasualtiesAndShowsSettlementSummary()
+    public async Task RetreatReportNamesActualCasualtiesAndShowsSettlementSummary()
     {
         var survivor = new AdventurerData(Master("survivor", "生還者"));
         var casualty = new AdventurerData(Master("casualty", "戦没者"))
@@ -54,7 +56,8 @@ public class CliPresentationTests
             Console.SetIn(input);
             Console.SetOut(output);
 
-            ActiveQuestScreen.HandleQuest(run, manager, guild);
+            Ui.Use(new ConsoleGameIo());
+            await ActiveQuestScreen.HandleQuestAsync(run, manager, guild);
         }
         finally
         {

@@ -1,0 +1,232 @@
+:root {
+    --bg: #10131a;
+    --bg-panel: #171b24;
+    --border: #2a3040;
+    --fg: #d6dae3;
+    --dim: #7c8496;
+    --info: #5fd38d;
+    --warn: #e8c15c;
+    --error: #ef6b6b;
+    --accent: #6fc3e8;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", meiryo, sans-serif;
+    /* スマホでのダブルタップ拡大を防ぎ、ボタンを押しやすくする。 */
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
+}
+
+#app {
+    height: 100%;
+}
+
+.startup {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    gap: 0.5rem;
+    padding: 1rem;
+    text-align: center;
+}
+
+.startup-error {
+    color: var(--error);
+    font-weight: bold;
+}
+
+.startup-detail {
+    color: var(--dim);
+    font-size: 0.85rem;
+    word-break: break-all;
+}
+
+/* 画面全体を「ログ」と「操作パネル」の2段に分ける。
+   操作パネルは高さの上限を決め、残りをログのスクロール領域にあてる。 */
+.screen {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+}
+
+.output {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    -webkit-overflow-scrolling: touch;
+}
+
+.line {
+    /* 桁揃えのための空白は保ちつつ、狭い画面でも横スクロールせず折り返す。 */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-family: "SFMono-Regular", consolas, "Liberation Mono", menlo, monospace;
+}
+
+.controls {
+    flex: 0 0 auto;
+    max-height: 55dvh;
+    overflow-y: auto;
+    padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border);
+}
+
+.prompt {
+    font-size: 0.8rem;
+    color: var(--dim);
+    margin: 0.15rem 0 0.4rem;
+}
+
+.group-label {
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin: 0.5rem 0 0.25rem;
+}
+
+.option-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.option {
+    flex: 1 1 auto;
+    min-width: 8rem;
+    /* 指で押しやすい高さを確保する。 */
+    min-height: 2.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.1rem;
+    padding: 0.5rem 0.7rem;
+    background: #202634;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    font: inherit;
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.option:active {
+    background: #2c3446;
+}
+
+.option-label {
+    font-weight: 600;
+}
+
+.option-detail {
+    font-size: 0.7rem;
+    color: var(--dim);
+    line-height: 1.3;
+}
+
+.text-input {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.text-input input {
+    flex: 1 1 auto;
+    min-height: 2.75rem;
+    padding: 0.5rem;
+    background: #202634;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    font: inherit;
+    /* iOSで入力欄にフォーカスしたとき画面が拡大しないよう16px以上にする。 */
+    font-size: 1rem;
+}
+
+.text-input button {
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    background: #2c3446;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    font: inherit;
+}
+
+/* 文字装飾。ボタンにも同じクラスを使うので文字色だけを変える。 */
+.s-normal { color: var(--fg); }
+.s-dim { color: var(--dim); }
+.s-info { color: var(--info); }
+.s-warn { color: var(--warn); }
+.s-error { color: var(--error); }
+.s-accent { color: var(--accent); }
+
+button.s-dim .option-label { color: var(--dim); }
+button.s-info .option-label { color: var(--info); }
+button.s-warn .option-label { color: var(--warn); }
+button.s-error .option-label { color: var(--error); }
+button.s-accent .option-label { color: var(--accent); }
+
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 0.6rem 1.25rem;
+    background: #3a2a2a;
+    color: var(--fg);
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.4);
+}
+
+#blazor-error-ui .dismiss {
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+    cursor: pointer;
+}
+
+.loading-progress {
+    display: block;
+    width: 6rem;
+    height: 6rem;
+    margin: 20vh auto 1rem;
+}
+
+.loading-progress circle {
+    fill: none;
+    stroke: #2a3040;
+    stroke-width: 0.6rem;
+    transform-origin: 50% 50%;
+    transform: rotate(-90deg);
+}
+
+.loading-progress circle:last-child {
+    stroke: var(--accent);
+    stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8) 500%;
+    transition: stroke-dasharray 0.05s ease-in-out;
+}
+
+.loading-progress-text {
+    text-align: center;
+    color: var(--dim);
+    font-size: 0.9rem;
+}
+
+.loading-progress-text:after {
+    content: var(--blazor-load-percentage-text, "読み込み中");
+}

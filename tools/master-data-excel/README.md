@@ -1,6 +1,6 @@
 # マスタデータ統合 Excel ツール
 
-`GuildSimulator.Cli/Data` の次のJSONを、1つのExcelへ書き出し・読み戻しします。
+`GuildSimulator.Game/Data` の次のJSONを、1つのExcelへ書き出し・読み戻しします。
 
 - `adventurers.json`
 - `equipment.json`

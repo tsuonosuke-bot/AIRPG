@@ -5,7 +5,7 @@ import { FileBlob, SpreadsheetFile, Workbook } from "@oai/artifact-tool";
 const command = process.argv[2] ?? "export";
 const scriptDir = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, "$1");
 const repoRoot = path.resolve(scriptDir, "../..");
-const dataDir = path.join(repoRoot, "GuildSimulator.Cli", "Data");
+const dataDir = path.join(repoRoot, "GuildSimulator.Game", "Data");
 const outputDir = path.join(repoRoot, "outputs", "master-data-editor");
 const workbookPath = path.join(outputDir, "マスタデータ統合_編集用.xlsx");
 const previewDir = path.join(outputDir, "previews");
