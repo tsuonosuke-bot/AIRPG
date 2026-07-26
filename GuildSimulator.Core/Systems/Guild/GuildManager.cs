@@ -57,6 +57,30 @@ public class GuildManager
         economyLogs.Add($"雇用: {adv.name}（維持費 {CalculateAdventurerUpkeep(adv.level)}G/Turn）");
     }
 
+    public const int BurialCostBase = 30;
+    public const int BurialCostPerLevel = 10;
+    public List<BurialRecord> burialRecords = new();
+
+    public static int CalculateBurialCost(int level) => BurialCostBase + Math.Max(1, level) * BurialCostPerLevel;
+
+    public bool TryBuryAdventurer(AdventurerData adv, int currentTurn, out string reason)
+    {
+        reason = "";
+        int cost = CalculateBurialCost(adv.level);
+        if (Gold < cost) { reason = $"埋葬費が不足しています（必要: {cost}G  所持: {Gold}G）"; return false; }
+        if (!adventurers.Remove(adv)) { reason = "対象が見つかりません"; return false; }
+
+        SpendGold(cost, $"埋葬費: {adv.name}");
+        burialRecords.Add(new BurialRecord(adv.name, adv.level, adv.ClassAndRace, currentTurn, adv.expeditionCount, adv.successfulExpeditionCount));
+        return true;
+    }
+
+    public void RestoreBurialRecords(IEnumerable<BurialRecord> records)
+    {
+        burialRecords.Clear();
+        burialRecords.AddRange(records);
+    }
+
     /// <summary>セーブデータからの復元専用。経済ログは追加しない。</summary>
     public void RestoreEconomy(int gold, int guildRank, int guildPoints)
     {

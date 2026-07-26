@@ -24,4 +24,7 @@ public class FacilityMasterData
 
     /// <summary>冒険者の成長率を増やす割合（%）。1%単位で調整する想定。</summary>
     public int growthRateBonusPercent;
+
+    /// <summary>毎ターンの雇入れ候補の最低人数を増やす数。</summary>
+    public int recruitMinBonus;
 }

@@ -89,14 +89,13 @@ public class DiceCombatTests
     }
 
     [Fact]
-    public void HeavyArmourNeverFullyBlocksButKeepsDamageLow()
+    public void HeavyArmourCanReduceDamageToMinimumOne()
     {
-        // 防御が素の威力を上回っても、素の威力の15%は必ず通る（無限消耗戦の安全弁）。
+        // 防御が素の威力を上回ると、ダメージは最低保証の1まで落ちる。
         var crushed = BattleResolver.ComputeDamage(diceRoll: 40, atkStat: 0, maxAtkBonus: 0, defStat: 500, levelDiff: 0);
         Assert.Equal(40, crushed.raw);
-        Assert.Equal(6, crushed.final); // ceil(40 * 0.15)
+        Assert.Equal(1, crushed.final);
 
-        // 素の威力が小さければ最低保証は1に落ちるが、0にはならない。
         var scratch = BattleResolver.ComputeDamage(diceRoll: 1, atkStat: 0, maxAtkBonus: 0, defStat: 500, levelDiff: 0);
         Assert.Equal(1, scratch.final);
     }

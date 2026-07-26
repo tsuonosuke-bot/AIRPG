@@ -14,7 +14,7 @@ public static class BattleResolver
     // ダメージは「武器ダイスを基礎値とし、能力で増幅し、相手の防御を引く」の3層で決まる。
     //   増幅率   = 1 + min(攻撃力, 武器の増幅上限) × AMP_PER_ATK + レベル差 × LEVEL_AMP_PER_DIFF
     //   素の威力 = floor(武器ダイス × 増幅率)
-    //   ダメージ = max(素の威力 - 防御力, 素の威力 × MIN_DAMAGE_RATE, MIN_DAMAGE)
+    //   ダメージ = max(素の威力 - 防御力, MIN_DAMAGE)
     // 攻撃力そのものではなく武器が基礎値を握るため、装備更新がそのまま火力になる。
     const float AMP_PER_ATK = 0.06f;        // 攻撃力1につき増幅+6%
     const float LEVEL_AMP_PER_DIFF = 0.01f; // レベル差1につき増幅±1%
@@ -24,9 +24,6 @@ public static class BattleResolver
     const float MAX_AMPLIFY = 4f;
     const float MIN_AMPLIFY = 0.1f;
 
-    // 防御は減算だが、硬い相手に永久に1ダメージしか通らない消耗戦を避けるため、
-    // 「軽減後でも素のダメージのこの割合は必ず通る」下限を設ける。
-    const float MIN_DAMAGE_RATE = 0.15f;
     const int MIN_DAMAGE = 1;
 
     // 命中率：hit/evadeの「比率」ではなく「差分」を基準命中率に加減する方式。
@@ -46,9 +43,10 @@ public static class BattleResolver
     const int HEAL_FUMBLE_ROLL = 96;
 
     const float FRONT_TARGET_CHANCE = 0.8f; // 前衛がいる限り80%は前衛を狙う
+    const float REAR_MELEE_HIT_PENALTY = 0.15f; // 後衛から近接攻撃する場合の命中率ペナルティ
+    const float REAR_COVER_EVADE_BONUS = 0.10f; // 前衛が健在な間、後衛が得る回避率ボーナス
     const float HEAL_TARGET_HP_RATE = 0.7f; // 味方のHP率がこれを下回っていたら回復を選ぶ
     const float HEAL_SCALE = 1.5f;          // heal行動1回あたりの回復量係数
-    const float HEAL_CAP_RATE = 0.3f;       // 1回の回復量は対象の最大HPのこの割合まで
     const int MAX_ACTIONS = 300;            // 長期戦の安全弁（個別行動の総数）
 
     public static Result Resolve(
@@ -87,8 +85,8 @@ public static class BattleResolver
             foreach (var (m, s) in advCalc) statsByMember[m] = s;
             foreach (var (m, s) in enemyCalc) statsByMember[m] = s;
 
-            var queue = advCalc.Select(x => (member: x.member, isAdvSide: true, stats: x.stats))
-                .Concat(enemyCalc.Select(x => (member: x.member, isAdvSide: false, stats: x.stats)))
+            var queue = advCalc.Select(x => (member: x.member, isAdvSide: true, stats: x.stats, slot: SlotOf(advSide, x.member)))
+                .Concat(enemyCalc.Select(x => (member: x.member, isAdvSide: false, stats: x.stats, slot: SlotOf(enemySide, x.member))))
                 .OrderByDescending(x => x.stats.hit)
                 .ThenBy(_ => GameRandom.NextFloat())
                 .ToList();
@@ -101,6 +99,7 @@ public static class BattleResolver
 
                 var allySideArr = entry.isAdvSide ? advSide : enemySide;
                 var enemySideArr = entry.isAdvSide ? enemySide : advSide;
+                bool isRear = entry.slot >= 3;
                 if (!AnyAlive(allySideArr) || !AnyAlive(enemySideArr)) continue;
 
                 var actorStats = entry.stats;
@@ -121,8 +120,7 @@ public static class BattleResolver
                     {
                         int healAmt = (int)Math.Ceiling(actorStats.heal * HEAL_SCALE);
                         if (healCrit) healAmt = (int)Math.Ceiling(healAmt * 1.5f);
-                        int cap = (int)Math.Ceiling(healTarget.CombatHpMax * HEAL_CAP_RATE);
-                        healAmt = Math.Min(Math.Min(healAmt, cap), healTarget.CombatHpMax - healTarget.CombatHp);
+                        healAmt = Math.Min(healAmt, healTarget.CombatHpMax - healTarget.CombatHp);
                         if (healAmt > 0)
                         {
                             healTarget.CombatHp += healAmt;
@@ -137,9 +135,12 @@ public static class BattleResolver
                     if (target == null) continue;
                     var targetStats = statsByMember[target];
 
-                    int hitPercent = (int)Math.Round(Math.Clamp(
-                        BASE_HIT_RATE + (actorStats.hit - targetStats.evade) * HIT_RATE_PER_POINT,
-                        MIN_HIT_RATE, MAX_HIT_RATE) * 100f);
+                    float baseHit = BASE_HIT_RATE + (actorStats.hit - targetStats.evade) * HIT_RATE_PER_POINT;
+                    bool rearMeleePenalty = isRear && !IsRangedWeapon(actor);
+                    if (rearMeleePenalty) baseHit -= REAR_MELEE_HIT_PENALTY;
+                    bool targetHasRearCover = SlotOf(enemySideArr, target) >= 3 && HasAliveFront(enemySideArr);
+                    if (targetHasRearCover) baseHit -= REAR_COVER_EVADE_BONUS;
+                    int hitPercent = (int)Math.Round(Math.Clamp(baseHit, MIN_HIT_RATE, MAX_HIT_RATE) * 100f);
 
                     var check = RollD100(hitPercent);
 
@@ -265,10 +266,7 @@ public static class BattleResolver
     {
         float amp = AmplifyRate(atkStat, maxAtkBonus, levelDiff);
         int raw = Math.Max(MIN_DAMAGE, (int)Math.Floor(Math.Max(0, diceRoll) * amp));
-
-        // 防御は減算だが、素の威力の一定割合は必ず通す（硬い相手との無限消耗戦を避ける安全弁）。
-        int floorDmg = (int)Math.Ceiling(raw * MIN_DAMAGE_RATE);
-        int final = Math.Max(MIN_DAMAGE, Math.Max(floorDmg, raw - Math.Max(0, defStat)));
+        int final = Math.Max(MIN_DAMAGE, raw - Math.Max(0, defStat));
         return new DamageResult(amp, raw, final);
     }
 
@@ -361,6 +359,29 @@ public static class BattleResolver
         var pool = pickFront ? front : back;
         if (pool.Count == 0) pool = pickFront ? back : front;
         return PickWeightedBySquishiness(pool);
+    }
+
+    static int SlotOf(IUnitMember?[] side, IUnitMember member)
+    {
+        for (int i = 0; i < side.Length; i++)
+            if (side[i] == member) return i;
+        return 0;
+    }
+
+    static bool HasAliveFront(IUnitMember?[] side)
+    {
+        for (int i = 0; i < Math.Min(3, side.Length); i++)
+            if (side[i] != null && side[i]!.IsAlive) return true;
+        return false;
+    }
+
+    static bool IsRangedWeapon(IUnitMember member)
+    {
+        var w = member.Weapon;
+        if (w == null) return false;
+        if (w.magicCoeff > 0f) return true;
+        if (w.healCoeff > 0f) return true;
+        return w.weaponType == WeaponType.Bow;
     }
 
     static IUnitMember? PickWeightedBySquishiness(List<IUnitMember> pool)

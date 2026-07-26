@@ -95,6 +95,15 @@ public static class SaveManager
         shopEquipmentStock = new Dictionary<string, int>(guild.shopEquipmentStock),
         shopConsumableStock = new Dictionary<string, int>(guild.shopConsumableStock),
         adventurers = guild.adventurers.Select(ExportAdventurer).ToList(),
+        burialRecords = guild.burialRecords.Select(b => new BurialRecordSave
+        {
+            name = b.name,
+            level = b.level,
+            classAndRace = b.classAndRace,
+            buriedTurn = b.buriedTurn,
+            expeditionCount = b.expeditionCount,
+            successCount = b.successCount,
+        }).ToList(),
     };
 
     static AdventurerSaveData ExportAdventurer(AdventurerData a) => new()
@@ -248,6 +257,10 @@ public static class SaveManager
             guild.adventurers.Add(adv);
             adventurersById[adv.id] = adv;
         }
+
+        if (data.guild.burialRecords.Count > 0)
+            guild.RestoreBurialRecords(data.guild.burialRecords.Select(b =>
+                new BurialRecord(b.name, b.level, b.classAndRace, b.buriedTurn, b.expeditionCount, b.successCount)));
 
         var questManager = new QuestManager(guild);
         var board = data.questManager.questBoard

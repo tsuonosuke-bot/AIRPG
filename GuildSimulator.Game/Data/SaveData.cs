@@ -28,6 +28,17 @@ public class GuildSaveData
     public Dictionary<string, int> shopEquipmentStock = new();
     public Dictionary<string, int> shopConsumableStock = new();
     public List<AdventurerSaveData> adventurers = new();
+    public List<BurialRecordSave> burialRecords = new();
+}
+
+public class BurialRecordSave
+{
+    public string name = "";
+    public int level;
+    public string classAndRace = "";
+    public int buriedTurn;
+    public int expeditionCount;
+    public int successCount;
 }
 
 public class InventoryEntrySave

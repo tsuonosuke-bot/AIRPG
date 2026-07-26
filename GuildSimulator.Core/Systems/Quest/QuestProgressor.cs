@@ -201,17 +201,15 @@ public class QuestProgressor
             q.AddReportEvent(currentTurn, phase, ExpeditionEventKind.Gather, "採取", gatherResult);
         }
 
-        // 最終フェーズに達しても目標数に届かない採取クエストは、残りをまとめて採取して達成扱いにする。
         if (!q.failed && q.def.IsGatherQuest && !q.GatherFulfilled && q.currentPhase >= q.def.totalPhases)
         {
-            int rest = q.def.gatherTargetCount - q.gatheredCount;
-            q.gatheredCount = q.def.gatherTargetCount;
-            q.logs.Add($"[Turn {currentTurn}] 引き上げ間際に {q.def.gatherItemName} を {rest} 個かき集めた（{q.gatheredCount}/{q.def.gatherTargetCount}）");
+            q.retreated = true;
+            q.logs.Add($"[Turn {currentTurn}] {q.def.gatherItemName} が目標数に届かなかった（{q.gatheredCount}/{q.def.gatherTargetCount}）→ 採取未達で撤退扱い");
         }
 
         if (!q.failed && q.def.IsGatherQuest && q.GatherFulfilled)
             q.logs.Add($"[Turn {currentTurn}] {q.def.gatherItemName} の必要数を確保。ギルドへ帰還できます");
-        else if (!q.failed && q.currentPhase >= q.def.totalPhases)
+        else if (!q.failed && !q.retreated && q.currentPhase >= q.def.totalPhases)
             q.logs.Add($"[Turn {currentTurn}] クエスト完了！報酬を受け取れます");
     }
 
