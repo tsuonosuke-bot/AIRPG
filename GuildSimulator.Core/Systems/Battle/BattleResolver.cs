@@ -160,6 +160,7 @@ public static class BattleResolver
             }
 
             // 生還優先では、全滅寸前まで粘らず、損耗が危険域へ入った時点で引き返す。
+            // 士気切れは方針に関わらず上の撤退ロジックが担うため、ここでは損耗（HP）だけで判断する。
             if (policy == ExpeditionPolicy.SurvivalFirst && AnyAlive(advSide) && AnyAlive(enemySide))
             {
                 int aliveMaxHp = advSide
@@ -169,8 +170,7 @@ public static class BattleResolver
                 bool partyBadlyHurt = aliveMaxHp > 0 && (float)aliveCurrentHp / aliveMaxHp <= 0.60f;
                 bool memberInDanger = advSide
                     .Any(a => a != null && a.IsAlive && HpRate(a) <= 0.30f);
-                bool moraleUnsteady = morale.Rate <= 0.40f;
-                if (partyBadlyHurt || memberInDanger || moraleUnsteady)
+                if (partyBadlyHurt || memberInDanger)
                 {
                     logs.Add($"  Phase {phase}: 生還優先の命令に従い、損耗が危険域へ達する前に撤退した");
                     res.adventurersRetreated = true;

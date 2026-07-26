@@ -136,7 +136,7 @@ public static class QuestBoardScreen
     {
         Console.WriteLine();
         Console.WriteLine("  遠征方針:");
-        Console.WriteLine("  1. 生還優先     損耗や士気低下が危険域へ入る前に撤退する");
+        Console.WriteLine("  1. 生還優先     損耗（HP）が危険域へ入る前に撤退する");
         Console.WriteLine("  2. 依頼達成優先 行動可能な限り任務を続行する");
         Console.WriteLine("  0. 受注をやめる");
         Console.Write("選択: ");
