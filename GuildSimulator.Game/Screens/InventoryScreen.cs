@@ -10,7 +10,7 @@ public static class InventoryScreen
     public static async Task ShowAsync(GuildManager guild)
     {
         Ui.BeginScreen();
-        Ui.Header("倉庫インベントリ");
+        Ui.Header("倉庫");
         var stock = guild.GetInventoryView()
             .Where(s => s.count > 0)
             .OrderBy(s => s.item.type)
