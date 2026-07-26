@@ -14,7 +14,7 @@
     "price": 30,
     "weight": 3,
     "bonus": {
-      "pAtk": 5,
+      "pAtk": 1,
       "hit": 5
     }
   },
@@ -33,7 +33,7 @@
     "price": 35,
     "weight": 4,
     "bonus": {
-      "pAtk": 7,
+      "pAtk": 1,
       "hit": -10
     }
   },
@@ -52,7 +52,7 @@
     "price": 40,
     "weight": 5,
     "bonus": {
-      "pAtk": 10,
+      "pAtk": 1,
       "hit": -15
     }
   },
@@ -71,7 +71,7 @@
     "price": 35,
     "weight": 3,
     "bonus": {
-      "pAtk": 7,
+      "pAtk": 1,
       "hit": -10
     }
   },
@@ -90,7 +90,7 @@
     "price": 40,
     "weight": 3,
     "bonus": {
-      "mAtk": 15,
+      "mAtk": 2,
       "evade": -15
     }
   },
@@ -109,7 +109,7 @@
     "price": 30,
     "weight": 1,
     "bonus": {
-      "mAtk": 5,
+      "mAtk": 1,
       "hit": 10
     }
   },
@@ -128,8 +128,8 @@
     "price": 40,
     "weight": 4,
     "bonus": {
-      "mAtk": 8,
-      "mDef": 10
+      "mAtk": 1,
+      "mDef": 1
     }
   },
   {
@@ -147,8 +147,8 @@
     "price": 40,
     "weight": 5,
     "bonus": {
-      "pDef": 5,
-      "mAtk": 8
+      "pDef": 1,
+      "mAtk": 1
     }
   },
   {
@@ -166,8 +166,8 @@
     "price": 45,
     "weight": 3,
     "bonus": {
-      "mAtk": 18,
-      "mDef": -5,
+      "mAtk": 2,
+      "mDef": -1,
       "evade": -10
     }
   },
@@ -204,7 +204,7 @@
     "price": 25,
     "weight": 2,
     "bonus": {
-      "pAtk": 3,
+      "pAtk": 1,
       "hit": 10
     }
   },
@@ -223,7 +223,7 @@
     "price": 25,
     "weight": 2,
     "bonus": {
-      "pAtk": 4,
+      "pAtk": 1,
       "hit": 8
     }
   },
@@ -242,7 +242,7 @@
     "price": 140,
     "weight": 4,
     "bonus": {
-      "pAtk": 12,
+      "pAtk": 2,
       "hit": 5
     }
   },
@@ -261,7 +261,7 @@
     "price": 150,
     "weight": 6,
     "bonus": {
-      "pAtk": 16,
+      "pAtk": 2,
       "hit": -10
     }
   },
@@ -280,7 +280,7 @@
     "price": 170,
     "weight": 8,
     "bonus": {
-      "pAtk": 22,
+      "pAtk": 3,
       "hit": -18
     }
   },
@@ -299,7 +299,7 @@
     "price": 150,
     "weight": 4,
     "bonus": {
-      "pAtk": 15,
+      "pAtk": 2,
       "hit": -5
     }
   },
@@ -318,7 +318,7 @@
     "price": 180,
     "weight": 4,
     "bonus": {
-      "mAtk": 28,
+      "mAtk": 4,
       "evade": -15
     }
   },
@@ -354,7 +354,7 @@
     "price": 10,
     "weight": 1,
     "bonus": {
-      "pDef": 2
+      "pDef": 1
     }
   },
   {
@@ -371,7 +371,7 @@
     "price": 20,
     "weight": 5,
     "bonus": {
-      "pDef": 10
+      "pDef": 1
     }
   },
   {
@@ -388,7 +388,7 @@
     "price": 50,
     "weight": 15,
     "bonus": {
-      "pDef": 30,
+      "pDef": 4,
       "hit": -30,
       "evade": -30
     }
@@ -407,8 +407,8 @@
     "price": 120,
     "weight": 2,
     "bonus": {
-      "pDef": 6,
-      "mDef": 20
+      "pDef": 1,
+      "mDef": 2
     }
   },
   {
@@ -425,7 +425,7 @@
     "price": 130,
     "weight": 9,
     "bonus": {
-      "pDef": 22,
+      "pDef": 3,
       "hit": -10,
       "evade": -12
     }
@@ -444,8 +444,8 @@
     "price": 260,
     "weight": 18,
     "bonus": {
-      "pDef": 55,
-      "mDef": 10,
+      "pDef": 7,
+      "mDef": 1,
       "hit": -30,
       "evade": -35
     }
@@ -465,7 +465,7 @@
     "price": 90,
     "weight": 3,
     "bonus": {
-      "pAtk": 9,
+      "pAtk": 1,
       "hit": 8
     }
   },
@@ -484,7 +484,7 @@
     "price": 260,
     "weight": 3,
     "bonus": {
-      "pAtk": 18,
+      "pAtk": 2,
       "hit": 15,
       "evade": 8
     }
@@ -504,8 +504,8 @@
     "price": 480,
     "weight": 8,
     "bonus": {
-      "pAtk": 35,
-      "pDef": 12,
+      "pAtk": 4,
+      "pDef": 2,
       "hit": -8
     }
   },
@@ -523,9 +523,9 @@
     "price": 800,
     "weight": 1,
     "bonus": {
-      "hp": 100,
-      "mAtk": 35,
-      "mDef": 35,
+      "hp": 50,
+      "mAtk": 4,
+      "mDef": 4,
       "heal": 20
     }
   }

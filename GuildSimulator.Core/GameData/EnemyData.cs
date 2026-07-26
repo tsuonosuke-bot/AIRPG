@@ -31,6 +31,7 @@ public class EnemyData : IUnitMember
 
     int Scaled(int baseVal) => (int)Math.Floor(baseVal * (1.0 + GROWTH_PER_LEVEL * (level - 1)));
 
+    // 冒険者側と同じ縮小率（能力ボーナスを1/8、HPを1/2）を敵にも適用し、両陣営の相対バランスを保つ。
     public StatBlock GetBaseCombatStats()
     {
         int vit = Scaled(master.vitality);
@@ -41,12 +42,12 @@ public class EnemyData : IUnitMember
         int cons = Scaled(master.constitution);
         return new StatBlock
         {
-            hp = vit * 10 + cons * 5,
+            hp = (vit * 10 + cons * 5) / 2,
             san = men * 10,
-            pAtk = str * 2 + cons / 2,
-            pDef = cons,
-            mAtk = intl * 2,
-            mDef = men * 2,
+            pAtk = (str * 2 + cons / 2) / 8,
+            pDef = cons / 8,
+            mAtk = (intl * 2) / 8,
+            mDef = (men * 2) / 8,
             hit = agi,
             evade = agi - cons / 2,
             heal = men + intl / 2,
