@@ -89,8 +89,12 @@ public class QuestProgressor
                         foreach (var a in q.formation)
                         {
                             if (a == null || !a.isAlive) continue;
+                            int levelBefore = a.level;
                             if (a.AddExperience(totalExp, out var ups))
-                                q.logs.Add($"  {a.name} 経験値 +{totalExp}（レベルアップ +{ups}）");
+                            {
+                                string levelUpText = ups > 0 ? $"（レベルアップ {levelBefore}lv→{a.level}lv）" : "";
+                                q.logs.Add($"  {a.name} 経験値 +{totalExp}{levelUpText}");
+                            }
                         }
                         RollEnemyDrops(q, enemyMembers, phase);
                     }
