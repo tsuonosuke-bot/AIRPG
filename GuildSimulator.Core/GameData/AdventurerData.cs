@@ -235,16 +235,18 @@ public class AdventurerData : IUnitMember
         }
     }
 
+    // ダイスロール制への移行に伴い、能力由来の攻撃・防御ボーナスは武器ダイスの「小さな上乗せ」に
+    // 収まるよう縮小（旧式の8分の1）。HPも平均ダメージの縮小に合わせて半分に調整している。
     public StatBlock GetBaseCombatStats()
     {
         return new StatBlock
         {
-            hp = vitality * 10 + constitution * 5,
+            hp = (vitality * 10 + constitution * 5) / 2,
             san = mental * 10,
-            pAtk = strength * 2 + constitution / 2,
-            pDef = constitution,
-            mAtk = intelligence * 2,
-            mDef = mental * 2,
+            pAtk = (strength * 2 + constitution / 2) / 8,
+            pDef = constitution / 8,
+            mAtk = (intelligence * 2) / 8,
+            mDef = (mental * 2) / 8,
             hit = agility,
             evade = agility - constitution / 2,
             heal = mental + intelligence / 2,

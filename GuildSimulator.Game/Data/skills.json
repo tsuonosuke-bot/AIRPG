@@ -12,25 +12,25 @@
 
   { "id": "skill_axeMastery2", "skillName": "斧マスタリー・極", "scope": 0, "frontOnly": true, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 1, "requireArmorType": false, "add": { "hit": 12 }, "mul": { "pAtk": 1.15 } },
   { "id": "skill_swordMastery2", "skillName": "剣マスタリー・極", "scope": 0, "frontOnly": true, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 0, "requireArmorType": false, "add": { "hit": 8 }, "mul": { "pAtk": 1.15 } },
-  { "id": "skill_spearMastery2", "skillName": "槍マスタリー・極", "scope": 0, "frontOnly": true, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 2, "requireArmorType": false, "add": { "hit": 10, "pDef": 8 }, "mul": { "pAtk": 1.15 } },
+  { "id": "skill_spearMastery2", "skillName": "槍マスタリー・極", "scope": 0, "frontOnly": true, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 2, "requireArmorType": false, "add": { "hit": 10, "pDef": 1 }, "mul": { "pAtk": 1.15 } },
   { "id": "skill_bowMastery2", "skillName": "弓マスタリー・極", "scope": 0, "frontOnly": false, "backOnly": true, "requireWeaponType": true, "requiredWeaponType": 3, "requireArmorType": false, "add": { "hit": 15 }, "mul": { "pAtk": 1.15 } },
-  { "id": "skill_fireMastery2", "skillName": "炎魔法マスタリー・極", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 4, "requireArmorType": false, "add": { "mAtk": 10 }, "mul": { "mAtk": 1.15 } },
+  { "id": "skill_fireMastery2", "skillName": "炎魔法マスタリー・極", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 4, "requireArmorType": false, "add": { "mAtk": 1 }, "mul": { "mAtk": 1.15 } },
   { "id": "skill_lightMastery2", "skillName": "光魔法マスタリー・極", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": true, "requiredWeaponType": 9, "requireArmorType": false, "add": { "heal": 15 }, "mul": { "heal": 1.3 } },
 
-  { "id": "skill_battleCry", "skillName": "鬨の声", "scope": 1, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "pAtk": 12 }, "mul": {} },
+  { "id": "skill_battleCry", "skillName": "鬨の声", "scope": 1, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "pAtk": 2 }, "mul": {} },
   { "id": "skill_berserk", "skillName": "狂戦士", "scope": 0, "frontOnly": true, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "evade": -10 }, "mul": { "pAtk": 1.25 } },
-  { "id": "skill_ironWall", "skillName": "鉄壁", "scope": 0, "frontOnly": true, "backOnly": false, "requireWeaponType": false, "requireArmorType": true, "requiredArmorType": 2, "add": { "pDef": 15 }, "mul": { "pDef": 1.3, "hp": 1.15 } },
-  { "id": "skill_guardian", "skillName": "守護者", "scope": 1, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "pDef": 12, "mDef": 12 }, "mul": {} },
+  { "id": "skill_ironWall", "skillName": "鉄壁", "scope": 0, "frontOnly": true, "backOnly": false, "requireWeaponType": false, "requireArmorType": true, "requiredArmorType": 2, "add": { "pDef": 2 }, "mul": { "pDef": 1.3, "hp": 1.15 } },
+  { "id": "skill_guardian", "skillName": "守護者", "scope": 1, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "pDef": 2, "mDef": 2 }, "mul": {} },
   { "id": "skill_swiftStep", "skillName": "疾風の歩法", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "hit": 12, "evade": 15 }, "mul": {} },
   { "id": "skill_eagleEye", "skillName": "鷹の目", "scope": 0, "frontOnly": false, "backOnly": true, "requireWeaponType": false, "requireArmorType": false, "add": { "hit": 22 }, "mul": {} },
-  { "id": "skill_prayer", "skillName": "癒しの祈り", "scope": 1, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "hp": 60, "mDef": 8 }, "mul": {} },
-  { "id": "skill_manaFlow", "skillName": "魔力循環", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "mAtk": 8, "mDef": 10 }, "mul": { "mAtk": 1.15 } },
-  { "id": "skill_toughBody", "skillName": "頑健", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "pDef": 8 }, "mul": { "hp": 1.2 } },
+  { "id": "skill_prayer", "skillName": "癒しの祈り", "scope": 1, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "hp": 30, "mDef": 1 }, "mul": {} },
+  { "id": "skill_manaFlow", "skillName": "魔力循環", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "mAtk": 1, "mDef": 1 }, "mul": { "mAtk": 1.15 } },
+  { "id": "skill_toughBody", "skillName": "頑健", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "pDef": 1 }, "mul": { "hp": 1.2 } },
 
   { "id": "skill_beastFang", "skillName": "獣の牙", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "hit": 6 }, "mul": { "pAtk": 1.15 } },
   { "id": "skill_flight", "skillName": "飛行", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "evade": 18, "hit": 6 }, "mul": {} },
-  { "id": "skill_swarm", "skillName": "群れ", "scope": 1, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "pAtk": 6, "hit": 5 }, "mul": {} },
+  { "id": "skill_swarm", "skillName": "群れ", "scope": 1, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "pAtk": 1, "hit": 5 }, "mul": {} },
   { "id": "skill_undeadTough", "skillName": "不死の肉体", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "evade": -8 }, "mul": { "hp": 1.35 } },
-  { "id": "skill_stoneSkin", "skillName": "石の皮膚", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "pDef": 25, "evade": -15 }, "mul": {} },
-  { "id": "skill_deathAura", "skillName": "死の瘴気", "scope": 1, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "mAtk": 10, "mDef": 10 }, "mul": {} }
+  { "id": "skill_stoneSkin", "skillName": "石の皮膚", "scope": 0, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "pDef": 3, "evade": -15 }, "mul": {} },
+  { "id": "skill_deathAura", "skillName": "死の瘴気", "scope": 1, "frontOnly": false, "backOnly": false, "requireWeaponType": false, "requireArmorType": false, "add": { "mAtk": 1, "mDef": 1 }, "mul": {} }
 ]
