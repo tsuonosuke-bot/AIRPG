@@ -1,0 +1,151 @@
+@page "/"
+@using GuildSimulator.Game
+@using GuildSimulator.Game.Data
+@using GuildSimulator.Game.Presentation
+@implements IDisposable
+@inject HttpClient Http
+@inject IJSRuntime Js
+
+<PageTitle>ギルドシミュレーター</PageTitle>
+
+@if (_error != null)
+{
+    <div class="startup">
+        <p class="startup-error">読み込みに失敗しました</p>
+        <p class="startup-detail">@_error</p>
+    </div>
+}
+else if (!_ready)
+{
+    <div class="startup">
+        <p>データ読み込み中...</p>
+    </div>
+}
+else
+{
+    <div class="screen">
+        <div class="output" id="output">
+            @foreach (var line in _io.Lines)
+            {
+                <div class="line">
+                    @if (line.Count == 0)
+                    {
+                        <text>&nbsp;</text>
+                    }
+                    else
+                    {
+                        @foreach (var segment in line)
+                        {
+                            <span class="@StyleClass(segment.Style)">@segment.Text</span>
+                        }
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="controls">
+            @if (_io.IsTextInput)
+            {
+                <div class="prompt">@_io.Prompt</div>
+                <form class="text-input" @onsubmit="SubmitText" @formname="freetext">
+                    <input @bind="_textValue" @bind:event="oninput" autocomplete="off" />
+                    <button type="submit">決定</button>
+                </form>
+            }
+            else if (_io.Options.Count > 0)
+            {
+                @if (!string.IsNullOrEmpty(_io.Prompt))
+                {
+                    <div class="prompt">@_io.Prompt</div>
+                }
+                @foreach (var group in GroupedOptions())
+                {
+                    @if (group.Key != null)
+                    {
+                        <div class="group-label">@group.Key</div>
+                    }
+                    <div class="option-row">
+                        @foreach (var option in group)
+                        {
+                            <button type="button"
+                                    class="option @StyleClass(option.Style)"
+                                    @onclick="() => Choose(option.Key)">
+                                <span class="option-label">@option.Label</span>
+                                @if (!string.IsNullOrWhiteSpace(option.Detail))
+                                {
+                                    <span class="option-detail">@option.Detail</span>
+                                }
+                            </button>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="prompt">処理中...</div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    readonly WebGameIo _io = new();
+    bool _ready;
+    string? _error;
+    string _textValue = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // マスタJSONはwwwroot/Data配下に配置され、HTTPで取得する。
+            var json = new Dictionary<string, string>();
+            foreach (var file in MasterLoader.DataFileNames)
+                json[file] = await Http.GetStringAsync($"Data/{file}");
+
+            var db = MasterLoader.Load(file => json[file]);
+
+            Ui.Use(_io);
+            _io.StateChanged += OnIoStateChanged;
+            _ready = true;
+
+            // ゲームループは待たずに走らせる。入力待ちのたびに制御がブラウザへ戻る。
+            _ = GameLoop.RunAsync(db, new LocalStorageSaveStore(Js));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    void OnIoStateChanged() => InvokeAsync(async () =>
+    {
+        StateHasChanged();
+        // 描画が終わってから出力の末尾へスクロールする。
+        await Js.InvokeVoidAsync("guildSim.scrollOutputToEnd");
+    });
+
+    void Choose(string key) => _io.Submit(key);
+
+    void SubmitText()
+    {
+        string value = _textValue;
+        _textValue = "";
+        _io.Submit(value);
+    }
+
+    IEnumerable<IGrouping<string?, MenuOption>> GroupedOptions() =>
+        _io.Options.GroupBy(o => o.Group);
+
+    static string StyleClass(TextStyle style) => style switch
+    {
+        TextStyle.Dim => "s-dim",
+        TextStyle.Info => "s-info",
+        TextStyle.Warn => "s-warn",
+        TextStyle.Error => "s-error",
+        TextStyle.Accent => "s-accent",
+        _ => "s-normal",
+    };
+
+    public void Dispose() => _io.StateChanged -= OnIoStateChanged;
+}

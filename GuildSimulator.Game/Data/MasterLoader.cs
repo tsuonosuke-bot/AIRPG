@@ -4,7 +4,7 @@ using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Guild;
 
-namespace GuildSimulator.Cli.Data;
+namespace GuildSimulator.Game.Data;
 
 public class GameMasterData
 {
@@ -31,11 +31,27 @@ public static class MasterLoader
         Converters = { new JsonStringEnumConverter() }
     };
 
-    public static GameMasterData Load(string dataDir)
+    /// <summary>マスタJSONのファイル名一覧。読み込み順は <see cref="Load"/> 内の依存関係に従う。</summary>
+    public static readonly IReadOnlyList<string> DataFileNames = new[]
+    {
+        "skills.json", "classes.json", "races.json", "equipment.json", "consumables.json",
+        "relics.json", "enemies.json", "choice_events.json", "enemy_units.json",
+        "dungeons.json", "clues.json", "quests.json", "adventurers.json",
+    };
+
+    /// <summary>ディレクトリからマスタを読み込む（コンソール版）。</summary>
+    public static GameMasterData Load(string dataDir) =>
+        Load(file => File.ReadAllText(Path.Combine(dataDir, file)));
+
+    /// <summary>
+    /// ファイル名からJSON文字列を返す関数でマスタを読み込む。
+    /// ブラウザ版のようにファイルシステムを持たないホストはこちらを使う。
+    /// </summary>
+    public static GameMasterData Load(Func<string, string> readJson)
     {
         var db = new GameMasterData();
 
-        var skills = Load<List<SkillJson>>(dataDir, "skills.json");
+        var skills = Load<List<SkillJson>>(readJson, "skills.json");
         foreach (var s in skills)
         {
             var sd = new SkillMasterData
@@ -49,7 +65,7 @@ public static class MasterLoader
             db.skills[s.id] = sd;
         }
 
-        var classes = Load<List<ClassJson>>(dataDir, "classes.json");
+        var classes = Load<List<ClassJson>>(readJson, "classes.json");
         foreach (var c in classes)
         {
             var cd = new ClassMasterData
@@ -67,7 +83,7 @@ public static class MasterLoader
             db.classes[c.id] = cd;
         }
 
-        var races = Load<List<RaceJson>>(dataDir, "races.json");
+        var races = Load<List<RaceJson>>(readJson, "races.json");
         foreach (var r in races)
         {
             var rd = new RaceMasterData
@@ -80,7 +96,7 @@ public static class MasterLoader
             db.races[r.id] = rd;
         }
 
-        var equips = Load<List<EquipJson>>(dataDir, "equipment.json");
+        var equips = Load<List<EquipJson>>(readJson, "equipment.json");
         foreach (var e in equips)
         {
             db.equipment[e.id] = new EquipmentMasterData
@@ -93,7 +109,7 @@ public static class MasterLoader
             };
         }
 
-        var consumables = Load<List<ConsumableJson>>(dataDir, "consumables.json");
+        var consumables = Load<List<ConsumableJson>>(readJson, "consumables.json");
         foreach (var c in consumables)
             db.consumables[c.id] = new ConsumableMasterData
             {
@@ -101,7 +117,7 @@ public static class MasterLoader
                 rarity = c.rarity, price = c.price, effectType = c.effectType, effectValue = c.effectValue,
             };
 
-        var relics = Load<List<RelicJson>>(dataDir, "relics.json");
+        var relics = Load<List<RelicJson>>(readJson, "relics.json");
         foreach (var r in relics)
         {
             db.relics[r.id] = new RelicMasterData
@@ -112,7 +128,7 @@ public static class MasterLoader
             };
         }
 
-        var enemies = Load<List<EnemyJson>>(dataDir, "enemies.json");
+        var enemies = Load<List<EnemyJson>>(readJson, "enemies.json");
         foreach (var e in enemies)
         {
             var ed = new EnemyMasterData
@@ -130,7 +146,7 @@ public static class MasterLoader
             db.enemies[e.id] = ed;
         }
 
-        var choiceEvents = Load<List<ChoiceEventJson>>(dataDir, "choice_events.json");
+        var choiceEvents = Load<List<ChoiceEventJson>>(readJson, "choice_events.json");
         foreach (var ev in choiceEvents)
         {
             var master = new QuestChoiceEventMasterData
@@ -155,7 +171,7 @@ public static class MasterLoader
             db.choiceEvents[master.id] = master;
         }
 
-        var units = Load<List<EnemyUnitJson>>(dataDir, "enemy_units.json");
+        var units = Load<List<EnemyUnitJson>>(readJson, "enemy_units.json");
         foreach (var u in units)
         {
             var tpl = new EnemyUnitTemplate { id = u.id, unitName = u.unitName, baseLevel = u.baseLevel };
@@ -169,7 +185,7 @@ public static class MasterLoader
             db.enemyUnits[u.id] = tpl;
         }
 
-        var dungeons = Load<List<DungeonJson>>(dataDir, "dungeons.json");
+        var dungeons = Load<List<DungeonJson>>(readJson, "dungeons.json");
         foreach (var d in dungeons)
         {
             var dd = new DungeonMasterData
@@ -203,7 +219,7 @@ public static class MasterLoader
             db.dungeons[d.id] = dd;
         }
 
-        var clues = Load<List<StoryClueJson>>(dataDir, "clues.json");
+        var clues = Load<List<StoryClueJson>>(readJson, "clues.json");
         foreach (var clue in clues)
             db.clues[clue.id] = new StoryClueMasterData
             {
@@ -212,7 +228,7 @@ public static class MasterLoader
                 description = clue.description ?? "",
             };
 
-        var quests = Load<List<QuestJson>>(dataDir, "quests.json");
+        var quests = Load<List<QuestJson>>(readJson, "quests.json");
         foreach (var q in quests)
         {
             var qd = new QuestMasterData
@@ -247,7 +263,7 @@ public static class MasterLoader
             db.allQuests.Add(qd);
         }
 
-        var advs = Load<List<AdvJson>>(dataDir, "adventurers.json");
+        var advs = Load<List<AdvJson>>(readJson, "adventurers.json");
         foreach (var a in advs)
         {
             int recruitGuildRank = Math.Max(1, a.recruitGuildRank ?? RecruitmentSystem.RequiredGuildRankForLevel(a.defaultLevel));
@@ -329,12 +345,8 @@ public static class MasterLoader
         return m;
     }
 
-    static T Load<T>(string dir, string file)
-    {
-        var path = Path.Combine(dir, file);
-        var json = File.ReadAllText(path);
-        return JsonSerializer.Deserialize<T>(json, _opts)!;
-    }
+    static T Load<T>(Func<string, string> readJson, string file) =>
+        JsonSerializer.Deserialize<T>(readJson(file), _opts)!;
 
     static Rarity DefaultAdventurerRarity(int recruitWeight) => recruitWeight switch
     {

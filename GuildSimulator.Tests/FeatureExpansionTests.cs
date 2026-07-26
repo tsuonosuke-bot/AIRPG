@@ -1,4 +1,4 @@
-using GuildSimulator.Cli.Data;
+using GuildSimulator.Game.Data;
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;

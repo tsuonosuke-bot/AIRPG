@@ -1,6 +1,6 @@
 # マスタデータ編集
 
-ゲームを起動せず、`GuildSimulator.Cli/Data` 配下のJSONを直接編集できます。
+ゲームを起動せず、`GuildSimulator.Game/Data` 配下のJSONを直接編集できます。
 
 - 冒険者: `adventurers.json`
 - 装備とレアリティ: `equipment.json`

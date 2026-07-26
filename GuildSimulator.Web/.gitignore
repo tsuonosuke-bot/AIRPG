@@ -1,0 +1,4 @@
+wwwroot/Data/
+
+# 公開物はGitHub Actionsで生成するためコミットしない（WASM出力が大きい）。
+bin/

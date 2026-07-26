@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GuildSimulator.Core\GuildSimulator.Core.csproj" />
+  </ItemGroup>
+
+  <!-- マスタJSONは各ホスト（CLI/Web）が自分の出力先へ配置するため、ここでは配布物に含めない。 -->
+  <ItemGroup>
+    <None Remove="Data\*.json" />
+  </ItemGroup>
+
+</Project>

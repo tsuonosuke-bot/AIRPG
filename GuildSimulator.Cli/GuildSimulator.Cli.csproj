@@ -2,10 +2,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GuildSimulator.Core\GuildSimulator.Core.csproj" />
+    <ProjectReference Include="..\GuildSimulator.Game\GuildSimulator.Game.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Data\*.json">
+    <None Include="..\GuildSimulator.Game\Data\*.json">
+      <Link>Data\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

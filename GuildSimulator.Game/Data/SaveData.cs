@@ -1,6 +1,6 @@
 using GuildSimulator.Core.Models;
 
-namespace GuildSimulator.Cli.Data;
+namespace GuildSimulator.Game.Data;
 
 // セーブファイルの中身。マスタデータへの参照はすべて id 文字列で持ち、
 // ロード時に GameMasterData から実体を引き直す（マスタデータの更新に耐えるため）。

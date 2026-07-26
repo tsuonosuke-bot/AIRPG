@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.29" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.29" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GuildSimulator.Core\GuildSimulator.Core.csproj" />
+    <ProjectReference Include="..\GuildSimulator.Game\GuildSimulator.Game.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+  </ItemGroup>
+
+  <!-- マスタJSONはCLI版と同じ実体を配信する。静的Webアセットとして扱わせるため、
+       ビルド前に wwwroot/Data へコピーする（コピー先はgit管理外）。 -->
+  <Target Name="CopyMasterData" BeforeTargets="BeforeBuild;BeforeRebuild">
+    <ItemGroup>
+      <MasterDataJson Include="..\GuildSimulator.Game\Data\*.json" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MasterDataJson)"
+          DestinationFolder="$(MSBuildProjectDirectory)\wwwroot\Data"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

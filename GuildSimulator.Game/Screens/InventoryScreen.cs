@@ -1,14 +1,16 @@
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Guild;
+using GuildSimulator.Game.Presentation;
 
-namespace GuildSimulator.Cli.Screens;
+namespace GuildSimulator.Game.Screens;
 
 public static class InventoryScreen
 {
-    public static void Show(GuildManager guild)
+    public static async Task ShowAsync(GuildManager guild)
     {
-        ConsoleHelper.Header("倉庫インベントリ");
+        Ui.BeginScreen();
+        Ui.Header("倉庫インベントリ");
         var stock = guild.GetInventoryView()
             .Where(s => s.count > 0)
             .OrderBy(s => s.item.type)
@@ -18,42 +20,42 @@ public static class InventoryScreen
         var consumables = guild.GetConsumablesView().Where(s => s.count > 0).ToList();
         if (stock.Count == 0 && consumables.Count == 0)
         {
-            ConsoleHelper.Dim("  倉庫に装備はありません");
-            ConsoleHelper.Dim("  商店で購入するか、クエスト報酬で入手できます");
-            ConsoleHelper.PressAnyKey();
+            Ui.Dim("  倉庫に装備はありません");
+            Ui.Dim("  商店で購入するか、クエスト報酬で入手できます");
+            await Ui.PauseAsync();
             return;
         }
 
         if (stock.Count > 0)
         {
-            Console.WriteLine($"  装備の種類: {stock.Count}種   合計: {stock.Sum(s => s.count)}個");
-            Console.WriteLine();
+            Ui.WriteLine($"  装備の種類: {stock.Count}種   合計: {stock.Sum(s => s.count)}個");
+            Ui.WriteLine();
             for (int i = 0; i < stock.Count; i++)
             {
                 var stack = stock[i];
                 string kind = stack.item.type == EquipmentType.Weapon ? "武器" : "防具";
                 int sellPrice = GuildManager.SellPrice(stack.item);
-                Console.Write($"  {i + 1}. [{kind}] ");
-                ConsoleHelper.WriteRarityName(stack.item.displayName, stack.item.rarity);
-                Console.WriteLine($"  x{stack.count}  売値{sellPrice}G/個");
-                ConsoleHelper.Dim($"       {DescribeEquipment(stack.item)}");
+                Ui.Write($"  {i + 1}. [{kind}] ");
+                Ui.WriteRarityName(stack.item.displayName, stack.item.rarity);
+                Ui.WriteLine($"  x{stack.count}  売値{sellPrice}G/個");
+                Ui.Dim($"       {DescribeEquipment(stack.item)}");
             }
         }
 
         if (consumables.Count > 0)
         {
-            Console.WriteLine();
-            Console.WriteLine($"  消費アイテム: {consumables.Sum(s => s.count)}個");
+            Ui.WriteLine();
+            Ui.WriteLine($"  消費アイテム: {consumables.Sum(s => s.count)}個");
             foreach (var stack in consumables)
             {
-                Console.Write("    ・");
-                ConsoleHelper.WriteRarityName(stack.item.displayName, stack.item.rarity);
-                Console.WriteLine($" x{stack.count}");
-                ConsoleHelper.Dim($"       {stack.item.description}");
+                Ui.Write("    ・");
+                Ui.WriteRarityName(stack.item.displayName, stack.item.rarity);
+                Ui.WriteLine($" x{stack.count}");
+                Ui.Dim($"       {stack.item.description}");
             }
         }
 
-        ConsoleHelper.PressAnyKey();
+        await Ui.PauseAsync();
     }
 
     static string DescribeEquipment(EquipmentMasterData item)
