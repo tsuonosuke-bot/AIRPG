@@ -32,9 +32,8 @@ const columnName = (number) => {
 
 const clean = (value) => (value === undefined || value === null ? null : value);
 const mapValue = (object, key) => clean(object?.[key]);
-const flattenReward = (parentId, tableName, order, reward) => [
+const flattenReward = (parentId, order, reward) => [
   parentId,
-  tableName,
   order,
   ...rewardKeys.map((key) => mapValue(reward, key)),
 ];
@@ -176,11 +175,8 @@ const sheetDefinitions = {
     title: "ダンジョンマスタ",
     capacity: 100,
     unique: true,
-    keys: [
-      "id", "dungeonName", "rewardChoiceMin", "rewardChoiceMax",
-      "enemyLevelPerPhase", "turnEndEventChance",
-    ],
-    labels: ["ID", "ダンジョン名", "報酬選択最小", "報酬選択最大", "敵Lv/フェーズ", "終了イベント確率"],
+    keys: ["id", "dungeonName", "enemyLevelPerPhase", "turnEndEventChance"],
+    labels: ["ID", "ダンジョン名", "敵Lv/フェーズ", "終了イベント確率"],
   },
   dungeonEvents: {
     name: "ダンジョンイベント",
@@ -200,12 +196,12 @@ const sheetDefinitions = {
   },
   dungeonRewards: {
     name: "ダンジョン報酬",
-    title: "ダンジョン 報酬・宝箱明細",
+    title: "ダンジョン 宝箱明細",
     capacity: 360,
     unique: false,
-    keys: ["dungeonId", "table", "order", ...rewardKeys],
+    keys: ["dungeonId", "order", ...rewardKeys],
     labels: [
-      "ダンジョンID", "テーブル", "順序", "報酬種別", "レリックID", "装備ID",
+      "ダンジョンID", "順序", "報酬種別", "レリックID", "装備ID",
       "スキルID", "道具ID", "Gold", "重み", "確率", "数量", "ユニーク",
     ],
   },
@@ -275,8 +271,7 @@ const makeRows = (data) => {
     (q.fixedEvents ?? []).map((event, index) => [q.id, index + 1, event.phase, event.type]));
 
   const dungeons = data.dungeons.map((d) => [
-    d.id, d.dungeonName, d.rewardChoiceMin, d.rewardChoiceMax,
-    d.enemyLevelPerPhase, clean(d.turnEndEventChance),
+    d.id, d.dungeonName, d.enemyLevelPerPhase, clean(d.turnEndEventChance),
   ]);
   const dungeonEvents = data.dungeons.flatMap((d) =>
     Object.entries(d.eventTable ?? {}).map(([eventType, weight], index) => [d.id, index + 1, eventType, weight]));
@@ -284,10 +279,8 @@ const makeRows = (data) => {
     (d.encounterTable ?? []).map((entry, index) => [
       d.id, index + 1, entry.unitId, entry.weight, entry.minPhase, entry.maxPhase,
     ]));
-  const dungeonRewards = data.dungeons.flatMap((d) => [
-    ...(d.rewardTable ?? []).map((reward, index) => flattenReward(d.id, "rewardTable", index + 1, reward)),
-    ...(d.treasureTable ?? []).map((reward, index) => flattenReward(d.id, "treasureTable", index + 1, reward)),
-  ]);
+  const dungeonRewards = data.dungeons.flatMap((d) =>
+    (d.treasureTable ?? []).map((reward, index) => flattenReward(d.id, index + 1, reward)));
   const dungeonTurnEvents = data.dungeons.flatMap((d) =>
     (d.turnEndEventIds ?? []).map((eventId, index) => [d.id, index + 1, eventId]));
 
@@ -432,7 +425,7 @@ const addGuide = (workbook) => {
     ["主要", "ダンジョン", "ダンジョン本体"],
     ["明細", "ダンジョンイベント", "eventTableのイベント種別と重み"],
     ["明細", "ダンジョン遭遇", "encounterTableの敵ユニットと出現範囲"],
-    ["明細", "ダンジョン報酬", "table列でrewardTable / treasureTableを選択"],
+    ["明細", "ダンジョン報酬", "treasureTable（宝箱）の中身と重み"],
     ["明細", "ダンジョン終了イベント", "turnEndEventIdsの順序付き一覧"],
     ["参照", "参照マスター", "職業・種族・敵・レリックなど、編集対象外IDの参照用"],
     ["共通", "入力チェック", "ID重複の簡易表示。JSON保存時にはツールが全参照を再検証"],
@@ -545,7 +538,6 @@ const exportWorkbook = async () => {
   addValidation(sheets.dungeonEvents, sheetDefinitions.dungeonEvents, "eventType", [
     "EnemyEncounter", "Heal", "Trap", "Treasure", "Nothing", "Gather",
   ]);
-  addValidation(sheets.dungeonRewards, sheetDefinitions.dungeonRewards, "table", ["rewardTable", "treasureTable"]);
   addValidation(sheets.dungeonRewards, sheetDefinitions.dungeonRewards, "type", [0, 1, 2, 3, 4]);
 
   await fs.mkdir(outputDir, { recursive: true });
@@ -798,8 +790,6 @@ const importWorkbook = async (writeMode) => {
     const item = {
       id: text(x.id),
       dungeonName: text(x.dungeonName),
-      rewardChoiceMin: numberValue(x.rewardChoiceMin, "rewardChoiceMin", row, true),
-      rewardChoiceMax: numberValue(x.rewardChoiceMax, "rewardChoiceMax", row, true),
       enemyLevelPerPhase: numberValue(x.enemyLevelPerPhase, "enemyLevelPerPhase", row),
     };
     optionalAssign(item, "turnEndEventChance", optionalNumber(x.turnEndEventChance, "turnEndEventChance", row));
@@ -930,16 +920,10 @@ const importWorkbook = async (writeMode) => {
   for (const entry of orderRows(rows.dungeonRewards, "dungeonId")) {
     guarded(() => {
       const dungeonId = text(entry.object.dungeonId);
-      const table = text(entry.object.table);
-      if (!["rewardTable", "treasureTable"].includes(table)) {
-        throw new Error(`ダンジョン報酬.table (${entry.row}行目) が不正です。`);
-      }
       const reward = buildReward(entry.object, entry.row);
       rewardRefCheck(reward, entry.row, "ダンジョン報酬");
-      if (!dungeonRewardGroups.has(dungeonId)) {
-        dungeonRewardGroups.set(dungeonId, { rewardTable: [], treasureTable: [] });
-      }
-      dungeonRewardGroups.get(dungeonId)[table].push(reward);
+      if (!dungeonRewardGroups.has(dungeonId)) dungeonRewardGroups.set(dungeonId, []);
+      dungeonRewardGroups.get(dungeonId).push(reward);
     });
   }
   const turnEventGroups = new Map();
@@ -960,11 +944,9 @@ const importWorkbook = async (writeMode) => {
     for (const entry of rows[rowKey]) assertRef(dungeonIds, entry.object.dungeonId, `${label}.dungeonId`, entry.row);
   }
   for (const dungeon of dungeons) {
-    const rewardGroup = dungeonRewardGroups.get(dungeon.id) ?? { rewardTable: [], treasureTable: [] };
     dungeon.eventTable = eventGroups.get(dungeon.id) ?? {};
     dungeon.encounterTable = encounterGroups.get(dungeon.id) ?? [];
-    dungeon.rewardTable = rewardGroup.rewardTable;
-    dungeon.treasureTable = rewardGroup.treasureTable;
+    dungeon.treasureTable = dungeonRewardGroups.get(dungeon.id) ?? [];
     dungeon.turnEndEventIds = turnEventGroups.get(dungeon.id) ?? [];
   }
 

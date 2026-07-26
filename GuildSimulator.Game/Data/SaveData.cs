@@ -93,10 +93,8 @@ public class QuestRunSaveData
     public int moraleMax;
     public bool rewarded;
     public bool completed;
-    public bool rewardPresented;
     public bool bossDefeated;
     public bool baseRewardsApplied;
-    public bool extraRewardTaken;
     public bool clearProgressApplied;
     public string?[] formationAdventurerIds = new string?[6];
     public List<string> logs = new();

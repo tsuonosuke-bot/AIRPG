@@ -19,6 +19,13 @@
 - `requiredClueIds`: 掲示に必要な発見済み手掛かり
 - `grantedClueIds`: 正規クリア時に発見する手掛かり
 
+アイテムの入手経路は2つで、どちらも `pendingLoot` に積まれ、帰還できたときにまとめて手に入ります。
+
+- 宝箱: `dungeons.json` の `treasureTable`。`weight` で出やすさを決めます。
+  このダンジョンで拾えるアイテムはすべてここに書きます。
+- ボスドロップ: `quests.json` の `bossDrops`。エントリごとに `chance`（0より大きく1以下）で抽選します。
+  物語進行に必要で落とすと詰むものは、クエスト側の `bossDropsAreGuaranteed` を `true` にすると抽選せず確定します。
+
 レアリティには `Common`、`Uncommon`、`Rare`、`Unique`、`Legend` を指定します。
 省略時は装備がCommon、冒険者は採用ウェイトから既定値が設定されます。
 

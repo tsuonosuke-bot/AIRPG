@@ -125,7 +125,7 @@ public static class ActiveQuestScreen
             if (await Ui.ConfirmAsync("クエストを終了しますか？"))
             {
                 var before = CaptureSettlement(guild, q);
-                qm.FinalizeQuest(q, null);
+                qm.FinalizeQuest(q);
                 ShowCompletionSummary(q, guild, before, "全滅");
                 await Ui.PauseAsync();
             }
@@ -135,7 +135,7 @@ public static class ActiveQuestScreen
         if (q.retreated)
         {
             Ui.Warn("士気が尽き、パーティは撤退しました");
-            Ui.Dim($"  基本報酬は{QuestRewardService.RetreatRewardRate:P0}、ギルドポイントと選択報酬はなし");
+            Ui.Dim($"  基本報酬は{QuestRewardService.RetreatRewardRate:P0}、ギルドポイントはなし");
             Ui.Dim("  道中で拾った戦利品は持ち帰れます");
             var fallen = q.EnumerateMembers().Where(member => !member.isAlive).ToList();
             if (fallen.Count == 0)
@@ -145,57 +145,17 @@ public static class ActiveQuestScreen
             if (await Ui.ConfirmAsync("引き上げを確定しますか？"))
             {
                 var before = CaptureSettlement(guild, q);
-                qm.FinalizeQuest(q, null);
+                qm.FinalizeQuest(q);
                 ShowCompletionSummary(q, guild, before, "撤退");
                 await Ui.PauseAsync();
             }
             return;
         }
 
-        Ui.Info("クエストクリア！報酬を選んでください");
-        var options = qm.GetPendingRewards(q);
-        Ui.WriteLine();
-        Ui.WriteLine("  追加報酬の選択:");
-        var rewardOptions = new List<MenuOption>();
-        for (int i = 0; i < options.Count; i++)
-        {
-            string label;
-            TextStyle style = TextStyle.Normal;
-            Ui.Write($"    {i + 1}. ");
-            if (options[i].equipment != null)
-            {
-                Ui.Write("装備：");
-                Ui.WriteRarityName(options[i].equipment!.displayName, options[i].equipment!.rarity);
-                if (options[i].quantity > 1) Ui.Write($" x{options[i].quantity}");
-                Ui.WriteLine();
-                label = $"装備：{options[i].equipment!.displayName}"
-                    + (options[i].quantity > 1 ? $" x{options[i].quantity}" : "");
-                style = Ui.RarityStyle(options[i].equipment!.rarity);
-            }
-            else if (options[i].consumable != null)
-            {
-                Ui.Write("消費アイテム：");
-                Ui.WriteRarityName(options[i].consumable!.displayName, options[i].consumable!.rarity);
-                Ui.WriteLine();
-                label = $"消費アイテム：{options[i].consumable!.displayName}";
-                style = Ui.RarityStyle(options[i].consumable!.rarity);
-            }
-            else
-            {
-                Ui.WriteLine(options[i].Title);
-                label = options[i].Title;
-            }
-            string detail = options[i].Detail;
-            if (detail.Length > 0) Ui.Dim($"         {detail}");
-            rewardOptions.Add(new MenuOption((i + 1).ToString(), label, detail, style));
-        }
-
-        RewardOption? chosen = null;
-        int? pick = await Ui.SelectIndexAsync("追加報酬", rewardOptions, "スキップ");
-        if (pick != null) chosen = options[pick.Value - 1];
+        Ui.Info("クエストクリア！");
 
         var settlementBefore = CaptureSettlement(guild, q);
-        qm.FinalizeQuest(q, chosen);
+        qm.FinalizeQuest(q);
         ShowCompletionSummary(q, guild, settlementBefore, "成功");
         await Ui.PauseAsync();
     }
@@ -262,7 +222,7 @@ public static class ActiveQuestScreen
 
         var settlementLogs = q.logs
             .Skip(before.LogCount)
-            .Where(log => log.StartsWith("[完了]") || log.StartsWith("[選択報酬]"))
+            .Where(log => log.StartsWith("[完了]"))
             .ToList();
         Ui.WriteLine("  獲得内訳:");
         if (settlementLogs.Count == 0)

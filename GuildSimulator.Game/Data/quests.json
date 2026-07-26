@@ -133,7 +133,8 @@
         "type": 2,
         "gold": 200,
         "weight": 0,
-        "unique": false
+        "unique": false,
+        "chance": 1.0
       }
     ],
     "fixedEvents": [
@@ -171,7 +172,8 @@
         "phase": 14,
         "type": 2
       }
-    ]
+    ],
+    "bossDropsAreGuaranteed": true
   },
   {
     "id": "quest_mine_survey",
@@ -287,13 +289,15 @@
         "type": 2,
         "gold": 400,
         "weight": 0,
-        "unique": false
+        "unique": false,
+        "chance": 1.0
       },
       {
         "type": 1,
         "equipmentId": "eq_sword_02",
         "weight": 0,
-        "unique": false
+        "unique": false,
+        "chance": 0.5
       }
     ],
     "fixedEvents": [
@@ -331,7 +335,8 @@
         "phase": 16,
         "type": 2
       }
-    ]
+    ],
+    "bossDropsAreGuaranteed": true
   },
   {
     "id": "quest_crypt_seal",
@@ -386,13 +391,15 @@
         "type": 0,
         "relicId": "relic_crown",
         "weight": 0,
-        "unique": true
+        "unique": true,
+        "chance": 0.5
       },
       {
         "type": 2,
         "gold": 1000,
         "weight": 0,
-        "unique": false
+        "unique": false,
+        "chance": 1.0
       }
     ],
     "fixedEvents": [
@@ -434,13 +441,15 @@
         "type": 0,
         "relicId": "relic_whetstone",
         "weight": 0,
-        "unique": true
+        "unique": true,
+        "chance": 0.5
       },
       {
         "type": 2,
         "gold": 500,
         "weight": 0,
-        "unique": false
+        "unique": false,
+        "chance": 1.0
       }
     ],
     "fixedEvents": [
@@ -500,13 +509,15 @@
         "type": 0,
         "relicId": "relic_charm",
         "weight": 0,
-        "unique": true
+        "unique": true,
+        "chance": 0.5
       },
       {
         "type": 2,
         "gold": 500,
         "weight": 0,
-        "unique": false
+        "unique": false,
+        "chance": 1.0
       }
     ],
     "fixedEvents": [

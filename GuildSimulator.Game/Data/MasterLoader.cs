@@ -191,7 +191,6 @@ public static class MasterLoader
             var dd = new DungeonMasterData
             {
                 id = d.id, dungeonName = d.dungeonName,
-                rewardChoiceMin = d.rewardChoiceMin, rewardChoiceMax = d.rewardChoiceMax,
                 enemyLevelPerPhase = d.enemyLevelPerPhase,
                 turnEndEventChance = d.turnEndEventChance ?? 0.35f,
             };
@@ -209,8 +208,6 @@ public static class MasterLoader
                 if (db.enemyUnits.TryGetValue(ec.unitId, out var u)) entry.Unit = u;
                 dd.encounterTable.Add(entry);
             }
-            foreach (var re in d.rewardTable ?? new())
-                dd.rewardTable.Add(ResolveRewardEntry(re, db));
             foreach (var re in d.treasureTable ?? new())
                 dd.treasureTable.Add(ResolveRewardEntry(re, db));
             foreach (var eventId in d.turnEndEventIds ?? new())
@@ -390,9 +387,9 @@ public static class MasterLoader
     record ChoiceEventJson(string id, string title, string? description, int weight, List<ChoiceOptionJson>? options);
 
     record EncounterEntryJson(string unitId, int weight, int minPhase, int maxPhase);
-    record DungeonJson(string id, string dungeonName, int rewardChoiceMin, int rewardChoiceMax,
+    record DungeonJson(string id, string dungeonName,
         Dictionary<string, int>? eventTable, List<EncounterEntryJson>? encounterTable,
-        float enemyLevelPerPhase, List<RewardEntryJson>? rewardTable, List<RewardEntryJson>? treasureTable,
+        float enemyLevelPerPhase, List<RewardEntryJson>? treasureTable,
         List<string>? turnEndEventIds, float? turnEndEventChance);
 
     record StoryClueJson(string id, string title, string? description);

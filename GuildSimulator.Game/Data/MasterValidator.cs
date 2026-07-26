@@ -52,6 +52,13 @@ public static class MasterValidator
             foreach (var clueId in quest.requiredClueIds.Concat(quest.grantedClueIds))
                 if (!db.clues.ContainsKey(clueId))
                     errors.Add($"{quest.id}: 不明なclueId '{clueId}'");
+
+            // ボスドロップは1件ずつ確率抽選する。bossDropsAreGuaranteed のクエストだけ抽選しない。
+            if (quest.bossDropsAreGuaranteed) continue;
+            foreach (var drop in quest.bossDrops)
+                if (drop.chance <= 0f || drop.chance > 1f)
+                    errors.Add($"{quest.id}: ボスドロップのchanceは0より大きく1以下にしてください"
+                        + "（確定で落としたいならbossDropsAreGuaranteedを使う）");
         }
 
         foreach (var clue in db.clues.Values)

@@ -164,7 +164,7 @@ public class QuestManager
             if (q.HasPendingChoice) continue;
             int steps = q.def.phasesPerTurn;
             for (int i = 0; i < steps && q.IsInProgress; i++)
-                progressor.AdvanceOnePhase(q, currentTurn);
+                progressor.AdvanceOnePhase(q, currentTurn, guild.relics);
 
             if (q.IsInProgress)
             {
@@ -312,10 +312,7 @@ public class QuestManager
         return true;
     }
 
-    public List<RewardOption> GetPendingRewards(QuestRun q) =>
-        rewardService.BuildRewardOptions(q, guild);
-
-    public void FinalizeQuest(QuestRun q, RewardOption? chosenReward)
+    public void FinalizeQuest(QuestRun q)
     {
         if (!q.baseRewardsApplied)
         {
@@ -325,12 +322,6 @@ public class QuestManager
                 rewardService.ApplyBaseRewards(q, guild, "[完了]");
                 rewardService.ApplyPendingLoot(q, guild, "[完了]");
             }
-        }
-        // 選択報酬は正規クリアの取り分。撤退では選ばせない。
-        if (chosenReward != null && !q.extraRewardTaken && !q.retreated)
-        {
-            q.extraRewardTaken = true;
-            rewardService.ApplyChosenReward(q, chosenReward, guild);
         }
         q.rewarded = true;
         q.completed = q.IsCleared;
