@@ -62,8 +62,8 @@ public static class GameLoop
             {
                 new MenuOption("1", "クエストボード", Group: "クエスト"),
                 new MenuOption("2", "進行中クエスト", Group: "クエスト"),
-                new MenuOption("3", "冒険者一覧・装備管理", Group: "冒険者"),
-                new MenuOption("4", "冒険者を雇う", Group: "冒険者"),
+                new MenuOption("3", "一覧・装備管理", Group: "冒険者"),
+                new MenuOption("4", "雇う", Group: "冒険者"),
                 new MenuOption("5", "倉庫", Group: "ギルド資産"),
                 new MenuOption("6", "商店", Group: "ギルド資産"),
                 new MenuOption("7", "遺物一覧", Group: "ギルド資産"),

@@ -262,8 +262,10 @@ public class QuestManager
                 var changes = new List<string>();
                 foreach (var a in q.EnumerateMembers().Where(a => a.isAlive))
                 {
+                    int levelBefore = a.level;
                     a.AddExperience(option.value, out int levelUps);
-                    changes.Add($"{a.name} 経験値+{option.value}" + (levelUps > 0 ? $"（Lv.{levelUps}アップ）" : ""));
+                    changes.Add($"{a.name} 経験値+{option.value}"
+                        + (levelUps > 0 ? $"（レベルアップ {levelBefore}lv→{a.level}lv）" : ""));
                 }
                 detail = string.Join("、", changes);
                 break;
