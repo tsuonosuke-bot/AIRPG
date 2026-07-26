@@ -69,6 +69,7 @@ public static class GameLoop
                 new MenuOption("7", "遺物一覧", Group: "ギルド資産"),
                 new MenuOption("F", "施設", Group: "ギルド資産"),
                 new MenuOption("8", "経済ログ", Group: "ギルド管理"),
+                new MenuOption("B", "埋葬記録", Group: "ギルド管理"),
                 new MenuOption("J", "調査記録", Group: "ギルド管理"),
                 new MenuOption("H", "ヘルプ・用語集", Group: "ギルド管理"),
                 // 同じグループは連続させる（グループ見出しは切り替わりでしか出さないため）。
@@ -82,7 +83,7 @@ public static class GameLoop
             {
                 case "1": await QuestBoardScreen.ShowAsync(questManager, guild, currentTurn); break;
                 case "2": await ActiveQuestScreen.ShowAsync(questManager, guild); break;
-                case "3": await AdventurerScreen.ShowAsync(guild, questManager); break;
+                case "3": await AdventurerScreen.ShowAsync(guild, questManager, currentTurn); break;
                 case "4":
                     await RecruitScreen.ShowAsync(
                         recruitCandidates, guild, currentTurn, db.allAdventurers, MaxCandidateCount);
@@ -92,6 +93,7 @@ public static class GameLoop
                 case "7": await RelicScreen.ShowAsync(guild); break;
                 case "F": await FacilityScreen.ShowAsync(db, guild); break;
                 case "8": await ShowEconomyLogAsync(guild); break;
+                case "B": await BurialScreen.ShowAsync(guild); break;
                 case "J": await StoryJournalScreen.ShowAsync(db, questManager); break;
                 case "H": await HelpScreen.ShowAsync(); break;
                 case "9":
@@ -107,7 +109,9 @@ public static class GameLoop
                             $"次の維持費支払い後は {projectedAfterUpkeep}Gです。完了報酬がなければ破産します。ターンを進めますか？"))
                         break;
                     NextTurn(guild, questManager, ref currentTurn);
-                    recruitCandidates = RecruitmentSystem.DrawCandidates(db.allAdventurers, guild, GameRandom.Range(1, MaxCandidateCount + 1));
+                    int recruitMin = FacilitySystem.GetRecruitMinBonus();
+                    int recruitCount = GameRandom.Range(recruitMin, MaxCandidateCount + 1);
+                    recruitCandidates = RecruitmentSystem.DrawCandidates(db.allAdventurers, guild, recruitCount);
                     // 報酬でGP条件を達成したターンに、昇格試験をすぐ掲示できる順序にする。
                     await ShowQuestsNeedingAttentionAsync(questManager, guild);
                     questManager.RefreshBoard(db.allQuests, currentTurn);

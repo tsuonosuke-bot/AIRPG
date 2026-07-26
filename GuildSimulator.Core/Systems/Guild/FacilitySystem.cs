@@ -30,4 +30,8 @@ public static class FacilitySystem
     /// <summary>成長判定に加算する確率（1% = 0.01）。</summary>
     public static float GetGrowthRateBonus() =>
         (_facilities?.Sum(f => f.growthRateBonusPercent) ?? 0) / 100f;
+
+    /// <summary>毎ターンの雇入れ候補の最低人数。</summary>
+    public static int GetRecruitMinBonus() =>
+        _facilities?.Sum(f => f.recruitMinBonus) ?? 0;
 }

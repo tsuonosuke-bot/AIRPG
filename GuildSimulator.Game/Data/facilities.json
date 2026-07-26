@@ -9,7 +9,8 @@
     "questBoardBonus": 1,
     "shopLevelBonus": 0,
     "restHealBonusPercent": 0,
-    "growthRateBonusPercent": 0
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
   },
   {
     "id": "fac_shop_ext_01",
@@ -21,7 +22,8 @@
     "questBoardBonus": 0,
     "shopLevelBonus": 1,
     "restHealBonusPercent": 0,
-    "growthRateBonusPercent": 0
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
   },
   {
     "id": "fac_infirmary_01",
@@ -33,7 +35,8 @@
     "questBoardBonus": 0,
     "shopLevelBonus": 0,
     "restHealBonusPercent": 20,
-    "growthRateBonusPercent": 0
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
   },
   {
     "id": "fac_training_hall_01",
@@ -45,6 +48,20 @@
     "questBoardBonus": 0,
     "shopLevelBonus": 0,
     "restHealBonusPercent": 0,
-    "growthRateBonusPercent": 5
+    "growthRateBonusPercent": 5,
+    "recruitMinBonus": 0
+  },
+  {
+    "id": "fac_recruitment_office_01",
+    "displayName": "求人窓口",
+    "description": "街道沿いに求人看板を設置し、毎ターン最低1人は雇入れ候補が来るようになる。",
+    "buildCostGold": 250,
+    "upkeepGoldPerTurn": 8,
+    "requiredGuildRank": 1,
+    "questBoardBonus": 0,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 1
   }
 ]

@@ -9,7 +9,7 @@ namespace GuildSimulator.Game.Screens;
 
 public static class AdventurerScreen
 {
-    public static async Task ShowAsync(GuildManager guild, QuestManager? questManager = null)
+    public static async Task ShowAsync(GuildManager guild, QuestManager? questManager = null, int currentTurn = 0)
     {
         while (true)
         {
@@ -36,11 +36,11 @@ public static class AdventurerScreen
 
             int? sel = await Ui.SelectIndexAsync("冒険者を選択", entries);
             if (sel == null) return;
-            await ShowDetailAsync(advs[sel.Value - 1], guild, questManager);
+            await ShowDetailAsync(advs[sel.Value - 1], guild, questManager, currentTurn);
         }
     }
 
-    static async Task ShowDetailAsync(AdventurerData a, GuildManager guild, QuestManager? questManager)
+    static async Task ShowDetailAsync(AdventurerData a, GuildManager guild, QuestManager? questManager, int currentTurn)
     {
         while (true)
         {
@@ -89,15 +89,18 @@ public static class AdventurerScreen
                 Ui.Dim("  （出発中は装備を変更できません。帰還後に変更してください）");
             else
                 options.Add(new MenuOption("e", "装備を変更する"));
-            if (!busy)
-                options.Add(new MenuOption("d", "ギルドから除名する", Style: TextStyle.Error));
+            if (!a.isAlive && !busy)
+            {
+                int burialCost = GuildManager.CalculateBurialCost(a.level);
+                options.Add(new MenuOption("d", $"埋葬する（{burialCost}G）"));
+            }
             options.Add(new MenuOption("0", "戻る", Style: TextStyle.Dim));
 
             string input = await Ui.SelectAsync("選択", options);
             if (input == "e" && a.isAlive && !busy) { await ManageEquipmentAsync(a, guild); continue; }
-            if (input == "d" && !busy)
+            if (input == "d" && !a.isAlive && !busy)
             {
-                if (await DismissAdventurerAsync(a, guild)) return;
+                if (await BuryAdventurerAsync(a, guild, currentTurn)) return;
                 continue;
             }
             return;
@@ -135,17 +138,22 @@ public static class AdventurerScreen
         return parts.Count == 0 ? "" : $"（{string.Join(" ", parts)}）";
     }
 
-    static async Task<bool> DismissAdventurerAsync(AdventurerData a, GuildManager guild)
+    static async Task<bool> BuryAdventurerAsync(AdventurerData a, GuildManager guild, int currentTurn)
     {
-        string warning = a.isAlive
-            ? $"{a.name}（Lv{a.level}）をギルドから除名します。装備は倉庫に戻りますが、この冒険者は二度と雇えません。"
-            : $"{a.name}の記録をギルドから抹消します。装備は倉庫に戻ります。";
-        if (!await Ui.ConfirmAsync(warning)) return false;
+        int cost = GuildManager.CalculateBurialCost(a.level);
+        Ui.WriteLine($"  {a.name} を埋葬します。装備は倉庫に戻ります。");
+        Ui.WriteLine($"  埋葬費: {cost}G（所持: {guild.Gold}G）");
+        if (!await Ui.ConfirmAsync("埋葬しますか？")) return false;
 
         if (a.weapon != null) { guild.AddEquipment(a.weapon, 1); a.weapon = null; }
         if (a.armor != null) { guild.AddEquipment(a.armor, 1); a.armor = null; }
-        guild.RemoveAdventurer(a);
-        Ui.Info($"{a.name} をギルドから除名しました");
+        if (!guild.TryBuryAdventurer(a, currentTurn, out var reason))
+        {
+            Ui.Error(reason);
+            await Ui.PauseAsync();
+            return false;
+        }
+        Ui.Info($"{a.name} を埋葬しました。安らかに眠れ。");
         await Ui.PauseAsync();
         return true;
     }
