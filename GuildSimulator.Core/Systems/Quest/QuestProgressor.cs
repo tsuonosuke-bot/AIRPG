@@ -176,7 +176,7 @@ public class QuestProgressor
                     else
                     {
                         q.pendingLoot.Add(loot);
-                        evResult = $"{DescribeLoot(loot)} を発見（クリアで獲得）";
+                        evResult = $"{RewardDescription.DescribeLoot(loot)} を発見（クリアで獲得）";
                     }
                     break;
                 }
@@ -279,7 +279,8 @@ public class QuestProgressor
 
     // 宝箱の重み表から戦利品を1件抽選。未設定なら null。
     // 所持済みの遺物は拾っても捨てるだけなので、抽選の対象から外す。
-    static RewardEntryData? PickTreasure(DungeonMasterData? d, IReadOnlyCollection<RelicMasterData> ownedRelics)
+    // 選択イベントの宝箱もここを通す（QuestManager.ResolveChoice）。
+    public static RewardEntryData? PickTreasure(DungeonMasterData? d, IReadOnlyCollection<RelicMasterData> ownedRelics)
     {
         if (d == null || d.treasureTable.Count == 0) return null;
 
@@ -303,16 +304,6 @@ public class QuestProgressor
     static bool IsOwnedRelic(RewardEntryData e, IReadOnlyCollection<RelicMasterData> ownedRelics) =>
         e.type == RewardType.Relic && e.Relic != null && ownedRelics.Contains(e.Relic);
 
-    static string DescribeLoot(RewardEntryData e) => e.type switch
-    {
-        RewardType.Gold => $"資金 {e.gold}G",
-        RewardType.Relic => $"遺物「{e.Relic?.relicName ?? "?"}」",
-        RewardType.Equipment => $"装備「{e.Equipment?.displayName ?? "?"}」",
-        RewardType.Skill => $"スキル「{e.Skill?.skillName ?? "?"}」",
-        RewardType.Consumable => $"消費アイテム「{e.Consumable?.displayName ?? "?"}」",
-        _ => e.type.ToString(),
-    };
-
     static void RollEnemyDrops(QuestRun q, IEnumerable<EnemyData?> enemies, int phase)
     {
         foreach (var enemy in enemies.Where(e => e != null))
@@ -323,7 +314,7 @@ public class QuestProgressor
                 var drop = CopyLoot(entry);
                 q.pendingLoot.Add(drop);
                 q.logs.Add($"  Phase {phase}: レアドロップ！ {enemy.master.baseName}から"
-                    + $"{DescribeLoot(drop)}{Quantity(drop)}（帰還時に確定）");
+                    + $"{RewardDescription.DescribeLoot(drop)}{RewardDescription.DescribeQuantity(drop)}（帰還時に確定）");
             }
         }
     }
@@ -338,14 +329,12 @@ public class QuestProgressor
             if (!guaranteed && !Hits(entry)) continue;
             var drop = CopyLoot(entry);
             q.pendingLoot.Add(drop);
-            q.logs.Add($"  Phase {phase}: ボスドロップ！ {DescribeLoot(drop)}{Quantity(drop)}（帰還時に確定）");
+            q.logs.Add($"  Phase {phase}: ボスドロップ！ {RewardDescription.DescribeLoot(drop)}{RewardDescription.DescribeQuantity(drop)}（帰還時に確定）");
         }
     }
 
     static bool Hits(RewardEntryData entry) =>
         entry.chance > 0f && GameRandom.NextFloat() < entry.chance;
-
-    static string Quantity(RewardEntryData e) => e.quantity > 1 ? $" x{e.quantity}" : "";
 
     static RewardEntryData CopyLoot(RewardEntryData entry) => new()
     {

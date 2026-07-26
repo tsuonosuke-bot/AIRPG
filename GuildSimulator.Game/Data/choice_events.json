@@ -31,5 +31,38 @@
       { "text": "供物を探す", "resultText": "祠の裏で薬品を見つけた。", "effectType": "Consumable", "targetId": "item_vital_tonic", "value": 1 },
       { "text": "触れずに立ち去る", "resultText": "畏敬の念が一行の心を引き締めた。", "effectType": "Morale", "value": 10 }
     ]
+  },
+  {
+    "id": "event_looted_caravan",
+    "title": "打ち捨てられた荷車",
+    "description": "横倒しの荷車に、まだ手つかずの積み荷が残っている。",
+    "weight": 4,
+    "options": [
+      { "text": "積み荷を解いて改める", "resultText": "泥をかぶった荷箱を引きずり出した。", "effectType": "Treasure", "value": 1 },
+      { "text": "使えそうな食料を分ける", "resultText": "干し肉を分け合い、英気を養った。", "effectType": "HealPercent", "value": 12 },
+      { "text": "襲撃を警戒して離れる", "resultText": "深追いを避けた判断が一行を落ち着かせた。", "effectType": "Morale", "value": 5 }
+    ]
+  },
+  {
+    "id": "event_collapsed_vault",
+    "title": "崩れた石室",
+    "description": "崩落した石室の奥に、埋もれた収蔵品が見え隠れしている。",
+    "weight": 4,
+    "options": [
+      { "text": "瓦礫をどけて奥を漁る", "resultText": "埃まみれの箱を掘り出した。", "effectType": "Treasure", "value": 1 },
+      { "text": "手前の金目の物だけ拾う", "resultText": "崩れかけた棚から装飾品をかき集めた。", "effectType": "Gold", "value": 40 },
+      { "text": "崩落を恐れて引き返す", "resultText": "無理を避けた判断に仲間が頷いた。", "effectType": "Morale", "value": 6 }
+    ]
+  },
+  {
+    "id": "event_hidden_cache",
+    "title": "隠された物資庫",
+    "description": "壁の奥に隠し扉。誰かが蓄えを隠していたらしい。",
+    "weight": 3,
+    "options": [
+      { "text": "封を破って隠し棚まで探る", "resultText": "奥の棚まで漁り、抱えきれないほど運び出した。", "effectType": "Treasure", "value": 2 },
+      { "text": "表の棚だけ頂く", "resultText": "手前に置かれていた薬品を持ち出した。", "effectType": "Consumable", "targetId": "item_vital_tonic", "value": 1 },
+      { "text": "罠の気配、諦めて去る", "resultText": "欲を出さなかったことで一行は気を引き締めた。", "effectType": "Morale", "value": 10 }
+    ]
   }
 ]

@@ -113,7 +113,8 @@
     "turnEndEventIds": [
       "event_abandoned_camp",
       "event_forked_path",
-      "event_mysterious_shrine"
+      "event_mysterious_shrine",
+      "event_looted_caravan"
     ]
   },
   {
@@ -284,7 +285,8 @@
     "turnEndEventIds": [
       "event_abandoned_camp",
       "event_forked_path",
-      "event_mysterious_shrine"
+      "event_mysterious_shrine",
+      "event_looted_caravan"
     ]
   },
   {
@@ -406,7 +408,9 @@
     ],
     "turnEndEventIds": [
       "event_abandoned_camp",
-      "event_forked_path"
+      "event_forked_path",
+      "event_looted_caravan",
+      "event_hidden_cache"
     ]
   },
   {
@@ -552,7 +556,9 @@
     ],
     "turnEndEventIds": [
       "event_forked_path",
-      "event_mysterious_shrine"
+      "event_mysterious_shrine",
+      "event_collapsed_vault",
+      "event_hidden_cache"
     ]
   },
   {
@@ -698,7 +704,9 @@
     ],
     "turnEndEventIds": [
       "event_mysterious_shrine",
-      "event_forked_path"
+      "event_forked_path",
+      "event_collapsed_vault",
+      "event_hidden_cache"
     ]
   },
   {
@@ -803,7 +811,9 @@
     "turnEndEventIds": [
       "event_abandoned_camp",
       "event_forked_path",
-      "event_mysterious_shrine"
+      "event_mysterious_shrine",
+      "event_looted_caravan",
+      "event_hidden_cache"
     ]
   },
   {
@@ -890,7 +900,9 @@
     "turnEndEventIds": [
       "event_abandoned_camp",
       "event_forked_path",
-      "event_mysterious_shrine"
+      "event_mysterious_shrine",
+      "event_collapsed_vault",
+      "event_hidden_cache"
     ]
   }
 ]

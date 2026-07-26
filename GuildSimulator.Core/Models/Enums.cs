@@ -28,6 +28,8 @@ public enum QuestChoiceEffectType
     Gold,
     Equipment,
     Consumable,
+    /// <summary>ダンジョンの宝箱テーブルから value 個ぶん抽選する。</summary>
+    Treasure,
 }
 
 /// <summary>ギルドマスターが出発前に与える遠征の優先方針。</summary>

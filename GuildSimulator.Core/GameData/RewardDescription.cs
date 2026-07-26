@@ -6,6 +6,19 @@ namespace GuildSimulator.Core.GameData;
 /// <summary>報酬・戦利品を画面に出すための説明文づくり。</summary>
 public static class RewardDescription
 {
+    public static string DescribeLoot(RewardEntryData e) => e.type switch
+    {
+        RewardType.Gold => $"資金 {e.gold}G",
+        RewardType.Relic => $"遺物「{e.Relic?.relicName ?? "?"}」",
+        RewardType.Equipment => $"装備「{e.Equipment?.displayName ?? "?"}」",
+        RewardType.Skill => $"スキル「{e.Skill?.skillName ?? "?"}」",
+        RewardType.Consumable => $"消費アイテム「{e.Consumable?.displayName ?? "?"}」",
+        _ => e.type.ToString(),
+    };
+
+    /// <summary>個数が1のときは省く数量表記。</summary>
+    public static string DescribeQuantity(RewardEntryData e) => e.quantity > 1 ? $" x{e.quantity}" : "";
+
     public static string DescribeRelic(RelicMasterData r)
     {
         if (!string.IsNullOrWhiteSpace(r.description)) return r.description;

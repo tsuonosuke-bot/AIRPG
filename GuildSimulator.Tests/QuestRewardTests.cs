@@ -107,6 +107,60 @@ public class QuestRewardTests
         Assert.Equal(owned, Assert.Single(freshRun.pendingLoot).Relic);
     }
 
+    [Fact]
+    public void TreasureChoiceDrawsFromTheDungeonChestTable()
+    {
+        var guild = new GuildManager(startGold: 0);
+        var adventurer = new AdventurerData(new AdventurerMasterData
+        {
+            id = "adv", baseName = "テスト",
+            vitality = 10, mental = 10, strength = 10,
+            agility = 10, intelligence = 10, constitution = 10,
+        });
+        guild.AddAdventurer(adventurer);
+
+        var choice = new QuestChoiceEventMasterData
+        {
+            id = "event", title = "隠された物資庫", weight = 1,
+            options =
+            {
+                new QuestChoiceOptionData
+                {
+                    text = "奥まで探る", resultText = "運び出した。",
+                    effectType = QuestChoiceEffectType.Treasure, value = 2,
+                },
+                new QuestChoiceOptionData
+                {
+                    text = "去る", resultText = "立ち去った。",
+                    effectType = QuestChoiceEffectType.Morale, value = 5,
+                },
+            },
+        };
+        var dungeon = new DungeonMasterData { id = "dungeon", turnEndEventChance = 1f };
+        dungeon.turnEndEvents.Add(choice);
+        dungeon.treasureTable.Add(new RewardEntryData
+        {
+            type = RewardType.Gold, gold = 40, weight = 1,
+        });
+
+        var quest = new QuestMasterData
+        {
+            id = "q", totalPhases = 10, phasesPerTurn = 1, Dungeon = dungeon,
+        };
+        var manager = new QuestManager(guild);
+        var formation = new AdventurerData?[6];
+        formation[0] = adventurer;
+        Assert.True(manager.TryStartQuest(quest, formation, 1, out _));
+
+        manager.AdvanceAll(2);
+        var run = manager.activeQuests.Single();
+        Assert.True(manager.HasPendingChoices);
+        Assert.True(manager.ResolveChoice(run, 0, out var result));
+
+        Assert.Equal(2, run.pendingLoot.Count(x => x.type == RewardType.Gold && x.gold == 40));
+        Assert.Contains("資金 40G", result);
+    }
+
     // ボスを必ず倒せる編成で bossPhase を1フェーズだけ進め、ドロップ抽選の結果を返す。
     static QuestRun DefeatBoss(List<RewardEntryData> bossDrops, bool guaranteed = false)
     {

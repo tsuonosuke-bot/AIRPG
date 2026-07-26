@@ -298,6 +298,22 @@ public class QuestManager
                     detail = $"消費アイテム「{option.Consumable.displayName}」x{qty} 入手（帰還時に加算）";
                 }
                 break;
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.Treasure:
+            {
+                // 中身はダンジョンの宝箱テーブル任せ。何が入っているかは開けるまで分からない。
+                var found = new List<string>();
+                for (int i = 0; i < Math.Max(1, option.value); i++)
+                {
+                    var loot = QuestProgressor.PickTreasure(q.def.Dungeon, guild.relics);
+                    if (loot == null) break;
+                    q.pendingLoot.Add(loot);
+                    found.Add(RewardDescription.DescribeLoot(loot) + RewardDescription.DescribeQuantity(loot));
+                }
+                detail = found.Count > 0
+                    ? $"{string.Join("、", found)} 入手（帰還時に加算）"
+                    : "めぼしい物は残っていなかった";
+                break;
+            }
         }
         result = detail.Length > 0 ? $"{option.resultText}\n  → {detail}" : option.resultText;
         q.logs.Add($"[選択] {option.text} - {option.resultText}" + (detail.Length > 0 ? $" ({detail})" : ""));

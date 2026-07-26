@@ -23,6 +23,8 @@
 
 - 宝箱: `dungeons.json` の `treasureTable`。`weight` で出やすさを決めます。
   このダンジョンで拾えるアイテムはすべてここに書きます。
+  道中の宝箱イベントのほか、`choice_events.json` の選択肢に
+  `"effectType": "Treasure"` を置くと、その選択肢でも `value` 個ぶん抽選できます。
 - ボスドロップ: `quests.json` の `bossDrops`。エントリごとに `chance`（0より大きく1以下）で抽選します。
   物語進行に必要で落とすと詰むものは、クエスト側の `bossDropsAreGuaranteed` を `true` にすると抽選せず確定します。
 
