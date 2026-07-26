@@ -25,7 +25,7 @@ public static class RelicScreen
         foreach (var r in relics)
         {
             Ui.WriteLine($"  ◆ {r.relicName}");
-            Ui.Dim($"      {RewardOption.DescribeRelic(r)}");
+            Ui.Dim($"      {RewardDescription.DescribeRelic(r)}");
         }
 
         // 現在の合計倍率をまとめて表示すると、遺物を重ねたときの効きが分かる。

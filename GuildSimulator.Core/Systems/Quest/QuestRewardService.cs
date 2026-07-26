@@ -10,47 +10,77 @@ public class QuestRewardService
     /// <summary>撤退時に受け取れる基本報酬の割合。道中の戦利品は減額せず全て持ち帰れる。</summary>
     public const float RetreatRewardRate = 0f;
 
+    /// <summary>宝箱がハズレ（空っぽ）になる確率。ボスの宝箱はこの抽選を受けない。</summary>
+    public const float EmptyChestRate = 0.2f;
 
-    public List<RewardOption> BuildRewardOptions(QuestRun q, GuildManager guild, int defaultChoiceCount = 3)
+    /// <summary>
+    /// 持ち帰った宝箱を開ける。中身は開封時に抽選するので、道中では何が入っているか分からない。
+    /// 出た中身は pendingLoot に積み、付与自体は ApplyPendingLoot に任せる。
+    /// </summary>
+    public void OpenChests(QuestRun q, GuildManager guild, string prefix)
     {
-        var d = q.def.Dungeon;
-        int choiceCount = d != null
-            ? GameRandom.Range(d.rewardChoiceMin, d.rewardChoiceMax + 1)
-            : defaultChoiceCount;
-
-        var options = new List<RewardOption>();
-
-        if (q.bossDefeated)
+        foreach (var chest in q.chests)
         {
-            foreach (var e in q.def.bossDrops)
+            var contents = chest.IsBossChest
+                ? RollBossChest(q)
+                : RollDungeonChest(q, guild);
+
+            if (contents.Count == 0)
             {
-                var opt = ToOption(e);
-                if (opt != null) options.Add(opt);
+                q.logs.Add($"{prefix} {chest.Label}を開けた → 空っぽだった");
+                continue;
             }
+
+            q.pendingLoot.AddRange(contents);
+            string found = string.Join("、", contents.Select(
+                e => RewardDescription.DescribeLoot(e) + RewardDescription.DescribeQuantity(e)));
+            q.logs.Add($"{prefix} {chest.Label}を開けた → {found}");
         }
-
-        if (d?.rewardTable != null)
-        {
-            int guard = 200;
-            while (options.Count < choiceCount && guard-- > 0)
-            {
-                var picked = PickWeighted(d.rewardTable);
-                if (picked == null) break;
-                var opt = ToOption(picked);
-                if (opt == null) continue;
-                if (IsDuplicateChoice(opt, options)) continue;
-                if (picked.unique && IsAlreadyOwned(opt, guild)) continue;
-                options.Add(opt);
-            }
-        }
-
-        if (options.Count == 0)
-            options.Add(new RewardOption { type = RewardType.Gold, gold = 50 });
-        if (options.Count > choiceCount)
-            options = options.Take(choiceCount).ToList();
-
-        return options;
+        q.chests.Clear();
     }
+
+    // ボスの宝箱はクエストのボスドロップから。エントリごとの chance 抽選は残るが、
+    // 空っぽ抽選は受けない（bossDropsAreGuaranteed なら chance も無視して全部入る）。
+    static List<RewardEntryData> RollBossChest(QuestRun q)
+    {
+        var contents = new List<RewardEntryData>();
+        foreach (var entry in q.def.bossDrops)
+        {
+            if (!q.def.bossDropsAreGuaranteed
+                && (entry.chance <= 0f || GameRandom.NextFloat() >= entry.chance)) continue;
+            contents.Add(entry.Copy());
+        }
+        return contents;
+    }
+
+    // 道中の宝箱はダンジョンの宝箱テーブルから1件。一定確率で空っぽ。
+    // 所持済みの遺物は開けても捨てるだけなので抽選から外す。
+    static List<RewardEntryData> RollDungeonChest(QuestRun q, GuildManager guild)
+    {
+        if (GameRandom.NextFloat() < EmptyChestRate) return new();
+
+        var table = q.def.Dungeon?.treasureTable;
+        if (table == null) return new();
+
+        var candidates = table
+            .Where(e => e.weight > 0 && !IsOwnedRelic(e, guild))
+            .ToList();
+
+        int total = 0;
+        foreach (var e in candidates) total += e.weight;
+        if (total <= 0) return new();
+
+        int roll = GameRandom.Range(0, total);
+        foreach (var e in candidates)
+        {
+            roll -= e.weight;
+            if (roll < 0) return new() { e.Copy() };
+        }
+        return new();
+    }
+
+    static bool IsOwnedRelic(RewardEntryData e, GuildManager guild) =>
+        e.type == RewardType.Relic && e.Relic != null && guild.relics.Contains(e.Relic);
 
     public void ApplyBaseRewards(QuestRun q, GuildManager guild, string prefix)
     {
@@ -96,7 +126,7 @@ public class QuestRewardService
         }
     }
 
-    // 道中の宝箱で拾った戦利品を付与する（クエスト成功時のみ呼ばれる想定）。
+    // 持ち帰った戦利品を付与する（全滅以外で呼ばれる。宝箱の中身は OpenChests 済み）。
     public void ApplyPendingLoot(QuestRun q, GuildManager guild, string prefix)
     {
         foreach (var e in q.pendingLoot)
@@ -104,14 +134,14 @@ public class QuestRewardService
             switch (e.type)
             {
                 case RewardType.Gold:
-                    guild.AddGold(e.gold, $"宝箱: {q.def.questName}");
-                    q.logs.Add($"{prefix} 宝箱 資金 +{e.gold}G");
+                    guild.AddGold(e.gold, $"戦利品: {q.def.questName}");
+                    q.logs.Add($"{prefix} 戦利品 資金 +{e.gold}G");
                     break;
                 case RewardType.Relic:
                     if (e.Relic == null) break;
                     if (guild.relics.Contains(e.Relic))
-                        q.logs.Add($"{prefix} 宝箱 遺物「{e.Relic.relicName}」は所持済みのため見送り");
-                    else { guild.AddRelic(e.Relic, q.def.questName); q.logs.Add($"{prefix} 宝箱 遺物入手: {e.Relic.relicName}"); }
+                        q.logs.Add($"{prefix} 戦利品 遺物「{e.Relic.relicName}」は所持済みのため見送り");
+                    else { guild.AddRelic(e.Relic, q.def.questName); q.logs.Add($"{prefix} 戦利品 遺物入手: {e.Relic.relicName}"); }
                     break;
                 case RewardType.Equipment:
                     if (e.Equipment == null) break;
@@ -130,80 +160,10 @@ public class QuestRewardService
                 case RewardType.Consumable:
                     if (e.Consumable == null) break;
                     guild.AddConsumable(e.Consumable, Math.Max(1, e.quantity));
-                    q.logs.Add($"{prefix} 消費アイテム入手: {e.Consumable.displayName} x{Math.Max(1, e.quantity)}");
+                    q.logs.Add($"{prefix} 戦利品 消費アイテム入手: {e.Consumable.displayName} x{Math.Max(1, e.quantity)}");
                     break;
             }
         }
     }
 
-    public void ApplyChosenReward(QuestRun q, RewardOption opt, GuildManager guild)
-    {
-        switch (opt.type)
-        {
-            case RewardType.Relic:
-                if (opt.relic != null) { guild.AddRelic(opt.relic, q.def.questName); q.logs.Add($"[選択報酬] 遺物: {opt.relic.relicName}"); }
-                break;
-            case RewardType.Equipment:
-                if (opt.equipment != null)
-                {
-                    int quantity = Math.Max(1, opt.quantity);
-                    guild.AddEquipment(opt.equipment, quantity, "報酬");
-                    q.logs.Add($"[選択報酬] 装備: {opt.equipment.displayName} x{quantity}");
-                }
-                break;
-            case RewardType.Skill:
-                if (opt.skill != null)
-                {
-                    var learner = q.EnumerateMembers().FirstOrDefault(a => a.isAlive && a.LearnPermanentSkill(opt.skill));
-                    q.logs.Add(learner != null
-                        ? $"[選択報酬] {learner.name}がスキル習得: {opt.skill.skillName}"
-                        : $"[選択報酬] スキル: {opt.skill.skillName}（全員習得済み）");
-                }
-                break;
-            case RewardType.Consumable:
-                if (opt.consumable != null)
-                {
-                    guild.AddConsumable(opt.consumable, Math.Max(1, opt.quantity));
-                    q.logs.Add($"[選択報酬] 消費アイテム: {opt.consumable.displayName} x{Math.Max(1, opt.quantity)}");
-                }
-                break;
-            case RewardType.Gold:
-                guild.AddGold(opt.gold, $"選択報酬: {q.def.questName}"); q.logs.Add($"[選択報酬] 資金 +{opt.gold}G");
-                break;
-        }
-    }
-
-    RewardEntryData? PickWeighted(List<RewardEntryData> table)
-    {
-        int sum = table.Where(e => e.weight > 0).Sum(e => e.weight);
-        if (sum <= 0) return null;
-        int r = GameRandom.Range(0, sum);
-        int acc = 0;
-        foreach (var e in table)
-        {
-            if (e.weight <= 0) continue;
-            acc += e.weight;
-            if (r < acc) return e;
-        }
-        return null;
-    }
-
-    static bool IsDuplicateChoice(RewardOption opt, List<RewardOption> options) =>
-        options.Any(o =>
-            (opt.type == RewardType.Relic && o.type == RewardType.Relic && o.relic == opt.relic) ||
-            (opt.type == RewardType.Equipment && o.type == RewardType.Equipment && o.equipment == opt.equipment) ||
-            (opt.type == RewardType.Skill && o.type == RewardType.Skill && o.skill == opt.skill) ||
-            (opt.type == RewardType.Gold && o.type == RewardType.Gold && o.gold == opt.gold));
-
-    static bool IsAlreadyOwned(RewardOption opt, GuildManager guild)
-    {
-        if (opt.type == RewardType.Relic && opt.relic != null && guild.relics.Contains(opt.relic)) return true;
-        return false;
-    }
-
-    static RewardOption? ToOption(RewardEntryData e) => new()
-    {
-        type = e.type, relic = e.Relic, equipment = e.Equipment, skill = e.Skill,
-        consumable = e.Consumable, gold = e.gold, quantity = Math.Max(1, e.quantity),
-    };
 }

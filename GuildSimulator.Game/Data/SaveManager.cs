@@ -153,10 +153,8 @@ public static class SaveManager
         moraleMax = q.morale.Max,
         rewarded = q.rewarded,
         completed = q.completed,
-        rewardPresented = q.rewardPresented,
         bossDefeated = q.bossDefeated,
         baseRewardsApplied = q.baseRewardsApplied,
-        extraRewardTaken = q.extraRewardTaken,
         clearProgressApplied = q.clearProgressApplied,
         formationAdventurerIds = q.formation.Select(a => a?.id).ToArray(),
         logs = new List<string>(q.logs),
@@ -187,6 +185,9 @@ public static class SaveManager
             quantity = e.quantity,
             unique = e.unique,
         }).ToList(),
+        chests = q.chests
+            .Select(c => new TreasureChestSave { kind = c.kind, foundPhase = c.foundPhase })
+            .ToList(),
         gatheredCount = q.gatheredCount,
         usedConsumableIds = new List<string>(q.usedConsumableIds),
         goldRewardBonusPercent = q.goldRewardBonusPercent,
@@ -328,10 +329,8 @@ public static class SaveManager
             morale = new MoraleState(saved.moraleMax, saved.moraleCurrent),
             rewarded = saved.rewarded,
             completed = saved.completed,
-            rewardPresented = saved.rewardPresented,
             bossDefeated = saved.bossDefeated,
             baseRewardsApplied = saved.baseRewardsApplied,
-            extraRewardTaken = saved.extraRewardTaken,
             clearProgressApplied = saved.clearProgressApplied,
             policy = saved.policy,
             startingLevels = new Dictionary<string, int>(saved.startingLevels),
@@ -383,6 +382,9 @@ public static class SaveManager
                 Consumable = db.consumables.GetValueOrDefault(loot.consumableId),
             });
         }
+
+        foreach (var chest in saved.chests)
+            run.chests.Add(new TreasureChest { kind = chest.kind, foundPhase = chest.foundPhase });
 
         for (int i = 0; i < run.formation.Length && i < saved.formationAdventurerIds.Length; i++)
         {

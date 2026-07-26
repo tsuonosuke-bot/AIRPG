@@ -303,6 +303,18 @@ public class QuestManager
                     detail = $"消費アイテム「{option.Consumable.displayName}」x{qty} 入手（帰還時に加算）";
                 }
                 break;
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.Treasure:
+            {
+                int count = Math.Max(1, option.value);
+                for (int i = 0; i < count; i++)
+                    q.chests.Add(new TreasureChest
+                    {
+                        kind = GuildSimulator.Core.Models.TreasureChestKind.Dungeon,
+                        foundPhase = q.currentPhase,
+                    });
+                detail = $"宝箱 x{count} を持ち帰った（帰還後に開封）";
+                break;
+            }
         }
         result = detail.Length > 0 ? $"{option.resultText}\n  → {detail}" : option.resultText;
         q.logs.Add($"[選択] {option.text} - {option.resultText}" + (detail.Length > 0 ? $" ({detail})" : ""));
@@ -317,10 +329,7 @@ public class QuestManager
         return true;
     }
 
-    public List<RewardOption> GetPendingRewards(QuestRun q) =>
-        rewardService.BuildRewardOptions(q, guild);
-
-    public void FinalizeQuest(QuestRun q, RewardOption? chosenReward)
+    public void FinalizeQuest(QuestRun q)
     {
         if (!q.baseRewardsApplied)
         {
@@ -328,14 +337,10 @@ public class QuestManager
             if (!q.failed)
             {
                 rewardService.ApplyBaseRewards(q, guild, "[完了]");
+                // 宝箱は持ち帰ってから開ける。中身が決まるのはこの瞬間。
+                rewardService.OpenChests(q, guild, "[完了]");
                 rewardService.ApplyPendingLoot(q, guild, "[完了]");
             }
-        }
-        // 選択報酬は正規クリアの取り分。撤退では選ばせない。
-        if (chosenReward != null && !q.extraRewardTaken && !q.retreated)
-        {
-            q.extraRewardTaken = true;
-            rewardService.ApplyChosenReward(q, chosenReward, guild);
         }
         q.rewarded = true;
         q.completed = q.IsCleared;

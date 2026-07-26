@@ -17,17 +17,15 @@ public class QuestProgressor
 
         DungeonEventType ev = RollDungeonEvent(q.def.Dungeon, phase);
 
-        // 採取クエストは自前の抽選を先に回し、当たればダンジョン抽選を上書きする。
-        if (q.def.IsGatherQuest && !isBoss && !q.GatherFulfilled
-            && GameRandom.NextFloat() < q.def.gatherChance)
-            ev = DungeonEventType.Gather;
-
         if (qe == QuestEventType.ForceEnemyEncounter) ev = DungeonEventType.EnemyEncounter;
         else if (qe == QuestEventType.ForceHeal) ev = DungeonEventType.Heal;
         else if (qe == QuestEventType.ForceTrap) ev = DungeonEventType.Trap;
         else if (qe == QuestEventType.ForceTreasure) ev = DungeonEventType.Treasure;
-        else if (qe == QuestEventType.ForceGather && q.def.IsGatherQuest) ev = DungeonEventType.Gather;
         if (isBoss) ev = DungeonEventType.EnemyEncounter;
+
+        // 採取判定はダンジョンイベントとは別枠。同じフェーズで戦闘や宝箱と同時に起きる。
+        bool gathers = q.def.IsGatherQuest && !q.GatherFulfilled && !isBoss
+            && (qe == QuestEventType.ForceGather || GameRandom.NextFloat() < q.def.gatherChance);
 
         string evTitle = ev.ToString();
         string evResult = "";
@@ -85,7 +83,12 @@ public class QuestProgressor
                         int totalExp = (int)Math.Floor(
                             enemyMembers.Sum(e => e?.master.exp ?? 0)
                             * (1f + q.expRewardBonusPercent / 100f));
-                        if (isBoss) { q.bossDefeated = true; q.logs.Add($"  Phase {phase}: ボス撃破！"); }
+                        if (isBoss)
+                        {
+                            q.bossDefeated = true;
+                            q.logs.Add($"  Phase {phase}: ボス撃破！");
+                            AddChest(q, TreasureChestKind.Boss, phase);
+                        }
                         foreach (var a in q.formation)
                         {
                             if (a == null || !a.isAlive) continue;
@@ -167,28 +170,8 @@ public class QuestProgressor
             case DungeonEventType.Treasure:
                 {
                     evTitle = "宝箱";
-                    var loot = PickTreasure(q.def.Dungeon);
-                    if (loot == null)
-                    {
-                        evResult = "空っぽだった";
-                    }
-                    else
-                    {
-                        q.pendingLoot.Add(loot);
-                        evResult = $"{DescribeLoot(loot)} を発見（クリアで獲得）";
-                    }
-                    break;
-                }
-
-            case DungeonEventType.Gather:
-                {
-                    evTitle = "採取";
-                    int got = GameRandom.Range(q.def.gatherMinPerEvent, q.def.gatherMaxPerEvent + 1);
-                    got = Math.Max(0, got);
-                    q.gatheredCount += got;
-                    evResult = got <= 0
-                        ? $"{q.def.gatherItemName} は見つからなかった（{q.gatheredCount}/{q.def.gatherTargetCount}）"
-                        : $"{q.def.gatherItemName} を {got} 個採取（{q.gatheredCount}/{q.def.gatherTargetCount}）";
+                    AddChest(q, TreasureChestKind.Dungeon, phase);
+                    evResult = "封の固い宝箱を担ぎ上げた（帰還後に開封）";
                     break;
                 }
 
@@ -205,6 +188,18 @@ public class QuestProgressor
             evTitle,
             evResult,
             important: isBoss || ev is DungeonEventType.Trap or DungeonEventType.Treasure);
+
+        // 道中で何が起きたかに関わらず、生きて動けていれば採取そのものは進む。
+        if (gathers && !q.failed && !q.retreated)
+        {
+            int got = Math.Max(0, GameRandom.Range(q.def.gatherMinPerEvent, q.def.gatherMaxPerEvent + 1));
+            q.gatheredCount += got;
+            string gatherResult = got <= 0
+                ? $"{q.def.gatherItemName} は見つからなかった（{q.gatheredCount}/{q.def.gatherTargetCount}）"
+                : $"{q.def.gatherItemName} を {got} 個採取（{q.gatheredCount}/{q.def.gatherTargetCount}）";
+            q.logs.Add($"[Turn {currentTurn}] Phase {q.currentPhase}/{q.def.totalPhases}: 採取 - {gatherResult}");
+            q.AddReportEvent(currentTurn, phase, ExpeditionEventKind.Gather, "採取", gatherResult);
+        }
 
         // 最終フェーズに達しても目標数に届かない採取クエストは、残りをまとめて採取して達成扱いにする。
         if (!q.failed && q.def.IsGatherQuest && !q.GatherFulfilled && q.currentPhase >= q.def.totalPhases)
@@ -226,7 +221,6 @@ public class QuestProgressor
         DungeonEventType.Heal => ExpeditionEventKind.Rest,
         DungeonEventType.Trap => ExpeditionEventKind.Trap,
         DungeonEventType.Treasure => ExpeditionEventKind.Treasure,
-        DungeonEventType.Gather => ExpeditionEventKind.Gather,
         _ => ExpeditionEventKind.Progress,
     };
 
@@ -276,34 +270,14 @@ public class QuestProgressor
         return null;
     }
 
-    // 宝箱の重み表から戦利品を1件抽選。未設定なら null。
-    static RewardEntryData? PickTreasure(DungeonMasterData? d)
+    // 見つけた宝箱は中身を決めずに積む。開封は帰還後（QuestRewardService.OpenChests）。
+    static void AddChest(QuestRun q, TreasureChestKind kind, int phase)
     {
-        if (d == null || d.treasureTable.Count == 0) return null;
-
-        int total = 0;
-        foreach (var e in d.treasureTable) if (e.weight > 0) total += e.weight;
-        if (total <= 0) return null;
-
-        int roll = GameRandom.Range(0, total);
-        foreach (var e in d.treasureTable)
-        {
-            if (e.weight <= 0) continue;
-            roll -= e.weight;
-            if (roll < 0) return e;
-        }
-        return null;
+        var chest = new TreasureChest { kind = kind, foundPhase = phase };
+        q.chests.Add(chest);
+        if (kind == TreasureChestKind.Boss)
+            q.logs.Add($"  Phase {phase}: ボスの宝箱を手に入れた（帰還後に開封）");
     }
-
-    static string DescribeLoot(RewardEntryData e) => e.type switch
-    {
-        RewardType.Gold => $"資金 {e.gold}G",
-        RewardType.Relic => $"遺物「{e.Relic?.relicName ?? "?"}」",
-        RewardType.Equipment => $"装備「{e.Equipment?.displayName ?? "?"}」",
-        RewardType.Skill => $"スキル「{e.Skill?.skillName ?? "?"}」",
-        RewardType.Consumable => $"消費アイテム「{e.Consumable?.displayName ?? "?"}」",
-        _ => e.type.ToString(),
-    };
 
     static void RollEnemyDrops(QuestRun q, IEnumerable<EnemyData?> enemies, int phase)
     {
@@ -312,24 +286,10 @@ public class QuestProgressor
             foreach (var entry in enemy!.master.dropTable)
             {
                 if (entry.chance <= 0f || GameRandom.NextFloat() >= entry.chance) continue;
-                var drop = new RewardEntryData
-                {
-                    type = entry.type,
-                    relicId = entry.relicId,
-                    equipmentId = entry.equipmentId,
-                    skillId = entry.skillId,
-                    consumableId = entry.consumableId,
-                    gold = entry.gold,
-                    quantity = Math.Max(1, entry.quantity),
-                    unique = entry.unique,
-                    Relic = entry.Relic,
-                    Equipment = entry.Equipment,
-                    Skill = entry.Skill,
-                    Consumable = entry.Consumable,
-                };
+                var drop = entry.Copy();
                 q.pendingLoot.Add(drop);
                 q.logs.Add($"  Phase {phase}: レアドロップ！ {enemy.master.baseName}から"
-                    + $"{DescribeLoot(drop)} x{drop.quantity}（帰還時に確定）");
+                    + $"{RewardDescription.DescribeLoot(drop)}{RewardDescription.DescribeQuantity(drop)}（帰還時に確定）");
             }
         }
     }

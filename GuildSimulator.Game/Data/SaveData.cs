@@ -94,10 +94,8 @@ public class QuestRunSaveData
     public int moraleMax;
     public bool rewarded;
     public bool completed;
-    public bool rewardPresented;
     public bool bossDefeated;
     public bool baseRewardsApplied;
-    public bool extraRewardTaken;
     public bool clearProgressApplied;
     public string?[] formationAdventurerIds = new string?[6];
     public List<string> logs = new();
@@ -107,6 +105,7 @@ public class QuestRunSaveData
     public Dictionary<string, int> startingLevels = new();
     public int guildUpkeepAtStart;
     public List<PendingLootSave> pendingLoot = new();
+    public List<TreasureChestSave> chests = new();
     public int gatheredCount;
     public List<string> usedConsumableIds = new();
     public int goldRewardBonusPercent;
@@ -126,6 +125,12 @@ public class ExpeditionEventSave
     public string actorName = "";
     public string clueId = "";
     public bool important;
+}
+
+public class TreasureChestSave
+{
+    public TreasureChestKind kind;
+    public int foundPhase;
 }
 
 public class PendingLootSave

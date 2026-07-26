@@ -20,6 +20,26 @@
 - `requiredClueIds`: 掲示に必要な発見済み手掛かり
 - `grantedClueIds`: 正規クリア時に発見する手掛かり
 
+アイテムは宝箱で手に入ります。道中では未開封のまま持ち運び、**帰還後に開けて中身を抽選します**
+（全滅すると開ける前に失います）。宝箱は2種類です。
+
+- 道中の宝箱: 中身は `dungeons.json` の `treasureTable` から1件。`weight` で出やすさを決めます。
+  このダンジョンで拾えるアイテムはすべてここに書きます。**2割の確率で空っぽ**になります
+  （`QuestRewardService.EmptyChestRate`）。所持済みの遺物は抽選対象から外れます。
+  入手経路は道中の宝箱イベントと、`choice_events.json` の選択肢に
+  `"effectType": "Treasure"` を置いたもの（`value` 個ぶん渡す）です。
+- ボスの宝箱: ボス撃破で手に入り、中身は `quests.json` の `bossDrops`。
+  エントリごとに `chance`（0より大きく1以下）で抽選し、**空っぽ抽選は受けません**。
+  物語進行に必要で落とすと詰むものは、クエスト側の `bossDropsAreGuaranteed` を `true` にすると
+  `chance` も無視して全て確定します。
+
+宝箱以外に、敵のレアドロップ（`enemies.json` の `dropTable`）と選択イベントの拾い物は
+中身が分かっている戦利品としてそのまま持ち帰ります。
+
+採取クエスト（`gatherTargetCount` > 0）の採取判定は、ダンジョンの `eventTable` とは
+**別枠**です。フェーズごとに `gatherChance` で判定し、当たれば同じフェーズの戦闘や宝箱と
+並行して採取が進みます（イベントを置き換えません）。目標数に届いた時点で判定は止まります。
+
 ## ギルド施設 (`facilities.json`)
 
 建設するとゴールドを消費し、以後は `upkeepGoldPerTurn` が毎ターンの維持費に加算される。

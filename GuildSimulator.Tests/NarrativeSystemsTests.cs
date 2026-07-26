@@ -67,7 +67,7 @@ public class NarrativeSystemsTests
         Assert.True(manager.TryStartQuest(first, formation, 1, out _));
         var run = Assert.Single(manager.activeQuests);
         run.currentPhase = first.totalPhases;
-        manager.FinalizeQuest(run, null);
+        manager.FinalizeQuest(run);
 
         Assert.True(manager.HasClearedQuest(first.id));
         Assert.True(manager.HasDiscoveredClue(clue.id));

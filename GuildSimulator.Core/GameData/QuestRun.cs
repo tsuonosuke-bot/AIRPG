@@ -21,10 +21,8 @@ public class QuestRun
 
     public bool rewarded;
     public bool completed;
-    public bool rewardPresented;
     public bool bossDefeated;
     public bool baseRewardsApplied;
-    public bool extraRewardTaken;
     public bool clearProgressApplied;
 
     public AdventurerData?[] formation = new AdventurerData?[6];
@@ -35,7 +33,11 @@ public class QuestRun
     public Dictionary<string, int> startingLevels = new();
     public int guildUpkeepAtStart;
 
-    // 道中の宝箱で拾った戦利品（クエスト成功時にまとめて付与、失敗時は失う）
+    // 道中で手に入れた未開封の宝箱。帰還後に開けて中身を抽選する（全滅時は失う）。
+    public List<TreasureChest> chests = new();
+
+    // 中身の分かっている戦利品。敵のレアドロップ、選択イベントの拾い物、
+    // それに帰還後に開けた宝箱の中身がここへ積まれ、まとめて付与される（全滅時は失う）。
     public List<RewardEntryData> pendingLoot = new();
 
     // 採取クエストの収集数。目標に達した時点で最終フェーズを待たずに帰還できる。
