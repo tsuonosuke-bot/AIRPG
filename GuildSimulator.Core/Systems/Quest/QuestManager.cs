@@ -12,8 +12,11 @@ public class QuestManager
     public List<QuestRun> questHistory = new();
     public List<QuestBoardEntry> questBoard = new();
 
-    /// <summary>通常クエストの掲示枠数。</summary>
-    public int NormalBoardCapacity = 3;
+    /// <summary>施設のボーナスを含まない、通常クエストの掲示枠の基本数。</summary>
+    public int BaseNormalBoardCapacity = 3;
+
+    /// <summary>通常クエストの掲示枠数（施設による増加分を含む）。</summary>
+    public int NormalBoardCapacity => BaseNormalBoardCapacity + FacilitySystem.GetQuestBoardBonus();
 
     /// <summary>通常枠とは別に掲示できる緊急クエストの最大枚数。</summary>
     public int EmergencyBoardCapacity = 1;

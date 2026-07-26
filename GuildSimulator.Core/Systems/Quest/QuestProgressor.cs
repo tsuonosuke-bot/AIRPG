@@ -106,7 +106,7 @@ public class QuestProgressor
                 {
                     evTitle = "休息";
                     int before = q.unitHpCurrent;
-                    float restMul = RelicSystem.GetRestHealMultiplier();
+                    float restMul = RelicSystem.GetRestHealMultiplier() * FacilitySystem.GetRestHealMultiplier();
                     var perMember = UnitCalculator.CalcPerMember(q.formation.Cast<IUnitMember?>().ToArray(), isAllySide: true);
                     foreach (var (m, s) in perMember)
                     {

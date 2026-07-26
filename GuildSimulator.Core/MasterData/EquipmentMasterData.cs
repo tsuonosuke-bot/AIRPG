@@ -19,4 +19,7 @@ public class EquipmentMasterData
     public int price;
     public StatBlock bonus;
     public Rarity rarity;
+
+    /// <summary>商店で扱うために必要な品揃えレベル。基準の商店レベル1は常に1のみ扱える。</summary>
+    public int shopTier = 1;
 }

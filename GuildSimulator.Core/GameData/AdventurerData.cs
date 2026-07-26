@@ -1,5 +1,6 @@
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems.Guild;
 
 namespace GuildSimulator.Core.GameData;
 
@@ -211,7 +212,7 @@ public class AdventurerData : IUnitMember
 
     void TryGrow(StatType type, ref int stat)
     {
-        float chance = 0.2f + GetRaceGrowth(type) + GetClassGrowth(type);
+        float chance = 0.2f + GetRaceGrowth(type) + GetClassGrowth(type) + FacilitySystem.GetGrowthRateBonus();
         if (chance <= 0f) return;
         int loops = (int)Math.Ceiling(chance);
         for (int i = 0; i < loops; i++)

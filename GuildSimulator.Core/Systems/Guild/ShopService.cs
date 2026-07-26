@@ -15,7 +15,10 @@ public static class ShopService
     {
         if (!guild.ShopNeedsRefresh(currentTurn)) return false;
 
-        var equipmentPool = equipment.Where(e => !e.id.StartsWith("eq_drop_", StringComparison.Ordinal)).ToList();
+        int shopLevel = 1 + FacilitySystem.GetShopLevelBonus();
+        var equipmentPool = equipment
+            .Where(e => !e.id.StartsWith("eq_drop_", StringComparison.Ordinal) && e.shopTier <= shopLevel)
+            .ToList();
         var equipmentStock = DrawDistinct(equipmentPool, 8)
             .ToDictionary(e => e.id, e => e.rarity >= Rarity.Rare ? 1 : GameRandom.Range(1, 4));
         var consumableStock = DrawDistinct(consumables.ToList(), 4)
