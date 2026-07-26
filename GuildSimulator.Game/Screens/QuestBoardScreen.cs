@@ -43,8 +43,7 @@ public static class QuestBoardScreen
                 Ui.WriteLine($"      難易度 {diff.label}（スコア{diff.score:0}）  報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
                 int estimatedUpkeep = guild.EffectiveUpkeepPerTurn * estTurns;
                 int estimatedNet = guild.EstimateNetAfterUpkeep(q.rewardGold, estTurns);
-                string netText = $"      予想収支: {q.rewardGold}G - 維持費{estimatedUpkeep}G = {estimatedNet:+#;-#;0}G"
-                    + "（現在の在籍構成・基本報酬のみ）";
+                string netText = $"      予想収支: {q.rewardGold}G - 維持費{estimatedUpkeep}G = {estimatedNet:+#;-#;0}G（概算）";
                 if (estimatedNet < 0) Ui.Warn(netText);
                 else Ui.Dim(netText);
                 if (q.IsGatherQuest)

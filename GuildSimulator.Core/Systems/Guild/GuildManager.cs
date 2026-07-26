@@ -13,6 +13,7 @@ public class GuildManager
     public int GuildRank { get; private set; }
     public int GuildPoints { get; private set; }
     public List<RelicMasterData> relics = new();
+    public List<FacilityMasterData> facilities = new();
     public List<string> economyLogs = new();
     readonly List<EquipmentStack> inventory = new();
     readonly List<ConsumableStack> consumables = new();
@@ -25,6 +26,7 @@ public class GuildManager
         Gold = startGold;
         GuildRank = startRank;
         RelicSystem.SetRelics(relics);
+        FacilitySystem.SetFacilities(facilities);
         economyLogs.Add($"初期資金: {Gold}G");
     }
 
@@ -69,8 +71,10 @@ public class GuildManager
     public int AdventurerUpkeepPerTurn =>
         adventurers.Where(a => a != null && a.isAlive).Sum(a => CalculateAdventurerUpkeep(a.level));
 
+    public int FacilityUpkeepPerTurn => facilities.Sum(f => f.upkeepGoldPerTurn);
+
     public int BaseUpkeepPerTurn =>
-        GuildBaseUpkeepGoldPerTurn + AdventurerUpkeepPerTurn;
+        GuildBaseUpkeepGoldPerTurn + AdventurerUpkeepPerTurn + FacilityUpkeepPerTurn;
 
     public int EffectiveUpkeepPerTurn => CalculateEffectiveUpkeep(BaseUpkeepPerTurn);
 
@@ -100,7 +104,7 @@ public class GuildManager
         int effectiveTotal = CalculateEffectiveUpkeep(baseTotal);
         if (effectiveTotal > 0)
             SpendGold(effectiveTotal,
-                $"[Turn {currentTurn}] 維持費支払い（ギルド基本 {GuildBaseUpkeepGoldPerTurn}G + 冒険者 {adventurers.Count}人）");
+                $"[Turn {currentTurn}] 維持費支払い（ギルド基本 {GuildBaseUpkeepGoldPerTurn}G + 冒険者 {adventurers.Count}人 + 施設 {facilities.Count}件）");
         return effectiveTotal;
     }
 
@@ -110,6 +114,39 @@ public class GuildManager
         relics.Add(relic);
         RelicSystem.SetRelics(relics);
         economyLogs.Add($"遺物入手: {relic.relicName}{(string.IsNullOrEmpty(reason) ? "" : $"（{reason}）")}");
+    }
+
+    // ---- Facilities ----
+    public bool HasFacility(FacilityMasterData facility) => facilities.Contains(facility);
+
+    public bool TryBuildFacility(FacilityMasterData facility, out string reason)
+    {
+        reason = "";
+        if (HasFacility(facility)) { reason = $"既に建設済みです: {facility.displayName}"; return false; }
+        if (GuildRank < facility.requiredGuildRank)
+        {
+            reason = $"ギルドランクが不足しています（必要: {facility.requiredGuildRank}）";
+            return false;
+        }
+        if (Gold < facility.buildCostGold)
+        {
+            reason = $"資金が不足しています（必要: {facility.buildCostGold}G  所持: {Gold}G）";
+            return false;
+        }
+
+        SpendGold(facility.buildCostGold, $"施設建設: {facility.displayName}");
+        facilities.Add(facility);
+        FacilitySystem.SetFacilities(facilities);
+        economyLogs.Add($"施設建設: {facility.displayName}（維持費 +{facility.upkeepGoldPerTurn}G/Turn）");
+        return true;
+    }
+
+    /// <summary>セーブデータからの復元専用。</summary>
+    public void RestoreFacilities(IEnumerable<FacilityMasterData> facilitiesToRestore)
+    {
+        facilities.Clear();
+        facilities.AddRange(facilitiesToRestore);
+        FacilitySystem.SetFacilities(facilities);
     }
 
     // ---- Inventory ----

@@ -92,8 +92,12 @@ public class QuestProgressor
                         foreach (var a in q.formation)
                         {
                             if (a == null || !a.isAlive) continue;
+                            int levelBefore = a.level;
                             if (a.AddExperience(totalExp, out var ups))
-                                q.logs.Add($"  {a.name} 経験値 +{totalExp}（レベルアップ +{ups}）");
+                            {
+                                string levelUpText = ups > 0 ? $"（レベルアップ {levelBefore}lv→{a.level}lv）" : "";
+                                q.logs.Add($"  {a.name} 経験値 +{totalExp}{levelUpText}");
+                            }
                         }
                         RollEnemyDrops(q, enemyMembers, phase);
                     }
@@ -109,7 +113,7 @@ public class QuestProgressor
                 {
                     evTitle = "休息";
                     int before = q.unitHpCurrent;
-                    float restMul = RelicSystem.GetRestHealMultiplier();
+                    float restMul = RelicSystem.GetRestHealMultiplier() * FacilitySystem.GetRestHealMultiplier();
                     var perMember = UnitCalculator.CalcPerMember(q.formation.Cast<IUnitMember?>().ToArray(), isAllySide: true);
                     foreach (var (m, s) in perMember)
                     {

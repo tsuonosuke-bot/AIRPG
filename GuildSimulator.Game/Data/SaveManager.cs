@@ -84,6 +84,7 @@ public static class SaveManager
         guildPoints = guild.GuildPoints,
         economyLogs = new List<string>(guild.economyLogs),
         relicIds = guild.relics.Select(r => r.id).ToList(),
+        facilityIds = guild.facilities.Select(f => f.id).ToList(),
         inventory = guild.GetInventoryView()
             .Select(s => new InventoryEntrySave { itemId = s.item.id, count = s.count })
             .ToList(),
@@ -220,6 +221,12 @@ public static class SaveManager
             if (db.relics.TryGetValue(relicId, out var relic))
                 guild.relics.Add(relic);
         RelicSystem.SetRelics(guild.relics);
+
+        var facilities = data.guild.facilityIds
+            .Where(db.facilities.ContainsKey)
+            .Select(id => db.facilities[id])
+            .ToList();
+        guild.RestoreFacilities(facilities);
 
         foreach (var entry in data.guild.inventory)
             if (db.equipment.TryGetValue(entry.itemId, out var item))

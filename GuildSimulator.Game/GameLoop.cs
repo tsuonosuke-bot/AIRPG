@@ -52,7 +52,7 @@ public static class GameLoop
             Ui.Header($"ギルドシミュレーター  Turn {currentTurn}");
             int upkeepPerTurn = guild.EffectiveUpkeepPerTurn;
             Ui.WriteLine($"  所持金: {guild.Gold}G（維持費 {upkeepPerTurn}G/T）   ギルドランク: {guild.GuildRank}   ギルドポイント: {guild.GuildPoints}");
-            Ui.WriteLine($"  冒険者: {guild.adventurers.Count}人   進行中クエスト: {questManager.activeQuests.Count}件   遺物: {guild.relics.Count}個");
+            Ui.WriteLine($"  冒険者: {guild.adventurers.Count}人   進行中クエスト: {questManager.activeQuests.Count}件   遺物: {guild.relics.Count}個   施設: {guild.facilities.Count}件");
             Ui.WriteLine($"  雇入れ候補: {recruitCandidates.Count}人");
             ShowPromotionProgress(db.allQuests, guild, questManager);
             ShowEconomyForecast(guild, upkeepPerTurn);
@@ -62,11 +62,12 @@ public static class GameLoop
             {
                 new MenuOption("1", "クエストボード", Group: "クエスト"),
                 new MenuOption("2", "進行中クエスト", Group: "クエスト"),
-                new MenuOption("3", "冒険者一覧・装備管理", Group: "冒険者"),
-                new MenuOption("4", "冒険者を雇う", Group: "冒険者"),
+                new MenuOption("3", "一覧・装備管理", Group: "冒険者"),
+                new MenuOption("4", "雇う", Group: "冒険者"),
                 new MenuOption("5", "倉庫", Group: "ギルド資産"),
                 new MenuOption("6", "商店", Group: "ギルド資産"),
                 new MenuOption("7", "遺物一覧", Group: "ギルド資産"),
+                new MenuOption("F", "施設", Group: "ギルド資産"),
                 new MenuOption("8", "経済ログ", Group: "ギルド管理"),
                 new MenuOption("J", "調査記録", Group: "ギルド管理"),
                 new MenuOption("H", "ヘルプ・用語集", Group: "ギルド管理"),
@@ -89,6 +90,7 @@ public static class GameLoop
                 case "5": await InventoryScreen.ShowAsync(guild); break;
                 case "6": await ShopScreen.ShowAsync(db, guild, currentTurn); break;
                 case "7": await RelicScreen.ShowAsync(guild); break;
+                case "F": await FacilityScreen.ShowAsync(db, guild); break;
                 case "8": await ShowEconomyLogAsync(guild); break;
                 case "J": await StoryJournalScreen.ShowAsync(db, questManager); break;
                 case "H": await HelpScreen.ShowAsync(); break;

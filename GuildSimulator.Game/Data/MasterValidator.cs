@@ -73,6 +73,14 @@ public static class MasterValidator
                         + "（確定で落としたいならbossDropsAreGuaranteedを使う）");
         }
 
+        foreach (var facility in db.facilities.Values)
+        {
+            if (string.IsNullOrWhiteSpace(facility.id)) errors.Add("facilities.json: idが空の項目があります");
+            if (string.IsNullOrWhiteSpace(facility.displayName)) errors.Add($"{facility.id}: displayNameが空です");
+            if (facility.buildCostGold < 0) errors.Add($"{facility.id}: buildCostGoldは0以上にしてください");
+            if (facility.upkeepGoldPerTurn < 0) errors.Add($"{facility.id}: upkeepGoldPerTurnは0以上にしてください");
+        }
+
         foreach (var clue in db.clues.Values)
         {
             if (string.IsNullOrWhiteSpace(clue.id))

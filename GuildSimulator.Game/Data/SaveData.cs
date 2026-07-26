@@ -21,6 +21,7 @@ public class GuildSaveData
     public int guildPoints;
     public List<string> economyLogs = new();
     public List<string> relicIds = new();
+    public List<string> facilityIds = new();
     public List<InventoryEntrySave> inventory = new();
     public List<InventoryEntrySave> consumables = new();
     public int lastShopRefreshTurn;

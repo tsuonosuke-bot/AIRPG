@@ -12,8 +12,11 @@ public class QuestManager
     public List<QuestRun> questHistory = new();
     public List<QuestBoardEntry> questBoard = new();
 
-    /// <summary>通常クエストの掲示枠数。</summary>
-    public int NormalBoardCapacity = 3;
+    /// <summary>施設のボーナスを含まない、通常クエストの掲示枠の基本数。</summary>
+    public int BaseNormalBoardCapacity = 3;
+
+    /// <summary>通常クエストの掲示枠数（施設による増加分を含む）。</summary>
+    public int NormalBoardCapacity => BaseNormalBoardCapacity + FacilitySystem.GetQuestBoardBonus();
 
     /// <summary>通常枠とは別に掲示できる緊急クエストの最大枚数。</summary>
     public int EmergencyBoardCapacity = 1;
@@ -259,8 +262,10 @@ public class QuestManager
                 var changes = new List<string>();
                 foreach (var a in q.EnumerateMembers().Where(a => a.isAlive))
                 {
+                    int levelBefore = a.level;
                     a.AddExperience(option.value, out int levelUps);
-                    changes.Add($"{a.name} 経験値+{option.value}" + (levelUps > 0 ? $"（Lv.{levelUps}アップ）" : ""));
+                    changes.Add($"{a.name} 経験値+{option.value}"
+                        + (levelUps > 0 ? $"（レベルアップ {levelBefore}lv→{a.level}lv）" : ""));
                 }
                 detail = string.Join("、", changes);
                 break;
