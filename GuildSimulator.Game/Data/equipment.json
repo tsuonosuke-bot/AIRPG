@@ -11,6 +11,7 @@
     "magicCoeff": 0,
     "healCoeff": 0,
     "damageDice": "1d6",
+    "maxAtkBonus": 16,
     "price": 30,
     "weight": 3,
     "bonus": {
@@ -30,6 +31,7 @@
     "magicCoeff": 0,
     "healCoeff": 0,
     "damageDice": "1d6",
+    "maxAtkBonus": 18,
     "price": 35,
     "weight": 4,
     "bonus": {
@@ -49,6 +51,7 @@
     "magicCoeff": 0,
     "healCoeff": 0,
     "damageDice": "1d8",
+    "maxAtkBonus": 0,
     "price": 40,
     "weight": 5,
     "bonus": {
@@ -68,6 +71,7 @@
     "magicCoeff": 0,
     "healCoeff": 0,
     "damageDice": "1d6",
+    "maxAtkBonus": 16,
     "price": 35,
     "weight": 3,
     "bonus": {
@@ -87,6 +91,7 @@
     "magicCoeff": 1,
     "healCoeff": 0,
     "damageDice": "1d8",
+    "maxAtkBonus": 0,
     "price": 40,
     "weight": 3,
     "bonus": {
@@ -106,6 +111,7 @@
     "magicCoeff": 1,
     "healCoeff": 0,
     "damageDice": "1d4",
+    "maxAtkBonus": 10,
     "price": 30,
     "weight": 1,
     "bonus": {
@@ -125,6 +131,7 @@
     "magicCoeff": 1,
     "healCoeff": 0,
     "damageDice": "1d6",
+    "maxAtkBonus": 18,
     "price": 40,
     "weight": 4,
     "bonus": {
@@ -144,6 +151,7 @@
     "magicCoeff": 1,
     "healCoeff": 0,
     "damageDice": "1d6",
+    "maxAtkBonus": 20,
     "price": 40,
     "weight": 5,
     "bonus": {
@@ -163,6 +171,7 @@
     "magicCoeff": 1,
     "healCoeff": 0,
     "damageDice": "1d8+1",
+    "maxAtkBonus": 0,
     "price": 45,
     "weight": 3,
     "bonus": {
@@ -183,6 +192,7 @@
     "magicCoeff": 0,
     "healCoeff": 1,
     "damageDice": "1d2",
+    "maxAtkBonus": 0,
     "price": 40,
     "weight": 3,
     "bonus": {
@@ -201,6 +211,7 @@
     "magicCoeff": 0,
     "healCoeff": 0,
     "damageDice": "1d4",
+    "maxAtkBonus": 10,
     "price": 25,
     "weight": 2,
     "bonus": {
@@ -220,6 +231,7 @@
     "magicCoeff": 0,
     "healCoeff": 0,
     "damageDice": "1d4",
+    "maxAtkBonus": 10,
     "price": 25,
     "weight": 2,
     "bonus": {
@@ -239,6 +251,7 @@
     "magicCoeff": 0,
     "healCoeff": 0,
     "damageDice": "1d8",
+    "maxAtkBonus": 20,
     "price": 140,
     "weight": 4,
     "bonus": {
@@ -258,6 +271,7 @@
     "magicCoeff": 0,
     "healCoeff": 0,
     "damageDice": "1d8+1",
+    "maxAtkBonus": 24,
     "price": 150,
     "weight": 6,
     "bonus": {
@@ -277,6 +291,7 @@
     "magicCoeff": 0,
     "healCoeff": 0,
     "damageDice": "2d6",
+    "maxAtkBonus": 0,
     "price": 170,
     "weight": 8,
     "bonus": {
@@ -296,6 +311,7 @@
     "magicCoeff": 0,
     "healCoeff": 0,
     "damageDice": "1d8",
+    "maxAtkBonus": 20,
     "price": 150,
     "weight": 4,
     "bonus": {
@@ -315,6 +331,7 @@
     "magicCoeff": 1.3,
     "healCoeff": 0,
     "damageDice": "2d6+1",
+    "maxAtkBonus": 0,
     "price": 180,
     "weight": 4,
     "bonus": {
@@ -334,6 +351,7 @@
     "magicCoeff": 0,
     "healCoeff": 1.4,
     "damageDice": "1d2",
+    "maxAtkBonus": 0,
     "price": 180,
     "weight": 3,
     "bonus": {
@@ -462,6 +480,7 @@
     "magicCoeff": 0,
     "healCoeff": 0,
     "damageDice": "1d6+1",
+    "maxAtkBonus": 18,
     "price": 90,
     "weight": 3,
     "bonus": {
@@ -481,6 +500,7 @@
     "magicCoeff": 0,
     "healCoeff": 0,
     "damageDice": "1d8+2",
+    "maxAtkBonus": 20,
     "price": 260,
     "weight": 3,
     "bonus": {
@@ -501,6 +521,7 @@
     "magicCoeff": 0,
     "healCoeff": 0,
     "damageDice": "2d8+2",
+    "maxAtkBonus": 0,
     "price": 480,
     "weight": 8,
     "bonus": {

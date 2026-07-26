@@ -34,6 +34,9 @@ public class AdventurerData : IUnitMember
     public IReadOnlyList<SkillMasterData> Skills => GetActiveSkills();
     public EquipmentMasterData? Weapon => weapon;
     public EquipmentMasterData? Armor => armor;
+    public string DamageDice => weapon?.damageDice ?? "";
+    public int MaxAtkBonus => weapon?.maxAtkBonus ?? 0;
+    public bool IsMagicAttack => weapon != null && weapon.magicCoeff > 0f;
 
     readonly List<LearnedSkill> learnedSkills = new();
     readonly List<SkillMasterData> activeSkillCache = new();
@@ -243,9 +246,11 @@ public class AdventurerData : IUnitMember
         {
             hp = (vitality * 10 + constitution * 5) / 2,
             san = mental * 10,
-            pAtk = (strength * 2 + constitution / 2) / 8,
+            // pAtk/mAtkはダメージの「増幅率」の入力なので、/4に留めて能力値+1が体感できるようにする。
+            // pDef/mDefはダメージから直接引かれる値なので、/8のまま小さく抑える。
+            pAtk = (strength * 2 + constitution / 2) / 4,
             pDef = constitution / 8,
-            mAtk = (intelligence * 2) / 8,
+            mAtk = (intelligence * 2) / 4,
             mDef = (mental * 2) / 8,
             hit = agility,
             evade = agility - constitution / 2,

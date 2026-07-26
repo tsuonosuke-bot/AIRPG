@@ -1,4 +1,5 @@
 using GuildSimulator.Game.Data;
+using GuildSimulator.Core;
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
@@ -139,6 +140,30 @@ public class FeatureExpansionTests
         Assert.Contains(db.enemies.Values.SelectMany(e => e.dropTable),
             d => d.Equipment != null || d.Consumable != null);
         Assert.Empty(MasterValidator.Validate(db));
+    }
+
+    [Fact]
+    public void MasterDataLoadsWeaponDamageDiceAndAmplifyCaps()
+    {
+        // damageDice はダメージの基礎値そのもの。ここが読み込まれないと全武器が素手扱いになる。
+        string dataDir = Path.Combine(AppContext.BaseDirectory, "Data");
+        var db = MasterLoader.Load(dataDir);
+
+        var weapons = db.equipment.Values.Where(e => e.type == EquipmentType.Weapon).ToList();
+        Assert.NotEmpty(weapons);
+        Assert.All(weapons, w => Assert.False(string.IsNullOrWhiteSpace(w.damageDice), $"{w.id} に damageDice が無い"));
+
+        // ダイス表記が壊れていれば 1d4 にフォールバックしてしまうため、記法も検証する。
+        Assert.All(weapons, w => Assert.Equal(w.damageDice, Dice.Parse(w.damageDice).ToString()));
+
+        // 軽い得物は増幅上限を持ち、重い得物は0（無制限）で青天井に伸びる。
+        Assert.Contains(weapons, w => w.maxAtkBonus > 0);
+        Assert.Contains(weapons, w => w.maxAtkBonus == 0);
+
+        // 武器を持たない敵は自然攻撃ダイスで殴る。
+        var unarmed = db.enemies.Values.Where(e => e.DefaultWeapon == null).ToList();
+        Assert.NotEmpty(unarmed);
+        Assert.All(unarmed, e => Assert.False(string.IsNullOrWhiteSpace(e.naturalDamageDice), $"{e.id} に naturalDamageDice が無い"));
     }
 
     static AdventurerMasterData BasicAdventurer() => new()

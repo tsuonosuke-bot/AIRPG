@@ -20,6 +20,20 @@ public class EnemyData : IUnitMember
     public EquipmentMasterData? Weapon => master.DefaultWeapon;
     public EquipmentMasterData? Armor => master.DefaultArmor;
 
+    // 武器を持つ敵は武器ダイス、素手の敵は種族固有の自然攻撃ダイスで殴る。
+    public string DamageDice
+    {
+        get
+        {
+            var w = master.DefaultWeapon;
+            if (w != null && !string.IsNullOrWhiteSpace(w.damageDice)) return w.damageDice;
+            return master.naturalDamageDice;
+        }
+    }
+
+    public int MaxAtkBonus => master.DefaultWeapon?.maxAtkBonus ?? 0;
+    public bool IsMagicAttack => master.DefaultWeapon != null && master.DefaultWeapon.magicCoeff > 0f;
+
     public EnemyData(EnemyMasterData master, int level = 1)
     {
         this.master = master;
@@ -31,7 +45,7 @@ public class EnemyData : IUnitMember
 
     int Scaled(int baseVal) => (int)Math.Floor(baseVal * (1.0 + GROWTH_PER_LEVEL * (level - 1)));
 
-    // 冒険者側と同じ縮小率（能力ボーナスを1/8、HPを1/2）を敵にも適用し、両陣営の相対バランスを保つ。
+    // 冒険者側と同じ縮小率（攻撃を1/4、防御を1/8、HPを1/2）を敵にも適用し、両陣営の相対バランスを保つ。
     public StatBlock GetBaseCombatStats()
     {
         int vit = Scaled(master.vitality);
@@ -44,9 +58,9 @@ public class EnemyData : IUnitMember
         {
             hp = (vit * 10 + cons * 5) / 2,
             san = men * 10,
-            pAtk = (str * 2 + cons / 2) / 8,
+            pAtk = (str * 2 + cons / 2) / 4,
             pDef = cons / 8,
-            mAtk = (intl * 2) / 8,
+            mAtk = (intl * 2) / 4,
             mDef = (men * 2) / 8,
             hit = agi,
             evade = agi - cons / 2,

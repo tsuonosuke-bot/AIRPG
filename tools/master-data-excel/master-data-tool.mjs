@@ -81,13 +81,15 @@ const sheetDefinitions = {
     keys: [
       "id", "displayName", "rarity", "type", "weaponType", "armorType",
       "physicalCoeff", "magicCoeff", "healCoeff",
-      "flatPhysicalAtk", "flatMagicAtk", "flatHeal", "price", "weight",
+      "damageDice", "maxAtkBonus",
+      "flatPhysicalAtk", "flatMagicAtk", "flatHeal", "price", "weight", "shopTier",
       ...statKeys.map((key) => `bonus_${key}`),
     ],
     labels: [
       "ID", "表示名", "レアリティ", "装備種別", "武器種", "防具種",
       "物理係数", "魔法係数", "回復係数",
-      "固定物攻", "固定魔攻", "固定回復", "価格", "重量",
+      "ダメージダイス", "増幅上限",
+      "固定物攻", "固定魔攻", "固定回復", "価格", "重量", "商店Tier",
       ...statKeys.map((key) => `補正 ${key}`),
     ],
   },
@@ -232,8 +234,9 @@ const makeRows = (data) => {
   const equipment = data.equipment.map((e) => [
     e.id, e.displayName, clean(e.rarity), e.type, e.weaponType, e.armorType,
     e.physicalCoeff, e.magicCoeff, e.healCoeff,
+    clean(e.damageDice), clean(e.maxAtkBonus),
     clean(e.flatPhysicalAtk), clean(e.flatMagicAtk), clean(e.flatHeal),
-    e.price, e.weight,
+    e.price, e.weight, clean(e.shopTier),
     ...statKeys.map((key) => mapValue(e.bonus, key)),
   ]);
 
@@ -742,11 +745,14 @@ const importWorkbook = async (writeMode) => {
     item.physicalCoeff = numberValue(x.physicalCoeff, "physicalCoeff", row);
     item.magicCoeff = numberValue(x.magicCoeff, "magicCoeff", row);
     item.healCoeff = numberValue(x.healCoeff, "healCoeff", row);
+    optionalAssign(item, "damageDice", optionalText(x.damageDice));
+    optionalAssign(item, "maxAtkBonus", optionalNumber(x.maxAtkBonus, "maxAtkBonus", row, true));
     optionalAssign(item, "flatPhysicalAtk", optionalNumber(x.flatPhysicalAtk, "flatPhysicalAtk", row, true));
     optionalAssign(item, "flatMagicAtk", optionalNumber(x.flatMagicAtk, "flatMagicAtk", row, true));
     optionalAssign(item, "flatHeal", optionalNumber(x.flatHeal, "flatHeal", row, true));
     item.price = numberValue(x.price, "price", row, true);
     item.weight = numberValue(x.weight, "weight", row, true);
+    optionalAssign(item, "shopTier", optionalNumber(x.shopTier, "shopTier", row, true));
     item.bonus = buildStatObject(x, "bonus", row);
     return item;
   })).filter(Boolean);

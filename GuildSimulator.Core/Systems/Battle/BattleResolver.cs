@@ -11,7 +11,23 @@ public static class BattleResolver
         public int rounds;
     }
 
-    const float DAMAGE_K = 1f;
+    // ダメージは「武器ダイスを基礎値とし、能力で増幅し、相手の防御を引く」の3層で決まる。
+    //   増幅率   = 1 + min(攻撃力, 武器の増幅上限) × AMP_PER_ATK + レベル差 × LEVEL_AMP_PER_DIFF
+    //   素の威力 = floor(武器ダイス × 増幅率)
+    //   ダメージ = max(素の威力 - 防御力, 素の威力 × MIN_DAMAGE_RATE, MIN_DAMAGE)
+    // 攻撃力そのものではなく武器が基礎値を握るため、装備更新がそのまま火力になる。
+    const float AMP_PER_ATK = 0.06f;        // 攻撃力1につき増幅+6%
+    const float LEVEL_AMP_PER_DIFF = 0.01f; // レベル差1につき増幅±1%
+
+    // 敵は1レベルごとに能力値が30%伸びるため、終盤の敵の攻撃力は冒険者の域（8〜25程度）を
+    // 大きく超える。増幅が青天井だと武器ではなく能力値が火力を支配してしまうので天井を設ける。
+    const float MAX_AMPLIFY = 4f;
+    const float MIN_AMPLIFY = 0.1f;
+
+    // 防御は減算だが、硬い相手に永久に1ダメージしか通らない消耗戦を避けるため、
+    // 「軽減後でも素のダメージのこの割合は必ず通る」下限を設ける。
+    const float MIN_DAMAGE_RATE = 0.15f;
+    const int MIN_DAMAGE = 1;
 
     // 命中率：hit/evadeの「比率」ではなく「差分」を基準命中率に加減する方式。
     // hitやevadeが0以下になっても極端な0%/100%へ落ちないよう上下限でクランプする。
@@ -150,23 +166,25 @@ public static class BattleResolver
                     }
                     else
                     {
-                        bool isPhysical = actorStats.pAtk >= actorStats.mAtk;
-                        float abilityTerm = isPhysical
-                            ? AttackTerm(actorStats.pAtk, targetStats.pDef)
-                            : AttackTerm(actorStats.mAtk, targetStats.mDef);
-                        abilityTerm *= DAMAGE_K;
+                        // 物理か魔法かは能力値の大小ではなく武器そのもので決まる。
+                        // 魔道士が剣を持てば剣で殴り、戦士が杖を持てば魔法が飛ぶ。
+                        bool isMagic = actor.IsMagicAttack;
+                        int atkStat = isMagic ? actorStats.mAtk : actorStats.pAtk;
+                        int defStat = isMagic ? targetStats.mDef : targetStats.pDef;
 
-                        string diceNotation = string.IsNullOrWhiteSpace(actor.Weapon?.damageDice)
-                            ? DEFAULT_DAMAGE_DICE : actor.Weapon!.damageDice;
+                        // 基礎値：武器のダメージダイス。決定的成功はダイスをもう1セット追加する。
+                        string diceNotation = string.IsNullOrWhiteSpace(actor.DamageDice)
+                            ? DEFAULT_DAMAGE_DICE : actor.DamageDice;
                         int diceRoll = Dice.Roll(diceNotation);
-                        if (check.critical) diceRoll += Dice.Roll(diceNotation); // 決定的成功はダイスをもう1セット追加
+                        if (check.critical) diceRoll += Dice.Roll(diceNotation);
 
-                        float levelBonus = 1f + (actor.Level - target.Level) / 100f;
-                        int dmg = Math.Max(1, (int)Math.Floor(abilityTerm * levelBonus) + diceRoll);
+                        var dealt = ComputeDamage(
+                            diceRoll, atkStat, actor.MaxAtkBonus, defStat, actor.Level - target.Level);
 
-                        target.CombatHp -= dmg;
+                        target.CombatHp -= dealt.final;
                         string tag = check.critical ? "決定的成功！" : "命中！";
-                        logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {tag}（D100={check.roll}≤{hitPercent}%、武器ダイス{diceNotation}→{diceRoll}） ダメージ={dmg} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
+                        string atkKind = isMagic ? "魔法" : "物理";
+                        logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {tag}（D100={check.roll}≤{hitPercent}%、{atkKind} {diceNotation}→{diceRoll}×{dealt.amplify:0.00}={dealt.raw} - 防御{defStat}） ダメージ={dealt.final} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
 
                         if (target.CombatHp <= 0)
                         {
@@ -237,11 +255,33 @@ public static class BattleResolver
         return res;
     }
 
-    // atk^2/(atk+def) 方式。防御が0でもatk相当で頭打ちになり、比率方式のように発散しない。
-    static float AttackTerm(int atkStat, int defStat)
+    /// <summary>ダメージの内訳。ログに計算過程を出すために各段階を持ち回る。</summary>
+    public readonly record struct DamageResult(float amplify, int raw, int final);
+
+    /// <summary>
+    /// 命中後のダメージ。武器ダイスの出目を基礎値として能力で増幅し、相手の防御を引く。
+    /// </summary>
+    public static DamageResult ComputeDamage(int diceRoll, int atkStat, int maxAtkBonus, int defStat, int levelDiff)
     {
-        if (atkStat <= 0) return 0f;
-        return (float)atkStat * atkStat / (atkStat + Math.Max(0, defStat));
+        float amp = AmplifyRate(atkStat, maxAtkBonus, levelDiff);
+        int raw = Math.Max(MIN_DAMAGE, (int)Math.Floor(Math.Max(0, diceRoll) * amp));
+
+        // 防御は減算だが、素の威力の一定割合は必ず通す（硬い相手との無限消耗戦を避ける安全弁）。
+        int floorDmg = (int)Math.Ceiling(raw * MIN_DAMAGE_RATE);
+        int final = Math.Max(MIN_DAMAGE, Math.Max(floorDmg, raw - Math.Max(0, defStat)));
+        return new DamageResult(amp, raw, final);
+    }
+
+    /// <summary>
+    /// 武器ダイスに掛ける増幅率。攻撃力が高いほど伸びるが、武器ごとの上限（maxAtkBonus）で頭打ちになる。
+    /// 短剣に腕力を乗せきれないのはこの上限のため。0以下の上限は「無制限」を意味する。
+    /// </summary>
+    public static float AmplifyRate(int atkStat, int maxAtkBonus, int levelDiff)
+    {
+        int effective = Math.Max(0, atkStat);
+        if (maxAtkBonus > 0) effective = Math.Min(effective, maxAtkBonus);
+        float rate = 1f + effective * AMP_PER_ATK + levelDiff * LEVEL_AMP_PER_DIFF;
+        return Math.Clamp(rate, MIN_AMPLIFY, MAX_AMPLIFY);
     }
 
     // D100を振って命中率%と比較するCoC式パーセンタイル判定。
