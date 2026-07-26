@@ -99,7 +99,8 @@ public class FacilitySystemTests
         restored.RestoreFacilities(new[] { BoardFacility() });
         var manager = new QuestManager(restored);
 
-        Assert.Equal(1, restored.FacilityUpkeepPerTurn);
-        Assert.Equal(4, manager.NormalBoardCapacity);
+        Assert.Single(restored.facilities);
+        Assert.Equal(BoardFacility().upkeepGoldPerTurn, restored.FacilityUpkeepPerTurn);
+        Assert.Equal(manager.BaseNormalBoardCapacity + 1, manager.NormalBoardCapacity);
     }
 }

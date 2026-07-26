@@ -117,7 +117,10 @@ public class GuildManager
     }
 
     // ---- Facilities ----
-    public bool HasFacility(FacilityMasterData facility) => facilities.Contains(facility);
+    // 同じ施設かどうかはidで見る。マスタの同一インスタンスが渡ってくる前提にすると、
+    // 復元やテストで作り直した同一IDの施設を二重に建ててしまう。
+    public bool HasFacility(FacilityMasterData facility) =>
+        facilities.Any(f => f.id == facility.id);
 
     public bool TryBuildFacility(FacilityMasterData facility, out string reason)
     {
