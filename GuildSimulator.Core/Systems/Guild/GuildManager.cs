@@ -57,6 +57,13 @@ public class GuildManager
         economyLogs.Add($"雇用: {adv.name}（維持費 {CalculateAdventurerUpkeep(adv.level)}G/Turn）");
     }
 
+    public bool RemoveAdventurer(AdventurerData adv)
+    {
+        if (!adventurers.Remove(adv)) return false;
+        economyLogs.Add($"除名: {adv.name}");
+        return true;
+    }
+
     /// <summary>セーブデータからの復元専用。経済ログは追加しない。</summary>
     public void RestoreEconomy(int gold, int guildRank, int guildPoints)
     {

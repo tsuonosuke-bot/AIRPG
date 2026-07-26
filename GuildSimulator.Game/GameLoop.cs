@@ -107,7 +107,7 @@ public static class GameLoop
                             $"次の維持費支払い後は {projectedAfterUpkeep}Gです。完了報酬がなければ破産します。ターンを進めますか？"))
                         break;
                     NextTurn(guild, questManager, ref currentTurn);
-                    recruitCandidates = RecruitmentSystem.DrawCandidates(db.allAdventurers, guild, GameRandom.Range(0, MaxCandidateCount + 1));
+                    recruitCandidates = RecruitmentSystem.DrawCandidates(db.allAdventurers, guild, GameRandom.Range(1, MaxCandidateCount + 1));
                     // 報酬でGP条件を達成したターンに、昇格試験をすぐ掲示できる順序にする。
                     await ShowQuestsNeedingAttentionAsync(questManager, guild);
                     questManager.RefreshBoard(db.allQuests, currentTurn);

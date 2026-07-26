@@ -89,10 +89,17 @@ public static class AdventurerScreen
                 Ui.Dim("  （出発中は装備を変更できません。帰還後に変更してください）");
             else
                 options.Add(new MenuOption("e", "装備を変更する"));
+            if (!busy)
+                options.Add(new MenuOption("d", "ギルドから除名する", Style: TextStyle.Error));
             options.Add(new MenuOption("0", "戻る", Style: TextStyle.Dim));
 
             string input = await Ui.SelectAsync("選択", options);
             if (input == "e" && a.isAlive && !busy) { await ManageEquipmentAsync(a, guild); continue; }
+            if (input == "d" && !busy)
+            {
+                if (await DismissAdventurerAsync(a, guild)) return;
+                continue;
+            }
             return;
         }
     }
@@ -126,6 +133,21 @@ public static class AdventurerScreen
         if (item == null) return "";
         var parts = BonusParts(item.bonus);
         return parts.Count == 0 ? "" : $"（{string.Join(" ", parts)}）";
+    }
+
+    static async Task<bool> DismissAdventurerAsync(AdventurerData a, GuildManager guild)
+    {
+        string warning = a.isAlive
+            ? $"{a.name}（Lv{a.level}）をギルドから除名します。装備は倉庫に戻りますが、この冒険者は二度と雇えません。"
+            : $"{a.name}の記録をギルドから抹消します。装備は倉庫に戻ります。";
+        if (!await Ui.ConfirmAsync(warning)) return false;
+
+        if (a.weapon != null) { guild.AddEquipment(a.weapon, 1); a.weapon = null; }
+        if (a.armor != null) { guild.AddEquipment(a.armor, 1); a.armor = null; }
+        guild.RemoveAdventurer(a);
+        Ui.Info($"{a.name} をギルドから除名しました");
+        await Ui.PauseAsync();
+        return true;
     }
 
     static async Task ManageEquipmentAsync(AdventurerData a, GuildManager guild)

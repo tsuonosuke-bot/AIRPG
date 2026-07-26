@@ -37,6 +37,28 @@ public class QuestRewardTests
     }
 
     [Fact]
+    public void GatherQuestRetreatsWhenTargetNotMetAtFinalPhase()
+    {
+        var dungeon = new DungeonMasterData { id = "dungeon", dungeonName = "試験場" };
+        dungeon.eventTable[DungeonEventType.Nothing] = 1;
+
+        var definition = new QuestMasterData
+        {
+            id = "gather_quest", questName = "薬草採取", totalPhases = 3, bossPhase = 0,
+            dungeonId = dungeon.id, Dungeon = dungeon,
+            gatherItemName = "薬草", gatherTargetCount = 999,
+            gatherChance = 0f, gatherMinPerEvent = 0, gatherMaxPerEvent = 0,
+        };
+
+        var run = new QuestRun(definition, startedTurn: 1) { morale = new MoraleState(999) };
+        var progressor = new QuestProgressor();
+        for (int i = 0; i < 3; i++) progressor.AdvanceOnePhase(run, currentTurn: 1);
+
+        Assert.True(run.retreated);
+        Assert.Equal(0, run.gatheredCount);
+    }
+
+    [Fact]
     public void GatheringHappensAlongsideTheDungeonEventInTheSamePhase()
     {
         var dungeon = new DungeonMasterData { id = "dungeon", dungeonName = "試験場" };

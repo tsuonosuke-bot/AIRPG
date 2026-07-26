@@ -1,6 +1,7 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Quest;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Game.Presentation;
@@ -16,7 +17,9 @@ public static class QuestBoardScreen
             Ui.BeginScreen();
             Ui.Header("クエストボード");
             var board = questManager.questBoard;
-            Ui.WriteLine($"  受注可能: ギルドランク{guild.GuildRank}以下");
+            var availableAdvs = guild.adventurers.Where(a => a.isAlive && !questManager.IsAdventurerBusy(a.id)).ToList();
+            int partyAvgLevel = availableAdvs.Count > 0 ? (int)Math.Round(availableAdvs.Average(a => a.level)) : 0;
+            Ui.WriteLine($"  受注可能: ギルドランク{guild.GuildRank}以下    待機中冒険者: {availableAdvs.Count}人（平均Lv{partyAvgLevel}）");
             Ui.WriteLine();
             if (board.Count == 0)
             {
@@ -128,6 +131,7 @@ public static class QuestBoardScreen
         Ui.BeginScreen();
         Ui.Header("編成確認");
         ShowFormation(formation);
+        ShowPartyPreview(formation, def);
         var policy = await SelectPolicyAsync();
         if (policy == null) return;
         var carriedConsumables = await SelectConsumablesAsync(guild);
@@ -203,4 +207,27 @@ public static class QuestBoardScreen
     }
 
     static string PositionName(int slot) => slot < 3 ? $"前衛{slot + 1}" : $"後衛{slot - 2}";
+
+    static void ShowPartyPreview(AdventurerData?[] formation, QuestMasterData def)
+    {
+        var members = formation.Where(a => a != null).Select(a => a!).ToList();
+        if (members.Count == 0) return;
+
+        var perMember = UnitCalculator.CalcPerMember(
+            formation.Cast<IUnitMember?>().ToArray(), isAllySide: true);
+        int totalHp = perMember.Sum(x => x.stats.hp);
+        int totalMorale = perMember.Sum(x => x.stats.san);
+        int avgLevel = (int)Math.Round(members.Average(a => a.level));
+
+        var diff = DungeonDifficulty.Evaluate(def);
+
+        Ui.WriteLine();
+        Ui.Header("パーティ戦力");
+        Ui.WriteLine($"  平均レベル: {avgLevel}   合計HP: {totalHp}   推定士気: {totalMorale}");
+        Ui.WriteLine($"  クエスト難易度: {diff.label}（スコア{diff.score:0}）  敵レベル帯: {diff.EnemyLevelRange}");
+        if (diff.hasBoss)
+            Ui.WriteLine($"  ボス: Lv{diff.bossLevel}");
+        if (avgLevel < diff.enemyLevelMin)
+            Ui.Warn($"  ⚠ パーティの平均レベル({avgLevel})が敵の最低レベル({diff.enemyLevelMin})を下回っています");
+    }
 }
