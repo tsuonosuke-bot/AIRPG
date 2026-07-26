@@ -17,17 +17,15 @@ public class QuestProgressor
 
         DungeonEventType ev = RollDungeonEvent(q.def.Dungeon, phase);
 
-        // 採取クエストは自前の抽選を先に回し、当たればダンジョン抽選を上書きする。
-        if (q.def.IsGatherQuest && !isBoss && !q.GatherFulfilled
-            && GameRandom.NextFloat() < q.def.gatherChance)
-            ev = DungeonEventType.Gather;
-
         if (qe == QuestEventType.ForceEnemyEncounter) ev = DungeonEventType.EnemyEncounter;
         else if (qe == QuestEventType.ForceHeal) ev = DungeonEventType.Heal;
         else if (qe == QuestEventType.ForceTrap) ev = DungeonEventType.Trap;
         else if (qe == QuestEventType.ForceTreasure) ev = DungeonEventType.Treasure;
-        else if (qe == QuestEventType.ForceGather && q.def.IsGatherQuest) ev = DungeonEventType.Gather;
         if (isBoss) ev = DungeonEventType.EnemyEncounter;
+
+        // 採取判定はダンジョンイベントとは別枠。同じフェーズで戦闘や宝箱と同時に起きる。
+        bool gathers = q.def.IsGatherQuest && !q.GatherFulfilled && !isBoss
+            && (qe == QuestEventType.ForceGather || GameRandom.NextFloat() < q.def.gatherChance);
 
         string evTitle = ev.ToString();
         string evResult = "";
@@ -173,18 +171,6 @@ public class QuestProgressor
                     break;
                 }
 
-            case DungeonEventType.Gather:
-                {
-                    evTitle = "採取";
-                    int got = GameRandom.Range(q.def.gatherMinPerEvent, q.def.gatherMaxPerEvent + 1);
-                    got = Math.Max(0, got);
-                    q.gatheredCount += got;
-                    evResult = got <= 0
-                        ? $"{q.def.gatherItemName} は見つからなかった（{q.gatheredCount}/{q.def.gatherTargetCount}）"
-                        : $"{q.def.gatherItemName} を {got} 個採取（{q.gatheredCount}/{q.def.gatherTargetCount}）";
-                    break;
-                }
-
             default:
                 evTitle = "進行"; evResult = "何も起きなかった"; break;
         }
@@ -198,6 +184,18 @@ public class QuestProgressor
             evTitle,
             evResult,
             important: isBoss || ev is DungeonEventType.Trap or DungeonEventType.Treasure);
+
+        // 道中で何が起きたかに関わらず、生きて動けていれば採取そのものは進む。
+        if (gathers && !q.failed && !q.retreated)
+        {
+            int got = Math.Max(0, GameRandom.Range(q.def.gatherMinPerEvent, q.def.gatherMaxPerEvent + 1));
+            q.gatheredCount += got;
+            string gatherResult = got <= 0
+                ? $"{q.def.gatherItemName} は見つからなかった（{q.gatheredCount}/{q.def.gatherTargetCount}）"
+                : $"{q.def.gatherItemName} を {got} 個採取（{q.gatheredCount}/{q.def.gatherTargetCount}）";
+            q.logs.Add($"[Turn {currentTurn}] Phase {q.currentPhase}/{q.def.totalPhases}: 採取 - {gatherResult}");
+            q.AddReportEvent(currentTurn, phase, ExpeditionEventKind.Gather, "採取", gatherResult);
+        }
 
         // 最終フェーズに達しても目標数に届かない採取クエストは、残りをまとめて採取して達成扱いにする。
         if (!q.failed && q.def.IsGatherQuest && !q.GatherFulfilled && q.currentPhase >= q.def.totalPhases)
@@ -219,7 +217,6 @@ public class QuestProgressor
         DungeonEventType.Heal => ExpeditionEventKind.Rest,
         DungeonEventType.Trap => ExpeditionEventKind.Trap,
         DungeonEventType.Treasure => ExpeditionEventKind.Treasure,
-        DungeonEventType.Gather => ExpeditionEventKind.Gather,
         _ => ExpeditionEventKind.Progress,
     };
 

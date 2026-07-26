@@ -536,7 +536,7 @@ const exportWorkbook = async () => {
   addValidation(sheets.questRewards, sheetDefinitions.questRewards, "type", [0, 1, 2, 3, 4]);
   addValidation(sheets.questEvents, sheetDefinitions.questEvents, "type", [0, 1, 2, 3, 4, 5, 6]);
   addValidation(sheets.dungeonEvents, sheetDefinitions.dungeonEvents, "eventType", [
-    "EnemyEncounter", "Heal", "Trap", "Treasure", "Nothing", "Gather",
+    "EnemyEncounter", "Heal", "Trap", "Treasure", "Nothing",
   ]);
   addValidation(sheets.dungeonRewards, sheetDefinitions.dungeonRewards, "type", [0, 1, 2, 3, 4]);
 

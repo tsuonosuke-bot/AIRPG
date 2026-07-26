@@ -37,6 +37,30 @@ public class QuestRewardTests
     }
 
     [Fact]
+    public void GatheringHappensAlongsideTheDungeonEventInTheSamePhase()
+    {
+        var dungeon = new DungeonMasterData { id = "dungeon", dungeonName = "試験場" };
+        dungeon.treasureTable.Add(new RewardEntryData { type = RewardType.Gold, gold = 10, weight = 1 });
+        // このダンジョンでは宝箱しか起きない。採取が上書きするなら宝箱は1つも出ない。
+        dungeon.eventTable[DungeonEventType.Treasure] = 1;
+
+        var definition = new QuestMasterData
+        {
+            id = "gather_quest", questName = "薬草採取", totalPhases = 20, bossPhase = 0,
+            dungeonId = dungeon.id, Dungeon = dungeon,
+            gatherItemName = "薬草", gatherTargetCount = 999,
+            gatherChance = 1f, gatherMinPerEvent = 1, gatherMaxPerEvent = 1,
+        };
+
+        var run = new QuestRun(definition, startedTurn: 1) { morale = new MoraleState(999) };
+        var progressor = new QuestProgressor();
+        for (int i = 0; i < 5; i++) progressor.AdvanceOnePhase(run, currentTurn: 1);
+
+        Assert.Equal(5, run.gatheredCount);
+        Assert.Equal(5, run.chests.Count);
+    }
+
+    [Fact]
     public void BossDefeatYieldsAnUnopenedChestOpenedOnReturn()
     {
         var relic = new RelicMasterData { id = "relic", relicName = "試練の証" };

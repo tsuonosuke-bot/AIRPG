@@ -6,7 +6,8 @@ public enum WeaponType { Sword, Axe, Spear, Bow, Fire, Wind, Water, Earth, Dark,
 public enum ArmorType { Cloth, Leather, Plate, Null }
 public enum SkillScope { Self, UnitAura }
 public enum RelicEffectType { Unit_AddFlat, Unit_Multiply, GoldReward_Multiply, Upkeep_Multiply, RestHeal_Multiply }
-public enum DungeonEventType { EnemyEncounter, Heal, Trap, Treasure, Nothing, Gather }
+// 採取はダンジョンイベントとは別枠で判定するので、ここには含めない（QuestProgressor参照）。
+public enum DungeonEventType { EnemyEncounter, Heal, Trap, Treasure, Nothing }
 public enum QuestEventType { None, ForceEnemyEncounter, ForceBossEncounter, ForceTreasure, ForceTrap, ForceHeal, ForceGather }
 public enum RewardType { Relic, Equipment, Gold, Skill, Consumable }
 
