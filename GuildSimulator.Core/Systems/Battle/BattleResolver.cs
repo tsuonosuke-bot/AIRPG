@@ -20,6 +20,15 @@ public static class BattleResolver
     const float MIN_HIT_RATE = 0.05f;
     const float MAX_HIT_RATE = 0.95f;
 
+    // CoC（クトゥルフの呼び声）のパーセンタイル判定を踏襲：D100を振り、命中率%以下なら成功。
+    // 成功のうち上位1/5（命中率の1/5以下の出目）は「決定的成功」、失敗のうち出目96以上は「大失敗」。
+    const int CRIT_ROLL_DIVISOR = 5;
+    const int FUMBLE_ROLL_THRESHOLD = 96;
+    const string DEFAULT_DAMAGE_DICE = "1d4"; // 素手・自然武器のフォールバック
+    const string FUMBLE_SELF_DICE = "1d2";    // 大失敗時、体勢を崩して自らに受けるダメージ
+    const int HEAL_CRIT_ROLL = 5;
+    const int HEAL_FUMBLE_ROLL = 96;
+
     const float FRONT_TARGET_CHANCE = 0.8f; // 前衛がいる限り80%は前衛を狙う
     const float HEAL_TARGET_HP_RATE = 0.7f; // 味方のHP率がこれを下回っていたら回復を選ぶ
     const float HEAL_SCALE = 1.5f;          // heal行動1回あたりの回復量係数
@@ -84,13 +93,26 @@ public static class BattleResolver
 
                 if (healTarget != null)
                 {
-                    int healAmt = (int)Math.Ceiling(actorStats.heal * HEAL_SCALE);
-                    int cap = (int)Math.Ceiling(healTarget.CombatHpMax * HEAL_CAP_RATE);
-                    healAmt = Math.Min(Math.Min(healAmt, cap), healTarget.CombatHpMax - healTarget.CombatHp);
-                    if (healAmt > 0)
+                    int healRoll = GameRandom.Range(1, 101);
+                    bool healCrit = healRoll <= HEAL_CRIT_ROLL;
+                    bool healFumble = healRoll >= HEAL_FUMBLE_ROLL;
+
+                    if (healFumble)
                     {
-                        healTarget.CombatHp += healAmt;
-                        logs.Add($"  Phase {phase}: {actor.Name}→{healTarget.Name} 回復 +{healAmt}（{healTarget.CombatHp}/{healTarget.CombatHpMax}）");
+                        logs.Add($"  Phase {phase}: {actor.Name}→{healTarget.Name} 大失敗！（D100={healRoll}） 手当てがうまくいかない");
+                    }
+                    else
+                    {
+                        int healAmt = (int)Math.Ceiling(actorStats.heal * HEAL_SCALE);
+                        if (healCrit) healAmt = (int)Math.Ceiling(healAmt * 1.5f);
+                        int cap = (int)Math.Ceiling(healTarget.CombatHpMax * HEAL_CAP_RATE);
+                        healAmt = Math.Min(Math.Min(healAmt, cap), healTarget.CombatHpMax - healTarget.CombatHp);
+                        if (healAmt > 0)
+                        {
+                            healTarget.CombatHp += healAmt;
+                            string healTag = healCrit ? "決定的成功の治療" : "回復";
+                            logs.Add($"  Phase {phase}: {actor.Name}→{healTarget.Name} {healTag} +{healAmt}（D100={healRoll}）（{healTarget.CombatHp}/{healTarget.CombatHpMax}）");
+                        }
                     }
                 }
                 else
@@ -99,26 +121,52 @@ public static class BattleResolver
                     if (target == null) continue;
                     var targetStats = statsByMember[target];
 
-                    float baseDmg =
-                        (AttackTerm(actorStats.pAtk, targetStats.pDef) +
-                         AttackTerm(actorStats.mAtk, targetStats.mDef)) * DAMAGE_K;
-
-                    float hitRate = Math.Clamp(
+                    int hitPercent = (int)Math.Round(Math.Clamp(
                         BASE_HIT_RATE + (actorStats.hit - targetStats.evade) * HIT_RATE_PER_POINT,
-                        MIN_HIT_RATE, MAX_HIT_RATE);
+                        MIN_HIT_RATE, MAX_HIT_RATE) * 100f);
 
-                    if (GameRandom.NextFloat() >= hitRate)
+                    var check = RollD100(hitPercent);
+
+                    if (!check.success)
                     {
-                        logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} 回避！（命中率={hitRate:P0}） ダメージなし");
+                        if (check.fumble)
+                        {
+                            int selfDmg = Dice.Roll(FUMBLE_SELF_DICE);
+                            actor.CombatHp -= selfDmg;
+                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} 大失敗！（D100={check.roll}） 体勢を崩し自分に{selfDmg}ダメージ（{Math.Max(0, actor.CombatHp)}/{actor.CombatHpMax}）");
+
+                            if (actor.CombatHp <= 0)
+                            {
+                                actor.CombatHp = 0;
+                                actor.IsAlive = false;
+                                logs.Add($"  Phase {phase}: {actor.Name} 自滅した…");
+                                if (entry.isAdvSide) partyDowned++;
+                            }
+                        }
+                        else
+                        {
+                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} 回避！（D100={check.roll} > {hitPercent}%） ダメージなし");
+                        }
                     }
                     else
                     {
+                        bool isPhysical = actorStats.pAtk >= actorStats.mAtk;
+                        float abilityTerm = isPhysical
+                            ? AttackTerm(actorStats.pAtk, targetStats.pDef)
+                            : AttackTerm(actorStats.mAtk, targetStats.mDef);
+                        abilityTerm *= DAMAGE_K;
+
+                        string diceNotation = string.IsNullOrWhiteSpace(actor.Weapon?.damageDice)
+                            ? DEFAULT_DAMAGE_DICE : actor.Weapon!.damageDice;
+                        int diceRoll = Dice.Roll(diceNotation);
+                        if (check.critical) diceRoll += Dice.Roll(diceNotation); // 決定的成功はダイスをもう1セット追加
+
                         float levelBonus = 1f + (actor.Level - target.Level) / 100f;
-                        float randBonus = GameRandom.Range(0.95f, 1.05f);
-                        int dmg = Math.Max(1, (int)Math.Floor(baseDmg * levelBonus * randBonus));
+                        int dmg = Math.Max(1, (int)Math.Floor(abilityTerm * levelBonus) + diceRoll);
 
                         target.CombatHp -= dmg;
-                        logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} 命中！ ダメージ={dmg}（命中率={hitRate:P0}） HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
+                        string tag = check.critical ? "決定的成功！" : "命中！";
+                        logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {tag}（D100={check.roll}≤{hitPercent}%、武器ダイス{diceNotation}→{diceRoll}） ダメージ={dmg} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
 
                         if (target.CombatHp <= 0)
                         {
@@ -194,6 +242,17 @@ public static class BattleResolver
     {
         if (atkStat <= 0) return 0f;
         return (float)atkStat * atkStat / (atkStat + Math.Max(0, defStat));
+    }
+
+    // D100を振って命中率%と比較するCoC式パーセンタイル判定。
+    // 成功のうち出目が命中率の1/5以下なら決定的成功、失敗のうち出目96以上なら大失敗。
+    static (bool success, bool critical, bool fumble, int roll) RollD100(int successPercent)
+    {
+        int roll = GameRandom.Range(1, 101);
+        bool success = roll <= successPercent;
+        bool critical = success && roll <= Math.Max(1, successPercent / CRIT_ROLL_DIVISOR);
+        bool fumble = !success && roll >= FUMBLE_ROLL_THRESHOLD;
+        return (success, critical, fumble, roll);
     }
 
     // 敵の内訳（名前・レベル・頭数）をログに残し、戦闘ログだけで強さの見立てができるようにする。

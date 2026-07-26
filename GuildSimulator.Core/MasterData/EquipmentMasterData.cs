@@ -15,6 +15,9 @@ public class EquipmentMasterData
     public int flatPhysicalAtk;
     public int flatMagicAtk;
     public int flatHeal;
+
+    /// <summary>攻撃時に振るダメージダイス（例: "1d6", "2d4+1"）。未設定なら素手・自然攻撃扱いの既定値を使う。</summary>
+    public string damageDice = "";
     public int weight;
     public int price;
     public StatBlock bonus;
