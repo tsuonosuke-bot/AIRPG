@@ -7,7 +7,7 @@ namespace GuildSimulator.Game.Data;
 
 public class SaveGameData
 {
-    public int saveVersion = 3;
+    public int saveVersion = 4;
     public int currentTurn = 1;
     public GuildSaveData guild = new();
     public QuestManagerSaveData questManager = new();
@@ -61,6 +61,7 @@ public class AdventurerSaveData
     public string classId = "";
     public string weaponId = "";
     public string armorId = "";
+    public Dictionary<EquipSlot, string> equippedSlotIds = new();
     public int vitality, mental, strength, agility, intelligence, constitution, appearance;
     public int combatHp;
     public int combatHpMax;

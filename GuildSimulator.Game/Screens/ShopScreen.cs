@@ -56,7 +56,7 @@ public static class ShopScreen
             for (int i = 0; i < items.Count; i++)
             {
                 var e = items[i];
-                string kind = e.type == EquipmentType.Weapon ? "武器" : "防具";
+                string kind = e.type switch { EquipmentType.Weapon => "武器", EquipmentType.Accessory => "装飾", _ => "防具" };
                 int owned = guild.GetCount(e);
                 string ownedTag = owned > 0 ? $"  (所持x{owned})" : "";
                 bool affordable = guild.Gold >= e.price;
@@ -173,7 +173,7 @@ public static class ShopScreen
             for (int i = 0; i < stock.Count; i++)
             {
                 var st = stock[i];
-                string kind = st.item.type == EquipmentType.Weapon ? "武器" : "防具";
+                string kind = st.item.type switch { EquipmentType.Weapon => "武器", EquipmentType.Accessory => "装飾", _ => "防具" };
                 Ui.Write($"  {i + 1}. [{kind}] ");
                 Ui.WriteRarityName(st.item.displayName, st.item.rarity);
                 Ui.WriteLine($"  x{st.count}  売値{GuildManager.SellPrice(st.item)}G/個");

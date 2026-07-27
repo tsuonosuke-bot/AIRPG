@@ -33,7 +33,13 @@ public static class InventoryScreen
             for (int i = 0; i < stock.Count; i++)
             {
                 var stack = stock[i];
-                string kind = stack.item.type == EquipmentType.Weapon ? "武器" : "防具";
+                string kind = stack.item.type switch
+                {
+                    EquipmentType.Weapon => "武器",
+                    EquipmentType.Armor => "防具",
+                    EquipmentType.Accessory => "装飾",
+                    _ => "その他",
+                };
                 int sellPrice = GuildManager.SellPrice(stack.item);
                 Ui.Write($"  {i + 1}. [{kind}] ");
                 Ui.WriteRarityName(stack.item.displayName, stack.item.rarity);

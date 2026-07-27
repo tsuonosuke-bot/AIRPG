@@ -21,8 +21,8 @@ public class AdventurerData : IUnitMember
 
     public RaceMasterData? race;
     public ClassMasterData? currentClass;
-    public EquipmentMasterData? weapon;
-    public EquipmentMasterData? armor;
+
+    readonly Dictionary<EquipSlot, EquipmentMasterData> equippedSlots = new();
 
     public int vitality, mental, strength, agility, intelligence, constitution, appearance;
 
@@ -32,11 +32,27 @@ public class AdventurerData : IUnitMember
     public int CombatHp { get; set; }
     public int CombatHpMax { get; set; }
     public IReadOnlyList<SkillMasterData> Skills => GetActiveSkills();
-    public EquipmentMasterData? Weapon => weapon;
-    public EquipmentMasterData? Armor => armor;
-    public string DamageDice => weapon?.damageDice ?? "";
-    public int MaxAtkBonus => weapon?.maxAtkBonus ?? 0;
-    public bool IsMagicAttack => weapon != null && weapon.magicCoeff > 0f;
+
+    public EquipmentMasterData? Weapon => GetEquipped(EquipSlot.RightHand);
+    public EquipmentMasterData? Armor => GetEquipped(EquipSlot.Body);
+    public string DamageDice => Weapon?.damageDice ?? "";
+    public int MaxAtkBonus => Weapon?.maxAtkBonus ?? 0;
+    public bool IsMagicAttack => Weapon != null && Weapon.magicCoeff > 0f;
+
+    public EquipmentMasterData? GetEquipped(EquipSlot slot) =>
+        equippedSlots.TryGetValue(slot, out var item) ? item : null;
+
+    public void SetEquipped(EquipSlot slot, EquipmentMasterData? item)
+    {
+        if (item == null)
+            equippedSlots.Remove(slot);
+        else
+            equippedSlots[slot] = item;
+    }
+
+    public IReadOnlyDictionary<EquipSlot, EquipmentMasterData> GetAllEquipped() => equippedSlots;
+
+    public IEnumerable<EquipmentMasterData> AllEquippedItems() => equippedSlots.Values;
 
     readonly List<LearnedSkill> learnedSkills = new();
     readonly List<SkillMasterData> activeSkillCache = new();
@@ -66,8 +82,10 @@ public class AdventurerData : IUnitMember
         intelligence = master.intelligence;
         constitution = master.constitution;
         appearance = master.appearance;
-        weapon = master.DefaultWeapon;
-        armor = master.DefaultArmor;
+        if (master.DefaultWeapon != null)
+            SetEquipped(EquipSlot.RightHand, master.DefaultWeapon);
+        if (master.DefaultArmor != null)
+            SetEquipped(EquipSlot.Body, master.DefaultArmor);
 
         foreach (var s in master.Skills)
             LearnSkill(s, null);
@@ -226,7 +244,7 @@ public class AdventurerData : IUnitMember
     }
 
     // ---- Combat ----
-    int TotalWeight => (weapon?.weight ?? 0) + (armor?.weight ?? 0);
+    int TotalWeight => equippedSlots.Values.Sum(e => e.weight);
     int CarryLimit => constitution + (strength + vitality) / 2;
     float OverweightRate
     {
@@ -238,16 +256,12 @@ public class AdventurerData : IUnitMember
         }
     }
 
-    // ダイスロール制への移行に伴い、能力由来の攻撃・防御ボーナスは武器ダイスの「小さな上乗せ」に
-    // 収まるよう縮小（旧式の8分の1）。HPも平均ダメージの縮小に合わせて半分に調整している。
     public StatBlock GetBaseCombatStats()
     {
         return new StatBlock
         {
             hp = (vitality * 10 + constitution * 5) / 2,
             san = mental * 10,
-            // pAtk/mAtkはダメージの「増幅率」の入力なので、/4に留めて能力値+1が体感できるようにする。
-            // pDef/mDefはダメージから直接引かれる値なので、/8のまま小さく抑える。
             pAtk = (strength * 2 + constitution / 2) / 4,
             pDef = constitution / 8,
             mAtk = (intelligence * 2) / 4,
@@ -261,13 +275,14 @@ public class AdventurerData : IUnitMember
     public StatBlock GetEquipmentBonus()
     {
         StatBlock b = default;
-        if (weapon != null) b += weapon.bonus;
-        if (armor != null) b += armor.bonus;
+        foreach (var item in equippedSlots.Values)
+            b += item.bonus;
         return b;
     }
 
     public StatBlock GetFinalCombatStats()
     {
+        var weapon = Weapon;
         var s = GetBaseCombatStats() + GetEquipmentBonus();
         float pCoef = weapon != null ? weapon.physicalCoeff : 1f;
         float mCoef = weapon?.magicCoeff ?? 0f;

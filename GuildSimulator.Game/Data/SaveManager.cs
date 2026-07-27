@@ -4,6 +4,7 @@ using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
+using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Quest;
 
 namespace GuildSimulator.Game.Data;
@@ -118,8 +119,9 @@ public static class SaveManager
         rankPoint = a.rankPoint,
         raceId = a.race?.id ?? "",
         classId = a.currentClass?.id ?? "",
-        weaponId = a.weapon?.id ?? "",
-        armorId = a.armor?.id ?? "",
+        weaponId = a.Weapon?.id ?? "",
+        armorId = a.Armor?.id ?? "",
+        equippedSlotIds = a.GetAllEquipped().ToDictionary(kv => kv.Key, kv => kv.Value.id),
         vitality = a.vitality,
         mental = a.mental,
         strength = a.strength,
@@ -300,8 +302,6 @@ public static class SaveManager
             rankPoint = saved.rankPoint,
             race = db.races.GetValueOrDefault(saved.raceId),
             currentClass = db.classes.GetValueOrDefault(saved.classId),
-            weapon = db.equipment.GetValueOrDefault(saved.weaponId),
-            armor = db.equipment.GetValueOrDefault(saved.armorId),
             vitality = saved.vitality,
             mental = saved.mental,
             strength = saved.strength,
@@ -316,6 +316,24 @@ public static class SaveManager
             retreatCount = saved.retreatCount,
             adventureHistory = new List<string>(saved.adventureHistory ?? new()),
         };
+
+        // スロットベース装備の復元（v4以降）。無ければ旧形式からマイグレーション。
+        foreach (var slot in EquipService.AllSlots)
+            adv.SetEquipped(slot, null);
+
+        if (saved.equippedSlotIds != null && saved.equippedSlotIds.Count > 0)
+        {
+            foreach (var (slot, itemId) in saved.equippedSlotIds)
+                if (!string.IsNullOrEmpty(itemId) && db.equipment.TryGetValue(itemId, out var item))
+                    adv.SetEquipped(slot, item);
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(saved.weaponId) && db.equipment.TryGetValue(saved.weaponId, out var weapon))
+                adv.SetEquipped(EquipSlot.RightHand, weapon);
+            if (!string.IsNullOrEmpty(saved.armorId) && db.equipment.TryGetValue(saved.armorId, out var armor))
+                adv.SetEquipped(EquipSlot.Body, armor);
+        }
 
         var skills = saved.learnedSkills
             .Where(ls => db.skills.ContainsKey(ls.skillId))

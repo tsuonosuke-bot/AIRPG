@@ -1,7 +1,8 @@
 namespace GuildSimulator.Core.Models;
 
 public enum StatType { Vitality, Mental, Strength, Agility, Intelligence, Constitution, Appearance }
-public enum EquipmentType { Weapon, Armor }
+public enum EquipmentType { Weapon, Armor, Accessory }
+public enum EquipSlot { RightHand, LeftHand, Head, Body, Accessory }
 public enum WeaponType { Sword, Axe, Spear, Bow, Fire, Wind, Water, Earth, Dark, Light, Null }
 public enum ArmorType { Cloth, Leather, Plate, Null }
 public enum SkillScope { Self, UnitAura }
