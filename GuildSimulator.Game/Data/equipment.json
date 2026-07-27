@@ -10,13 +10,33 @@
     "physicalCoeff": 1,
     "magicCoeff": 0,
     "healCoeff": 0,
-    "damageDice": "1d6",
+    "damageDice": "1d3",
     "maxAtkBonus": 16,
     "price": 30,
     "weight": 3,
     "bonus": {
       "pAtk": 1,
       "hit": 5
+    }
+  },
+  {
+    "id": "eq_dagger_01",
+    "displayName": "青銅の短剣",
+    "rarity": "Common",
+    "shopTier": 1,
+    "type": 0,
+    "weaponType": 0,
+    "armorType": 3,
+    "physicalCoeff": 1,
+    "magicCoeff": 0,
+    "healCoeff": 0,
+    "damageDice": "1d2",
+    "maxAtkBonus": 10,
+    "price": 25,
+    "weight": 2,
+    "bonus": {
+      "pAtk": 1,
+      "hit": 10
     }
   },
   {
@@ -30,7 +50,7 @@
     "physicalCoeff": 1,
     "magicCoeff": 0,
     "healCoeff": 0,
-    "damageDice": "1d6",
+    "damageDice": "1d2",
     "maxAtkBonus": 18,
     "price": 35,
     "weight": 4,
@@ -50,7 +70,7 @@
     "physicalCoeff": 1,
     "magicCoeff": 0,
     "healCoeff": 0,
-    "damageDice": "1d8",
+    "damageDice": "1d2",
     "maxAtkBonus": 0,
     "price": 40,
     "weight": 5,
@@ -70,13 +90,33 @@
     "physicalCoeff": 1,
     "magicCoeff": 0,
     "healCoeff": 0,
-    "damageDice": "1d6",
+    "damageDice": "1d3",
     "maxAtkBonus": 16,
     "price": 35,
     "weight": 3,
     "bonus": {
       "pAtk": 1,
       "hit": -10
+    }
+  },
+  {
+    "id": "eq_sling_01",
+    "displayName": "投石",
+    "rarity": "Common",
+    "shopTier": 1,
+    "type": 0,
+    "weaponType": 3,
+    "armorType": 3,
+    "physicalCoeff": 1,
+    "magicCoeff": 0,
+    "healCoeff": 0,
+    "damageDice": "1d2",
+    "maxAtkBonus": 10,
+    "price": 25,
+    "weight": 2,
+    "bonus": {
+      "pAtk": 1,
+      "hit": 8
     }
   },
   {
@@ -90,7 +130,7 @@
     "physicalCoeff": 0,
     "magicCoeff": 1,
     "healCoeff": 0,
-    "damageDice": "1d8",
+    "damageDice": "1d3",
     "maxAtkBonus": 0,
     "price": 40,
     "weight": 3,
@@ -110,7 +150,7 @@
     "physicalCoeff": 0,
     "magicCoeff": 1,
     "healCoeff": 0,
-    "damageDice": "1d4",
+    "damageDice": "1d2",
     "maxAtkBonus": 10,
     "price": 30,
     "weight": 1,
@@ -130,7 +170,7 @@
     "physicalCoeff": 0,
     "magicCoeff": 1,
     "healCoeff": 0,
-    "damageDice": "1d6",
+    "damageDice": "1d2",
     "maxAtkBonus": 18,
     "price": 40,
     "weight": 4,
@@ -150,7 +190,7 @@
     "physicalCoeff": 0,
     "magicCoeff": 1,
     "healCoeff": 0,
-    "damageDice": "1d6",
+    "damageDice": "1d3",
     "maxAtkBonus": 20,
     "price": 40,
     "weight": 5,
@@ -161,7 +201,7 @@
   },
   {
     "id": "eq_dark_01",
-    "displayName": "シャドウボルト",
+    "displayName": "ダーク",
     "rarity": "Common",
     "shopTier": 1,
     "type": 0,
@@ -170,7 +210,7 @@
     "physicalCoeff": 0,
     "magicCoeff": 1,
     "healCoeff": 0,
-    "damageDice": "1d8+1",
+    "damageDice": "1d3",
     "maxAtkBonus": 0,
     "price": 45,
     "weight": 3,
@@ -199,60 +239,21 @@
       "heal": 20
     }
   },
-  {
-    "id": "eq_dagger_01",
-    "displayName": "青銅の短剣",
-    "rarity": "Common",
-    "shopTier": 1,
-    "type": 0,
-    "weaponType": 0,
-    "armorType": 3,
-    "physicalCoeff": 1,
-    "magicCoeff": 0,
-    "healCoeff": 0,
-    "damageDice": "1d4",
-    "maxAtkBonus": 10,
-    "price": 25,
-    "weight": 2,
-    "bonus": {
-      "pAtk": 1,
-      "hit": 10
-    }
-  },
-  {
-    "id": "eq_sling_01",
-    "displayName": "投石",
-    "rarity": "Common",
-    "shopTier": 1,
-    "type": 0,
-    "weaponType": 3,
-    "armorType": 3,
-    "physicalCoeff": 1,
-    "magicCoeff": 0,
-    "healCoeff": 0,
-    "damageDice": "1d4",
-    "maxAtkBonus": 10,
-    "price": 25,
-    "weight": 2,
-    "bonus": {
-      "pAtk": 1,
-      "hit": 8
-    }
-  },
+
   {
     "id": "eq_sword_02",
-    "displayName": "鋼の剣",
+    "displayName": "鉄の剣",
     "rarity": "Common",
     "shopTier": 2,
     "type": 0,
     "weaponType": 0,
     "armorType": 3,
-    "physicalCoeff": 1.25,
+    "physicalCoeff": 1.1,
     "magicCoeff": 0,
     "healCoeff": 0,
-    "damageDice": "1d8",
-    "maxAtkBonus": 20,
-    "price": 140,
+    "damageDice": "1d4",
+    "maxAtkBonus": 18,
+    "price": 90,
     "weight": 4,
     "bonus": {
       "pAtk": 2,
@@ -260,20 +261,40 @@
     }
   },
   {
+    "id": "eq_dagger_02",
+    "displayName": "鉄の短剣",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 0,
+    "weaponType": 0,
+    "armorType": 3,
+    "physicalCoeff": 1.1,
+    "magicCoeff": 0,
+    "healCoeff": 0,
+    "damageDice": "1d3",
+    "maxAtkBonus": 12,
+    "price": 75,
+    "weight": 2,
+    "bonus": {
+      "pAtk": 2,
+      "hit": 10
+    }
+  },
+  {
     "id": "eq_spear_02",
-    "displayName": "鋼の長槍",
+    "displayName": "鉄の槍",
     "rarity": "Common",
     "shopTier": 2,
     "type": 0,
     "weaponType": 2,
     "armorType": 3,
-    "physicalCoeff": 1.25,
+    "physicalCoeff": 1.1,
     "magicCoeff": 0,
     "healCoeff": 0,
-    "damageDice": "1d8+1",
-    "maxAtkBonus": 24,
-    "price": 150,
-    "weight": 6,
+    "damageDice": "1d1+1",
+    "maxAtkBonus": 22,
+    "price": 100,
+    "weight": 5,
     "bonus": {
       "pAtk": 2,
       "hit": -10
@@ -281,38 +302,38 @@
   },
   {
     "id": "eq_axe_02",
-    "displayName": "鋼の戦斧",
+    "displayName": "鉄の斧",
     "rarity": "Common",
     "shopTier": 2,
     "type": 0,
     "weaponType": 1,
     "armorType": 3,
-    "physicalCoeff": 1.3,
+    "physicalCoeff": 1.15,
     "magicCoeff": 0,
     "healCoeff": 0,
-    "damageDice": "2d6",
+    "damageDice": "1d2+1",
     "maxAtkBonus": 0,
-    "price": 170,
-    "weight": 8,
+    "price": 110,
+    "weight": 6,
     "bonus": {
-      "pAtk": 3,
+      "pAtk": 2,
       "hit": -18
     }
   },
   {
     "id": "eq_bow_02",
-    "displayName": "狩人の長弓",
+    "displayName": "鉄の弓",
     "rarity": "Common",
     "shopTier": 2,
     "type": 0,
     "weaponType": 3,
     "armorType": 3,
-    "physicalCoeff": 1.25,
+    "physicalCoeff": 1.1,
     "magicCoeff": 0,
     "healCoeff": 0,
-    "damageDice": "1d8",
-    "maxAtkBonus": 20,
-    "price": 150,
+    "damageDice": "1d4",
+    "maxAtkBonus": 18,
+    "price": 100,
     "weight": 4,
     "bonus": {
       "pAtk": 2,
@@ -321,27 +342,108 @@
   },
   {
     "id": "eq_fire_02",
-    "displayName": "フレイムランス",
+    "displayName": "ファイラ",
     "rarity": "Common",
     "shopTier": 2,
     "type": 0,
     "weaponType": 4,
     "armorType": 3,
     "physicalCoeff": 0,
-    "magicCoeff": 1.3,
+    "magicCoeff": 1.15,
     "healCoeff": 0,
-    "damageDice": "2d6+1",
+    "damageDice": "1d4",
     "maxAtkBonus": 0,
-    "price": 180,
-    "weight": 4,
+    "price": 120,
+    "weight": 3,
     "bonus": {
-      "mAtk": 4,
+      "mAtk": 3,
       "evade": -15
     }
   },
   {
+    "id": "eq_wind_02",
+    "displayName": "ウィンダ",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 0,
+    "weaponType": 5,
+    "armorType": 3,
+    "physicalCoeff": 0,
+    "magicCoeff": 1.1,
+    "healCoeff": 0,
+    "damageDice": "1d3",
+    "maxAtkBonus": 12,
+    "price": 90,
+    "weight": 1,
+    "bonus": {
+      "mAtk": 2,
+      "hit": 10
+    }
+  },
+  {
+    "id": "eq_water_02",
+    "displayName": "ウォータラ",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 0,
+    "weaponType": 6,
+    "armorType": 3,
+    "physicalCoeff": 0,
+    "magicCoeff": 1.1,
+    "healCoeff": 0,
+    "damageDice": "1d3",
+    "maxAtkBonus": 22,
+    "price": 110,
+    "weight": 4,
+    "bonus": {
+      "mAtk": 2,
+      "mDef": 2
+    }
+  },
+  {
+    "id": "eq_earth_02",
+    "displayName": "アースラ",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 0,
+    "weaponType": 7,
+    "armorType": 3,
+    "physicalCoeff": 0,
+    "magicCoeff": 1.1,
+    "healCoeff": 0,
+    "damageDice": "1d4",
+    "maxAtkBonus": 24,
+    "price": 110,
+    "weight": 5,
+    "bonus": {
+      "pDef": 2,
+      "mAtk": 2
+    }
+  },
+  {
+    "id": "eq_dark_02",
+    "displayName": "ダークラ",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 0,
+    "weaponType": 8,
+    "armorType": 3,
+    "physicalCoeff": 0,
+    "magicCoeff": 1.15,
+    "healCoeff": 0,
+    "damageDice": "1d4",
+    "maxAtkBonus": 0,
+    "price": 120,
+    "weight": 3,
+    "bonus": {
+      "mAtk": 3,
+      "mDef": -1,
+      "evade": -10
+    }
+  },
+  {
     "id": "eq_Light_02",
-    "displayName": "ハイヒール",
+    "displayName": "ヒーラ",
     "rarity": "Common",
     "shopTier": 2,
     "type": 0,
@@ -349,15 +451,237 @@
     "armorType": 3,
     "physicalCoeff": 0,
     "magicCoeff": 0,
-    "healCoeff": 1.4,
+    "healCoeff": 1.2,
     "damageDice": "1d2",
     "maxAtkBonus": 0,
+    "price": 110,
+    "weight": 3,
+    "bonus": {
+      "heal": 30
+    }
+  },
+
+  {
+    "id": "eq_sword_03",
+    "displayName": "鋼の剣",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 0,
+    "armorType": 3,
+    "physicalCoeff": 1.25,
+    "magicCoeff": 0,
+    "healCoeff": 0,
+    "damageDice": "1d6",
+    "maxAtkBonus": 20,
+    "price": 220,
+    "weight": 4,
+    "bonus": {
+      "pAtk": 3,
+      "hit": 5
+    }
+  },
+  {
+    "id": "eq_dagger_03",
+    "displayName": "鋼の短剣",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 0,
+    "armorType": 3,
+    "physicalCoeff": 1.25,
+    "magicCoeff": 0,
+    "healCoeff": 0,
+    "damageDice": "1d4",
+    "maxAtkBonus": 14,
     "price": 180,
     "weight": 3,
     "bonus": {
-      "heal": 40
+      "pAtk": 3,
+      "hit": 10
     }
   },
+  {
+    "id": "eq_spear_03",
+    "displayName": "鋼の槍",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 2,
+    "armorType": 3,
+    "physicalCoeff": 1.25,
+    "magicCoeff": 0,
+    "healCoeff": 0,
+    "damageDice": "2d2",
+    "maxAtkBonus": 26,
+    "price": 240,
+    "weight": 6,
+    "bonus": {
+      "pAtk": 3,
+      "hit": -10
+    }
+  },
+  {
+    "id": "eq_axe_03",
+    "displayName": "鋼の斧",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 1,
+    "armorType": 3,
+    "physicalCoeff": 1.3,
+    "magicCoeff": 0,
+    "healCoeff": 0,
+    "damageDice": "1d3+1",
+    "maxAtkBonus": 0,
+    "price": 260,
+    "weight": 8,
+    "bonus": {
+      "pAtk": 4,
+      "hit": -18
+    }
+  },
+  {
+    "id": "eq_bow_03",
+    "displayName": "鋼の弓",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 3,
+    "armorType": 3,
+    "physicalCoeff": 1.25,
+    "magicCoeff": 0,
+    "healCoeff": 0,
+    "damageDice": "1d6",
+    "maxAtkBonus": 20,
+    "price": 240,
+    "weight": 4,
+    "bonus": {
+      "pAtk": 3,
+      "hit": -5
+    }
+  },
+  {
+    "id": "eq_fire_03",
+    "displayName": "ファイガ",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 4,
+    "armorType": 3,
+    "physicalCoeff": 0,
+    "magicCoeff": 1.3,
+    "healCoeff": 0,
+    "damageDice": "1d6",
+    "maxAtkBonus": 0,
+    "price": 280,
+    "weight": 4,
+    "bonus": {
+      "mAtk": 5,
+      "evade": -15
+    }
+  },
+  {
+    "id": "eq_wind_03",
+    "displayName": "ウィンガ",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 5,
+    "armorType": 3,
+    "physicalCoeff": 0,
+    "magicCoeff": 1.2,
+    "healCoeff": 0,
+    "damageDice": "1d4",
+    "maxAtkBonus": 14,
+    "price": 220,
+    "weight": 2,
+    "bonus": {
+      "mAtk": 3,
+      "hit": 10
+    }
+  },
+  {
+    "id": "eq_water_03",
+    "displayName": "ウォータガ",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 6,
+    "armorType": 3,
+    "physicalCoeff": 0,
+    "magicCoeff": 1.25,
+    "healCoeff": 0,
+    "damageDice": "1d4+1",
+    "maxAtkBonus": 26,
+    "price": 260,
+    "weight": 5,
+    "bonus": {
+      "mAtk": 3,
+      "mDef": 3
+    }
+  },
+  {
+    "id": "eq_earth_03",
+    "displayName": "アースガ",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 7,
+    "armorType": 3,
+    "physicalCoeff": 0,
+    "magicCoeff": 1.3,
+    "healCoeff": 0,
+    "damageDice": "1d4+1",
+    "maxAtkBonus": 28,
+    "price": 260,
+    "weight": 6,
+    "bonus": {
+      "pDef": 3,
+      "mAtk": 3
+    }
+  },
+  {
+    "id": "eq_dark_03",
+    "displayName": "ダークガ",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 8,
+    "armorType": 3,
+    "physicalCoeff": 0,
+    "magicCoeff": 1.3,
+    "healCoeff": 0,
+    "damageDice": "1d6",
+    "maxAtkBonus": 0,
+    "price": 280,
+    "weight": 4,
+    "bonus": {
+      "mAtk": 5,
+      "mDef": -2,
+      "evade": -10
+    }
+  },
+  {
+    "id": "eq_Light_03",
+    "displayName": "ヒーガ",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 9,
+    "armorType": 3,
+    "physicalCoeff": 0,
+    "magicCoeff": 0,
+    "healCoeff": 1.4,
+    "damageDice": "1d3",
+    "maxAtkBonus": 0,
+    "price": 260,
+    "weight": 3,
+    "bonus": {
+      "heal": 50
+    }
+  },
+
   {
     "id": "eq_cloth_01",
     "displayName": "布の服",
@@ -468,6 +792,7 @@
       "evade": -35
     }
   },
+
   {
     "id": "eq_drop_fang",
     "displayName": "森狼の牙剣",
@@ -479,7 +804,7 @@
     "physicalCoeff": 1.12,
     "magicCoeff": 0,
     "healCoeff": 0,
-    "damageDice": "1d6+1",
+    "damageDice": "1d4",
     "maxAtkBonus": 18,
     "price": 90,
     "weight": 3,
@@ -499,7 +824,7 @@
     "physicalCoeff": 1.35,
     "magicCoeff": 0,
     "healCoeff": 0,
-    "damageDice": "1d8+2",
+    "damageDice": "1d6",
     "maxAtkBonus": 20,
     "price": 260,
     "weight": 3,
@@ -520,7 +845,7 @@
     "physicalCoeff": 1.55,
     "magicCoeff": 0,
     "healCoeff": 0,
-    "damageDice": "2d8+2",
+    "damageDice": "2d4",
     "maxAtkBonus": 0,
     "price": 480,
     "weight": 8,
