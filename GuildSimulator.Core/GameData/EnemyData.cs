@@ -34,6 +34,18 @@ public class EnemyData : IUnitMember
     public int MaxAtkBonus => master.DefaultWeapon?.maxAtkBonus ?? 0;
     public bool IsMagicAttack => master.DefaultWeapon != null && master.DefaultWeapon.magicCoeff > 0f;
 
+    // 貫通判定（PV/AV）の素。冒険者と同じ組み立てだが、敵はレベル成長（30%/Lv）を通した値を使う。
+    public int RawPenetration => IsMagicAttack
+        ? CapByWeapon(Scaled(master.intelligence)) + Scaled(master.mental)
+        : CapByWeapon(Scaled(master.strength)) + Scaled(master.constitution);
+    public int RawPhysicalArmor => Scaled(master.constitution);
+    public int RawMagicArmor => Scaled(master.mental);
+    public int DamageBonusBase => IsMagicAttack
+        ? Scaled(master.intelligence) + Scaled(master.mental)
+        : Scaled(master.strength) + Scaled(master.constitution);
+
+    int CapByWeapon(int stat) => MaxAtkBonus > 0 ? Math.Min(stat, MaxAtkBonus) : stat;
+
     public EnemyData(EnemyMasterData master, int level = 1)
     {
         this.master = master;

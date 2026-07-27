@@ -38,6 +38,18 @@ public class AdventurerData : IUnitMember
     public int MaxAtkBonus => weapon?.maxAtkBonus ?? 0;
     public bool IsMagicAttack => weapon != null && weapon.magicCoeff > 0f;
 
+    // 貫通判定（PV/AV）の素。CoCのダメージ・ボーナスがSTR+SIZで決まるのに倣い、
+    // 物理は「筋力＋体格」、魔法はその対応物である「知力＋精神」を土台にする。
+    // MaxAtkBonusは攻撃側の主能力だけを頭打ちにする（短剣に腕力を乗せきれない、の表現）。
+    public int RawPenetration => IsMagicAttack
+        ? CapByWeapon(intelligence) + mental
+        : CapByWeapon(strength) + constitution;
+    public int RawPhysicalArmor => constitution;
+    public int RawMagicArmor => mental;
+    public int DamageBonusBase => IsMagicAttack ? intelligence + mental : strength + constitution;
+
+    int CapByWeapon(int stat) => MaxAtkBonus > 0 ? Math.Min(stat, MaxAtkBonus) : stat;
+
     readonly List<LearnedSkill> learnedSkills = new();
     readonly List<SkillMasterData> activeSkillCache = new();
     bool activeSkillDirty = true;
@@ -246,8 +258,8 @@ public class AdventurerData : IUnitMember
         {
             hp = (vitality * 10 + constitution * 5) / 2,
             san = mental * 10,
-            // pAtk/mAtkはダメージの「増幅率」の入力なので、/4に留めて能力値+1が体感できるようにする。
-            // pDef/mDefはダメージから直接引かれる値なので、/8のまま小さく抑える。
+            // pAtk/pDef はそのままPV/AVに乗るのではなく、装備・スキル由来の補正を測るための
+            // 基準線として使われる（BattleResolverが「最終値 − この基礎値」を差分として拾う）。
             pAtk = (strength * 2 + constitution / 2) / 4,
             pDef = constitution / 8,
             mAtk = (intelligence * 2) / 4,

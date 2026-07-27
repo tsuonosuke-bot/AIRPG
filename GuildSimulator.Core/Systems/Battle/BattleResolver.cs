@@ -11,20 +11,21 @@ public static class BattleResolver
         public int rounds;
     }
 
-    // ダメージは「武器ダイスを基礎値とし、能力で増幅し、相手の防御を引く」の3層で決まる。
-    //   増幅率   = 1 + min(攻撃力, 武器の増幅上限) × AMP_PER_ATK + レベル差 × LEVEL_AMP_PER_DIFF
-    //   素の威力 = floor(武器ダイス × 増幅率)
-    //   ダメージ = max(素の威力 - 防御力, MIN_DAMAGE)
-    // 攻撃力そのものではなく武器が基礎値を握るため、装備更新がそのまま火力になる。
-    const float AMP_PER_ATK = 0.06f;        // 攻撃力1につき増幅+6%
-    const float LEVEL_AMP_PER_DIFF = 0.01f; // レベル差1につき増幅±1%
+    // ダメージは「貫通値(PV)と装甲値(AV)を突き合わせ、貫通の深さぶんだけ武器ダイスを振る」方式で決まる。
+    //   PV     = 筋力(魔法は知力) + 体格(魔法は精神) + 装備・スキル由来の攻撃補正
+    //   AV     = 体格(魔法は精神)                     + 装備・スキル由来の防御補正
+    //   余剰   = 3d10の最良の出目 + PV - AV
+    // 余剰がTIER_STEPを超えるごとに成功レベルが1段上がり、振る武器ダイスが1本増える。
+    // CoCの成功レベル（レギュラー/ハード/イクストリーム）に倣った有界な3段階なので、
+    // 判定が繰り返されることはなく、1回の攻撃で振るダイスは最大3本で確定する。
+    const int PENETRATION_DIE = 10;   // 貫通判定に振るダイスの面数
+    const int PENETRATION_ROLLS = 3;  // 3個振って最良を採る（CoCのボーナス・ダイス2個に相当）
+    const int TIER_STEP = 5;          // 成功レベルが1段上がるのに必要な余剰
 
-    // 敵は1レベルごとに能力値が30%伸びるため、終盤の敵の攻撃力は冒険者の域（8〜25程度）を
-    // 大きく超える。増幅が青天井だと武器ではなく能力値が火力を支配してしまうので天井を設ける。
-    const float MAX_AMPLIFY = 4f;
-    const float MIN_AMPLIFY = 0.1f;
-
-    const int MIN_DAMAGE = 1;
+    // ダメージ・ボーナスはCoCのSTR+SIZ表（帯域を上がるごとに加算ダイスが増える）に倣う。
+    // CoCの帯域幅80は能力値0〜100を前提とするため、本作の能力値レンジに合わせて縮尺する。
+    // 成功レベルが3本で頭打ちになるぶんの伸びしろを、こちらの緩やかな加算で受け持つ。
+    const int DAMAGE_BONUS_BAND = 12;
 
     // 命中率：hit/evadeの「比率」ではなく「差分」を基準命中率に加減する方式。
     // hitやevadeが0以下になっても極端な0%/100%へ落ちないよう上下限でクランプする。
@@ -170,22 +171,36 @@ public static class BattleResolver
                         // 物理か魔法かは能力値の大小ではなく武器そのもので決まる。
                         // 魔道士が剣を持てば剣で殴り、戦士が杖を持てば魔法が飛ぶ。
                         bool isMagic = actor.IsMagicAttack;
-                        int atkStat = isMagic ? actorStats.mAtk : actorStats.pAtk;
-                        int defStat = isMagic ? targetStats.mDef : targetStats.pDef;
 
-                        // 基礎値：武器のダメージダイス。決定的成功はダイスをもう1セット追加する。
+                        // PV/AVは「素の能力値」に「装備・スキル由来の補正（最終値−基礎値）」を足して作る。
+                        // こうすることで武器の攻撃ボーナスや守りのスキルが、そのまま貫通のしやすさに効く。
+                        var actorBase = actor.GetBaseCombatStats();
+                        var targetBase = target.GetBaseCombatStats();
+                        int pv = actor.RawPenetration
+                            + (isMagic ? actorStats.mAtk - actorBase.mAtk : actorStats.pAtk - actorBase.pAtk);
+                        int av = (isMagic ? target.RawMagicArmor : target.RawPhysicalArmor)
+                            + (isMagic ? targetStats.mDef - targetBase.mDef : targetStats.pDef - targetBase.pDef);
+
                         string diceNotation = string.IsNullOrWhiteSpace(actor.DamageDice)
                             ? DEFAULT_DAMAGE_DICE : actor.DamageDice;
-                        int diceRoll = Dice.Roll(diceNotation);
-                        if (check.critical) diceRoll += Dice.Roll(diceNotation);
 
-                        var dealt = ComputeDamage(
-                            diceRoll, atkStat, actor.MaxAtkBonus, defStat, actor.Level - target.Level);
+                        var dealt = ResolvePenetration(
+                            pv, av, diceNotation, actor.DamageBonusBase, check.critical);
 
-                        target.CombatHp -= dealt.final;
+                        target.CombatHp -= dealt.damage;
                         string tag = check.critical ? "決定的成功！" : "命中！";
                         string atkKind = isMagic ? "魔法" : "物理";
-                        logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {tag}（D100={check.roll}≤{hitPercent}%、{atkKind} {diceNotation}→{diceRoll}×{dealt.amplify:0.00}={dealt.raw} - 防御{defStat}） ダメージ={dealt.final} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
+                        string judge = $"{atkKind} PV{pv} vs AV{av}、{PENETRATION_ROLLS}d{PENETRATION_DIE}→{dealt.best} 余剰{dealt.margin:+#;-#;0}";
+
+                        if (dealt.tier == PenetrationTier.Blocked)
+                        {
+                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {tag}（D100={check.roll}≤{hitPercent}%、{judge}） 装甲に弾かれた ダメージなし");
+                        }
+                        else
+                        {
+                            string bonusText = dealt.bonusDamage != 0 ? $" ダメージ・ボーナス{dealt.bonusDamage:+#;-#;0}" : "";
+                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {tag}（D100={check.roll}≤{hitPercent}%、{judge}） {TierName(dealt.tier)} {diceNotation}×{dealt.weaponRolls}={dealt.weaponDamage}{bonusText} ダメージ={dealt.damage} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
+                        }
 
                         if (target.CombatHp <= 0)
                         {
@@ -256,31 +271,89 @@ public static class BattleResolver
         return res;
     }
 
+    /// <summary>貫通の深さ。CoCの成功レベルに対応し、そのまま振る武器ダイスの本数になる。</summary>
+    public enum PenetrationTier { Blocked = 0, Regular = 1, Hard = 2, Extreme = 3 }
+
     /// <summary>ダメージの内訳。ログに計算過程を出すために各段階を持ち回る。</summary>
-    public readonly record struct DamageResult(float amplify, int raw, int final);
+    public readonly record struct PenetrationResult(
+        PenetrationTier tier, int best, int margin, int weaponRolls, int weaponDamage, int bonusDamage, int damage);
 
     /// <summary>
-    /// 命中後のダメージ。武器ダイスの出目を基礎値として能力で増幅し、相手の防御を引く。
+    /// 貫通判定。ダイスを PENETRATION_ROLLS 個振って最良の出目を採り、PV-AVを足した余剰から成功レベルを決める。
+    /// 「3回振って1回でも閾値を超えたら貫通」は「最良の出目が閾値を超える」と同値なので、
+    /// 判定はこの1回だけで済み、セットを繰り返す必要がない。
     /// </summary>
-    public static DamageResult ComputeDamage(int diceRoll, int atkStat, int maxAtkBonus, int defStat, int levelDiff)
+    public static PenetrationTier RollTier(int pv, int av, out int best, out int margin)
     {
-        float amp = AmplifyRate(atkStat, maxAtkBonus, levelDiff);
-        int raw = Math.Max(MIN_DAMAGE, (int)Math.Floor(Math.Max(0, diceRoll) * amp));
-        int final = Math.Max(MIN_DAMAGE, raw - Math.Max(0, defStat));
-        return new DamageResult(amp, raw, final);
+        best = 0;
+        for (int i = 0; i < PENETRATION_ROLLS; i++)
+            best = Math.Max(best, GameRandom.Range(1, PENETRATION_DIE + 1));
+        margin = best + pv - av;
+        return TierOf(margin);
+    }
+
+    /// <summary>余剰から成功レベルを求める。TIER_STEPごとに1段上がり、イクストリームで打ち止め。</summary>
+    public static PenetrationTier TierOf(int margin)
+    {
+        if (margin <= 0) return PenetrationTier.Blocked;
+        if (margin > TIER_STEP * 2) return PenetrationTier.Extreme;
+        if (margin > TIER_STEP) return PenetrationTier.Hard;
+        return PenetrationTier.Regular;
     }
 
     /// <summary>
-    /// 武器ダイスに掛ける増幅率。攻撃力が高いほど伸びるが、武器ごとの上限（maxAtkBonus）で頭打ちになる。
-    /// 短剣に腕力を乗せきれないのはこの上限のため。0以下の上限は「無制限」を意味する。
+    /// ダメージ・ボーナス。CoCのSTR+SIZ表に倣い、帯域を1つ上がるごとに加算ダイスが1段強くなる。
+    /// 最下帯（体格も筋力も乏しい相手）はダイスではなく1点の減算になる。
     /// </summary>
-    public static float AmplifyRate(int atkStat, int maxAtkBonus, int levelDiff)
+    public static (string dice, int flat) DamageBonus(int damageBonusBase)
     {
-        int effective = Math.Max(0, atkStat);
-        if (maxAtkBonus > 0) effective = Math.Min(effective, maxAtkBonus);
-        float rate = 1f + effective * AMP_PER_ATK + levelDiff * LEVEL_AMP_PER_DIFF;
-        return Math.Clamp(rate, MIN_AMPLIFY, MAX_AMPLIFY);
+        int band = Math.Max(0, damageBonusBase) / DAMAGE_BONUS_BAND;
+        return band switch
+        {
+            0 => damageBonusBase < DAMAGE_BONUS_BAND / 2 ? ("", -1) : ("", 0),
+            1 => ("1d4", 0),
+            2 => ("1d6", 0),
+            _ => ($"{band - 1}d6", 0),
+        };
     }
+
+    /// <summary>
+    /// 命中後のダメージ。成功レベルに応じて武器ダイスを1〜3回振り、ダメージ・ボーナスを加える。
+    /// 貫通できなければダメージは0で、装甲に完全に弾かれたことを意味する。
+    /// </summary>
+    public static PenetrationResult ResolvePenetration(
+        int pv, int av, string diceNotation, int damageBonusBase, bool critical)
+    {
+        var tier = RollTier(pv, av, out int best, out int margin);
+
+        // 決定的成功は必ず刃が届く。装甲に完全に弾かれることはない。
+        if (critical && tier == PenetrationTier.Blocked) tier = PenetrationTier.Regular;
+
+        if (tier == PenetrationTier.Blocked)
+            return new PenetrationResult(tier, best, margin, 0, 0, 0, 0);
+
+        var dice = Dice.Parse(diceNotation);
+        int rolls = (int)tier;
+        int weaponDamage = 0;
+        for (int i = 0; i < rolls; i++) weaponDamage += dice.Roll();
+
+        // インペイル（CoC準拠）：決定的成功は「武器ダイスの最大値＋もう1回のロール」を上乗せする。
+        if (critical) weaponDamage += dice.Max + dice.Roll();
+
+        var (bonusDice, bonusFlat) = DamageBonus(damageBonusBase);
+        int bonusDamage = bonusFlat + (bonusDice.Length > 0 ? Dice.Roll(bonusDice) : 0);
+
+        int total = Math.Max(0, weaponDamage + bonusDamage);
+        return new PenetrationResult(tier, best, margin, rolls, weaponDamage, bonusDamage, total);
+    }
+
+    static string TierName(PenetrationTier tier) => tier switch
+    {
+        PenetrationTier.Extreme => "イクストリーム貫通",
+        PenetrationTier.Hard => "ハード貫通",
+        PenetrationTier.Regular => "貫通",
+        _ => "装甲に弾かれた",
+    };
 
     // D100を振って命中率%と比較するCoC式パーセンタイル判定。
     // 成功のうち出目が命中率の1/5以下なら決定的成功、失敗のうち出目96以上なら大失敗。

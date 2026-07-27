@@ -20,7 +20,7 @@ public class EquipmentMasterData
     public string damageDice = "";
 
     /// <summary>
-    /// 能力（物攻/魔攻）でダメージを増幅できる上限。0以下なら無制限。
+    /// 貫通値（PV）に算入できる主能力（筋力/知力）の上限。0以下なら無制限。
     /// 短剣や投石のような軽い得物は腕力を乗せきれず頭打ちになり、斧や大剣は青天井に伸びる。
     /// </summary>
     public int maxAtkBonus;
