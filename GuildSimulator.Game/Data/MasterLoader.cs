@@ -109,6 +109,7 @@ public static class MasterLoader
                 weight = e.weight, price = e.price, bonus = ParseStatBlock(e.bonus), rarity = e.rarity,
                 shopTier = Math.Max(1, e.shopTier),
                 damageDice = e.damageDice ?? "", maxAtkBonus = Math.Max(0, e.maxAtkBonus),
+                allowedSlots = e.allowedSlots ?? new(),
             };
         }
 
@@ -384,7 +385,7 @@ public static class MasterLoader
     record EquipJson(string id, string displayName, EquipmentType type, WeaponType weaponType, ArmorType armorType,
         float physicalCoeff, float magicCoeff, float healCoeff, int flatPhysicalAtk, int flatMagicAtk, int flatHeal,
         int weight, int price, Dictionary<string, int>? bonus, Rarity rarity, int shopTier = 1,
-        string? damageDice = null, int maxAtkBonus = 0);
+        string? damageDice = null, int maxAtkBonus = 0, List<EquipSlot>? allowedSlots = null);
 
     record ConsumableJson(string id, string displayName, string? description, Rarity rarity,
         int price, ConsumableEffectType effectType, int effectValue);

@@ -64,12 +64,13 @@ public static class AdventurerScreen
             Ui.WriteLine($"  HP:{hpCur}/{hpMax}  物理攻撃:{s.pAtk} 物理防御:{s.pDef} 魔法攻撃:{s.mAtk} 魔法防御:{s.mDef}");
             Ui.WriteLine($"  命中:{s.hit} 回避:{s.evade} 回復力:{s.heal}");
             Ui.WriteLine();
-            Ui.Write("  武器: ");
-            if (a.weapon != null) Ui.WriteRarityName(a.weapon.displayName, a.weapon.rarity); else Ui.Write("なし");
-            Ui.WriteLine(DescribeItem(a.weapon));
-            Ui.Write("  防具: ");
-            if (a.armor != null) Ui.WriteRarityName(a.armor.displayName, a.armor.rarity); else Ui.Write("なし");
-            Ui.WriteLine(DescribeItem(a.armor));
+            foreach (var slot in EquipService.AllSlots)
+            {
+                var item = a.GetEquipped(slot);
+                Ui.Write($"  {EquipService.SlotDisplayName(slot)}: ");
+                if (item != null) Ui.WriteRarityName(item.displayName, item.rarity); else Ui.Write("なし");
+                Ui.WriteLine(DescribeItem(item));
+            }
             Ui.WriteLine();
             Ui.Write("  スキル: ");
             var skills = a.Skills;
@@ -155,8 +156,7 @@ public static class AdventurerScreen
         Ui.WriteLine($"  埋葬費: {cost}G（所持: {guild.Gold}G）");
         if (!await Ui.ConfirmAsync("埋葬しますか？")) return false;
 
-        if (a.weapon != null) { guild.AddEquipment(a.weapon, 1); a.weapon = null; }
-        if (a.armor != null) { guild.AddEquipment(a.armor, 1); a.armor = null; }
+        EquipService.UnequipAll(a, guild);
         if (!guild.TryBuryAdventurer(a, currentTurn, out var reason))
         {
             Ui.Error(reason);
@@ -238,30 +238,36 @@ public static class AdventurerScreen
         {
             Ui.BeginScreen();
             Ui.Header($"装備変更: {a.name}");
-            Ui.WriteLine($"  現在の武器: {a.weapon?.displayName ?? "なし"}");
-            Ui.WriteLine($"  現在の防具: {a.armor?.displayName ?? "なし"}");
+            foreach (var slot in EquipService.AllSlots)
+            {
+                var item = a.GetEquipped(slot);
+                Ui.WriteLine($"  {EquipService.SlotDisplayName(slot)}: {item?.displayName ?? "なし"}");
+            }
             Ui.WriteLine();
 
-            string line = await Ui.SelectAsync("選択", new[]
+            var slotOptions = new List<MenuOption>();
+            int idx = 1;
+            foreach (var slot in EquipService.AllSlots)
             {
-                new MenuOption("1", "武器を変更"),
-                new MenuOption("2", "防具を変更"),
-                new MenuOption("0", "戻る", Style: TextStyle.Dim),
-            });
-            if (line == "1") await ChooseAndEquipAsync(a, guild, EquipmentType.Weapon);
-            else if (line == "2") await ChooseAndEquipAsync(a, guild, EquipmentType.Armor);
-            else return;
+                slotOptions.Add(new MenuOption(idx.ToString(), $"{EquipService.SlotDisplayName(slot)}を変更"));
+                idx++;
+            }
+            slotOptions.Add(new MenuOption("0", "戻る", Style: TextStyle.Dim));
+
+            string line = await Ui.SelectAsync("スロットを選択", slotOptions);
+            if (line == "0") return;
+            if (int.TryParse(line, out int slotIdx) && slotIdx >= 1 && slotIdx <= EquipService.AllSlots.Count)
+                await ChooseAndEquipSlotAsync(a, guild, EquipService.AllSlots[slotIdx - 1]);
         }
     }
 
-    static async Task ChooseAndEquipAsync(AdventurerData a, GuildManager guild, EquipmentType type)
+    static async Task ChooseAndEquipSlotAsync(AdventurerData a, GuildManager guild, EquipSlot slot)
     {
-        string label = type == EquipmentType.Weapon ? "武器" : "防具";
-        var current = type == EquipmentType.Weapon ? a.weapon : a.armor;
+        string label = EquipService.SlotDisplayName(slot);
+        var current = a.GetEquipped(slot);
 
-        // 在庫から該当タイプの装備を集計（同一品はまとめて表示）。
         var stock = guild.GetInventoryView()
-            .Where(st => st.item.type == type && st.count > 0)
+            .Where(st => st.item.CanEquipTo(slot) && st.count > 0)
             .Select(st => st.item)
             .ToList();
 
@@ -272,7 +278,7 @@ public static class AdventurerScreen
 
         if (stock.Count == 0 && current == null)
         {
-            Ui.Dim($"  ギルド倉庫に装備できる{label}がありません（商店で購入するか、クエスト報酬で入手できます）");
+            Ui.Dim($"  ギルド倉庫に装備できる{label}用装備がありません（商店で購入するか、クエスト報酬で入手できます）");
             await Ui.PauseAsync();
             return;
         }
@@ -286,7 +292,7 @@ public static class AdventurerScreen
         {
             Ui.WriteLine($"  {idx}. 外して倉庫へ戻す");
             options.Add(new MenuOption(idx.ToString(), "外して倉庫へ戻す"));
-            pickable.Add(null); // null = 外す
+            pickable.Add(null);
             idx++;
         }
         foreach (var item in stock)
@@ -312,8 +318,7 @@ public static class AdventurerScreen
         var chosen = pickable[sel.Value - 1];
         if (chosen == null)
         {
-            if (type == EquipmentType.Weapon) EquipService.UnequipWeapon(a, guild);
-            else EquipService.UnequipArmor(a, guild);
+            EquipService.Unequip(a, slot, guild);
             Ui.Info($"{label}を外しました");
         }
         else if (chosen == current)
@@ -322,9 +327,9 @@ public static class AdventurerScreen
             await Ui.PauseAsync();
             return;
         }
-        else if (EquipService.TryEquip(a, chosen, guild, out var reason))
+        else if (EquipService.TryEquip(a, chosen, slot, guild, out var reason))
         {
-            Ui.Info($"{chosen.displayName} を装備しました");
+            Ui.Info($"{chosen.displayName} を{label}に装備しました");
         }
         else
         {
@@ -333,7 +338,6 @@ public static class AdventurerScreen
             return;
         }
 
-        // 装備前後のステータス差分を表示して、選択の良し悪しをその場で確認できるようにする。
         var afterStats = a.GetFinalCombatStats();
         Ui.WriteLine();
         Ui.WriteLine("  ステータス変化:");

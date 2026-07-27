@@ -31,4 +31,23 @@ public class EquipmentMasterData
 
     /// <summary>商店で扱うために必要な品揃えレベル。基準の商店レベル1は常に1のみ扱える。</summary>
     public int shopTier = 1;
+
+    /// <summary>この装備を着けられるスロット一覧。空ならtypeから自動推定する。</summary>
+    public List<EquipSlot> allowedSlots = new();
+
+    public IReadOnlyList<EquipSlot> GetAllowedSlots()
+    {
+        if (allowedSlots.Count > 0) return allowedSlots;
+        return type switch
+        {
+            EquipmentType.Weapon => new[] { EquipSlot.RightHand, EquipSlot.LeftHand },
+            EquipmentType.Armor => armorType == ArmorType.Null
+                ? new[] { EquipSlot.Body }
+                : new[] { EquipSlot.Body },
+            EquipmentType.Accessory => new[] { EquipSlot.Accessory },
+            _ => new[] { EquipSlot.RightHand },
+        };
+    }
+
+    public bool CanEquipTo(EquipSlot slot) => GetAllowedSlots().Contains(slot);
 }
