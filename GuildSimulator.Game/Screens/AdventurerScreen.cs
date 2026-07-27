@@ -3,13 +3,18 @@ using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Core.Systems.Quest;
+using GuildSimulator.Game.Data;
 using GuildSimulator.Game.Presentation;
 
 namespace GuildSimulator.Game.Screens;
 
 public static class AdventurerScreen
 {
-    public static async Task ShowAsync(GuildManager guild, QuestManager? questManager = null, int currentTurn = 0)
+    const int ClassChangeCostPerLevel = 10;
+
+    public static int CalculateClassChangeCost(int level) => Math.Max(1, level) * ClassChangeCostPerLevel;
+
+    public static async Task ShowAsync(GameMasterData db, GuildManager guild, QuestManager? questManager = null, int currentTurn = 0)
     {
         while (true)
         {
@@ -36,11 +41,11 @@ public static class AdventurerScreen
 
             int? sel = await Ui.SelectIndexAsync("冒険者を選択", entries);
             if (sel == null) return;
-            await ShowDetailAsync(advs[sel.Value - 1], guild, questManager, currentTurn);
+            await ShowDetailAsync(db, advs[sel.Value - 1], guild, questManager, currentTurn);
         }
     }
 
-    static async Task ShowDetailAsync(AdventurerData a, GuildManager guild, QuestManager? questManager, int currentTurn)
+    static async Task ShowDetailAsync(GameMasterData db, AdventurerData a, GuildManager guild, QuestManager? questManager, int currentTurn)
     {
         while (true)
         {
@@ -84,11 +89,15 @@ public static class AdventurerScreen
             bool busy = questManager?.IsAdventurerBusy(a.id) == true;
             var options = new List<MenuOption>();
             if (!a.isAlive)
-                Ui.Dim("  （死亡者は装備を変更できません）");
+                Ui.Dim("  （死亡者は装備・クラスを変更できません）");
             else if (busy)
-                Ui.Dim("  （出発中は装備を変更できません。帰還後に変更してください）");
+                Ui.Dim("  （出発中は装備・クラスを変更できません。帰還後に変更してください）");
             else
+            {
                 options.Add(new MenuOption("e", "装備を変更する"));
+                int ccCost = CalculateClassChangeCost(a.level);
+                options.Add(new MenuOption("c", $"クラスチェンジ（{ccCost}G）"));
+            }
             if (!a.isAlive && !busy)
             {
                 int burialCost = GuildManager.CalculateBurialCost(a.level);
@@ -98,6 +107,7 @@ public static class AdventurerScreen
 
             string input = await Ui.SelectAsync("選択", options);
             if (input == "e" && a.isAlive && !busy) { await ManageEquipmentAsync(a, guild); continue; }
+            if (input == "c" && a.isAlive && !busy) { await ChangeClassAsync(a, guild, db); continue; }
             if (input == "d" && !a.isAlive && !busy)
             {
                 if (await BuryAdventurerAsync(a, guild, currentTurn)) return;
@@ -156,6 +166,70 @@ public static class AdventurerScreen
         Ui.Info($"{a.name} を埋葬しました。安らかに眠れ。");
         await Ui.PauseAsync();
         return true;
+    }
+
+    static async Task ChangeClassAsync(AdventurerData a, GuildManager guild, GameMasterData db)
+    {
+        Ui.BeginScreen();
+        Ui.Header($"クラスチェンジ: {a.name}");
+        Ui.WriteLine($"  現在のクラス: {a.currentClass?.className ?? "なし"}");
+        Ui.WriteLine($"  種族: {a.race?.raceName ?? "不明"}");
+
+        var allowed = a.race != null && a.race.allowedClassIds.Count > 0
+            ? a.race.allowedClassIds : null;
+        var candidates = db.classes.Values
+            .Where(c => c != a.currentClass)
+            .Where(c => allowed == null || allowed.Contains(c.id))
+            .ToList();
+
+        if (candidates.Count == 0)
+        {
+            Ui.Dim("  変更できるクラスがありません");
+            await Ui.PauseAsync();
+            return;
+        }
+
+        int cost = CalculateClassChangeCost(a.level);
+        Ui.WriteLine($"  費用: {cost}G（所持: {guild.Gold}G）");
+        Ui.WriteLine();
+
+        if (guild.Gold < cost)
+        {
+            Ui.Error($"  ゴールドが不足しています（必要: {cost}G）");
+            await Ui.PauseAsync();
+            return;
+        }
+
+        var options = new List<MenuOption>();
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            var c = candidates[i];
+            string growths = $"VIT:{c.vitGrowth:+0.00;-0.00} STR:{c.strGrowth:+0.00;-0.00} INT:{c.intGrowth:+0.00;-0.00} AGI:{c.agiGrowth:+0.00;-0.00} MEN:{c.mentGrowth:+0.00;-0.00}";
+            string skillNames = string.Join(", ", c.classSkills
+                .Where(e => e.Skill != null)
+                .Select(e => $"{e.Skill!.skillName}({e.requiredClearCount})"));
+            Ui.WriteLine($"  {i + 1}. {c.className}");
+            Ui.Dim($"       成長率: {growths}");
+            if (skillNames.Length > 0)
+                Ui.Dim($"       スキル: {skillNames}");
+            options.Add(new MenuOption(
+                (i + 1).ToString(),
+                c.className,
+                growths));
+        }
+
+        int? sel = await Ui.SelectIndexAsync("クラスを選択", options, "やめる");
+        if (sel == null) return;
+
+        var chosen = candidates[sel.Value - 1];
+        Ui.WriteLine();
+        Ui.WriteLine($"  {a.currentClass?.className ?? "なし"} → {chosen.className} に変更します（{cost}G）");
+        if (!await Ui.ConfirmAsync("よろしいですか？")) return;
+
+        guild.SpendGold(cost, $"クラスチェンジ: {a.name}（{a.currentClass?.className ?? "?"} → {chosen.className}）");
+        a.ChangeClass(chosen);
+        Ui.Info($"{a.name} のクラスを {chosen.className} に変更しました");
+        await Ui.PauseAsync();
     }
 
     static async Task ManageEquipmentAsync(AdventurerData a, GuildManager guild)

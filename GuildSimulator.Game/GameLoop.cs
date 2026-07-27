@@ -83,7 +83,7 @@ public static class GameLoop
             {
                 case "1": await QuestBoardScreen.ShowAsync(questManager, guild, currentTurn); break;
                 case "2": await ActiveQuestScreen.ShowAsync(questManager, guild); break;
-                case "3": await AdventurerScreen.ShowAsync(guild, questManager, currentTurn); break;
+                case "3": await AdventurerScreen.ShowAsync(db, guild, questManager, currentTurn); break;
                 case "4":
                     await RecruitScreen.ShowAsync(
                         recruitCandidates, guild, currentTurn, db.allAdventurers, MaxCandidateCount);
