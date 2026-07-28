@@ -133,12 +133,135 @@
         "type": 2,
         "gold": 200,
         "weight": 0,
-        "unique": false
+        "unique": false,
+        "chance": 1.0
       }
     ],
     "fixedEvents": [
       {
         "phase": 10,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_wild_berries",
+    "questName": "野イチゴ摘み",
+    "rank": 1,
+    "totalPhases": 10,
+    "phasesPerTurn": 5,
+    "rewardGold": 30,
+    "rewardGuildPoints": 8,
+    "rewardExp": 10,
+    "dungeonId": "dungeon_meadow",
+    "bossEnemyId": "",
+    "bossPhase": 0,
+    "gatherItemName": "野イチゴ",
+    "gatherTargetCount": 9,
+    "gatherMinPerEvent": 1,
+    "gatherMaxPerEvent": 2,
+    "gatherChance": 0.6,
+    "gatherGoldPerItem": 7,
+    "bossDrops": [],
+    "fixedEvents": []
+  },
+  {
+    "id": "quest_clover_search",
+    "questName": "四つ葉のクローバー探し",
+    "rank": 1,
+    "totalPhases": 8,
+    "phasesPerTurn": 5,
+    "rewardGold": 35,
+    "rewardGuildPoints": 9,
+    "rewardExp": 12,
+    "dungeonId": "dungeon_meadow",
+    "bossEnemyId": "",
+    "bossPhase": 0,
+    "gatherItemName": "四つ葉のクローバー",
+    "gatherTargetCount": 6,
+    "gatherMinPerEvent": 1,
+    "gatherMaxPerEvent": 1,
+    "gatherChance": 0.4,
+    "gatherGoldPerItem": 15,
+    "bossDrops": [],
+    "fixedEvents": []
+  },
+  {
+    "id": "quest_wolf_cull",
+    "questName": "森狼の間引き",
+    "rank": 1,
+    "totalPhases": 5,
+    "phasesPerTurn": 5,
+    "rewardGold": 30,
+    "rewardGuildPoints": 8,
+    "rewardExp": 10,
+    "dungeonId": "dungeon_woods",
+    "bossEnemyId": "unit_wolf_pair",
+    "bossPhase": 10,
+    "bossDrops": [],
+    "fixedEvents": [
+      {
+        "phase": 2,
+        "type": 1
+      },
+      {
+        "phase": 4,
+        "type": 1
+      }
+    ]
+  },
+  {
+    "id": "quest_wolf_pack_hunt",
+    "questName": "森狼の群れ討伐",
+    "rank": 1,
+    "totalPhases": 12,
+    "phasesPerTurn": 5,
+    "rewardGold": 80,
+    "rewardGuildPoints": 18,
+    "rewardExp": 22,
+    "dungeonId": "dungeon_woods",
+    "bossEnemyId": "unit_wolf_pack",
+    "bossPhase": 12,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 250,
+        "weight": 0,
+        "unique": false,
+        "chance": 1.0
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 12,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_spider_nest_clear",
+    "questName": "蜘蛛の巣穴掃討",
+    "rank": 1,
+    "totalPhases": 12,
+    "phasesPerTurn": 5,
+    "rewardGold": 85,
+    "rewardGuildPoints": 20,
+    "rewardExp": 24,
+    "dungeonId": "dungeon_woods",
+    "bossEnemyId": "unit_spider_nest",
+    "bossPhase": 12,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 260,
+        "weight": 0,
+        "unique": false,
+        "chance": 1.0
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 12,
         "type": 2
       }
     ]
@@ -154,7 +277,7 @@
     "rewardExp": 150,
     "isEmergencyQuest": true,
     "rankUpOnClear": 1,
-    "requiredGuildPoints": 70,
+    "requiredGuildPoints": 50,
     "dungeonId": "dungeon_woods",
     "bossEnemyId": "unit_treant_grove",
     "bossPhase": 14,
@@ -171,7 +294,8 @@
         "phase": 14,
         "type": 2
       }
-    ]
+    ],
+    "bossDropsAreGuaranteed": true
   },
   {
     "id": "quest_mine_survey",
@@ -287,13 +411,15 @@
         "type": 2,
         "gold": 400,
         "weight": 0,
-        "unique": false
+        "unique": false,
+        "chance": 1.0
       },
       {
         "type": 1,
         "equipmentId": "eq_sword_02",
         "weight": 0,
-        "unique": false
+        "unique": false,
+        "chance": 0.5
       }
     ],
     "fixedEvents": [
@@ -331,7 +457,8 @@
         "phase": 16,
         "type": 2
       }
-    ]
+    ],
+    "bossDropsAreGuaranteed": true
   },
   {
     "id": "quest_crypt_seal",
@@ -386,13 +513,15 @@
         "type": 0,
         "relicId": "relic_crown",
         "weight": 0,
-        "unique": true
+        "unique": true,
+        "chance": 0.5
       },
       {
         "type": 2,
         "gold": 1000,
         "weight": 0,
-        "unique": false
+        "unique": false,
+        "chance": 1.0
       }
     ],
     "fixedEvents": [
@@ -434,13 +563,15 @@
         "type": 0,
         "relicId": "relic_whetstone",
         "weight": 0,
-        "unique": true
+        "unique": true,
+        "chance": 0.5
       },
       {
         "type": 2,
         "gold": 500,
         "weight": 0,
-        "unique": false
+        "unique": false,
+        "chance": 1.0
       }
     ],
     "fixedEvents": [
@@ -500,13 +631,15 @@
         "type": 0,
         "relicId": "relic_charm",
         "weight": 0,
-        "unique": true
+        "unique": true,
+        "chance": 0.5
       },
       {
         "type": 2,
         "gold": 500,
         "weight": 0,
-        "unique": false
+        "unique": false,
+        "chance": 1.0
       }
     ],
     "fixedEvents": [

@@ -24,16 +24,16 @@ public static class UnitCalculator
             var s = m.GetFinalCombatStats();
             ApplySkills(m, isFront, ref s, ref auraAdd, ref auraMul);
             u.hp += s.hp; u.san += s.san;
-            u.pAtk += s.pAtk; u.pDef += s.pDef;
-            u.mAtk += s.mAtk; u.mDef += s.mDef;
-            u.hit += s.hit; u.evade += s.evade;
+            u.av += s.av; u.mav += s.mav;
+            u.pv += s.pv; u.mpv += s.mpv;
+            u.dv += s.dv; u.toHit += s.toHit;
             u.heal += s.heal;
         }
 
         u.hp += auraAdd.hp; u.san += auraAdd.san;
-        u.pAtk += auraAdd.pAtk; u.pDef += auraAdd.pDef;
-        u.mAtk += auraAdd.mAtk; u.mDef += auraAdd.mDef;
-        u.hit += auraAdd.hit; u.evade += auraAdd.evade;
+        u.av += auraAdd.av; u.mav += auraAdd.mav;
+        u.pv += auraAdd.pv; u.mpv += auraAdd.mpv;
+        u.dv += auraAdd.dv; u.toHit += auraAdd.toHit;
         u.heal += auraAdd.heal;
         ApplyMulToStats(ref u, auraMul);
 
@@ -41,9 +41,9 @@ public static class UnitCalculator
         {
             RelicSystem.GetUnitModifiers(out var relicAdd, out var relicMul);
             u.hp += relicAdd.hp; u.san += relicAdd.san;
-            u.pAtk += relicAdd.pAtk; u.pDef += relicAdd.pDef;
-            u.mAtk += relicAdd.mAtk; u.mDef += relicAdd.mDef;
-            u.hit += relicAdd.hit; u.evade += relicAdd.evade;
+            u.av += relicAdd.av; u.mav += relicAdd.mav;
+            u.pv += relicAdd.pv; u.mpv += relicAdd.mpv;
+            u.dv += relicAdd.dv; u.toHit += relicAdd.toHit;
             u.heal += relicAdd.heal;
             ApplyMulToStats(ref u, relicMul);
         }
@@ -131,36 +131,30 @@ public static class UnitCalculator
 
     static StatMultiplier FixMul(StatMultiplier m)
     {
-        if (m.hp == 0f) m.hp = 1f; if (m.san == 0f) m.san = 1f;
-        if (m.pAtk == 0f) m.pAtk = 1f; if (m.pDef == 0f) m.pDef = 1f;
-        if (m.mAtk == 0f) m.mAtk = 1f; if (m.mDef == 0f) m.mDef = 1f;
-        if (m.hit == 0f) m.hit = 1f; if (m.evade == 0f) m.evade = 1f;
+        if (m.hp == 0f) m.hp = 1f;
+        if (m.san == 0f) m.san = 1f;
         if (m.heal == 0f) m.heal = 1f;
         return m;
     }
 
     static StatMultiplier Multiply(StatMultiplier a, StatMultiplier b)
     {
-        a.hp *= b.hp; a.san *= b.san; a.pAtk *= b.pAtk; a.pDef *= b.pDef;
-        a.mAtk *= b.mAtk; a.mDef *= b.mDef; a.hit *= b.hit; a.evade *= b.evade; a.heal *= b.heal;
+        a.hp *= b.hp; a.san *= b.san; a.heal *= b.heal;
         return a;
     }
 
+    // 倍率がかかるのはHP・SAN・回復量だけ。AV/DV/PVは1点の重みが大きいので加算でしか動かさない。
     static void ApplyMulToBlock(ref StatBlock s, StatMultiplier m)
     {
-        s.hp = (int)Math.Floor(s.hp * m.hp); s.san = (int)Math.Floor(s.san * m.san);
-        s.pAtk = (int)Math.Floor(s.pAtk * m.pAtk); s.pDef = (int)Math.Floor(s.pDef * m.pDef);
-        s.mAtk = (int)Math.Floor(s.mAtk * m.mAtk); s.mDef = (int)Math.Floor(s.mDef * m.mDef);
-        s.hit = (int)Math.Floor(s.hit * m.hit); s.evade = (int)Math.Floor(s.evade * m.evade);
+        s.hp = (int)Math.Floor(s.hp * m.hp);
+        s.san = (int)Math.Floor(s.san * m.san);
         s.heal = (int)Math.Floor(s.heal * m.heal);
     }
 
     static void ApplyMulToStats(ref UnitStats u, StatMultiplier m)
     {
-        u.hp = (int)Math.Floor(u.hp * m.hp); u.san = (int)Math.Floor(u.san * m.san);
-        u.pAtk = (int)Math.Floor(u.pAtk * m.pAtk); u.pDef = (int)Math.Floor(u.pDef * m.pDef);
-        u.mAtk = (int)Math.Floor(u.mAtk * m.mAtk); u.mDef = (int)Math.Floor(u.mDef * m.mDef);
-        u.hit = (int)Math.Floor(u.hit * m.hit); u.evade = (int)Math.Floor(u.evade * m.evade);
+        u.hp = (int)Math.Floor(u.hp * m.hp);
+        u.san = (int)Math.Floor(u.san * m.san);
         u.heal = (int)Math.Floor(u.heal * m.heal);
     }
 }

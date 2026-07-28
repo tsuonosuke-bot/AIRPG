@@ -1,125 +1,691 @@
 [
-  { "id": "enemy_slime", "baseName": "スライム", "exp": 4,
-    "vitality": 4, "mental": 1, "strength": 3, "agility": 1, "intelligence": 0, "constitution": 4,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": [] },
-  { "id": "enemy_raven", "baseName": "大鴉", "exp": 5,
-    "vitality": 2, "mental": 2, "strength": 4, "agility": 12, "intelligence": 0, "constitution": 1,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_flight"] },
-  { "id": "enemy_horned_rabbit", "baseName": "角兎", "exp": 4,
-    "vitality": 2, "mental": 1, "strength": 5, "agility": 9, "intelligence": 0, "constitution": 2,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": [] },
-  { "id": "enemy_killer_bee", "baseName": "殺人蜂", "exp": 6,
-    "vitality": 1, "mental": 1, "strength": 4, "agility": 14, "intelligence": 0, "constitution": 1,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_flight", "skill_swarm"] },
-  { "id": "enemy_goblin", "baseName": "ゴブリン", "exp": 5,
-    "vitality": 3, "mental": 3, "strength": 5, "agility": 5, "intelligence": 2, "constitution": 2,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": [] },
-  { "id": "enemy_goblin_stray", "baseName": "はぐれゴブリン", "exp": 3,
-    "vitality": 2, "mental": 1, "strength": 3, "agility": 4, "intelligence": 1, "constitution": 1,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": [] },
-  { "id": "enemy_goblin_thrower", "baseName": "ゴブリン投擲兵", "exp": 9,
-    "vitality": 3, "mental": 3, "strength": 5, "agility": 8, "intelligence": 1, "constitution": 2,
-    "defaultWeaponId": "eq_sling_01", "defaultArmorId": "", "skillIds": ["skill_bowSpear"] },
-  { "id": "enemy_goblin_soldier", "baseName": "ゴブリン兵士", "exp": 13,
-    "vitality": 5, "mental": 3, "strength": 7, "agility": 7, "intelligence": 2, "constitution": 5,
-    "defaultWeaponId": "eq_dagger_01", "defaultArmorId": "", "skillIds": ["skill_swordMastery"] },
-  { "id": "enemy_goblin_heavy", "baseName": "ゴブリン重装歩兵", "exp": 18,
-    "vitality": 8, "mental": 4, "strength": 11, "agility": 4, "intelligence": 2, "constitution": 10,
-    "defaultWeaponId": "eq_sword_02", "defaultArmorId": "eq_plate_01", "skillIds": ["skill_swordMastery", "skill_ironWall"] },
-  { "id": "enemy_goblin_captain", "baseName": "ゴブリン隊長", "exp": 20,
-    "vitality": 7, "mental": 5, "strength": 10, "agility": 6, "intelligence": 3, "constitution": 7,
-    "defaultWeaponId": "eq_axe_02", "defaultArmorId": "eq_chain_01", "skillIds": ["skill_axeMastery", "skill_battleCry"],
+  {
+    "id": "enemy_slime",
+    "baseName": "スライム",
+    "exp": 4,
+    "vitality": 4,
+    "mental": 1,
+    "strength": 3,
+    "agility": 1,
+    "intelligence": 0,
+    "constitution": 4,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d4",
+    "skillIds": [],
+    "naturalPv": 3,
+    "naturalAv": 2,
+    "naturalMav": 3
+  },
+  {
+    "id": "enemy_raven",
+    "baseName": "大鴉",
+    "exp": 5,
+    "vitality": 2,
+    "mental": 2,
+    "strength": 4,
+    "agility": 12,
+    "intelligence": 0,
+    "constitution": 1,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d4",
+    "skillIds": [
+      "skill_flight"
+    ],
+    "naturalPv": 2
+  },
+  {
+    "id": "enemy_horned_rabbit",
+    "baseName": "角兎",
+    "exp": 4,
+    "vitality": 2,
+    "mental": 1,
+    "strength": 5,
+    "agility": 9,
+    "intelligence": 0,
+    "constitution": 2,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d4+1",
+    "skillIds": [],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_killer_bee",
+    "baseName": "殺人蜂",
+    "exp": 6,
+    "vitality": 1,
+    "mental": 1,
+    "strength": 4,
+    "agility": 14,
+    "intelligence": 0,
+    "constitution": 1,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d3",
+    "skillIds": [
+      "skill_flight",
+      "skill_swarm"
+    ],
+    "naturalPv": 5
+  },
+  {
+    "id": "enemy_goblin",
+    "baseName": "ゴブリン",
+    "exp": 5,
+    "vitality": 3,
+    "mental": 3,
+    "strength": 5,
+    "agility": 5,
+    "intelligence": 2,
+    "constitution": 2,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d4",
+    "skillIds": [],
+    "naturalPv": 3
+  },
+  {
+    "id": "enemy_goblin_stray",
+    "baseName": "はぐれゴブリン",
+    "exp": 3,
+    "vitality": 2,
+    "mental": 1,
+    "strength": 3,
+    "agility": 4,
+    "intelligence": 1,
+    "constitution": 1,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d3",
+    "skillIds": [],
+    "naturalPv": 2
+  },
+  {
+    "id": "enemy_goblin_thrower",
+    "baseName": "ゴブリン投擲兵",
+    "exp": 9,
+    "vitality": 3,
+    "mental": 3,
+    "strength": 5,
+    "agility": 8,
+    "intelligence": 1,
+    "constitution": 2,
+    "defaultWeaponId": "eq_sling_01",
+    "defaultArmorId": "",
+    "skillIds": [
+      "skill_bowSpear"
+    ],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_goblin_soldier",
+    "baseName": "ゴブリン兵士",
+    "exp": 13,
+    "vitality": 5,
+    "mental": 3,
+    "strength": 7,
+    "agility": 7,
+    "intelligence": 2,
+    "constitution": 5,
+    "defaultWeaponId": "eq_dagger_01",
+    "defaultArmorId": "",
+    "skillIds": [
+      "skill_swordMastery"
+    ],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_goblin_heavy",
+    "baseName": "ゴブリン重装歩兵",
+    "exp": 18,
+    "vitality": 8,
+    "mental": 4,
+    "strength": 11,
+    "agility": 4,
+    "intelligence": 2,
+    "constitution": 10,
+    "defaultWeaponId": "eq_sword_02",
+    "defaultArmorId": "eq_plate_01",
+    "skillIds": [
+      "skill_swordMastery",
+      "skill_ironWall"
+    ],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_goblin_captain",
+    "baseName": "ゴブリン隊長",
+    "exp": 20,
+    "vitality": 7,
+    "mental": 5,
+    "strength": 10,
+    "agility": 6,
+    "intelligence": 3,
+    "constitution": 7,
+    "defaultWeaponId": "eq_axe_02",
+    "defaultArmorId": "eq_chain_01",
+    "skillIds": [
+      "skill_axeMastery",
+      "skill_battleCry"
+    ],
     "dropTable": [
-      { "type": 4, "consumableId": "item_courage_incense", "chance": 0.08, "quantity": 1, "unique": false }
-    ] },
-  { "id": "enemy_goblin_archer", "baseName": "ゴブリン射手", "exp": 7,
-    "vitality": 3, "mental": 3, "strength": 4, "agility": 7, "intelligence": 2, "constitution": 2,
-    "defaultWeaponId": "eq_bow_01", "defaultArmorId": "", "skillIds": ["skill_bowSpear"] },
-  { "id": "enemy_goblin_shaman", "baseName": "ゴブリン呪術師", "exp": 9,
-    "vitality": 3, "mental": 6, "strength": 2, "agility": 4, "intelligence": 7, "constitution": 2,
-    "defaultWeaponId": "eq_fire_01", "defaultArmorId": "eq_cloth_01", "skillIds": ["skill_fireMastery"] },
-  { "id": "enemy_goblin_chief", "baseName": "ゴブリン頭目", "exp": 22,
-    "vitality": 8, "mental": 5, "strength": 10, "agility": 6, "intelligence": 3, "constitution": 6,
-    "defaultWeaponId": "eq_axe_01", "defaultArmorId": "eq_leather_01", "skillIds": ["skill_axeMastery", "skill_battleCry"] },
-
-  { "id": "enemy_forest_wolf", "baseName": "森狼", "exp": 8,
-    "vitality": 5, "mental": 2, "strength": 7, "agility": 9, "intelligence": 1, "constitution": 4,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_beastFang"],
+      {
+        "type": 4,
+        "consumableId": "item_courage_incense",
+        "chance": 0.08,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_goblin_archer",
+    "baseName": "ゴブリン射手",
+    "exp": 7,
+    "vitality": 3,
+    "mental": 3,
+    "strength": 4,
+    "agility": 7,
+    "intelligence": 2,
+    "constitution": 2,
+    "defaultWeaponId": "eq_bow_01",
+    "defaultArmorId": "",
+    "skillIds": [
+      "skill_bowSpear"
+    ],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_goblin_shaman",
+    "baseName": "ゴブリン呪術師",
+    "exp": 9,
+    "vitality": 3,
+    "mental": 6,
+    "strength": 2,
+    "agility": 4,
+    "intelligence": 7,
+    "constitution": 2,
+    "defaultWeaponId": "eq_fire_01",
+    "defaultArmorId": "eq_cloth_01",
+    "skillIds": [
+      "skill_fireMastery"
+    ],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_goblin_chief",
+    "baseName": "ゴブリン頭目",
+    "exp": 22,
+    "vitality": 8,
+    "mental": 5,
+    "strength": 10,
+    "agility": 6,
+    "intelligence": 3,
+    "constitution": 6,
+    "defaultWeaponId": "eq_axe_01",
+    "defaultArmorId": "eq_leather_01",
+    "skillIds": [
+      "skill_axeMastery",
+      "skill_battleCry"
+    ],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_forest_wolf",
+    "baseName": "森狼",
+    "exp": 8,
+    "vitality": 5,
+    "mental": 2,
+    "strength": 7,
+    "agility": 9,
+    "intelligence": 1,
+    "constitution": 4,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d6",
+    "skillIds": [
+      "skill_beastFang"
+    ],
     "dropTable": [
-      { "type": 1, "equipmentId": "eq_drop_fang", "chance": 0.035, "quantity": 1, "unique": false }
-    ] },
-  { "id": "enemy_giant_spider", "baseName": "大蜘蛛", "exp": 9,
-    "vitality": 6, "mental": 2, "strength": 6, "agility": 7, "intelligence": 1, "constitution": 5,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": [] },
-  { "id": "enemy_treant", "baseName": "老樹人", "exp": 16,
-    "vitality": 12, "mental": 4, "strength": 8, "agility": 1, "intelligence": 2, "constitution": 12,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_toughBody"] },
-  { "id": "enemy_kernos", "baseName": "ケルノス", "exp": 30,
-    "vitality": 10, "mental": 4, "strength": 12, "agility": 5, "intelligence": 2, "constitution": 10,
-    "defaultWeaponId": "eq_axe_01", "defaultArmorId": "", "skillIds": ["skill_axeMastery", "skill_battleCry"] },
-  { "id": "enemy_kernos_beast", "baseName": "ケルノスビースト", "exp": 45,
-    "vitality": 16, "mental": 2, "strength": 18, "agility": 3, "intelligence": 1, "constitution": 14,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_berserk", "skill_toughBody"] },
-
-  { "id": "enemy_bandit", "baseName": "野盗", "exp": 10,
-    "vitality": 5, "mental": 3, "strength": 8, "agility": 7, "intelligence": 2, "constitution": 5,
-    "defaultWeaponId": "eq_sword_01", "defaultArmorId": "eq_leather_01", "skillIds": ["skill_swordMastery"] },
-  { "id": "enemy_bandit_archer", "baseName": "野盗の射手", "exp": 11,
-    "vitality": 4, "mental": 3, "strength": 7, "agility": 9, "intelligence": 2, "constitution": 4,
-    "defaultWeaponId": "eq_bow_01", "defaultArmorId": "eq_leather_01", "skillIds": ["skill_bowSpear", "skill_eagleEye"] },
-  { "id": "enemy_bandit_boss", "baseName": "野盗頭", "exp": 38,
-    "vitality": 10, "mental": 6, "strength": 12, "agility": 8, "intelligence": 3, "constitution": 8,
-    "defaultWeaponId": "eq_sword_02", "defaultArmorId": "eq_chain_01", "skillIds": ["skill_swordMastery", "skill_battleCry", "skill_berserk"] },
-
-  { "id": "enemy_bat", "baseName": "洞窟コウモリ", "exp": 5,
-    "vitality": 1, "mental": 1, "strength": 3, "agility": 13, "intelligence": 0, "constitution": 1,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_flight"] },
-  { "id": "enemy_giant_rat", "baseName": "大鼠", "exp": 5,
-    "vitality": 3, "mental": 1, "strength": 4, "agility": 7, "intelligence": 0, "constitution": 3,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_swarm"] },
-  { "id": "enemy_kobold", "baseName": "コボルト", "exp": 8,
-    "vitality": 4, "mental": 3, "strength": 6, "agility": 6, "intelligence": 2, "constitution": 4,
-    "defaultWeaponId": "eq_spear_01", "defaultArmorId": "eq_leather_01", "skillIds": ["skill_swordSpear"] },
-  { "id": "enemy_kobold_digger", "baseName": "コボルト掘削兵", "exp": 11,
-    "vitality": 6, "mental": 3, "strength": 8, "agility": 4, "intelligence": 1, "constitution": 6,
-    "defaultWeaponId": "eq_axe_01", "defaultArmorId": "eq_leather_01", "skillIds": ["skill_axeMastery"] },
-  { "id": "enemy_kobold_shaman", "baseName": "コボルト祈祷師", "exp": 13,
-    "vitality": 4, "mental": 7, "strength": 2, "agility": 5, "intelligence": 8, "constitution": 3,
-    "defaultWeaponId": "eq_earth_01", "defaultArmorId": "eq_cloth_01", "skillIds": ["skill_earthMastery"] },
-  { "id": "enemy_mine_wraith", "baseName": "坑道の亡霊", "exp": 19,
-    "vitality": 5, "mental": 10, "strength": 3, "agility": 8, "intelligence": 10, "constitution": 3,
-    "defaultWeaponId": "eq_water_01", "defaultArmorId": "", "skillIds": ["skill_waterMastery", "skill_flight"] },
-  { "id": "enemy_stone_golem", "baseName": "石のゴーレム", "exp": 34,
-    "vitality": 14, "mental": 2, "strength": 12, "agility": 1, "intelligence": 0, "constitution": 16,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_stoneSkin", "skill_toughBody"] },
-
-  { "id": "enemy_skeleton", "baseName": "スケルトン", "exp": 10,
-    "vitality": 4, "mental": 1, "strength": 7, "agility": 5, "intelligence": 0, "constitution": 6,
-    "defaultWeaponId": "eq_sword_01", "defaultArmorId": "", "skillIds": ["skill_swordMastery"] },
-  { "id": "enemy_skeleton_archer", "baseName": "スケルトン弓兵", "exp": 12,
-    "vitality": 3, "mental": 1, "strength": 6, "agility": 8, "intelligence": 0, "constitution": 4,
-    "defaultWeaponId": "eq_bow_01", "defaultArmorId": "", "skillIds": ["skill_bowSpear"] },
-  { "id": "enemy_zombie", "baseName": "腐肉喰らい", "exp": 11,
-    "vitality": 10, "mental": 1, "strength": 7, "agility": 2, "intelligence": 0, "constitution": 8,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_undeadTough"] },
-  { "id": "enemy_ghoul", "baseName": "グール", "exp": 16,
-    "vitality": 7, "mental": 3, "strength": 10, "agility": 8, "intelligence": 2, "constitution": 6,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_beastFang"] },
-  { "id": "enemy_shadow_beast", "baseName": "影の獣", "exp": 24,
-    "vitality": 8, "mental": 6, "strength": 11, "agility": 12, "intelligence": 4, "constitution": 6,
-    "defaultWeaponId": "", "defaultArmorId": "", "skillIds": ["skill_beastFang", "skill_swiftStep"],
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_fang",
+        "chance": 0.035,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
+    "naturalPv": 4,
+    "naturalAv": 1
+  },
+  {
+    "id": "enemy_giant_spider",
+    "baseName": "大蜘蛛",
+    "exp": 9,
+    "vitality": 6,
+    "mental": 2,
+    "strength": 6,
+    "agility": 7,
+    "intelligence": 1,
+    "constitution": 5,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d6",
+    "skillIds": [],
+    "naturalPv": 5,
+    "naturalAv": 1
+  },
+  {
+    "id": "enemy_treant",
+    "baseName": "老樹人",
+    "exp": 16,
+    "vitality": 12,
+    "mental": 4,
+    "strength": 8,
+    "agility": 1,
+    "intelligence": 2,
+    "constitution": 12,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d8",
+    "skillIds": [
+      "skill_toughBody"
+    ],
+    "naturalPv": 5,
+    "naturalAv": 5,
+    "naturalMav": 2
+  },
+  {
+    "id": "enemy_kernos",
+    "baseName": "ケルノス",
+    "exp": 30,
+    "vitality": 10,
+    "mental": 4,
+    "strength": 12,
+    "agility": 5,
+    "intelligence": 2,
+    "constitution": 10,
+    "defaultWeaponId": "eq_axe_01",
+    "defaultArmorId": "",
+    "skillIds": [
+      "skill_axeMastery",
+      "skill_battleCry"
+    ],
+    "naturalPv": 6,
+    "naturalAv": 2
+  },
+  {
+    "id": "enemy_kernos_beast",
+    "baseName": "ケルノスビースト",
+    "exp": 45,
+    "vitality": 16,
+    "mental": 2,
+    "strength": 18,
+    "agility": 3,
+    "intelligence": 1,
+    "constitution": 14,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "2d8",
+    "skillIds": [
+      "skill_berserk",
+      "skill_toughBody"
+    ],
+    "naturalPv": 8,
+    "naturalAv": 4
+  },
+  {
+    "id": "enemy_bandit",
+    "baseName": "野盗",
+    "exp": 10,
+    "vitality": 5,
+    "mental": 3,
+    "strength": 8,
+    "agility": 7,
+    "intelligence": 2,
+    "constitution": 5,
+    "defaultWeaponId": "eq_sword_01",
+    "defaultArmorId": "eq_leather_01",
+    "skillIds": [
+      "skill_swordMastery"
+    ],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_bandit_archer",
+    "baseName": "野盗の射手",
+    "exp": 11,
+    "vitality": 4,
+    "mental": 3,
+    "strength": 7,
+    "agility": 9,
+    "intelligence": 2,
+    "constitution": 4,
+    "defaultWeaponId": "eq_bow_01",
+    "defaultArmorId": "eq_leather_01",
+    "skillIds": [
+      "skill_bowSpear",
+      "skill_eagleEye"
+    ],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_bandit_boss",
+    "baseName": "野盗頭",
+    "exp": 38,
+    "vitality": 10,
+    "mental": 6,
+    "strength": 12,
+    "agility": 8,
+    "intelligence": 3,
+    "constitution": 8,
+    "defaultWeaponId": "eq_sword_02",
+    "defaultArmorId": "eq_chain_01",
+    "skillIds": [
+      "skill_swordMastery",
+      "skill_battleCry",
+      "skill_berserk"
+    ],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_bat",
+    "baseName": "洞窟コウモリ",
+    "exp": 5,
+    "vitality": 1,
+    "mental": 1,
+    "strength": 3,
+    "agility": 13,
+    "intelligence": 0,
+    "constitution": 1,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d3",
+    "skillIds": [
+      "skill_flight"
+    ],
+    "naturalPv": 2
+  },
+  {
+    "id": "enemy_giant_rat",
+    "baseName": "大鼠",
+    "exp": 5,
+    "vitality": 3,
+    "mental": 1,
+    "strength": 4,
+    "agility": 7,
+    "intelligence": 0,
+    "constitution": 3,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d4",
+    "skillIds": [
+      "skill_swarm"
+    ],
+    "naturalPv": 3
+  },
+  {
+    "id": "enemy_kobold",
+    "baseName": "コボルト",
+    "exp": 8,
+    "vitality": 4,
+    "mental": 3,
+    "strength": 6,
+    "agility": 6,
+    "intelligence": 2,
+    "constitution": 4,
+    "defaultWeaponId": "eq_spear_01",
+    "defaultArmorId": "eq_leather_01",
+    "skillIds": [
+      "skill_swordSpear"
+    ],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_kobold_digger",
+    "baseName": "コボルト掘削兵",
+    "exp": 11,
+    "vitality": 6,
+    "mental": 3,
+    "strength": 8,
+    "agility": 4,
+    "intelligence": 1,
+    "constitution": 6,
+    "defaultWeaponId": "eq_axe_01",
+    "defaultArmorId": "eq_leather_01",
+    "skillIds": [
+      "skill_axeMastery"
+    ],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_kobold_shaman",
+    "baseName": "コボルト祈祷師",
+    "exp": 13,
+    "vitality": 4,
+    "mental": 7,
+    "strength": 2,
+    "agility": 5,
+    "intelligence": 8,
+    "constitution": 3,
+    "defaultWeaponId": "eq_earth_01",
+    "defaultArmorId": "eq_cloth_01",
+    "skillIds": [
+      "skill_earthMastery"
+    ],
+    "naturalPv": 4
+  },
+  {
+    "id": "enemy_mine_wraith",
+    "baseName": "坑道の亡霊",
+    "exp": 19,
+    "vitality": 5,
+    "mental": 10,
+    "strength": 3,
+    "agility": 8,
+    "intelligence": 10,
+    "constitution": 3,
+    "defaultWeaponId": "eq_water_01",
+    "defaultArmorId": "",
+    "skillIds": [
+      "skill_waterMastery",
+      "skill_flight"
+    ],
+    "naturalPv": 3,
+    "naturalMav": 4
+  },
+  {
+    "id": "enemy_stone_golem",
+    "baseName": "石のゴーレム",
+    "exp": 34,
+    "vitality": 14,
+    "mental": 2,
+    "strength": 12,
+    "agility": 1,
+    "intelligence": 0,
+    "constitution": 16,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "2d6",
+    "skillIds": [
+      "skill_stoneSkin",
+      "skill_toughBody"
+    ],
+    "naturalPv": 7,
+    "naturalAv": 8,
+    "naturalMav": 4
+  },
+  {
+    "id": "enemy_skeleton",
+    "baseName": "スケルトン",
+    "exp": 10,
+    "vitality": 4,
+    "mental": 1,
+    "strength": 7,
+    "agility": 5,
+    "intelligence": 0,
+    "constitution": 6,
+    "defaultWeaponId": "eq_sword_01",
+    "defaultArmorId": "",
+    "skillIds": [
+      "skill_swordMastery"
+    ],
+    "naturalPv": 3,
+    "naturalAv": 2,
+    "naturalMav": 2
+  },
+  {
+    "id": "enemy_skeleton_archer",
+    "baseName": "スケルトン弓兵",
+    "exp": 12,
+    "vitality": 3,
+    "mental": 1,
+    "strength": 6,
+    "agility": 8,
+    "intelligence": 0,
+    "constitution": 4,
+    "defaultWeaponId": "eq_bow_01",
+    "defaultArmorId": "",
+    "skillIds": [
+      "skill_bowSpear"
+    ],
+    "naturalPv": 3,
+    "naturalAv": 2,
+    "naturalMav": 2
+  },
+  {
+    "id": "enemy_zombie",
+    "baseName": "腐肉喰らい",
+    "exp": 11,
+    "vitality": 10,
+    "mental": 1,
+    "strength": 7,
+    "agility": 2,
+    "intelligence": 0,
+    "constitution": 8,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d6",
+    "skillIds": [
+      "skill_undeadTough"
+    ],
+    "naturalPv": 3,
+    "naturalAv": 1
+  },
+  {
+    "id": "enemy_ghoul",
+    "baseName": "グール",
+    "exp": 16,
+    "vitality": 7,
+    "mental": 3,
+    "strength": 10,
+    "agility": 8,
+    "intelligence": 2,
+    "constitution": 6,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d6+1",
+    "skillIds": [
+      "skill_beastFang"
+    ],
+    "naturalPv": 5,
+    "naturalAv": 1
+  },
+  {
+    "id": "enemy_shadow_beast",
+    "baseName": "影の獣",
+    "exp": 24,
+    "vitality": 8,
+    "mental": 6,
+    "strength": 11,
+    "agility": 12,
+    "intelligence": 4,
+    "constitution": 6,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "2d4",
+    "skillIds": [
+      "skill_beastFang",
+      "skill_swiftStep"
+    ],
     "dropTable": [
-      { "type": 1, "equipmentId": "eq_drop_shadow", "chance": 0.04, "quantity": 1, "unique": false },
-      { "type": 4, "consumableId": "item_lucky_coin", "chance": 0.12, "quantity": 1, "unique": false }
-    ] },
-  { "id": "enemy_necromancer", "baseName": "死霊術師", "exp": 28,
-    "vitality": 5, "mental": 10, "strength": 3, "agility": 6, "intelligence": 12, "constitution": 4,
-    "defaultWeaponId": "eq_dark_01", "defaultArmorId": "eq_robe_02", "skillIds": ["skill_darkMastery", "skill_deathAura"] },
-  { "id": "enemy_bone_lord", "baseName": "骸の王", "exp": 70,
-    "vitality": 16, "mental": 12, "strength": 14, "agility": 8, "intelligence": 10, "constitution": 14,
-    "defaultWeaponId": "eq_sword_02", "defaultArmorId": "eq_plate_02", "skillIds": ["skill_swordMastery", "skill_undeadTough", "skill_deathAura", "skill_guardian"],
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_shadow",
+        "chance": 0.04,
+        "quantity": 1,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_lucky_coin",
+        "chance": 0.12,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
+    "naturalPv": 6,
+    "naturalAv": 2,
+    "naturalMav": 3
+  },
+  {
+    "id": "enemy_necromancer",
+    "baseName": "死霊術師",
+    "exp": 28,
+    "vitality": 5,
+    "mental": 10,
+    "strength": 3,
+    "agility": 6,
+    "intelligence": 12,
+    "constitution": 4,
+    "defaultWeaponId": "eq_dark_01",
+    "defaultArmorId": "eq_robe_02",
+    "skillIds": [
+      "skill_darkMastery",
+      "skill_deathAura"
+    ],
+    "naturalPv": 3,
+    "naturalMav": 2
+  },
+  {
+    "id": "enemy_bone_lord",
+    "baseName": "骸の王",
+    "exp": 70,
+    "vitality": 16,
+    "mental": 12,
+    "strength": 14,
+    "agility": 8,
+    "intelligence": 10,
+    "constitution": 14,
+    "defaultWeaponId": "eq_drop_bone",
+    "defaultArmorId": "eq_plate_02",
+    "skillIds": [
+      "skill_swordMastery",
+      "skill_undeadTough",
+      "skill_deathAura",
+      "skill_guardian"
+    ],
     "dropTable": [
-      { "type": 1, "equipmentId": "eq_drop_bone", "chance": 0.25, "quantity": 1, "unique": false },
-      { "type": 1, "equipmentId": "eq_drop_crown", "chance": 0.05, "quantity": 1, "unique": true }
-    ] }
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_bone",
+        "chance": 0.25,
+        "quantity": 1,
+        "unique": false
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_crown",
+        "chance": 0.05,
+        "quantity": 1,
+        "unique": true
+      }
+    ],
+    "naturalPv": 6,
+    "naturalAv": 3,
+    "naturalMav": 4
+  }
 ]

@@ -156,14 +156,18 @@ public class FeatureExpansionTests
         // ダイス表記が壊れていれば 1d4 にフォールバックしてしまうため、記法も検証する。
         Assert.All(weapons, w => Assert.Equal(w.damageDice, Dice.Parse(w.damageDice).ToString()));
 
-        // 軽い得物は増幅上限を持ち、重い得物は0（無制限）で青天井に伸びる。
-        Assert.Contains(weapons, w => w.maxAtkBonus > 0);
-        Assert.Contains(weapons, w => w.maxAtkBonus == 0);
+        // 武器はどれもPVを持つ。PVが0だと能力値modifierだけが頼りになり、武器の等級が意味を失う。
+        Assert.All(weapons, w => Assert.True(w.basePv > 0, $"{w.id} の basePv が0"));
 
-        // 武器を持たない敵は自然攻撃ダイスで殴る。
+        // 軽い得物は能力値modifierの上限を持ち、重い得物は無制限で青天井に伸びる。
+        Assert.Contains(weapons, w => w.maxStatBonus < QudCombatDefaults.UnlimitedStatBonus);
+        Assert.Contains(weapons, w => w.maxStatBonus >= QudCombatDefaults.UnlimitedStatBonus);
+
+        // 武器を持たない敵は自然攻撃ダイスで殴り、牙・爪そのもののPVを持つ。
         var unarmed = db.enemies.Values.Where(e => e.DefaultWeapon == null).ToList();
         Assert.NotEmpty(unarmed);
         Assert.All(unarmed, e => Assert.False(string.IsNullOrWhiteSpace(e.naturalDamageDice), $"{e.id} に naturalDamageDice が無い"));
+        Assert.All(unarmed, e => Assert.True(e.naturalPv > 0, $"{e.id} の naturalPv が0"));
     }
 
     static AdventurerMasterData BasicAdventurer() => new()

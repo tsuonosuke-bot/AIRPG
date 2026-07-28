@@ -104,11 +104,12 @@ public static class MasterLoader
             {
                 id = e.id, displayName = e.displayName, type = e.type,
                 weaponType = e.weaponType, armorType = e.armorType,
-                physicalCoeff = e.physicalCoeff, magicCoeff = e.magicCoeff, healCoeff = e.healCoeff,
-                flatPhysicalAtk = e.flatPhysicalAtk, flatMagicAtk = e.flatMagicAtk, flatHeal = e.flatHeal,
+                attackKind = e.attackKind, healPower = e.healPower, flatHeal = e.flatHeal,
                 weight = e.weight, price = e.price, bonus = ParseStatBlock(e.bonus), rarity = e.rarity,
                 shopTier = Math.Max(1, e.shopTier),
-                damageDice = e.damageDice ?? "", maxAtkBonus = Math.Max(0, e.maxAtkBonus),
+                damageDice = e.damageDice ?? "",
+                basePv = e.basePv,
+                maxStatBonus = Math.Max(0, e.maxStatBonus),
                 allowedSlots = e.allowedSlots ?? new(),
             };
         }
@@ -154,6 +155,7 @@ public static class MasterLoader
                 vitality = e.vitality, mental = e.mental, strength = e.strength,
                 agility = e.agility, intelligence = e.intelligence, constitution = e.constitution,
                 naturalDamageDice = e.naturalDamageDice ?? "",
+                naturalPv = e.naturalPv, naturalAv = e.naturalAv, naturalMav = e.naturalMav,
             };
             if (!string.IsNullOrEmpty(e.defaultWeaponId) && db.equipment.TryGetValue(e.defaultWeaponId, out var w)) ed.DefaultWeapon = w;
             if (!string.IsNullOrEmpty(e.defaultArmorId) && db.equipment.TryGetValue(e.defaultArmorId, out var a)) ed.DefaultArmor = a;
@@ -337,9 +339,9 @@ public static class MasterLoader
         if (d == null) return default;
         StatBlock b = default;
         d.TryGetValue("hp", out b.hp); d.TryGetValue("san", out b.san);
-        d.TryGetValue("pAtk", out b.pAtk); d.TryGetValue("pDef", out b.pDef);
-        d.TryGetValue("mAtk", out b.mAtk); d.TryGetValue("mDef", out b.mDef);
-        d.TryGetValue("hit", out b.hit); d.TryGetValue("evade", out b.evade);
+        d.TryGetValue("av", out b.av); d.TryGetValue("mav", out b.mav);
+        d.TryGetValue("pv", out b.pv); d.TryGetValue("mpv", out b.mpv);
+        d.TryGetValue("dv", out b.dv); d.TryGetValue("toHit", out b.toHit);
         d.TryGetValue("heal", out b.heal);
         return b;
     }
@@ -350,12 +352,6 @@ public static class MasterLoader
         if (d == null) return m;
         if (d.TryGetValue("hp", out var v)) m.hp = v;
         if (d.TryGetValue("san", out v)) m.san = v;
-        if (d.TryGetValue("pAtk", out v)) m.pAtk = v;
-        if (d.TryGetValue("pDef", out v)) m.pDef = v;
-        if (d.TryGetValue("mAtk", out v)) m.mAtk = v;
-        if (d.TryGetValue("mDef", out v)) m.mDef = v;
-        if (d.TryGetValue("hit", out v)) m.hit = v;
-        if (d.TryGetValue("evade", out v)) m.evade = v;
         if (d.TryGetValue("heal", out v)) m.heal = v;
         return m;
     }
@@ -383,9 +379,12 @@ public static class MasterLoader
     record RaceJson(string id, string raceName, float vitGrowth, float mentGrowth, float strGrowth, float intGrowth, float agiGrowth, List<string>? allowedClassIds);
 
     record EquipJson(string id, string displayName, EquipmentType type, WeaponType weaponType, ArmorType armorType,
-        float physicalCoeff, float magicCoeff, float healCoeff, int flatPhysicalAtk, int flatMagicAtk, int flatHeal,
         int weight, int price, Dictionary<string, int>? bonus, Rarity rarity, int shopTier = 1,
-        string? damageDice = null, int maxAtkBonus = 0, List<EquipSlot>? allowedSlots = null);
+        AttackKind attackKind = AttackKind.Physical, float healPower = 0f, int flatHeal = 0,
+        string? damageDice = null,
+        int basePv = QudCombatDefaults.WeaponPv,
+        int maxStatBonus = QudCombatDefaults.UnlimitedStatBonus,
+        List<EquipSlot>? allowedSlots = null);
 
     record ConsumableJson(string id, string displayName, string? description, Rarity rarity,
         int price, ConsumableEffectType effectType, int effectValue);
@@ -398,7 +397,8 @@ public static class MasterLoader
 
     record EnemyJson(string id, string baseName, int exp, int vitality, int mental, int strength,
         int agility, int intelligence, int constitution, string? defaultWeaponId, string? defaultArmorId,
-        List<string>? skillIds, List<RewardEntryJson>? dropTable, string? naturalDamageDice = null);
+        List<string>? skillIds, List<RewardEntryJson>? dropTable, string? naturalDamageDice = null,
+        int naturalPv = QudCombatDefaults.WeaponPv, int naturalAv = 0, int naturalMav = 0);
 
     record EnemyUnitJson(string id, string unitName, int baseLevel, List<string?>? formationIds);
 

@@ -10,33 +10,29 @@ public interface IUnitMember
     string Name { get; }
     int CombatHp { get; set; }
     int CombatHpMax { get; set; }
+
+    /// <summary>能力値だけから決まる素の戦闘値。AV/DV/命中補正はここに入る。</summary>
     StatBlock GetBaseCombatStats();
+
+    /// <summary>素の値に装備・スキル由来の補正まで乗せた最終値。</summary>
     StatBlock GetFinalCombatStats();
+
     IReadOnlyList<SkillMasterData> Skills { get; }
     EquipmentMasterData? Weapon { get; }
     EquipmentMasterData? Armor { get; }
 
-    /// <summary>攻撃時に振るダメージダイス。空文字なら素手扱いの既定値が使われる。</summary>
+    /// <summary>攻撃時に振るダメージダイス。貫通1回につき1度振る。</summary>
     string DamageDice { get; }
 
-    /// <summary>PVに算入できる主能力（筋力／知力）の上限。0以下なら無制限。</summary>
-    int MaxAtkBonus { get; }
-
-    /// <summary>攻撃が魔法属性か。魔攻・魔防で解決するかどうかを決める。</summary>
+    /// <summary>攻撃が魔法属性か。AVとmAVのどちらと突き合わせるかを決める。</summary>
     bool IsMagicAttack { get; }
 
-    /// <summary>
-    /// 貫通値（PV）の素。物理は min(筋力, MaxAtkBonus) + 体格、魔法は min(知力, MaxAtkBonus) + 精神。
-    /// 装備・スキル由来の補正はここに含めず、BattleResolverがStatBlockの差分として上乗せする。
-    /// </summary>
-    int RawPenetration { get; }
+    /// <summary>武器そのものの貫通値(PV)。素手なら牙・爪の値。</summary>
+    int WeaponBasePv { get; }
 
-    /// <summary>装甲値（AV）の素。物理は体格。</summary>
-    int RawPhysicalArmor { get; }
+    /// <summary>PVに上乗せできる能力値modifierの上限。</summary>
+    int MaxStatBonus { get; }
 
-    /// <summary>装甲値（AV）の素。魔法は精神。</summary>
-    int RawMagicArmor { get; }
-
-    /// <summary>ダメージ・ボーナスの算出元。物理は筋力+体格、魔法は知力+精神。</summary>
-    int DamageBonusBase { get; }
+    /// <summary>PVに乗る能力値modifier（物理は筋力、魔法は知力）。上限の適用前の値。</summary>
+    int AttackStatModifier { get; }
 }

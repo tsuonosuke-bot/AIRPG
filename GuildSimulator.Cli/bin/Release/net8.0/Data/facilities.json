@@ -1,0 +1,67 @@
+[
+  {
+    "id": "fac_board_ext_01",
+    "displayName": "掲示板の増築",
+    "description": "クエスト掲示板の通常枠を1つ増やし、同時に受注可能な依頼数を広げる。",
+    "buildCostGold": 300,
+    "upkeepGoldPerTurn": 10,
+    "requiredGuildRank": 1,
+    "questBoardBonus": 1,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
+  },
+  {
+    "id": "fac_shop_ext_01",
+    "displayName": "商店の増築",
+    "description": "商店の取引ルートを広げ、鋼製の武具など上位の品を仕入れられるようにする。",
+    "buildCostGold": 400,
+    "upkeepGoldPerTurn": 15,
+    "requiredGuildRank": 1,
+    "questBoardBonus": 0,
+    "shopLevelBonus": 1,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
+  },
+  {
+    "id": "fac_infirmary_01",
+    "displayName": "医療院",
+    "description": "遠征中の休息時の回復量を高める。",
+    "buildCostGold": 350,
+    "upkeepGoldPerTurn": 12,
+    "requiredGuildRank": 1,
+    "questBoardBonus": 0,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 20,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
+  },
+  {
+    "id": "fac_training_hall_01",
+    "displayName": "訓練所",
+    "description": "冒険者のレベルアップ時の能力成長率を高める。",
+    "buildCostGold": 500,
+    "upkeepGoldPerTurn": 18,
+    "requiredGuildRank": 2,
+    "questBoardBonus": 0,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 5,
+    "recruitMinBonus": 0
+  },
+  {
+    "id": "fac_recruitment_office_01",
+    "displayName": "求人窓口",
+    "description": "街道沿いに求人看板を設置し、毎ターン最低1人は雇入れ候補が来るようになる。",
+    "buildCostGold": 250,
+    "upkeepGoldPerTurn": 8,
+    "requiredGuildRank": 1,
+    "questBoardBonus": 0,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 1
+  }
+]

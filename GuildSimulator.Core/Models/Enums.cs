@@ -4,6 +4,9 @@ public enum StatType { Vitality, Mental, Strength, Agility, Intelligence, Consti
 public enum EquipmentType { Weapon, Armor, Accessory }
 public enum EquipSlot { RightHand, LeftHand, Head, Body, Accessory }
 public enum WeaponType { Sword, Axe, Spear, Bow, Fire, Wind, Water, Earth, Dark, Light, Null }
+
+/// <summary>武器が何を撃つか。物理か魔法かは能力値の大小ではなく武器そのもので決まる。</summary>
+public enum AttackKind { Physical, Magic, Heal }
 public enum ArmorType { Cloth, Leather, Plate, Null }
 public enum SkillScope { Self, UnitAura }
 public enum RelicEffectType { Unit_AddFlat, Unit_Multiply, GoldReward_Multiply, Upkeep_Multiply, RestHeal_Multiply }

@@ -1,5 +1,6 @@
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems.Battle;
 
 namespace GuildSimulator.Core.GameData;
 
@@ -31,20 +32,14 @@ public class EnemyData : IUnitMember
         }
     }
 
-    public int MaxAtkBonus => master.DefaultWeapon?.maxAtkBonus ?? 0;
-    public bool IsMagicAttack => master.DefaultWeapon != null && master.DefaultWeapon.magicCoeff > 0f;
+    public bool IsMagicAttack => master.DefaultWeapon != null && master.DefaultWeapon.IsMagicWeapon;
 
-    // 貫通判定（PV/AV）の素。冒険者と同じ組み立てだが、敵はレベル成長（30%/Lv）を通した値を使う。
-    public int RawPenetration => IsMagicAttack
-        ? CapByWeapon(Scaled(master.intelligence)) + Scaled(master.mental)
-        : CapByWeapon(Scaled(master.strength)) + Scaled(master.constitution);
-    public int RawPhysicalArmor => Scaled(master.constitution);
-    public int RawMagicArmor => Scaled(master.mental);
-    public int DamageBonusBase => IsMagicAttack
-        ? Scaled(master.intelligence) + Scaled(master.mental)
-        : Scaled(master.strength) + Scaled(master.constitution);
-
-    int CapByWeapon(int stat) => MaxAtkBonus > 0 ? Math.Min(stat, MaxAtkBonus) : stat;
+    // 素手の敵は牙・爪そのもののPVで貫く。膂力の乗せ方に上限を設けないのは、
+    // 大型の獣がそのまま体重を叩きつけてくる感触を残すため。
+    public int WeaponBasePv => master.DefaultWeapon?.basePv ?? master.naturalPv;
+    public int MaxStatBonus => master.DefaultWeapon?.maxStatBonus ?? QudCombatDefaults.UnlimitedStatBonus;
+    public int AttackStatModifier => QudCombat.Modifier(
+        IsMagicAttack ? Scaled(master.intelligence) : Scaled(master.strength));
 
     public EnemyData(EnemyMasterData master, int level = 1)
     {
@@ -57,12 +52,11 @@ public class EnemyData : IUnitMember
 
     int Scaled(int baseVal) => (int)Math.Floor(baseVal * (1.0 + GROWTH_PER_LEVEL * (level - 1)));
 
-    // 冒険者側と同じ縮小率（攻撃を1/4、防御を1/8、HPを1/2）を敵にも適用し、両陣営の相対バランスを保つ。
+    // 冒険者と同じ組み立て。敵はレベル成長を通した能力値からAV/DV/命中を出す。
     public StatBlock GetBaseCombatStats()
     {
         int vit = Scaled(master.vitality);
         int men = Scaled(master.mental);
-        int str = Scaled(master.strength);
         int agi = Scaled(master.agility);
         int intl = Scaled(master.intelligence);
         int cons = Scaled(master.constitution);
@@ -70,12 +64,11 @@ public class EnemyData : IUnitMember
         {
             hp = (vit * 10 + cons * 5) / 2,
             san = men * 10,
-            pAtk = (str * 2 + cons / 2) / 4,
-            pDef = cons / 8,
-            mAtk = (intl * 2) / 4,
-            mDef = (men * 2) / 8,
-            hit = agi,
-            evade = agi - cons / 2,
+            // 防具を着ていない獣でも、甲殻や毛皮のぶんの装甲を持つ。
+            av = QudCombat.Modifier(cons) + master.naturalAv,
+            mav = QudCombat.Modifier(men) + master.naturalMav,
+            dv = QudCombat.BASE_DV + QudCombat.Modifier(agi),
+            toHit = QudCombat.Modifier(agi),
             heal = men + intl / 2,
         };
     }
@@ -91,12 +84,8 @@ public class EnemyData : IUnitMember
     public StatBlock GetFinalCombatStats()
     {
         var s = GetBaseCombatStats() + GetEquipmentBonus();
-        float pCoef = Weapon != null ? Weapon.physicalCoeff : 1f;
-        float mCoef = Weapon != null ? Weapon.magicCoeff : 0f;
-        s.pAtk = (int)Math.Floor(s.pAtk * pCoef);
-        s.mAtk = (int)Math.Floor(s.mAtk * mCoef);
-        if (pCoef <= 0f) s.pAtk = 0;
-        if (mCoef <= 0f) s.mAtk = 0;
+        float hCoef = Weapon?.healPower ?? 0f;
+        s.heal = hCoef > 0f ? (int)Math.Floor((s.heal + (Weapon?.flatHeal ?? 0)) * hCoef) : 0;
         return s;
     }
 }

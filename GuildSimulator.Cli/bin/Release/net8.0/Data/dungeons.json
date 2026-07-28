@@ -2,8 +2,6 @@
   {
     "id": "dungeon_meadow",
     "dungeonName": "静寂の草原",
-    "rewardChoiceMin": 2,
-    "rewardChoiceMax": 3,
     "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 3,
@@ -74,28 +72,22 @@
         "maxPhase": 0
       }
     ],
-    "rewardTable": [
+    "treasureTable": [
       {
         "type": 2,
-        "gold": 20,
-        "weight": 4,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 30,
+        "gold": 3,
         "weight": 3,
         "unique": false
       },
       {
         "type": 2,
-        "gold": 15,
+        "gold": 5,
         "weight": 2,
         "unique": false
       },
       {
         "type": 2,
-        "gold": 40,
+        "gold": 10,
         "weight": 1,
         "unique": false
       },
@@ -118,37 +110,16 @@
         "unique": true
       }
     ],
-    "treasureTable": [
-      {
-        "type": 2,
-        "gold": 3,
-        "weight": 3,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 5,
-        "weight": 2,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 10,
-        "weight": 1,
-        "unique": false
-      }
-    ],
     "turnEndEventIds": [
       "event_abandoned_camp",
       "event_forked_path",
-      "event_mysterious_shrine"
+      "event_mysterious_shrine",
+      "event_looted_caravan"
     ]
   },
   {
     "id": "dungeon_woods",
     "dungeonName": "森林外縁",
-    "rewardChoiceMin": 3,
-    "rewardChoiceMax": 5,
     "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 6,
@@ -231,23 +202,29 @@
         "maxPhase": 0
       }
     ],
-    "rewardTable": [
+    "treasureTable": [
       {
         "type": 2,
-        "gold": 50,
+        "gold": 5,
         "weight": 5,
         "unique": false
       },
       {
         "type": 2,
-        "gold": 80,
+        "gold": 10,
         "weight": 3,
         "unique": false
       },
       {
         "type": 2,
-        "gold": 65,
-        "weight": 3,
+        "gold": 15,
+        "weight": 1,
+        "unique": false
+      },
+      {
+        "type": 2,
+        "gold": 20,
+        "weight": 1,
         "unique": false
       },
       {
@@ -305,43 +282,16 @@
         "unique": true
       }
     ],
-    "treasureTable": [
-      {
-        "type": 2,
-        "gold": 5,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 10,
-        "weight": 3,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 15,
-        "weight": 1,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 20,
-        "weight": 1,
-        "unique": false
-      }
-    ],
     "turnEndEventIds": [
       "event_abandoned_camp",
       "event_forked_path",
-      "event_mysterious_shrine"
+      "event_mysterious_shrine",
+      "event_looted_caravan"
     ]
   },
   {
     "id": "dungeon_highway",
     "dungeonName": "隊商街道",
-    "rewardChoiceMin": 3,
-    "rewardChoiceMax": 4,
     "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 5,
@@ -388,17 +338,29 @@
         "maxPhase": 0
       }
     ],
-    "rewardTable": [
+    "treasureTable": [
       {
         "type": 2,
-        "gold": 120,
+        "gold": 20,
         "weight": 5,
         "unique": false
       },
       {
         "type": 2,
-        "gold": 180,
+        "gold": 35,
         "weight": 3,
+        "unique": false
+      },
+      {
+        "type": 2,
+        "gold": 25,
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 2,
+        "gold": 50,
+        "weight": 1,
         "unique": false
       },
       {
@@ -444,42 +406,16 @@
         "unique": true
       }
     ],
-    "treasureTable": [
-      {
-        "type": 2,
-        "gold": 20,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 35,
-        "weight": 3,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 25,
-        "weight": 2,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 50,
-        "weight": 1,
-        "unique": false
-      }
-    ],
     "turnEndEventIds": [
       "event_abandoned_camp",
-      "event_forked_path"
+      "event_forked_path",
+      "event_looted_caravan",
+      "event_hidden_cache"
     ]
   },
   {
     "id": "dungeon_mine",
     "dungeonName": "打ち捨てられた廃坑",
-    "rewardChoiceMin": 3,
-    "rewardChoiceMax": 5,
     "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 6,
@@ -544,17 +480,29 @@
         "maxPhase": 0
       }
     ],
-    "rewardTable": [
+    "treasureTable": [
       {
         "type": 2,
-        "gold": 150,
+        "gold": 25,
         "weight": 5,
         "unique": false
       },
       {
         "type": 2,
-        "gold": 220,
+        "gold": 45,
         "weight": 3,
+        "unique": false
+      },
+      {
+        "type": 2,
+        "gold": 70,
+        "weight": 1,
+        "unique": false
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_chain_01",
+        "weight": 1,
         "unique": false
       },
       {
@@ -606,42 +554,16 @@
         "unique": true
       }
     ],
-    "treasureTable": [
-      {
-        "type": 2,
-        "gold": 25,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 45,
-        "weight": 3,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 70,
-        "weight": 1,
-        "unique": false
-      },
-      {
-        "type": 1,
-        "equipmentId": "eq_chain_01",
-        "weight": 1,
-        "unique": false
-      }
-    ],
     "turnEndEventIds": [
       "event_forked_path",
-      "event_mysterious_shrine"
+      "event_mysterious_shrine",
+      "event_collapsed_vault",
+      "event_hidden_cache"
     ]
   },
   {
     "id": "dungeon_crypt",
     "dungeonName": "古の墓所",
-    "rewardChoiceMin": 4,
-    "rewardChoiceMax": 5,
     "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 8,
@@ -694,17 +616,35 @@
         "maxPhase": 0
       }
     ],
-    "rewardTable": [
+    "treasureTable": [
       {
         "type": 2,
-        "gold": 300,
+        "gold": 60,
         "weight": 5,
         "unique": false
       },
       {
         "type": 2,
-        "gold": 450,
+        "gold": 100,
         "weight": 3,
+        "unique": false
+      },
+      {
+        "type": 2,
+        "gold": 160,
+        "weight": 1,
+        "unique": false
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_robe_02",
+        "weight": 1,
+        "unique": false
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_sword_02",
+        "weight": 1,
         "unique": false
       },
       {
@@ -762,48 +702,16 @@
         "unique": true
       }
     ],
-    "treasureTable": [
-      {
-        "type": 2,
-        "gold": 60,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 100,
-        "weight": 3,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 160,
-        "weight": 1,
-        "unique": false
-      },
-      {
-        "type": 1,
-        "equipmentId": "eq_robe_02",
-        "weight": 1,
-        "unique": false
-      },
-      {
-        "type": 1,
-        "equipmentId": "eq_sword_02",
-        "weight": 1,
-        "unique": false
-      }
-    ],
     "turnEndEventIds": [
       "event_mysterious_shrine",
-      "event_forked_path"
+      "event_forked_path",
+      "event_collapsed_vault",
+      "event_hidden_cache"
     ]
   },
   {
     "id": "dungeon_deep_woods",
     "dungeonName": "森林深部",
-    "rewardChoiceMin": 3,
-    "rewardChoiceMax": 5,
     "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 7,
@@ -844,17 +752,29 @@
         "maxPhase": 0
       }
     ],
-    "rewardTable": [
+    "treasureTable": [
       {
         "type": 2,
-        "gold": 200,
+        "gold": 25,
         "weight": 5,
         "unique": false
       },
       {
         "type": 2,
-        "gold": 300,
+        "gold": 45,
         "weight": 3,
+        "unique": false
+      },
+      {
+        "type": 2,
+        "gold": 70,
+        "weight": 1,
+        "unique": false
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_chain_01",
+        "weight": 1,
         "unique": false
       },
       {
@@ -888,43 +808,17 @@
         "unique": true
       }
     ],
-    "treasureTable": [
-      {
-        "type": 2,
-        "gold": 25,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 45,
-        "weight": 3,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 70,
-        "weight": 1,
-        "unique": false
-      },
-      {
-        "type": 1,
-        "equipmentId": "eq_chain_01",
-        "weight": 1,
-        "unique": false
-      }
-    ],
     "turnEndEventIds": [
       "event_abandoned_camp",
       "event_forked_path",
-      "event_mysterious_shrine"
+      "event_mysterious_shrine",
+      "event_looted_caravan",
+      "event_hidden_cache"
     ]
   },
   {
     "id": "dungeon_old_city",
     "dungeonName": "旧市街",
-    "rewardChoiceMin": 3,
-    "rewardChoiceMax": 5,
     "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 7,
@@ -959,23 +853,23 @@
         "maxPhase": 0
       }
     ],
-    "rewardTable": [
+    "treasureTable": [
       {
         "type": 2,
-        "gold": 220,
+        "gold": 30,
         "weight": 5,
         "unique": false
       },
       {
         "type": 2,
-        "gold": 320,
+        "gold": 50,
         "weight": 3,
         "unique": false
       },
       {
         "type": 1,
         "equipmentId": "eq_chain_01",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
@@ -1003,30 +897,12 @@
         "unique": true
       }
     ],
-    "treasureTable": [
-      {
-        "type": 2,
-        "gold": 30,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 50,
-        "weight": 3,
-        "unique": false
-      },
-      {
-        "type": 1,
-        "equipmentId": "eq_chain_01",
-        "weight": 1,
-        "unique": false
-      }
-    ],
     "turnEndEventIds": [
       "event_abandoned_camp",
       "event_forked_path",
-      "event_mysterious_shrine"
+      "event_mysterious_shrine",
+      "event_collapsed_vault",
+      "event_hidden_cache"
     ]
   }
 ]

@@ -1,6 +1,7 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Core.Systems.Quest;
 using GuildSimulator.Game.Data;
@@ -61,8 +62,10 @@ public static class AdventurerScreen
             var s = a.GetFinalCombatStats();
             int hpMax = a.CombatHpMax > 0 ? a.CombatHpMax : s.hp;
             int hpCur = a.CombatHpMax > 0 ? a.CombatHp : s.hp;
-            Ui.WriteLine($"  HP:{hpCur}/{hpMax}  物理攻撃:{s.pAtk} 物理防御:{s.pDef} 魔法攻撃:{s.mAtk} 魔法防御:{s.mDef}");
-            Ui.WriteLine($"  命中:{s.hit} 回避:{s.evade} 回復力:{s.heal}");
+            Ui.WriteLine($"  HP:{hpCur}/{hpMax}  装甲AV:{Math.Max(0, s.av)} 魔法装甲mAV:{Math.Max(0, s.mav)} 回避DV:{s.dv}");
+            int shownPv = QudCombat.EffectivePv(a.WeaponBasePv, a.AttackStatModifier, a.MaxStatBonus,
+                a.IsMagicAttack ? s.mpv : s.pv);
+            Ui.WriteLine($"  貫通{(a.IsMagicAttack ? "mPV" : "PV")}:{shownPv} ダメージ:{(string.IsNullOrWhiteSpace(a.DamageDice) ? QudCombat.DEFAULT_DAMAGE_DICE : a.DamageDice)}/貫通  命中:{s.toHit:+#;-#;+0} 回復力:{s.heal}");
             Ui.WriteLine();
             foreach (var slot in EquipService.AllSlots)
             {
@@ -341,12 +344,12 @@ public static class AdventurerScreen
         var afterStats = a.GetFinalCombatStats();
         Ui.WriteLine();
         Ui.WriteLine("  ステータス変化:");
-        ShowStatDelta("物理攻撃", beforeStats.pAtk, afterStats.pAtk);
-        ShowStatDelta("物理防御", beforeStats.pDef, afterStats.pDef);
-        ShowStatDelta("魔法攻撃", beforeStats.mAtk, afterStats.mAtk);
-        ShowStatDelta("魔法防御", beforeStats.mDef, afterStats.mDef);
-        ShowStatDelta("命中", beforeStats.hit, afterStats.hit);
-        ShowStatDelta("回避", beforeStats.evade, afterStats.evade);
+        ShowStatDelta("装甲AV", beforeStats.av, afterStats.av);
+        ShowStatDelta("魔装甲mAV", beforeStats.mav, afterStats.mav);
+        ShowStatDelta("貫通PV", beforeStats.pv, afterStats.pv);
+        ShowStatDelta("魔貫通mPV", beforeStats.mpv, afterStats.mpv);
+        ShowStatDelta("回避DV", beforeStats.dv, afterStats.dv);
+        ShowStatDelta("命中", beforeStats.toHit, afterStats.toHit);
         ShowStatDelta("回復力", beforeStats.heal, afterStats.heal);
         await Ui.PauseAsync();
     }
@@ -364,9 +367,14 @@ public static class AdventurerScreen
         var parts = new List<string>();
         if (item.type == EquipmentType.Weapon)
         {
-            if (item.physicalCoeff > 0f && item.physicalCoeff != 1f) parts.Add($"物理威力x{item.physicalCoeff:0.##}");
-            if (item.magicCoeff > 0f) parts.Add($"魔法威力x{item.magicCoeff:0.##}");
-            if (item.healCoeff > 0f) parts.Add($"回復効果x{item.healCoeff:0.##}");
+            if (item.attackKind == AttackKind.Heal) parts.Add($"回復効果x{item.healPower:0.##}");
+            else
+            {
+                parts.Add($"{(item.attackKind == AttackKind.Magic ? "魔法" : "物理")} PV{item.basePv}");
+                if (!string.IsNullOrWhiteSpace(item.damageDice)) parts.Add($"{item.damageDice}/貫通");
+                parts.Add(item.maxStatBonus >= QudCombatDefaults.UnlimitedStatBonus
+                    ? "能力値上限なし" : $"能力値上限+{item.maxStatBonus}");
+            }
         }
         parts.AddRange(BonusParts(item.bonus));
         parts.Add($"重量{item.weight}");
@@ -378,12 +386,12 @@ public static class AdventurerScreen
         var parts = new List<string>();
         void Add(string name, int v) { if (v != 0) parts.Add($"{name}{(v > 0 ? "+" : "")}{v}"); }
         Add("HP", b.hp);
-        Add("物理攻撃", b.pAtk);
-        Add("物理防御", b.pDef);
-        Add("魔法攻撃", b.mAtk);
-        Add("魔法防御", b.mDef);
-        Add("命中", b.hit);
-        Add("回避", b.evade);
+        Add("AV", b.av);
+        Add("mAV", b.mav);
+        Add("PV", b.pv);
+        Add("mPV", b.mpv);
+        Add("DV", b.dv);
+        Add("命中", b.toHit);
         Add("回復力", b.heal);
         return parts;
     }

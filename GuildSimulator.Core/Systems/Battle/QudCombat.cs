@@ -1,0 +1,130 @@
+namespace GuildSimulator.Core.Systems.Battle;
+
+/// <summary>
+/// Caves of Qud のダメージ計算式。攻撃は「命中判定」と「貫通判定」の二段構えで、
+/// ダメージの大きさはダメージダイスそのものではなく<b>何回貫通したか</b>で決まる。
+///
+///   1. 命中: 1d20 + 命中補正 が相手のDV(回避値)を上回れば命中
+///   2. 貫通: (1d10-2) + PV を AV と比べる試行を3回で1セット。1回でも上回れば1貫通。
+///            3回とも上回ったらPVを2下げて次のセットへ進み、貫通を積み増す
+///   3. 損傷: 貫通回数ぶんだけ武器のダメージダイスを振って合計する
+///
+/// 能力値は直接ダメージに乗らない。筋力(魔法は知力)はPVに、敏捷はDVと命中に効き、
+/// 装甲はAVとして「そもそも通るかどうか」を決める。
+/// </summary>
+public static class QudCombat
+{
+    // ---- 能力値modifier ----
+    // Qudは能力値16を平均として (能力値-16)/2 をmodifierにする。
+    // 本作の能力値はLv1で4〜14、成長後で30前後というレンジなので、平均点を8に置き換えて縮尺する。
+    public const int MODIFIER_BASELINE = 8;
+    public const int MODIFIER_STEP = 2;
+
+    /// <summary>能力値modifier。基準値からMODIFIER_STEPごとに±1。</summary>
+    public static int Modifier(int stat)
+        => (int)Math.Floor((stat - MODIFIER_BASELINE) / (double)MODIFIER_STEP);
+
+    // ---- 命中判定 ----
+    public const int HIT_DIE = 20;
+    public const int BASE_DV = 6;          // Qud同様、DVには常に下駄6を履かせる
+    public const int CRITICAL_ROLL = 20;   // 出目20は素の値で判定し、DVに関わらず命中する
+    public const int FUMBLE_ROLL = 1;      // 出目1は補正に関わらず必中しない
+
+    // ---- 貫通判定 ----
+    public const int PENETRATION_DIE = 10;         // 1d10
+    public const int PENETRATION_OFFSET = -2;      // -2して振る（-1〜8）
+    public const int PENETRATION_ROLLS_PER_SET = 3; // 3回で1セット
+    public const int PENETRATION_PV_DECAY = 2;     // 3回とも抜けたら次セットはPV-2
+    public const int CRITICAL_PV_BONUS = 1;        // 決定的命中はPV+1
+    public const int MAX_PENETRATIONS = 20;        // PVは必ず減衰するので理論上不要だが安全弁として置く
+
+    public const string DEFAULT_DAMAGE_DICE = "1d2"; // 素手・自然攻撃のフォールバック
+    public const int DEFAULT_WEAPON_PV = 4;          // Qudの標準的な武器のPV
+
+    /// <summary>命中判定の結果。ログに出目をそのまま載せられるよう内訳を持ち回る。</summary>
+    public readonly record struct HitResult(int roll, int total, bool hit, bool critical);
+
+    /// <summary>1d20を振って命中補正を足し、DVと比べる。</summary>
+    public static HitResult RollToHit(int toHitBonus, int dv)
+    {
+        int roll = GameRandom.Range(1, HIT_DIE + 1);
+        bool critical = roll == CRITICAL_ROLL;
+        bool fumble = roll == FUMBLE_ROLL;
+        int total = roll + toHitBonus;
+        bool hit = critical || (!fumble && total > dv);
+        return new HitResult(roll, total, hit, critical);
+    }
+
+    /// <summary>
+    /// 貫通ダイス1個ぶん。1d10-2を振り、最大の出目(10 → +8)が出るたびに振り足して加算する。
+    /// 上振れが青天井なので、AVが高くても薄い可能性で貫通の目が残る。
+    /// </summary>
+    public static int RollPenetrationDie()
+    {
+        int total = 0;
+        int die;
+        do
+        {
+            die = GameRandom.Range(1, PENETRATION_DIE + 1);
+            total += die + PENETRATION_OFFSET;
+        } while (die == PENETRATION_DIE);
+        return total;
+    }
+
+    /// <summary>
+    /// 貫通回数。3回1セットで振り、1回でも抜ければ1貫通。
+    /// セット内の3回すべてが抜けた場合だけPVを2下げて次のセットへ進む。
+    /// PVが必ず減っていくので、どれだけ格上でも貫通回数は有限で止まる。
+    /// </summary>
+    public static int RollPenetrations(int pv, int av)
+    {
+        int penetrations = 0;
+        int currentPv = pv;
+
+        while (penetrations < MAX_PENETRATIONS)
+        {
+            int successes = 0;
+            for (int i = 0; i < PENETRATION_ROLLS_PER_SET; i++)
+                if (RollPenetrationDie() + currentPv > av) successes++;
+
+            if (successes == 0) break;
+            penetrations++;
+            if (successes < PENETRATION_ROLLS_PER_SET) break;
+            currentPv -= PENETRATION_PV_DECAY;
+        }
+        return penetrations;
+    }
+
+    /// <summary>攻撃1回の結果。</summary>
+    public readonly record struct AttackResult(
+        int pv, int av, int penetrations, int damage);
+
+    /// <summary>
+    /// 命中後の解決。貫通回数を出し、その回数だけダメージダイスを振って合計する。
+    /// 決定的命中はPVに+1され、かつ1回も抜けなかった場合でも最低1貫通は保証される。
+    /// 貫通が0なら装甲に阻まれてダメージは通らない。最低保証ダメージはない。
+    /// </summary>
+    public static AttackResult ResolveAttack(int pv, int av, string? diceNotation, bool critical)
+    {
+        if (critical) pv += CRITICAL_PV_BONUS;
+
+        int penetrations = RollPenetrations(pv, av);
+        if (critical && penetrations == 0) penetrations = 1;
+
+        int damage = 0;
+        if (penetrations > 0)
+        {
+            var dice = Dice.Parse(string.IsNullOrWhiteSpace(diceNotation) ? DEFAULT_DAMAGE_DICE : diceNotation);
+            for (int i = 0; i < penetrations; i++) damage += dice.Roll();
+            damage = Math.Max(0, damage);
+        }
+        return new AttackResult(pv, av, penetrations, damage);
+    }
+
+    /// <summary>
+    /// 実効PV。武器の基礎PVに能力値modifierを足すが、乗せられる量は武器ごとの上限で頭打ちになる。
+    /// 短剣に膂力を乗せきれず、斧なら青天井、という差はここで出る。
+    /// </summary>
+    public static int EffectivePv(int weaponBasePv, int statModifier, int maxStatBonus, int flatBonus)
+        => weaponBasePv + Math.Min(statModifier, maxStatBonus) + flatBonus;
+}

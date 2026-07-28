@@ -206,9 +206,17 @@ public static class ShopScreen
         var parts = new List<string>();
         if (item.type == EquipmentType.Weapon)
         {
-            if (item.physicalCoeff > 0f && item.physicalCoeff != 1f) parts.Add($"物理威力x{item.physicalCoeff:0.##}");
-            if (item.magicCoeff > 0f) parts.Add($"魔法威力x{item.magicCoeff:0.##}");
-            if (item.healCoeff > 0f) parts.Add($"回復効果x{item.healCoeff:0.##}");
+            if (item.attackKind == AttackKind.Heal)
+            {
+                parts.Add($"回復効果x{item.healPower:0.##}");
+            }
+            else
+            {
+                parts.Add($"{(item.attackKind == AttackKind.Magic ? "魔法" : "物理")} PV{item.basePv}");
+                if (!string.IsNullOrWhiteSpace(item.damageDice)) parts.Add($"{item.damageDice}/貫通");
+                parts.Add(item.maxStatBonus >= QudCombatDefaults.UnlimitedStatBonus
+                    ? "能力値上限なし" : $"能力値上限+{item.maxStatBonus}");
+            }
         }
         parts.AddRange(BonusParts(item.bonus));
         parts.Add($"重量{item.weight}");
@@ -220,12 +228,12 @@ public static class ShopScreen
         var parts = new List<string>();
         void Add(string name, int v) { if (v != 0) parts.Add($"{name}{(v > 0 ? "+" : "")}{v}"); }
         Add("HP", b.hp);
-        Add("物理攻撃", b.pAtk);
-        Add("物理防御", b.pDef);
-        Add("魔法攻撃", b.mAtk);
-        Add("魔法防御", b.mDef);
-        Add("命中", b.hit);
-        Add("回避", b.evade);
+        Add("AV", b.av);
+        Add("mAV", b.mav);
+        Add("PV", b.pv);
+        Add("mPV", b.mpv);
+        Add("DV", b.dv);
+        Add("命中", b.toHit);
         Add("回復力", b.heal);
         return parts;
     }

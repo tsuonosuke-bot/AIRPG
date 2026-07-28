@@ -1,17 +1,14 @@
 namespace GuildSimulator.Core.Models;
 
+/// <summary>
+/// StatBlockに対する倍率。AV/DV/PVは1点の重みが大きい小さな整数なので、
+/// 倍率で触ってよいのはHP・SAN・回復量のような「量」の側だけにしてある。
+/// </summary>
 public struct StatMultiplier
 {
     public float hp;
     public float san;
-    public float pAtk;
-    public float pDef;
-    public float mAtk;
-    public float mDef;
-    public float hit;
-    public float evade;
     public float heal;
 
-    public static StatMultiplier One => new()
-    { hp = 1f, san = 1f, pAtk = 1f, pDef = 1f, mAtk = 1f, mDef = 1f, hit = 1f, evade = 1f, heal = 1f };
+    public static StatMultiplier One => new() { hp = 1f, san = 1f, heal = 1f };
 }

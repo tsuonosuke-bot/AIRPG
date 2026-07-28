@@ -1,24 +1,173 @@
 [
-  { "id": "relic_bank",    "relicName": "銀行屋",        "description": "クエスト報酬の金貨が5倍になる",              "effectType": 2, "rate": 5.0 },
-  { "id": "relic_bandage", "relicName": "包帯",          "description": "ユニットのHPが+40される",                    "effectType": 0, "add": { "hp": 40 } },
-  { "id": "relic_eggs",    "relicName": "卵",            "description": "ユニットの攻撃力が1.1倍になる",             "effectType": 1, "mul": { "pAtk": 1.1, "mAtk": 1.1 } },
-  { "id": "relic_meat",    "relicName": "美味しいお肉",  "description": "休息時の回復量が1.5倍になる",               "effectType": 4, "rate": 1.5 },
-  { "id": "relic_red",     "relicName": "赤いガラス",    "description": "維持費が0.8倍になる",                       "effectType": 3, "rate": 0.8 },
-
-  { "id": "relic_whetstone", "relicName": "擦り減った砥石", "description": "ユニットの物理攻撃力が1.15倍になる",       "effectType": 1, "mul": { "pAtk": 1.15 } },
-  { "id": "relic_charm",     "relicName": "銀の護符",       "description": "ユニットの物理防御・魔法防御がそれぞれ+25される", "effectType": 0, "add": { "pDef": 25, "mDef": 25 } },
-  { "id": "relic_ledger",    "relicName": "ギルド台帳",     "description": "クエスト報酬の金貨が1.5倍になる",           "effectType": 2, "rate": 1.5 },
-  { "id": "relic_stew",      "relicName": "温かいシチュー", "description": "休息時の回復量が1.3倍になる",              "effectType": 4, "rate": 1.3 },
-  { "id": "relic_contract",  "relicName": "古い雇用契約書", "description": "維持費が0.7倍になる",                      "effectType": 3, "rate": 0.7 },
-  { "id": "relic_lantern",   "relicName": "坑夫のランタン", "description": "ユニットの命中と回避が +20 される",         "effectType": 0, "add": { "hit": 20, "evade": 20 } },
-  { "id": "relic_ironheart", "relicName": "鉄の心臓",       "description": "ユニットのHPが1.25倍になる",               "effectType": 1, "mul": { "hp": 1.25 } },
-  { "id": "relic_grimoire",  "relicName": "禁書の断片",     "description": "ユニットの魔法攻撃力が1.3倍になる",         "effectType": 1, "mul": { "mAtk": 1.3 } },
-  { "id": "relic_crown",     "relicName": "骸の王冠",       "description": "ユニットのHP・攻撃力がいずれも1.2倍になる", "effectType": 1, "mul": { "hp": 1.2, "pAtk": 1.2, "mAtk": 1.2 } },
-
-  { "id": "relic_clover",    "relicName": "四つ葉のクローバー", "description": "ユニットの精神が1.15倍になり、士気の上限が上がる", "effectType": 1, "mul": { "san": 1.15 } },
-  { "id": "relic_leafcloak", "relicName": "葉のマント",         "description": "ユニットの回避が+18される",                       "effectType": 0, "add": { "evade": 18 } },
-  { "id": "relic_barkshield","relicName": "樹皮の盾",           "description": "ユニットの物理防御力が1.15倍になる",              "effectType": 1, "mul": { "pDef": 1.15 } },
-  { "id": "relic_signet",    "relicName": "商会の印章",         "description": "クエスト報酬の金貨が1.25倍になる",               "effectType": 2, "rate": 1.25 },
-  { "id": "relic_emberstone","relicName": "熾火石",             "description": "ユニットの魔法防御力が1.2倍になる",              "effectType": 1, "mul": { "mDef": 1.2 } },
-  { "id": "relic_reliquary", "relicName": "聖遺物の欠片",       "description": "ユニットの回復力が1.3倍になる",                  "effectType": 1, "mul": { "heal": 1.3 } }
+  {
+    "id": "relic_bank",
+    "relicName": "銀行屋",
+    "description": "クエスト報酬の金貨が5倍になる",
+    "effectType": 2,
+    "rate": 5.0
+  },
+  {
+    "id": "relic_bandage",
+    "relicName": "包帯",
+    "description": "ユニットのHPが+20される",
+    "effectType": 0,
+    "add": {
+      "hp": 20
+    }
+  },
+  {
+    "id": "relic_eggs",
+    "relicName": "卵",
+    "description": "ユニットの貫通値(PV/mPV)が+1される",
+    "effectType": 0,
+    "add": {
+      "pv": 1,
+      "mpv": 1
+    }
+  },
+  {
+    "id": "relic_meat",
+    "relicName": "美味しいお肉",
+    "description": "休息時の回復量が1.5倍になる",
+    "effectType": 4,
+    "rate": 1.5
+  },
+  {
+    "id": "relic_red",
+    "relicName": "赤いガラス",
+    "description": "維持費が0.8倍になる",
+    "effectType": 3,
+    "rate": 0.8
+  },
+  {
+    "id": "relic_whetstone",
+    "relicName": "擦り減った砥石",
+    "description": "ユニットの物理貫通値(PV)が+1される",
+    "effectType": 0,
+    "add": {
+      "pv": 1
+    }
+  },
+  {
+    "id": "relic_charm",
+    "relicName": "銀の護符",
+    "description": "ユニットの装甲値(AV/mAV)がそれぞれ+2される",
+    "effectType": 0,
+    "add": {
+      "av": 2,
+      "mav": 2
+    }
+  },
+  {
+    "id": "relic_ledger",
+    "relicName": "ギルド台帳",
+    "description": "クエスト報酬の金貨が1.5倍になる",
+    "effectType": 2,
+    "rate": 1.5
+  },
+  {
+    "id": "relic_stew",
+    "relicName": "温かいシチュー",
+    "description": "休息時の回復量が1.3倍になる",
+    "effectType": 4,
+    "rate": 1.3
+  },
+  {
+    "id": "relic_contract",
+    "relicName": "古い雇用契約書",
+    "description": "維持費が0.7倍になる",
+    "effectType": 3,
+    "rate": 0.7
+  },
+  {
+    "id": "relic_lantern",
+    "relicName": "坑夫のランタン",
+    "description": "ユニットの命中と回避(DV)が+3される",
+    "effectType": 0,
+    "add": {
+      "toHit": 3,
+      "dv": 3
+    }
+  },
+  {
+    "id": "relic_ironheart",
+    "relicName": "鉄の心臓",
+    "description": "ユニットのHPが1.25倍になる",
+    "effectType": 1,
+    "mul": {
+      "hp": 1.25
+    }
+  },
+  {
+    "id": "relic_grimoire",
+    "relicName": "禁書の断片",
+    "description": "ユニットの魔法貫通値(mPV)が+2される",
+    "effectType": 0,
+    "add": {
+      "mpv": 2
+    }
+  },
+  {
+    "id": "relic_crown",
+    "relicName": "骸の王冠",
+    "description": "ユニットのHP+30、貫通値(PV/mPV)が+2される",
+    "effectType": 0,
+    "add": {
+      "pv": 2,
+      "mpv": 2,
+      "hp": 30
+    }
+  },
+  {
+    "id": "relic_clover",
+    "relicName": "四つ葉のクローバー",
+    "description": "ユニットの精神が1.15倍になり、士気の上限が上がる",
+    "effectType": 1,
+    "mul": {
+      "san": 1.15
+    }
+  },
+  {
+    "id": "relic_leafcloak",
+    "relicName": "葉のマント",
+    "description": "ユニットの回避(DV)が+3される",
+    "effectType": 0,
+    "add": {
+      "dv": 3
+    }
+  },
+  {
+    "id": "relic_barkshield",
+    "relicName": "樹皮の盾",
+    "description": "ユニットの物理装甲値(AV)が+2される",
+    "effectType": 0,
+    "add": {
+      "av": 2
+    }
+  },
+  {
+    "id": "relic_signet",
+    "relicName": "商会の印章",
+    "description": "クエスト報酬の金貨が1.25倍になる",
+    "effectType": 2,
+    "rate": 1.25
+  },
+  {
+    "id": "relic_emberstone",
+    "relicName": "熾火石",
+    "description": "ユニットの魔法装甲値(mAV)が+2される",
+    "effectType": 0,
+    "add": {
+      "mav": 2
+    }
+  },
+  {
+    "id": "relic_reliquary",
+    "relicName": "聖遺物の欠片",
+    "description": "ユニットの回復力が1.3倍になる",
+    "effectType": 1,
+    "mul": {
+      "heal": 1.3
+    }
+  }
 ]

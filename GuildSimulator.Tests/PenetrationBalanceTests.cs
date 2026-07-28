@@ -1,4 +1,5 @@
 using GuildSimulator.Core.GameData;
+using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Game.Data;
 using Xunit;
@@ -7,8 +8,8 @@ using Xunit.Abstractions;
 namespace GuildSimulator.Tests;
 
 /// <summary>
-/// 貫通判定のバランス測定。実マスタデータの代表的な組み合わせで平均ダメージと成功レベル分布を出し、
-/// TIER_STEP / DAMAGE_BONUS_BAND を変えたときに戦闘のテンポがどう動くかを数字で確認できるようにする。
+/// 貫通判定のバランス測定。実マスタデータの代表的な組み合わせで平均ダメージと貫通回数の分布を出し、
+/// 武器のbasePv / 防具のAV を動かしたときに戦闘のテンポがどう変わるかを数字で確認できるようにする。
 /// 出力を見るには: dotnet test --filter PenetrationBalance --logger "console;verbosity=detailed"
 /// </summary>
 public class PenetrationBalanceTests
@@ -39,7 +40,7 @@ public class PenetrationBalanceTests
             new Matchup("重装歩兵 → Lv1冒険者", heavy, satoru),
         };
 
-        output.WriteLine($"{"組み合わせ",-24} {"PV",4} {"AV",4} {"平均",6} {"弾かれ",7} {"貫通",6} {"ハード",7} {"ｲｸｽﾄﾘｰﾑ",8} {"HP",5} {"必要命中数",10}");
+        output.WriteLine($"{"組み合わせ",-24} {"PV",4} {"AV",4} {"平均",6} {"弾かれ",7} {"1貫通",7} {"2貫通",7} {"3+貫通",7} {"平均貫通",8} {"HP",5} {"必要命中数",10}");
 
         foreach (var m in matchups)
         {
@@ -47,7 +48,7 @@ public class PenetrationBalanceTests
             double hitsToKill = s.defenderHp / Math.Max(0.01, s.average);
             output.WriteLine(
                 $"{m.name,-24} {s.pv,4} {s.av,4} {s.average,6:F1} " +
-                $"{s.blocked,6:P0} {s.regular,6:P0} {s.hard,6:P0} {s.extreme,7:P0} " +
+                $"{s.blocked,6:P0} {s.once,6:P0} {s.twice,6:P0} {s.thrice,6:P0} {s.avgPenetrations,8:F2} " +
                 $"{s.defenderHp,5} {hitsToKill,10:F1}");
 
             // 数値そのものは調整対象なので固定しない。破綻だけを検出する。
@@ -59,14 +60,16 @@ public class PenetrationBalanceTests
     [Fact]
     public void HeavyArmourShutsOutAttackersWhoCannotReachIt()
     {
-        // 重鎧を着込んだ相手に弱い敵の攻撃が通らなくなること。旧方式の「最低保証1」が無くなったので、
-        // 装甲への投資がそのまま被弾の遮断になる。「装甲に弾かれた」経路が実プレイで到達可能かの確認でもある。
+        // 重鎧を着込んだ相手に弱い敵の攻撃が通らなくなること。最低保証ダメージが無いので、
+        // AVへの投資がそのまま被弾の遮断になる。「装甲に弾かれた」経路が実プレイで到達可能かの確認でもある。
         string dataDir = Path.Combine(AppContext.BaseDirectory, "Data");
         var db = MasterLoader.Load(dataDir);
 
         var master = db.allAdventurers.First(a => a.id == "adv_0001");
-        var inCloth = new AdventurerData(master) { armor = db.equipment["eq_cloth_01"] };
-        var inPlate = new AdventurerData(master) { armor = db.equipment["eq_plate_02"] };
+        var inCloth = new AdventurerData(master);
+        inCloth.SetEquipped(EquipSlot.Body, db.equipment["eq_cloth_01"]);
+        var inPlate = new AdventurerData(master);
+        inPlate.SetEquipped(EquipSlot.Body, db.equipment["eq_plate_02"]);
         var slime = new EnemyData(db.enemies["enemy_slime"]);
 
         var cloth = Measure(new Matchup("スライム → 布の服", slime, inCloth));
@@ -81,7 +84,8 @@ public class PenetrationBalanceTests
     }
 
     record Stats(
-        int pv, int av, double average, double blocked, double regular, double hard, double extreme, int defenderHp);
+        int pv, int av, double average, double blocked, double once, double twice, double thrice,
+        double avgPenetrations, int defenderHp);
 
     static Stats Measure(Matchup m)
     {
@@ -89,34 +93,33 @@ public class PenetrationBalanceTests
         var defender = m.defender;
         bool isMagic = attacker.IsMagicAttack;
 
-        var attackerFinal = attacker.GetFinalCombatStats();
-        var attackerBase = attacker.GetBaseCombatStats();
-        var defenderFinal = defender.GetFinalCombatStats();
-        var defenderBase = defender.GetBaseCombatStats();
+        var attackerStats = attacker.GetFinalCombatStats();
+        var defenderStats = defender.GetFinalCombatStats();
 
-        int pv = attacker.RawPenetration
-            + (isMagic ? attackerFinal.mAtk - attackerBase.mAtk : attackerFinal.pAtk - attackerBase.pAtk);
-        int av = (isMagic ? defender.RawMagicArmor : defender.RawPhysicalArmor)
-            + (isMagic ? defenderFinal.mDef - defenderBase.mDef : defenderFinal.pDef - defenderBase.pDef);
+        int pv = QudCombat.EffectivePv(
+            attacker.WeaponBasePv, attacker.AttackStatModifier, attacker.MaxStatBonus,
+            isMagic ? attackerStats.mpv : attackerStats.pv);
+        int av = Math.Max(0, isMagic ? defenderStats.mav : defenderStats.av);
 
-        string dice = string.IsNullOrWhiteSpace(attacker.DamageDice) ? "1d4" : attacker.DamageDice;
-
-        long total = 0;
-        var tiers = new int[4];
+        long totalDamage = 0;
+        long totalPenetrations = 0;
+        var buckets = new int[4]; // 0, 1, 2, 3以上
         for (int i = 0; i < Trials; i++)
         {
-            var r = BattleResolver.ResolvePenetration(pv, av, dice, attacker.DamageBonusBase, critical: false);
-            total += r.damage;
-            tiers[(int)r.tier]++;
+            var r = QudCombat.ResolveAttack(pv, av, attacker.DamageDice, critical: false);
+            totalDamage += r.damage;
+            totalPenetrations += r.penetrations;
+            buckets[Math.Min(3, r.penetrations)]++;
         }
 
         return new Stats(
             pv, av,
-            (double)total / Trials,
-            (double)tiers[0] / Trials,
-            (double)tiers[1] / Trials,
-            (double)tiers[2] / Trials,
-            (double)tiers[3] / Trials,
-            defenderFinal.hp);
+            (double)totalDamage / Trials,
+            (double)buckets[0] / Trials,
+            (double)buckets[1] / Trials,
+            (double)buckets[2] / Trials,
+            (double)buckets[3] / Trials,
+            (double)totalPenetrations / Trials,
+            defenderStats.hp);
     }
 }

@@ -1,5 +1,6 @@
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
 
 namespace GuildSimulator.Core.GameData;
@@ -36,8 +37,15 @@ public class AdventurerData : IUnitMember
     public EquipmentMasterData? Weapon => GetEquipped(EquipSlot.RightHand);
     public EquipmentMasterData? Armor => GetEquipped(EquipSlot.Body);
     public string DamageDice => Weapon?.damageDice ?? "";
-    public int MaxAtkBonus => Weapon?.maxAtkBonus ?? 0;
-    public bool IsMagicAttack => Weapon != null && Weapon.magicCoeff > 0f;
+    public bool IsMagicAttack => Weapon != null && Weapon.IsMagicWeapon;
+
+    // 素手は武器を持たないぶんPVが伸びず、能力値modifierもほとんど乗らない。
+    public int WeaponBasePv => Weapon?.basePv ?? UNARMED_PV;
+    public int MaxStatBonus => Weapon?.maxStatBonus ?? UNARMED_MAX_STAT_BONUS;
+    public int AttackStatModifier => QudCombat.Modifier(IsMagicAttack ? intelligence : strength);
+
+    const int UNARMED_PV = 2;
+    const int UNARMED_MAX_STAT_BONUS = 1;
 
     public EquipmentMasterData? GetEquipped(EquipSlot slot) =>
         equippedSlots.TryGetValue(slot, out var item) ? item : null;
@@ -53,18 +61,6 @@ public class AdventurerData : IUnitMember
     public IReadOnlyDictionary<EquipSlot, EquipmentMasterData> GetAllEquipped() => equippedSlots;
 
     public IEnumerable<EquipmentMasterData> AllEquippedItems() => equippedSlots.Values;
-
-    // 貫通判定（PV/AV）の素。CoCのダメージ・ボーナスがSTR+SIZで決まるのに倣い、
-    // 物理は「筋力＋体格」、魔法はその対応物である「知力＋精神」を土台にする。
-    // MaxAtkBonusは攻撃側の主能力だけを頭打ちにする（短剣に腕力を乗せきれない、の表現）。
-    public int RawPenetration => IsMagicAttack
-        ? CapByWeapon(intelligence) + mental
-        : CapByWeapon(strength) + constitution;
-    public int RawPhysicalArmor => constitution;
-    public int RawMagicArmor => mental;
-    public int DamageBonusBase => IsMagicAttack ? intelligence + mental : strength + constitution;
-
-    int CapByWeapon(int stat) => MaxAtkBonus > 0 ? Math.Min(stat, MaxAtkBonus) : stat;
 
     readonly List<LearnedSkill> learnedSkills = new();
     readonly List<SkillMasterData> activeSkillCache = new();
@@ -268,20 +264,19 @@ public class AdventurerData : IUnitMember
         }
     }
 
+    // 能力値は直接ダメージに乗らない。体格は素肌の硬さ(AV)、精神は魔法への抵抗(mAV)、
+    // 敏捷は避けやすさ(DV)と当てやすさ(命中)に変わる。攻撃側の筋力・知力はPVへ回るので、
+    // ここではなく AttackStatModifier が受け持つ。
     public StatBlock GetBaseCombatStats()
     {
         return new StatBlock
         {
             hp = (vitality * 10 + constitution * 5) / 2,
             san = mental * 10,
-            // pAtk/pDef はそのままPV/AVに乗るのではなく、装備・スキル由来の補正を測るための
-            // 基準線として使われる（BattleResolverが「最終値 − この基礎値」を差分として拾う）。
-            pAtk = (strength * 2 + constitution / 2) / 4,
-            pDef = constitution / 8,
-            mAtk = (intelligence * 2) / 4,
-            mDef = (mental * 2) / 8,
-            hit = agility,
-            evade = agility - constitution / 2,
+            av = QudCombat.Modifier(constitution),
+            mav = QudCombat.Modifier(mental),
+            dv = QudCombat.BASE_DV + QudCombat.Modifier(agility),
+            toHit = QudCombat.Modifier(agility),
             heal = mental + intelligence / 2,
         };
     }
@@ -298,29 +293,23 @@ public class AdventurerData : IUnitMember
     {
         var weapon = Weapon;
         var s = GetBaseCombatStats() + GetEquipmentBonus();
-        float pCoef = weapon != null ? weapon.physicalCoeff : 1f;
-        float mCoef = weapon?.magicCoeff ?? 0f;
-        float hCoef = weapon?.healCoeff ?? 0f;
-        int flatP = weapon?.flatPhysicalAtk ?? 0;
-        int flatM = weapon?.flatMagicAtk ?? 0;
-        int flatH = weapon?.flatHeal ?? 0;
 
-        s.pAtk = (int)Math.Floor((s.pAtk + flatP) * pCoef);
-        s.mAtk = (int)Math.Floor((s.mAtk + flatM) * mCoef);
-        s.heal = (int)Math.Floor((s.heal + flatH) * hCoef);
-        if (pCoef <= 0f) s.pAtk = 0;
-        if (mCoef <= 0f) s.mAtk = 0;
-        if (hCoef <= 0f) s.heal = 0;
+        float hCoef = weapon?.healPower ?? 0f;
+        s.heal = hCoef > 0f ? (int)Math.Floor((s.heal + (weapon?.flatHeal ?? 0)) * hCoef) : 0;
 
+        // 過積載は身のこなしを鈍らせる。装甲(AV)は担いでいる以上そのまま効くので削らない。
         float r = OverweightRate;
         if (r > 0f)
         {
-            s.pAtk = (int)Math.Floor(s.pAtk * (1f - 0.5f * r));
-            s.hit = (int)Math.Floor(s.hit * (1f - 0.8f * r));
-            s.evade = (int)Math.Floor(s.evade * (1f - 0.8f * r));
+            s.dv -= (int)Math.Ceiling(OVERWEIGHT_DV_PENALTY * r);
+            s.toHit -= (int)Math.Ceiling(OVERWEIGHT_TO_HIT_PENALTY * r);
         }
         return s;
     }
+
+    // 過積載率1.0（積載上限の10倍超）で受ける最大ペナルティ。
+    const float OVERWEIGHT_DV_PENALTY = 6f;
+    const float OVERWEIGHT_TO_HIT_PENALTY = 4f;
 
     // ---- セーブ/ロード ----
     public IReadOnlyList<(SkillMasterData skill, ClassMasterData? ownerClass)> ExportLearnedSkills()

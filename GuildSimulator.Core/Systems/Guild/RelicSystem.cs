@@ -23,10 +23,8 @@ public static class RelicSystem
             if (r.effectType == RelicEffectType.Unit_AddFlat) add += r.add;
             else if (r.effectType == RelicEffectType.Unit_Multiply) bonusSum = AddBonus(bonusSum, r.mul);
         }
-        mul.hp = CombineRate(bonusSum.hp); mul.san = CombineRate(bonusSum.san);
-        mul.pAtk = CombineRate(bonusSum.pAtk); mul.pDef = CombineRate(bonusSum.pDef);
-        mul.mAtk = CombineRate(bonusSum.mAtk); mul.mDef = CombineRate(bonusSum.mDef);
-        mul.hit = CombineRate(bonusSum.hit); mul.evade = CombineRate(bonusSum.evade);
+        mul.hp = CombineRate(bonusSum.hp);
+        mul.san = CombineRate(bonusSum.san);
         mul.heal = CombineRate(bonusSum.heal);
     }
 
@@ -49,10 +47,8 @@ public static class RelicSystem
 
     static StatMultiplier AddBonus(StatMultiplier sum, StatMultiplier m)
     {
-        sum.hp += m.hp - 1f; sum.san += m.san - 1f;
-        sum.pAtk += m.pAtk - 1f; sum.pDef += m.pDef - 1f;
-        sum.mAtk += m.mAtk - 1f; sum.mDef += m.mDef - 1f;
-        sum.hit += m.hit - 1f; sum.evade += m.evade - 1f;
+        sum.hp += m.hp - 1f;
+        sum.san += m.san - 1f;
         sum.heal += m.heal - 1f;
         return sum;
     }

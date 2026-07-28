@@ -10,7 +10,9 @@ const outputDir = path.join(repoRoot, "outputs", "master-data-editor");
 const workbookPath = path.join(outputDir, "マスタデータ統合_編集用.xlsx");
 const previewDir = path.join(outputDir, "previews");
 const masterFiles = ["adventurers", "equipment", "skills", "consumables", "clues", "quests", "dungeons"];
-const statKeys = ["hp", "san", "pAtk", "pDef", "mAtk", "mDef", "hit", "evade", "heal"];
+const statKeys = ["hp", "san", "av", "mav", "pv", "mpv", "dv", "toHit", "heal"];
+// AV/DV/PVは1点が重いので倍率では触らない。mul列はこの3つだけを扱う。
+const mulKeys = ["hp", "san", "heal"];
 const rewardKeys = [
   "type", "relicId", "equipmentId", "skillId", "consumableId",
   "gold", "weight", "chance", "quantity", "unique",
@@ -80,16 +82,14 @@ const sheetDefinitions = {
     unique: true,
     keys: [
       "id", "displayName", "rarity", "type", "weaponType", "armorType",
-      "physicalCoeff", "magicCoeff", "healCoeff",
-      "damageDice", "maxAtkBonus",
-      "flatPhysicalAtk", "flatMagicAtk", "flatHeal", "price", "weight", "shopTier",
+      "attackKind", "damageDice", "basePv", "maxStatBonus",
+      "healPower", "flatHeal", "price", "weight", "shopTier",
       ...statKeys.map((key) => `bonus_${key}`),
     ],
     labels: [
       "ID", "表示名", "レアリティ", "装備種別", "武器種", "防具種",
-      "物理係数", "魔法係数", "回復係数",
-      "ダメージダイス", "PV算入上限",
-      "固定物攻", "固定魔攻", "固定回復", "価格", "重量", "商店Tier",
+      "攻撃種別", "ダメージダイス", "武器PV", "能力値上限",
+      "回復係数", "固定回復", "価格", "重量", "商店Tier",
       ...statKeys.map((key) => `補正 ${key}`),
     ],
   },
@@ -102,13 +102,13 @@ const sheetDefinitions = {
       "id", "skillName", "scope", "frontOnly", "backOnly",
       "requireWeaponType", "requiredWeaponType", "requireArmorType", "requiredArmorType",
       ...statKeys.map((key) => `add_${key}`),
-      ...statKeys.map((key) => `mul_${key}`),
+      ...mulKeys.map((key) => `mul_${key}`),
     ],
     labels: [
       "ID", "スキル名", "範囲", "前衛限定", "後衛限定",
       "武器条件あり", "必要武器種", "防具条件あり", "必要防具種",
       ...statKeys.map((key) => `加算 ${key}`),
-      ...statKeys.map((key) => `倍率 ${key}`),
+      ...mulKeys.map((key) => `倍率 ${key}`),
     ],
   },
   consumables: {
@@ -233,9 +233,8 @@ const makeRows = (data) => {
 
   const equipment = data.equipment.map((e) => [
     e.id, e.displayName, clean(e.rarity), e.type, e.weaponType, e.armorType,
-    e.physicalCoeff, e.magicCoeff, e.healCoeff,
-    clean(e.damageDice), clean(e.maxAtkBonus),
-    clean(e.flatPhysicalAtk), clean(e.flatMagicAtk), clean(e.flatHeal),
+    clean(e.attackKind), clean(e.damageDice), clean(e.basePv), clean(e.maxStatBonus),
+    clean(e.healPower), clean(e.flatHeal),
     e.price, e.weight, clean(e.shopTier),
     ...statKeys.map((key) => mapValue(e.bonus, key)),
   ]);
@@ -245,7 +244,7 @@ const makeRows = (data) => {
     s.requireWeaponType, clean(s.requiredWeaponType),
     s.requireArmorType, clean(s.requiredArmorType),
     ...statKeys.map((key) => mapValue(s.add, key)),
-    ...statKeys.map((key) => mapValue(s.mul, key)),
+    ...mulKeys.map((key) => mapValue(s.mul, key)),
   ]);
 
   const consumables = data.consumables.map((c) => [
@@ -646,7 +645,7 @@ const optionalAssign = (object, key, value) => {
 };
 const buildStatObject = (source, prefix, row, multiplier = false) => {
   const result = {};
-  for (const key of statKeys) {
+  for (const key of (multiplier ? mulKeys : statKeys)) {
     const value = optionalNumber(source[`${prefix}_${key}`], `${prefix}_${key}`, row, !multiplier);
     if (value !== null) result[key] = value;
   }
@@ -742,13 +741,11 @@ const importWorkbook = async (writeMode) => {
     item.type = numberValue(x.type, "type", row, true);
     item.weaponType = numberValue(x.weaponType, "weaponType", row, true);
     item.armorType = numberValue(x.armorType, "armorType", row, true);
-    item.physicalCoeff = numberValue(x.physicalCoeff, "physicalCoeff", row);
-    item.magicCoeff = numberValue(x.magicCoeff, "magicCoeff", row);
-    item.healCoeff = numberValue(x.healCoeff, "healCoeff", row);
+    optionalAssign(item, "attackKind", optionalText(x.attackKind));
     optionalAssign(item, "damageDice", optionalText(x.damageDice));
-    optionalAssign(item, "maxAtkBonus", optionalNumber(x.maxAtkBonus, "maxAtkBonus", row, true));
-    optionalAssign(item, "flatPhysicalAtk", optionalNumber(x.flatPhysicalAtk, "flatPhysicalAtk", row, true));
-    optionalAssign(item, "flatMagicAtk", optionalNumber(x.flatMagicAtk, "flatMagicAtk", row, true));
+    optionalAssign(item, "basePv", optionalNumber(x.basePv, "basePv", row, true));
+    optionalAssign(item, "maxStatBonus", optionalNumber(x.maxStatBonus, "maxStatBonus", row, true));
+    optionalAssign(item, "healPower", optionalNumber(x.healPower, "healPower", row));
     optionalAssign(item, "flatHeal", optionalNumber(x.flatHeal, "flatHeal", row, true));
     item.price = numberValue(x.price, "price", row, true);
     item.weight = numberValue(x.weight, "weight", row, true);
