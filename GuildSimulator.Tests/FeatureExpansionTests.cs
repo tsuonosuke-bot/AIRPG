@@ -159,9 +159,19 @@ public class FeatureExpansionTests
         // 武器はどれもPVを持つ。PVが0だと能力値modifierだけが頼りになり、武器の等級が意味を失う。
         Assert.All(weapons, w => Assert.True(w.basePv > 0, $"{w.id} の basePv が0"));
 
-        // 軽い得物は能力値modifierの上限を持ち、重い得物は無制限で青天井に伸びる。
-        Assert.Contains(weapons, w => w.maxStatBonus < QudCombatDefaults.UnlimitedStatBonus);
-        Assert.Contains(weapons, w => w.maxStatBonus >= QudCombatDefaults.UnlimitedStatBonus);
+        // 上限は武器クラスごとの固定値で、無制限の得物は存在しない。
+        // 無制限を許すと主能力が伸びるほどクラス間の差が青天井に開き、
+        // 「斧なら常に貫通、短剣は常に弾かれる」という壊れ方をする。
+        var attackWeapons = weapons.Where(w => w.attackKind != AttackKind.Heal).ToList();
+        Assert.NotEmpty(attackWeapons);
+        Assert.All(attackWeapons, w => Assert.True(
+            w.maxStatBonus < QudCombatDefaults.UnlimitedStatBonus,
+            $"{w.id} の能力値上限が無制限になっている"));
+
+        var caps = attackWeapons.Select(w => w.maxStatBonus).Distinct().OrderBy(x => x).ToList();
+        Assert.True(caps.Count > 1, "武器クラスによる上限の差が無い");
+        Assert.True(caps.Max() - caps.Min() <= 3,
+            $"クラス間の上限差が開きすぎている（{caps.Min()}〜{caps.Max()}）");
 
         // 武器を持たない敵は自然攻撃ダイスで殴り、牙・爪そのもののPVを持つ。
         var unarmed = db.enemies.Values.Where(e => e.DefaultWeapon == null).ToList();

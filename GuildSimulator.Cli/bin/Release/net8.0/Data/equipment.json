@@ -10,7 +10,7 @@
     "attackKind": "Physical",
     "damageDice": "1d3",
     "basePv": 3,
-    "maxStatBonus": 3,
+    "maxStatBonus": 6,
     "price": 30,
     "weight": 3,
     "bonus": {
@@ -28,7 +28,7 @@
     "attackKind": "Physical",
     "damageDice": "1d2",
     "basePv": 3,
-    "maxStatBonus": 2,
+    "maxStatBonus": 5,
     "price": 25,
     "weight": 2,
     "bonus": {
@@ -46,7 +46,7 @@
     "attackKind": "Physical",
     "damageDice": "1d2",
     "basePv": 4,
-    "maxStatBonus": 5,
+    "maxStatBonus": 7,
     "price": 35,
     "weight": 4,
     "bonus": {
@@ -64,7 +64,7 @@
     "attackKind": "Physical",
     "damageDice": "1d2",
     "basePv": 4,
-    "maxStatBonus": 99,
+    "maxStatBonus": 8,
     "price": 40,
     "weight": 5,
     "bonus": {
@@ -82,7 +82,7 @@
     "attackKind": "Physical",
     "damageDice": "1d3",
     "basePv": 3,
-    "maxStatBonus": 2,
+    "maxStatBonus": 6,
     "price": 35,
     "weight": 3,
     "bonus": {
@@ -100,7 +100,7 @@
     "attackKind": "Physical",
     "damageDice": "1d2",
     "basePv": 2,
-    "maxStatBonus": 1,
+    "maxStatBonus": 5,
     "price": 25,
     "weight": 2,
     "bonus": {
@@ -118,7 +118,7 @@
     "attackKind": "Magic",
     "damageDice": "1d3",
     "basePv": 3,
-    "maxStatBonus": 99,
+    "maxStatBonus": 8,
     "price": 40,
     "weight": 3,
     "bonus": {
@@ -136,7 +136,7 @@
     "attackKind": "Magic",
     "damageDice": "1d2",
     "basePv": 3,
-    "maxStatBonus": 2,
+    "maxStatBonus": 5,
     "price": 30,
     "weight": 1,
     "bonus": {
@@ -154,7 +154,7 @@
     "attackKind": "Magic",
     "damageDice": "1d2",
     "basePv": 4,
-    "maxStatBonus": 5,
+    "maxStatBonus": 6,
     "price": 40,
     "weight": 4,
     "bonus": {
@@ -172,7 +172,7 @@
     "attackKind": "Magic",
     "damageDice": "1d3",
     "basePv": 4,
-    "maxStatBonus": 6,
+    "maxStatBonus": 7,
     "price": 40,
     "weight": 5,
     "bonus": {
@@ -190,7 +190,7 @@
     "attackKind": "Magic",
     "damageDice": "1d3",
     "basePv": 3,
-    "maxStatBonus": 99,
+    "maxStatBonus": 8,
     "price": 45,
     "weight": 3,
     "bonus": {
@@ -228,7 +228,7 @@
     "attackKind": "Physical",
     "damageDice": "1d4",
     "basePv": 4,
-    "maxStatBonus": 4,
+    "maxStatBonus": 6,
     "price": 90,
     "weight": 4,
     "bonus": {
@@ -246,7 +246,7 @@
     "attackKind": "Physical",
     "damageDice": "1d3",
     "basePv": 4,
-    "maxStatBonus": 2,
+    "maxStatBonus": 5,
     "price": 75,
     "weight": 2,
     "bonus": {
@@ -264,7 +264,7 @@
     "attackKind": "Physical",
     "damageDice": "1d1+1",
     "basePv": 5,
-    "maxStatBonus": 6,
+    "maxStatBonus": 7,
     "price": 100,
     "weight": 5,
     "bonus": {
@@ -282,7 +282,7 @@
     "attackKind": "Physical",
     "damageDice": "1d2+1",
     "basePv": 5,
-    "maxStatBonus": 99,
+    "maxStatBonus": 8,
     "price": 110,
     "weight": 6,
     "bonus": {
@@ -300,7 +300,7 @@
     "attackKind": "Physical",
     "damageDice": "1d4",
     "basePv": 4,
-    "maxStatBonus": 2,
+    "maxStatBonus": 6,
     "price": 100,
     "weight": 4,
     "bonus": {
@@ -318,7 +318,7 @@
     "attackKind": "Magic",
     "damageDice": "1d4",
     "basePv": 5,
-    "maxStatBonus": 99,
+    "maxStatBonus": 8,
     "price": 120,
     "weight": 3,
     "bonus": {
@@ -336,7 +336,7 @@
     "attackKind": "Magic",
     "damageDice": "1d3",
     "basePv": 4,
-    "maxStatBonus": 3,
+    "maxStatBonus": 5,
     "price": 90,
     "weight": 1,
     "bonus": {
@@ -390,7 +390,7 @@
     "attackKind": "Magic",
     "damageDice": "1d4",
     "basePv": 5,
-    "maxStatBonus": 99,
+    "maxStatBonus": 8,
     "price": 120,
     "weight": 3,
     "bonus": {
@@ -428,7 +428,7 @@
     "attackKind": "Physical",
     "damageDice": "1d6",
     "basePv": 6,
-    "maxStatBonus": 5,
+    "maxStatBonus": 6,
     "price": 220,
     "weight": 4,
     "bonus": {
@@ -446,7 +446,7 @@
     "attackKind": "Physical",
     "damageDice": "1d4",
     "basePv": 5,
-    "maxStatBonus": 3,
+    "maxStatBonus": 5,
     "price": 180,
     "weight": 3,
     "bonus": {
@@ -482,7 +482,7 @@
     "attackKind": "Physical",
     "damageDice": "1d3+1",
     "basePv": 7,
-    "maxStatBonus": 99,
+    "maxStatBonus": 8,
     "price": 260,
     "weight": 8,
     "bonus": {
@@ -500,7 +500,7 @@
     "attackKind": "Physical",
     "damageDice": "1d6",
     "basePv": 6,
-    "maxStatBonus": 3,
+    "maxStatBonus": 6,
     "price": 240,
     "weight": 4,
     "bonus": {
@@ -518,7 +518,7 @@
     "attackKind": "Magic",
     "damageDice": "1d6",
     "basePv": 7,
-    "maxStatBonus": 99,
+    "maxStatBonus": 8,
     "price": 280,
     "weight": 4,
     "bonus": {
@@ -536,7 +536,7 @@
     "attackKind": "Magic",
     "damageDice": "1d4",
     "basePv": 6,
-    "maxStatBonus": 4,
+    "maxStatBonus": 5,
     "price": 220,
     "weight": 2,
     "bonus": {
@@ -554,7 +554,7 @@
     "attackKind": "Magic",
     "damageDice": "1d4+1",
     "basePv": 7,
-    "maxStatBonus": 7,
+    "maxStatBonus": 6,
     "price": 260,
     "weight": 5,
     "bonus": {
@@ -572,7 +572,7 @@
     "attackKind": "Magic",
     "damageDice": "1d4+1",
     "basePv": 7,
-    "maxStatBonus": 8,
+    "maxStatBonus": 7,
     "price": 260,
     "weight": 6,
     "bonus": {
@@ -590,7 +590,7 @@
     "attackKind": "Magic",
     "damageDice": "1d6",
     "basePv": 7,
-    "maxStatBonus": 99,
+    "maxStatBonus": 8,
     "price": 280,
     "weight": 4,
     "bonus": {
@@ -800,7 +800,7 @@
     "attackKind": "Physical",
     "damageDice": "1d4",
     "basePv": 5,
-    "maxStatBonus": 4,
+    "maxStatBonus": 6,
     "price": 90,
     "weight": 3,
     "bonus": {
@@ -818,7 +818,7 @@
     "attackKind": "Physical",
     "damageDice": "1d6",
     "basePv": 6,
-    "maxStatBonus": 3,
+    "maxStatBonus": 6,
     "price": 260,
     "weight": 3,
     "bonus": {
@@ -837,7 +837,7 @@
     "attackKind": "Physical",
     "damageDice": "2d4",
     "basePv": 8,
-    "maxStatBonus": 99,
+    "maxStatBonus": 8,
     "price": 480,
     "weight": 8,
     "bonus": {
