@@ -3,6 +3,7 @@ using GuildSimulator.Game.Presentation;
 using GuildSimulator.Game.Screens;
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Core.Systems.Quest;
 using Xunit;
@@ -39,6 +40,7 @@ public class CliPresentationTests
         {
             currentPhase = 5,
             retreated = true,
+            retreatReason = ExpeditionRetreatReason.SurvivalPolicy,
             guildUpkeepAtStart = guild.EffectiveUpkeepPerTurn,
         };
         run.formation[0] = survivor;
@@ -70,7 +72,83 @@ public class CliPresentationTests
         Assert.DoesNotContain("死亡者はいません", text);
         Assert.Contains("クエスト終了サマリー", text);
         Assert.Contains("結果: 撤退", text);
+        Assert.Contains("生還優先の方針", text);
+        Assert.DoesNotContain("士気が尽き", text);
         Assert.Empty(manager.activeQuests);
+    }
+
+    [Fact]
+    public async Task RecruitScreenRendersEachCandidateOnlyOnce()
+    {
+        var candidate = Master("candidate", "重複しない候補");
+        var guild = new GuildManager(startGold: 100);
+
+        string text = await CaptureConsoleAsync(
+            "0\n",
+            () => RecruitScreen.ShowAsync(
+                new List<AdventurerMasterData> { candidate },
+                guild,
+                currentTurn: 1,
+                new[] { candidate },
+                maxCandidateCount: 3));
+
+        Assert.Equal(1, CountOccurrences(text, candidate.baseName));
+        Assert.Contains("VIT:", text);
+    }
+
+    [Fact]
+    public async Task QuestBoardRendersQuestNumberAndNameOnlyOnce()
+    {
+        var guild = new GuildManager(startGold: 100);
+        var manager = new QuestManager(guild);
+        var quest = new QuestMasterData
+        {
+            id = "single",
+            questName = "重複しない依頼",
+            rewardGold = 50,
+        };
+        manager.questBoard.Add(new QuestBoardEntry(quest, postedTurn: 1));
+
+        string text = await CaptureConsoleAsync(
+            "0\n",
+            () => QuestBoardScreen.ShowAsync(manager, guild, currentTurn: 1));
+
+        Assert.Equal(1, CountOccurrences(text, quest.questName));
+        Assert.Contains("1. 【Rank1】", text);
+        Assert.DoesNotContain("1. 1. 【Rank1】", text);
+    }
+
+    static async Task<string> CaptureConsoleAsync(string inputText, Func<Task> action)
+    {
+        var originalIn = Console.In;
+        var originalOut = Console.Out;
+        using var input = new StringReader(inputText);
+        using var output = new StringWriter();
+        try
+        {
+            Console.SetIn(input);
+            Console.SetOut(output);
+            Ui.Use(new ConsoleGameIo());
+            await action();
+            return output.ToString();
+        }
+        finally
+        {
+            Console.SetIn(originalIn);
+            Console.SetOut(originalOut);
+        }
+    }
+
+    static int CountOccurrences(string text, string value)
+    {
+        int count = 0;
+        int index = 0;
+        while ((index = text.IndexOf(value, index, StringComparison.Ordinal)) >= 0)
+        {
+            count++;
+            index += value.Length;
+        }
+        return count;
     }
 
     static AdventurerMasterData Master(string id, string name) => new()

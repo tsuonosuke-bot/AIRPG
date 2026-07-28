@@ -54,6 +54,8 @@ public class SaveLoadTests
 
         var run = questManager.activeQuests.Single();
         run.currentPhase = 2;
+        run.retreated = true;
+        run.retreatReason = ExpeditionRetreatReason.SurvivalPolicy;
         run.morale.Drain(5);
         run.logs.Add("テストログ");
         run.AddReportEvent(
@@ -113,6 +115,8 @@ public class SaveLoadTests
             Assert.Equal(run.startingLevels, loadedRun.startingLevels);
             Assert.Equal(run.guildUpkeepAtStart, loadedRun.guildUpkeepAtStart);
             Assert.Equal(ExpeditionPolicy.SurvivalFirst, loadedRun.policy);
+            Assert.True(loadedRun.retreated);
+            Assert.Equal(ExpeditionRetreatReason.SurvivalPolicy, loadedRun.retreatReason);
             var loadedReport = Assert.Single(loadedRun.reportEvents, e => e.title == "テスト発見");
             Assert.Equal("構造化された報告", loadedReport.detail);
 

@@ -1,4 +1,5 @@
 using GuildSimulator.Core.GameData;
+using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Quest;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Game.Presentation;
@@ -135,7 +136,7 @@ public static class ActiveQuestScreen
 
         if (q.retreated)
         {
-            Ui.Warn("士気が尽き、パーティは撤退しました");
+            Ui.Warn(RetreatMessage(q.retreatReason));
             Ui.Dim($"  基本報酬は{QuestRewardService.RetreatRewardRate:P0}、ギルドポイントはなし");
             Ui.Dim("  道中で拾った戦利品と宝箱は持ち帰れます");
             var fallen = q.EnumerateMembers().Where(member => !member.isAlive).ToList();
@@ -167,6 +168,15 @@ public static class ActiveQuestScreen
         guild.GuildRank,
         guild.EffectiveUpkeepPerTurn,
         q.logs.Count);
+
+    static string RetreatMessage(ExpeditionRetreatReason reason) => reason switch
+    {
+        ExpeditionRetreatReason.MoraleBroken => "士気が尽き、パーティは撤退しました",
+        ExpeditionRetreatReason.SurvivalPolicy => "生還優先の方針に従い、損耗が危険域へ達する前に撤退しました",
+        ExpeditionRetreatReason.BattleStalemate => "長期戦を打ち切り、パーティは撤退しました",
+        ExpeditionRetreatReason.GatherTargetMissed => "採取目標を達成できず、パーティは撤退しました",
+        _ => "パーティは撤退しました",
+    };
 
     static void ShowCompletionSummary(
         QuestRun q,

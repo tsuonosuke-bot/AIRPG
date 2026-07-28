@@ -13,8 +13,9 @@ public class QuestRun
     /// <summary>全滅。報酬も戦利品も失う。</summary>
     public bool failed;
 
-    /// <summary>士気が尽きての撤退。全滅とは違い、道中の戦利品は持ち帰れる。</summary>
+    /// <summary>撤退。全滅とは違い、道中の戦利品は持ち帰れる。</summary>
     public bool retreated;
+    public ExpeditionRetreatReason retreatReason;
 
     /// <summary>パーティの士気。クエスト開始時に QuestManager が san 合計で張り直す。</summary>
     public MoraleState morale = new(1);

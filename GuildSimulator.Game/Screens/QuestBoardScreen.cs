@@ -37,29 +37,28 @@ public static class QuestBoardScreen
                 string story = q.isStoryQuest ? " [物語]" : "";
                 int estTurns = (int)Math.Ceiling((double)q.totalPhases / q.phasesPerTurn);
                 var diff = DungeonDifficulty.Evaluate(q);
-
-                Ui.WriteLine($"  {i + 1}. 【Rank{q.rank}】{q.questName}  所要:{estTurns}T{emg}{story}");
+                var detail = new List<string>();
                 if (!string.IsNullOrWhiteSpace(q.clientName))
-                    Ui.Dim($"      依頼人: {q.clientName}");
+                    detail.Add($"依頼人: {q.clientName}");
                 if (!string.IsNullOrWhiteSpace(q.description))
-                    Ui.WriteLine($"      {q.description}");
-                Ui.WriteLine($"      難易度 {diff.label}（スコア{diff.score:0}）  報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
+                    detail.Add(q.description);
+                detail.Add($"難易度 {diff.label}（スコア{diff.score:0}）  報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
                 int estimatedUpkeep = guild.EffectiveUpkeepPerTurn * estTurns;
                 int estimatedNet = guild.EstimateNetAfterUpkeep(q.rewardGold, estTurns);
-                string netText = $"      予想収支: {q.rewardGold}G - 維持費{estimatedUpkeep}G = {estimatedNet:+#;-#;0}G（概算）";
-                if (estimatedNet < 0) Ui.Warn(netText);
-                else Ui.Dim(netText);
+                string netText = $"予想収支: {q.rewardGold}G - 維持費{estimatedUpkeep}G = {estimatedNet:+#;-#;0}G（概算）";
+                detail.Add(estimatedNet < 0 ? $"⚠ {netText}" : netText);
                 if (q.IsGatherQuest)
-                    Ui.Dim($"      採取: {q.gatherItemName} x{q.gatherTargetCount}（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還）");
+                    detail.Add($"採取: {q.gatherItemName} x{q.gatherTargetCount}（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還）");
                 string bossInfo = diff.hasBoss ? $"  ボス:Lv{diff.bossLevel}" : "";
-                Ui.Dim($"      場所: {q.Dungeon?.dungeonName ?? "？"}  敵{diff.EnemyLevelRange}"
+                detail.Add($"場所: {q.Dungeon?.dungeonName ?? "？"}  敵{diff.EnemyLevelRange}"
                     + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
-                Ui.Dim($"      掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
+                detail.Add($"掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
 
                 entries.Add(new MenuOption(
                     (i + 1).ToString(),
-                    $"{i + 1}. 【Rank{q.rank}】{q.questName}{emg}{story}",
-                    $"所要{estTurns}T  難易度{diff.label}  報酬{q.rewardGold}G"));
+                    $"【Rank{q.rank}】{q.questName}  所要:{estTurns}T{emg}{story}",
+                    string.Join(Environment.NewLine, detail),
+                    q.isEmergencyQuest ? TextStyle.Warn : TextStyle.Normal));
             }
 
             int? sel = await Ui.SelectIndexAsync("受注するクエスト", entries);

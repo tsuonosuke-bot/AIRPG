@@ -44,7 +44,10 @@ public sealed class ConsoleGameIo : IGameIo
                 string key = option.Key.Length == 0 ? "Enter" : option.Key;
                 WithColor(option.Style, () => Console.WriteLine($"    {key}. {option.Label}"));
                 if (!string.IsNullOrWhiteSpace(option.Detail))
-                    WithColor(TextStyle.Dim, () => Console.WriteLine($"        {option.Detail}"));
+                {
+                    foreach (string detailLine in option.Detail.Replace("\r\n", "\n").Split('\n'))
+                        WithColor(TextStyle.Dim, () => Console.WriteLine($"        {detailLine}"));
+                }
             }
             Console.Write($"\n{prompt}: ");
 

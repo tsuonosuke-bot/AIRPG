@@ -138,6 +138,7 @@ public class NarrativeSystemsTests
             ExpeditionPolicy.SurvivalFirst);
 
         Assert.True(result.adventurersRetreated);
+        Assert.Equal(ExpeditionRetreatReason.SurvivalPolicy, result.retreatReason);
         Assert.Contains(logs, log => log.Contains("生還優先の命令"));
         Assert.True(adventurer.isAlive);
     }

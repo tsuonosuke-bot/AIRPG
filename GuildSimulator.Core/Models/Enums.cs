@@ -48,6 +48,16 @@ public enum ExpeditionPolicy
     ObjectiveFirst,
 }
 
+/// <summary>クエストから撤退した直接の理由。保存データとの互換性のため末尾に追加する。</summary>
+public enum ExpeditionRetreatReason
+{
+    None,
+    MoraleBroken,
+    SurvivalPolicy,
+    BattleStalemate,
+    GatherTargetMissed,
+}
+
 /// <summary>数値戦闘ログとは別に、帰還報告へ載せる出来事の分類。</summary>
 public enum ExpeditionEventKind
 {

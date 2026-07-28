@@ -40,22 +40,24 @@ public static class RecruitScreen
                     int candidateUpkeep = GuildManager.CalculateEffectiveUpkeep(guild.BaseUpkeepPerTurn + adventurerUpkeep);
                     int candidateSafeTurns = GuildManager.SafeUpkeepTurns(candidateAfterHire, candidateUpkeep);
                     string runway = candidateSafeTurns == int.MaxValue ? "∞" : candidateSafeTurns.ToString();
-                    Ui.Write($"  {i + 1}. ");
-                    Ui.WriteRarityName(m.baseName, m.rarity);
-                    Ui.WriteLine($"  Lv{m.defaultLevel} Rank{m.defaultRank}  {m.DefaultClass?.className ?? "？"}/{m.Race?.raceName ?? "？"}  {Ui.RarityLabel(m.rarity)}  維持費{adventurerUpkeep}G/T{tag}");
-                    Ui.WriteLine($"       VIT:{m.vitality} MEN:{m.mental} STR:{m.strength} AGI:{m.agility} INT:{m.intelligence} CON:{m.constitution}");
-                    Ui.WriteLine($"       武器:{m.DefaultWeapon?.displayName ?? "なし"}  防具:{m.DefaultArmor?.displayName ?? "なし"}");
+
+                    var detail = new List<string>
+                    {
+                        $"{m.DefaultClass?.className ?? "？"}/{m.Race?.raceName ?? "？"}  {Ui.RarityLabel(m.rarity)}  維持費{adventurerUpkeep}G/T",
+                        $"VIT:{m.vitality} MEN:{m.mental} STR:{m.strength} AGI:{m.agility} INT:{m.intelligence} CON:{m.constitution}",
+                        $"武器:{m.DefaultWeapon?.displayName ?? "なし"}  防具:{m.DefaultArmor?.displayName ?? "なし"}",
+                    };
                     if (!string.IsNullOrWhiteSpace(m.selfIntroduction))
-                        Ui.WriteLine($"       「{m.selfIntroduction}」");
+                        detail.Add($"「{m.selfIntroduction}」");
                     if (!string.IsNullOrWhiteSpace(m.personality) || !string.IsNullOrWhiteSpace(m.specialty))
-                        Ui.Dim($"       人柄:{ValueOrUnknown(m.personality)}  得意:{ValueOrUnknown(m.specialty)}");
+                        detail.Add($"人柄:{ValueOrUnknown(m.personality)}  得意:{ValueOrUnknown(m.specialty)}");
                     if (!alreadyHired && candidateAfterHire >= 0)
-                        Ui.Dim($"       雇用後: {candidateAfterHire}G  合計維持費:{candidateUpkeep}G/T  資金猶予:{runway}T");
+                        detail.Add($"雇用後: {candidateAfterHire}G  合計維持費:{candidateUpkeep}G/T  資金猶予:{runway}T");
 
                     entries.Add(new MenuOption(
                         (i + 1).ToString(),
-                        $"{m.baseName} Lv{m.defaultLevel}{tag}",
-                        $"{m.DefaultClass?.className ?? "？"}/{m.Race?.raceName ?? "？"}  {Ui.RarityLabel(m.rarity)}  維持費{adventurerUpkeep}G/T",
+                        $"{m.baseName}  Lv{m.defaultLevel} Rank{m.defaultRank}{tag}",
+                        string.Join(Environment.NewLine, detail),
                         Ui.RarityStyle(m.rarity)));
                 }
             }

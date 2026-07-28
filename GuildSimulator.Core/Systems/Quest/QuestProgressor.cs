@@ -73,7 +73,8 @@ public class QuestProgressor
                     if (result.adventurersRetreated)
                     {
                         q.retreated = true;
-                        evResult = $"士気崩壊で撤退（HP {q.unitHpCurrent}/{q.unitHpMax}）→ 引き上げ";
+                        q.retreatReason = result.retreatReason;
+                        evResult = $"{RetreatReasonText(result.retreatReason)}（HP {q.unitHpCurrent}/{q.unitHpMax} 士気 {q.morale.Current}/{q.morale.Max}）→ 引き上げ";
                     }
                     else if (enemyWiped)
                     {
@@ -161,6 +162,7 @@ public class QuestProgressor
                         else if (q.morale.IsBroken)
                         {
                             q.retreated = true;
+                            q.retreatReason = ExpeditionRetreatReason.MoraleBroken;
                             evResult += " → 士気崩壊で撤退";
                         }
                     }
@@ -204,7 +206,15 @@ public class QuestProgressor
         if (!q.failed && q.def.IsGatherQuest && !q.GatherFulfilled && q.currentPhase >= q.def.totalPhases)
         {
             q.retreated = true;
+            q.retreatReason = ExpeditionRetreatReason.GatherTargetMissed;
             q.logs.Add($"[Turn {currentTurn}] {q.def.gatherItemName} が目標数に届かなかった（{q.gatheredCount}/{q.def.gatherTargetCount}）→ 採取未達で撤退扱い");
+            q.AddReportEvent(
+                currentTurn,
+                q.currentPhase,
+                ExpeditionEventKind.Retreat,
+                "撤退",
+                $"採取目標未達（{q.gatheredCount}/{q.def.gatherTargetCount}）",
+                important: true);
         }
 
         if (!q.failed && q.def.IsGatherQuest && q.GatherFulfilled)
@@ -220,6 +230,15 @@ public class QuestProgressor
         DungeonEventType.Trap => ExpeditionEventKind.Trap,
         DungeonEventType.Treasure => ExpeditionEventKind.Treasure,
         _ => ExpeditionEventKind.Progress,
+    };
+
+    static string RetreatReasonText(ExpeditionRetreatReason reason) => reason switch
+    {
+        ExpeditionRetreatReason.MoraleBroken => "士気崩壊で撤退",
+        ExpeditionRetreatReason.SurvivalPolicy => "生還優先の方針により撤退",
+        ExpeditionRetreatReason.BattleStalemate => "長期戦を打ち切って撤退",
+        ExpeditionRetreatReason.GatherTargetMissed => "採取目標未達で撤退",
+        _ => "戦闘から撤退",
     };
 
     // ダンジョンの重み表からフェーズごとに1イベント抽選。未設定なら Nothing。

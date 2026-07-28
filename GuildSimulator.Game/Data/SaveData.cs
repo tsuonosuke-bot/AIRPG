@@ -7,7 +7,7 @@ namespace GuildSimulator.Game.Data;
 
 public class SaveGameData
 {
-    public int saveVersion = 4;
+    public int saveVersion = 5;
     public int currentTurn = 1;
     public GuildSaveData guild = new();
     public QuestManagerSaveData questManager = new();
@@ -102,6 +102,7 @@ public class QuestRunSaveData
     public int currentPhase;
     public bool failed;
     public bool retreated;
+    public ExpeditionRetreatReason retreatReason;
     public int moraleCurrent;
     public int moraleMax;
     public bool rewarded;

@@ -8,6 +8,7 @@ public static class BattleResolver
     public class Result
     {
         public bool adventurersRetreated;
+        public ExpeditionRetreatReason retreatReason;
         public int rounds;
     }
 
@@ -193,6 +194,7 @@ public static class BattleResolver
             {
                 logs.Add($"  Phase {phase}: 士気が尽きた！パーティは撤退する（士気 0/{morale.Max}）");
                 res.adventurersRetreated = true;
+                res.retreatReason = ExpeditionRetreatReason.MoraleBroken;
                 res.rounds = round;
                 return res;
             }
@@ -212,6 +214,7 @@ public static class BattleResolver
                 {
                     logs.Add($"  Phase {phase}: 生還優先の命令に従い、損耗が危険域へ達する前に撤退した");
                     res.adventurersRetreated = true;
+                    res.retreatReason = ExpeditionRetreatReason.SurvivalPolicy;
                     res.rounds = round;
                     return res;
                 }
@@ -223,6 +226,7 @@ public static class BattleResolver
 
         logs.Add($"  Phase {phase}: 長期戦 → 撤退扱い");
         res.adventurersRetreated = true;
+        res.retreatReason = ExpeditionRetreatReason.BattleStalemate;
         res.rounds = round;
         return res;
     }
