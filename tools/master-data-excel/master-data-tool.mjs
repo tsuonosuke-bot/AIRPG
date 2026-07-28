@@ -81,13 +81,13 @@ const sheetDefinitions = {
     capacity: 120,
     unique: true,
     keys: [
-      "id", "displayName", "rarity", "type", "weaponType", "armorType",
+      "id", "displayName", "rarity", "type", "weaponType", "armorType", "allowedSlots",
       "attackKind", "damageDice", "basePv", "maxStatBonus",
       "healPower", "flatHeal", "price", "weight", "shopTier",
       ...statKeys.map((key) => `bonus_${key}`),
     ],
     labels: [
-      "ID", "表示名", "レアリティ", "装備種別", "武器種", "防具種",
+      "ID", "表示名", "レアリティ", "装備種別", "武器種", "防具種", "装備スロット",
       "攻撃種別", "ダメージダイス", "武器PV", "能力値上限",
       "回復係数", "固定回復", "価格", "重量", "商店Tier",
       ...statKeys.map((key) => `補正 ${key}`),
@@ -233,6 +233,7 @@ const makeRows = (data) => {
 
   const equipment = data.equipment.map((e) => [
     e.id, e.displayName, clean(e.rarity), e.type, e.weaponType, e.armorType,
+    clean(e.allowedSlots?.length ? e.allowedSlots.join(",") : null),
     clean(e.attackKind), clean(e.damageDice), clean(e.basePv), clean(e.maxStatBonus),
     clean(e.healPower), clean(e.flatHeal),
     e.price, e.weight, clean(e.shopTier),
@@ -741,6 +742,8 @@ const importWorkbook = async (writeMode) => {
     item.type = numberValue(x.type, "type", row, true);
     item.weaponType = numberValue(x.weaponType, "weaponType", row, true);
     item.armorType = numberValue(x.armorType, "armorType", row, true);
+    const allowedSlots = idList(x.allowedSlots);
+    if (allowedSlots.length > 0) item.allowedSlots = allowedSlots;
     optionalAssign(item, "attackKind", optionalText(x.attackKind));
     optionalAssign(item, "damageDice", optionalText(x.damageDice));
     optionalAssign(item, "basePv", optionalNumber(x.basePv, "basePv", row, true));

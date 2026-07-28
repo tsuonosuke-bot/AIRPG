@@ -619,7 +619,7 @@
   },
   {
     "id": "eq_cloth_01",
-    "displayName": "布の服",
+    "displayName": "ボロ布の服",
     "rarity": "Common",
     "shopTier": 1,
     "type": 1,
@@ -628,26 +628,42 @@
     "price": 10,
     "weight": 1,
     "bonus": {
-      "av": 1
+      "dv": 1
     }
   },
   {
     "id": "eq_leather_01",
     "displayName": "レザーアーマー",
     "rarity": "Common",
-    "shopTier": 1,
+    "shopTier": 2,
     "type": 1,
     "weaponType": 10,
     "armorType": 1,
-    "price": 20,
+    "price": 60,
     "weight": 5,
     "bonus": {
       "av": 2
     }
   },
   {
+    "id": "eq_wood_01",
+    "displayName": "木製アーマー",
+    "rarity": "Common",
+    "shopTier": 1,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 1,
+    "price": 25,
+    "weight": 6,
+    "bonus": {
+      "av": 1,
+      "mav": 1,
+      "dv": -1
+    }
+  },
+  {
     "id": "eq_plate_01",
-    "displayName": "プレートメイル",
+    "displayName": "へこみのあるプレートメイル",
     "rarity": "Common",
     "shopTier": 1,
     "type": 1,
@@ -656,8 +672,7 @@
     "price": 50,
     "weight": 15,
     "bonus": {
-      "av": 6,
-      "mav": 1,
+      "av": 3,
       "dv": -4
     }
   },
@@ -678,7 +693,7 @@
   },
   {
     "id": "eq_chain_01",
-    "displayName": "チェインメイル",
+    "displayName": "リングメイル",
     "rarity": "Common",
     "shopTier": 2,
     "type": 1,
@@ -687,8 +702,7 @@
     "price": 130,
     "weight": 9,
     "bonus": {
-      "av": 4,
-      "mav": 1,
+      "av": 3,
       "dv": -2
     }
   },
@@ -703,10 +717,77 @@
     "price": 260,
     "weight": 18,
     "bonus": {
-      "av": 8,
+      "av": 3,
       "mav": 2,
-      "dv": -5
+      "dv": -4
     }
+  },
+  {
+    "id": "eq_ironplate_01",
+    "displayName": "鉄のプレートメイル",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 2,
+    "price": 200,
+    "weight": 16,
+    "bonus": {
+      "av": 4,
+      "dv": -4
+    }
+  },
+  {
+    "id": "eq_hood_01",
+    "displayName": "布頭巾",
+    "rarity": "Common",
+    "shopTier": 1,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 0,
+    "price": 40,
+    "weight": 1,
+    "bonus": {
+      "mav": 2
+    },
+    "allowedSlots": [
+      "Head"
+    ]
+  },
+  {
+    "id": "eq_leathercap_01",
+    "displayName": "革帽子",
+    "rarity": "Common",
+    "shopTier": 1,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 1,
+    "price": 35,
+    "weight": 2,
+    "bonus": {
+      "av": 1
+    },
+    "allowedSlots": [
+      "Head"
+    ]
+  },
+  {
+    "id": "eq_helm_01",
+    "displayName": "鉄兜",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 2,
+    "price": 90,
+    "weight": 5,
+    "bonus": {
+      "av": 2,
+      "dv": -1
+    },
+    "allowedSlots": [
+      "Head"
+    ]
   },
   {
     "id": "eq_drop_fang",
@@ -779,6 +860,9 @@
       "av": 2,
       "mav": 5,
       "heal": 20
-    }
+    },
+    "allowedSlots": [
+      "Head"
+    ]
   }
 ]

@@ -58,29 +58,39 @@ public class PenetrationBalanceTests
     }
 
     [Fact]
-    public void HeavyArmourShutsOutAttackersWhoCannotReachIt()
+    public void FullPlateShutsOutAttackersWhoCannotReachIt()
     {
-        // 重鎧を着込んだ相手に弱い敵の攻撃が通らなくなること。最低保証ダメージが無いので、
+        // 装甲を固めた相手に弱い敵の攻撃が通らなくなること。最低保証ダメージが無いので、
         // AVへの投資がそのまま被弾の遮断になる。「装甲に弾かれた」経路が実プレイで到達可能かの確認でもある。
+        //
+        // 胴防具1枚では止めきれない。全身を固めて初めて壁になる、というのが今の設計なので、
+        // 比較は「ボロ布1枚」対「重鎧＋兜」で行う。同一の冒険者を使い、差が装備だけになるようにする。
         string dataDir = Path.Combine(AppContext.BaseDirectory, "Data");
         var db = MasterLoader.Load(dataDir);
 
-        var master = db.allAdventurers.First(a => a.id == "adv_0001");
-        var inCloth = new AdventurerData(master);
-        inCloth.SetEquipped(EquipSlot.Body, db.equipment["eq_cloth_01"]);
-        var inPlate = new AdventurerData(master);
-        inPlate.SetEquipped(EquipSlot.Body, db.equipment["eq_plate_02"]);
+        var master = db.allAdventurers.First(a => a.id == "adv_0002");
+        var inRags = new AdventurerData(master);
+        inRags.SetEquipped(EquipSlot.Body, db.equipment["eq_cloth_01"]);
+        inRags.SetEquipped(EquipSlot.Head, null);
+
+        var inFullPlate = new AdventurerData(master);
+        inFullPlate.SetEquipped(EquipSlot.Body, db.equipment["eq_plate_02"]);
+        inFullPlate.SetEquipped(EquipSlot.Head, db.equipment["eq_helm_01"]);
+
         var slime = new EnemyData(db.enemies["enemy_slime"]);
 
-        var cloth = Measure(new Matchup("スライム → 布の服", slime, inCloth));
-        var plate = Measure(new Matchup("スライム → 騎士の重鎧", slime, inPlate));
+        var rags = Measure(new Matchup("スライム → ボロ布の服", slime, inRags));
+        var plate = Measure(new Matchup("スライム → 騎士の重鎧＋鉄兜", slime, inFullPlate));
 
-        output.WriteLine($"スライム → 布の服   : PV{cloth.pv} vs AV{cloth.av} 弾かれ{cloth.blocked:P0} 平均{cloth.average:F1}");
-        output.WriteLine($"スライム → 騎士の重鎧: PV{plate.pv} vs AV{plate.av} 弾かれ{plate.blocked:P0} 平均{plate.average:F1}");
+        output.WriteLine($"スライム → ボロ布の服     : PV{rags.pv} vs AV{rags.av} 弾かれ{rags.blocked:P0} 平均{rags.average:F1}");
+        output.WriteLine($"スライム → 騎士の重鎧＋鉄兜: PV{plate.pv} vs AV{plate.av} 弾かれ{plate.blocked:P0} 平均{plate.average:F1}");
 
-        Assert.True(plate.blocked > cloth.blocked, "重鎧にしても弾かれる割合が増えていない");
-        Assert.True(plate.average < cloth.average, "重鎧にしても被ダメージが減っていない");
-        Assert.True(plate.blocked > 0.2, $"「装甲に弾かれた」がほぼ発生しない（弾かれ{plate.blocked:P0}）");
+        // 頭防具が実際にAVへ積み上がっていること（胴だけの値で止まっていないこと）。
+        Assert.True(plate.av > rags.av + db.equipment["eq_plate_02"].bonus.av,
+            $"頭防具のAVが乗っていない（AV{plate.av}）");
+        Assert.True(plate.blocked > rags.blocked, "装甲を固めても弾かれる割合が増えていない");
+        Assert.True(plate.average < rags.average, "装甲を固めても被ダメージが減っていない");
+        Assert.True(plate.blocked > 0.5, $"「装甲に弾かれた」が十分に発生しない（弾かれ{plate.blocked:P0}）");
     }
 
     record Stats(
@@ -93,8 +103,10 @@ public class PenetrationBalanceTests
         var defender = m.defender;
         bool isMagic = attacker.IsMagicAttack;
 
-        var attackerStats = attacker.GetFinalCombatStats();
-        var defenderStats = defender.GetFinalCombatStats();
+        // 実戦と同じ経路（UnitCalculator）で最終値を出す。GetFinalCombatStatsを直接読むと
+        // スキルが乗らず、鉄壁のような防御スキルのぶんだけ表のAVが実戦値より低く出てしまう。
+        var attackerStats = FinalStatsInBattle(attacker);
+        var defenderStats = FinalStatsInBattle(defender);
 
         int pv = QudCombat.EffectivePv(
             attacker.WeaponBasePv, attacker.AttackStatModifier, attacker.MaxStatBonus,
@@ -121,5 +133,13 @@ public class PenetrationBalanceTests
             (double)buckets[3] / Trials,
             (double)totalPenetrations / Trials,
             defenderStats.hp);
+    }
+
+    /// <summary>戦闘中に実際に使われるステータス。前衛スロットに置いてスキルまで通した値を返す。</summary>
+    static StatBlock FinalStatsInBattle(IUnitMember member)
+    {
+        var side = new IUnitMember?[] { member, null, null, null, null, null };
+        // レリックは所持状況しだいで動くので、測定では常に無効（敵側扱い）にして素の力を見る。
+        return UnitCalculator.CalcPerMember(side, isAllySide: false)[0].stats;
     }
 }

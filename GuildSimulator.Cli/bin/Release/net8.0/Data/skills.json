@@ -270,7 +270,7 @@
     "requireArmorType": true,
     "requiredArmorType": 2,
     "add": {
-      "av": 3
+      "av": 1
     },
     "mul": {
       "hp": 1.15

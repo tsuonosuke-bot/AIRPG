@@ -86,6 +86,10 @@
 - `equipment.json` の `maxStatBonus`: PVに上乗せできる能力値modifier（筋力／知力）の上限。
   短剣や投石のような軽い得物ほど小さくし、斧や大剣は `99`（実質無制限）にして青天井に伸ばします
 - `equipment.json` 防具の `bonus`: `av` / `mav` / `dv` で表します。重い鎧ほどAVが高く、DVを削ります
+- `equipment.json` の `armorType`: `Cloth`(0) / `LightArmor`(1) / `Plate`(2) / `Null`(3)。
+  スキルの `requiredArmorType` はこれと突き合わせます。**列挙順がJSONの数値そのものなので並べ替え禁止**です
+- `equipment.json` の `allowedSlots`: 装備できるスロット（`RightHand` / `LeftHand` / `Head` / `Body` / `Accessory`）。
+  **未指定の防具はすべて `Body` 扱いになる**ため、頭防具には `["Head"]` の明示が必須です
 - `enemies.json` の `naturalDamageDice`: 武器を持たない敵の牙・爪・体当たりのダイス
 - `enemies.json` の `naturalPv`: 素手の敵の牙・爪そのもののPV。武器持ちの敵は武器の `basePv` が優先されます
 - `enemies.json` の `naturalAv` / `naturalMav`: 甲殻・毛皮など、防具を着ていなくても持っている装甲。
