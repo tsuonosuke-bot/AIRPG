@@ -2,6 +2,9 @@
 **/bin/Debug/
 **/obj/
 
+# テストプロジェクトは配布物ではないので、Release出力も含めて追跡しない。
+GuildSimulator.Tests/bin/
+
 # OS / editor
 .DS_Store
 *.user
