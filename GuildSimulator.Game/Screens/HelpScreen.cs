@@ -1,3 +1,4 @@
+using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Game.Presentation;
@@ -19,7 +20,8 @@ public static class HelpScreen
                 new MenuOption("3", "クエスト", "難易度・緊急クエスト・昇格試験・撤退"),
                 new MenuOption("4", "戦闘", "行動順・狙われ方・士気・隊列"),
                 new MenuOption("5", "ダメージ計算", "命中・貫通・損傷の計算式"),
-                new MenuOption("6", "冒険者・装備・遺物"),
+                new MenuOption("6", "能力値と戦闘数値", "能力値・装備が命中/DV/PV/AVに変わる過程"),
+                new MenuOption("7", "冒険者・装備・遺物"),
                 new MenuOption("0", "戻る", Style: TextStyle.Dim),
             });
             switch (choice)
@@ -29,7 +31,8 @@ public static class HelpScreen
                 case "3": await ShowQuestAsync(); break;
                 case "4": await ShowBattleAsync(); break;
                 case "5": await ShowDamageAsync(); break;
-                case "6": await ShowAdventurerAsync(); break;
+                case "6": await ShowStatsAsync(); break;
+                case "7": await ShowAdventurerAsync(); break;
                 default: return;
             }
         }
@@ -119,9 +122,12 @@ public static class HelpScreen
         Ui.WriteLine("  能力値は直接ダメージに乗らない。ダメージの大きさを決めるのは「何回貫通したか」だけ。");
         Ui.WriteLine();
         Ui.WriteLine($"  ① 命中判定   1d{QudCombat.HIT_DIE} ＋ 命中補正 ＞ 相手のDV（回避値）なら命中");
+        Ui.WriteLine("     ・命中補正 ＝ 敏捷modifier ＋ 装備の命中補正 ＋ スキル・遺物 － 過積載");
+        Ui.WriteLine($"                （後衛から近接武器で殴る場合はさらに-{BattleResolver.REAR_MELEE_TO_HIT_PENALTY}）");
         Ui.WriteLine($"     ・DVは{QudCombat.BASE_DV}を基準に敏捷と装備で増減する。重い鎧はDVを下げる。");
         Ui.WriteLine($"     ・素の出目{QudCombat.CRITICAL_ROLL}は会心。DVに関わらず必ず命中する。");
         Ui.WriteLine($"     ・素の出目{QudCombat.FUMBLE_ROLL}は補正がいくら高くても必ず外れる。");
+        Ui.WriteLine("     ・内訳の詳しい作り方はヘルプの「能力値と戦闘数値」を参照。");
         Ui.WriteLine();
         Ui.WriteLine($"  ② 貫通判定   ({penDie}) ＋ PV（貫通値） ＞ 相手のAV（装甲値）を{QudCombat.PENETRATION_ROLLS_PER_SET}回で1セット");
         Ui.WriteLine("     ・1回でも上回れば1貫通。");
@@ -155,6 +161,72 @@ public static class HelpScreen
         Ui.WriteLine("     「命中！（1d20=14+3=17 > DV6、物理 PV8 vs AV5） 2回貫通 1d6×2 ダメージ=7」は、");
         Ui.WriteLine("     1d20で14を出し命中補正+3を足した17が相手のDV6を上回って命中、");
         Ui.WriteLine("     PV8とAV5の貫通判定で2回抜け、1d6を2回振って合計7を与えた、という意味。");
+        await Ui.PauseAsync();
+    }
+
+    static async Task ShowStatsAsync()
+    {
+        int overweightToHit = (int)AdventurerData.OVERWEIGHT_TO_HIT_PENALTY;
+        int overweightDv = (int)AdventurerData.OVERWEIGHT_DV_PENALTY;
+
+        Ui.BeginScreen();
+        Ui.Header("能力値と戦闘数値");
+        Ui.WriteLine("  能力値そのものが判定に使われることはない。戦闘に入る前に、能力値・装備・スキル・遺物が");
+        Ui.WriteLine("  「HP / 士気 / 命中 / DV / PV / AV / 回復力」の7つの数値へ変換され、判定はその数値だけを見る。");
+        Ui.WriteLine($"  多くは modifier を通す。modifier ＝ (能力値 - {QudCombat.MODIFIER_BASELINE}) ÷ {QudCombat.MODIFIER_STEP} の切り捨て。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 能力値がどこに効くか");
+        Ui.WriteLine("     VIT 体力 : HP＝(VIT×10＋CON×5)÷2 / 積載上限");
+        Ui.WriteLine("     CON 耐久 : AV＝CONのmodifier / HP / 積載上限");
+        Ui.WriteLine("     MEN 精神 : 士気＝MEN×10（パーティ合計が最大値）/ mAV＝MENのmodifier / 回復力");
+        Ui.WriteLine($"     AGI 敏捷 : 命中補正＝AGIのmodifier / DV＝{QudCombat.BASE_DV}＋AGIのmodifier");
+        Ui.WriteLine("     STR 筋力 : 物理PV＝STRのmodifier（武器の上限まで）/ 積載上限");
+        Ui.WriteLine("     INT 知力 : 魔法PV＝INTのmodifier（武器の上限まで）/ 回復力");
+        Ui.WriteLine("     ・敏捷は命中とDVの両方に効くので、1点の価値がもっとも広い。");
+        Ui.WriteLine("     ・レベルアップで伸びるのはVIT・MEN・STR・AGI・INTの5つ。CONは伸びない。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 命中補正の内訳");
+        Ui.WriteLine("     命中補正 ＝ AGIのmodifier");
+        Ui.WriteLine("              ＋ 装備の命中補正の合計（短剣・投石・風杖は+2、槍・斧は-2〜-4）");
+        Ui.WriteLine("              ＋ スキル・遺物の命中補正");
+        Ui.WriteLine($"              － 過積載ペナルティ（最大-{overweightToHit}）");
+        Ui.WriteLine($"              －（後衛から近接武器で殴る場合のみ）{BattleResolver.REAR_MELEE_TO_HIT_PENALTY}");
+        Ui.WriteLine("     この合計を1d20に足し、相手のDVと比べる。行動順もこの値の高い順に決まる。");
+        Ui.WriteLine("     例）AGI12（modifier+2）が短剣（命中+2）を持つと命中補正は+4。");
+        Ui.WriteLine($"        DV{QudCombat.BASE_DV}の相手には1d20で3以上を出せば命中する（90%）。");
+        Ui.WriteLine("        同じ相手でも斧（命中-4）に持ち替えると命中補正は-2、命中率は60%まで落ちる。");
+        Ui.WriteLine("        当てにくい武器はそのぶん基礎PVとダメージダイスが大きい、という取引になっている。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 回避DVの内訳");
+        Ui.WriteLine($"     DV ＝ {QudCombat.BASE_DV}（全員共通の下駄）＋ AGIのmodifier ＋ 装備のDV補正");
+        Ui.WriteLine($"        ＋ スキル・遺物 － 過積載ペナルティ（最大-{overweightDv}）");
+        Ui.WriteLine($"     ・前衛が健在な間、後衛はさらに+{BattleResolver.REAR_COVER_DV_BONUS}される。");
+        Ui.WriteLine("     ・板金鎧は-4、鎖帷子は-2のように、硬い鎧ほどDVを下げてAVを上げる。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ PV・AVの内訳");
+        Ui.WriteLine("     PV ＝ 武器の基礎PV ＋ min(STR/INTのmodifier, 武器ごとの上限) ＋ 装備・スキルのPV補正");
+        Ui.WriteLine($"     ・素手は基礎PV{AdventurerData.UNARMED_PV}、乗せられるmodifierも+{AdventurerData.UNARMED_MAX_STAT_BONUS}までしかない。武器は必ず持たせること。");
+        Ui.WriteLine("     ・上限の目安は 短剣・投石・風杖が+5、剣・弓・水杖が+6、槍・土杖が+7、斧・火杖・闇杖が+8。");
+        Ui.WriteLine("       回復用の光杖は0で、力も知恵も上乗せできない。");
+        Ui.WriteLine("     AV ＝ CONのmodifier ＋ 防具のAV補正 ＋ スキル・遺物（mAVはMENのmodifierから同様に）");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 積載と過積載");
+        Ui.WriteLine("     積載上限 ＝ CON ＋ (STR＋VIT)÷2。装備の重さの合計がこれを超えると過積載になる。");
+        Ui.WriteLine($"     ・上限を1超えるごとに過積載率が{AdventurerData.OVERWEIGHT_RATE_PER_POINT * 100:0}%増える（最大100%）。");
+        Ui.WriteLine($"     ・過積載率に比例して DV最大-{overweightDv}、命中最大-{overweightToHit}。AVは担いでいるぶんそのまま効くので削られない。");
+        Ui.WriteLine("     ・重い鎧を着せるなら、CONとSTRの高い者に。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 補正の重ねかた");
+        Ui.WriteLine("     ・装備      : 装備している全スロットの補正を合計する。");
+        Ui.WriteLine("     ・スキル    : 前衛限定・後衛限定・特定の武器/防具限定といった条件を満たすときだけ乗る。");
+        Ui.WriteLine("                   パーティ全体に効くスキルは、生存している全員にそれぞれ加算される。");
+        Ui.WriteLine("     ・遺物      : 冒険者側のみ、全員に加算される。");
+        Ui.WriteLine("     ・倍率がかかるのはHP・士気・回復力だけ。命中/DV/PV/AVは1点の重みが大きいため加算でしか動かない。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 敵の数値");
+        Ui.WriteLine("     敵もまったく同じ式で命中・DV・PV・AVを組み立てる。");
+        Ui.WriteLine($"     ・敵の能力値はレベル1を基準に、レベルが1上がるごとに+{EnemyData.GROWTH_PER_LEVEL * 100:0}%（線形）。");
+        Ui.WriteLine("     ・獣は防具を着ていなくても、甲殻や毛皮のぶんのAV・mAVを持つ。");
         await Ui.PauseAsync();
     }
 

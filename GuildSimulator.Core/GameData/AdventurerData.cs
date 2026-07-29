@@ -44,8 +44,8 @@ public class AdventurerData : IUnitMember
     public int MaxStatBonus => Weapon?.maxStatBonus ?? UNARMED_MAX_STAT_BONUS;
     public int AttackStatModifier => QudCombat.Modifier(IsMagicAttack ? intelligence : strength);
 
-    const int UNARMED_PV = 2;
-    const int UNARMED_MAX_STAT_BONUS = 1;
+    public const int UNARMED_PV = 2;
+    public const int UNARMED_MAX_STAT_BONUS = 1;
 
     public EquipmentMasterData? GetEquipped(EquipSlot slot) =>
         equippedSlots.TryGetValue(slot, out var item) ? item : null;
@@ -260,7 +260,7 @@ public class AdventurerData : IUnitMember
         {
             int over = TotalWeight - CarryLimit;
             if (over <= 0) return 0f;
-            return Math.Clamp(over * 0.1f, 0f, 1f);
+            return Math.Clamp(over * OVERWEIGHT_RATE_PER_POINT, 0f, 1f);
         }
     }
 
@@ -307,9 +307,12 @@ public class AdventurerData : IUnitMember
         return s;
     }
 
-    // 過積載率1.0（積載上限の10倍超）で受ける最大ペナルティ。
-    const float OVERWEIGHT_DV_PENALTY = 6f;
-    const float OVERWEIGHT_TO_HIT_PENALTY = 4f;
+    // 過積載率1.0（積載上限を10超過）で受ける最大ペナルティ。ヘルプ画面がそのまま説明に使う。
+    public const float OVERWEIGHT_DV_PENALTY = 6f;
+    public const float OVERWEIGHT_TO_HIT_PENALTY = 4f;
+
+    /// <summary>積載上限を1超えるごとに増える過積載率。</summary>
+    public const float OVERWEIGHT_RATE_PER_POINT = 0.1f;
 
     // ---- セーブ/ロード ----
     public IReadOnlyList<(SkillMasterData skill, ClassMasterData? ownerClass)> ExportLearnedSkills()
