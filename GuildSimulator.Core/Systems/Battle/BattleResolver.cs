@@ -18,13 +18,15 @@ public static class BattleResolver
     //   損傷: 貫通回数ぶんだけ武器のダメージダイスを振って合計
     // PV = 武器の基礎PV + min(能力値modifier, 武器ごとの上限) + 装備・スキル由来のPV補正。
 
-    const int REAR_MELEE_TO_HIT_PENALTY = 3; // 後衛から近接攻撃する場合の命中ペナルティ（1d20スケール）
-    const int REAR_COVER_DV_BONUS = 2;       // 前衛が健在な間、後衛が得るDVボーナス
+    // ヘルプ画面が計算式をそのまま説明できるよう、プレイヤーに見える係数は公開している。
+    public const int REAR_MELEE_TO_HIT_PENALTY = 3; // 後衛から近接攻撃する場合の命中ペナルティ（1d20スケール）
+    public const int REAR_COVER_DV_BONUS = 2;       // 前衛が健在な間、後衛が得るDVボーナス
 
-    const float FRONT_TARGET_CHANCE = 0.8f; // 前衛がいる限り80%は前衛を狙う
+    public const float FRONT_TARGET_CHANCE = 0.8f; // 前衛がいる限り80%は前衛を狙う
+    public const float HEAL_SCALE = 1.5f;          // heal行動1回あたりの回復量係数
+    public const float HEAL_CRIT_SCALE = 1.5f;     // 出目20の手当ては効きが良い
+
     const float HEAL_TARGET_HP_RATE = 0.7f; // 味方のHP率がこれを下回っていたら回復を選ぶ
-    const float HEAL_SCALE = 1.5f;          // heal行動1回あたりの回復量係数
-    const float HEAL_CRIT_SCALE = 1.5f;     // 出目20の手当ては効きが良い
     const int MAX_ACTIONS = 300;            // 長期戦の安全弁（個別行動の総数）
 
     public static Result Resolve(
