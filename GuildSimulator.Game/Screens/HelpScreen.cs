@@ -205,7 +205,8 @@ public static class HelpScreen
         Ui.WriteLine();
         Ui.WriteLine("  ■ PV・AVの内訳");
         Ui.WriteLine("     PV ＝ 武器の基礎PV ＋ min(STR/INTのmodifier, 武器ごとの上限) ＋ 装備・スキルのPV補正");
-        Ui.WriteLine($"     ・素手は基礎PV{AdventurerData.UNARMED_PV}、乗せられるmodifierも+{AdventurerData.UNARMED_MAX_STAT_BONUS}までしかない。武器は必ず持たせること。");
+        Ui.WriteLine($"     ・素手は基礎PV{AdventurerData.UNARMED_PV}・ダメージ{AdventurerData.UNARMED_DAMAGE_DICE}。乗せるmodifierに上限はなく、膂力はそのまま拳に乗る。");
+        Ui.WriteLine("       ただし基礎PVもダメージダイスも小さいので、武器はやはり持たせたほうがよい。");
         Ui.WriteLine("     ・上限の目安は 短剣・投石・風杖が+5、剣・弓・水杖が+6、槍・土杖が+7、斧・火杖・闇杖が+8。");
         Ui.WriteLine("       回復用の光杖は0で、力も知恵も上乗せできない。");
         Ui.WriteLine("     AV ＝ CONのmodifier ＋ 防具のAV補正 ＋ スキル・遺物（mAVはMENのmodifierから同様に）");

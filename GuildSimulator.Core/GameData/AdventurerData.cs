@@ -36,16 +36,21 @@ public class AdventurerData : IUnitMember
 
     public EquipmentMasterData? Weapon => GetEquipped(EquipSlot.RightHand);
     public EquipmentMasterData? Armor => GetEquipped(EquipSlot.Body);
-    public string DamageDice => Weapon?.damageDice ?? "";
+    public string DamageDice => Weapon?.damageDice ?? UNARMED_DAMAGE_DICE;
     public bool IsMagicAttack => Weapon != null && Weapon.IsMagicWeapon;
 
-    // 素手は武器を持たないぶんPVが伸びず、能力値modifierもほとんど乗らない。
+    // 素手は武器そのもののPVが小さく、殴る力も1d2しかない。ただし拳に上限はないので膂力はそのまま乗る。
     public int WeaponBasePv => Weapon?.basePv ?? UNARMED_PV;
     public int MaxStatBonus => Weapon?.maxStatBonus ?? UNARMED_MAX_STAT_BONUS;
     public int AttackStatModifier => QudCombat.Modifier(IsMagicAttack ? intelligence : strength);
 
     public const int UNARMED_PV = 2;
-    public const int UNARMED_MAX_STAT_BONUS = 1;
+
+    /// <summary>素手のダメージダイス。</summary>
+    public const string UNARMED_DAMAGE_DICE = QudCombat.DEFAULT_DAMAGE_DICE;
+
+    /// <summary>素手はPVに乗せる能力値modifierを制限しない。伸びないのは基礎PVとダメージダイスの側。</summary>
+    public const int UNARMED_MAX_STAT_BONUS = QudCombatDefaults.UnlimitedStatBonus;
 
     public EquipmentMasterData? GetEquipped(EquipSlot slot) =>
         equippedSlots.TryGetValue(slot, out var item) ? item : null;
