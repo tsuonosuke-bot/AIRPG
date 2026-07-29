@@ -125,17 +125,8 @@ public static class AdventurerScreen
     {
         var m = a.master;
         Ui.WriteLine("  人物記録:");
-        if (!string.IsNullOrWhiteSpace(m.selfIntroduction))
-            Ui.WriteLine($"    「{m.selfIntroduction}」");
         ShowProfileLine("経歴", m.background);
-        ShowProfileLine("性格", m.personality);
-        ShowProfileLine("動機", m.motivation);
-        ShowProfileLine("得意", m.specialty);
-        ShowProfileLine("苦手・恐怖", m.fear);
-        ShowProfileLine("信条", m.creed);
-        if (string.IsNullOrWhiteSpace(m.background)
-            && string.IsNullOrWhiteSpace(m.personality)
-            && string.IsNullOrWhiteSpace(m.selfIntroduction))
+        if (string.IsNullOrWhiteSpace(m.background))
             Ui.Dim("    詳しい人物記録はまだない");
     }
 

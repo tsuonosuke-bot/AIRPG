@@ -299,12 +299,6 @@ public static class MasterLoader
                 defaultWeaponId = a.defaultWeaponId ?? "", defaultArmorId = a.defaultArmorId ?? "",
                 skillIds = a.skillIds ?? new(),
                 background = a.background ?? "",
-                personality = a.personality ?? "",
-                motivation = a.motivation ?? "",
-                specialty = a.specialty ?? "",
-                fear = a.fear ?? "",
-                creed = a.creed ?? "",
-                selfIntroduction = a.selfIntroduction ?? "",
             };
             if (!string.IsNullOrEmpty(a.defaultClassId) && db.classes.TryGetValue(a.defaultClassId, out var cls)) ad.DefaultClass = cls;
             if (!string.IsNullOrEmpty(a.raceId) && db.races.TryGetValue(a.raceId, out var race)) ad.Race = race;
@@ -432,6 +426,5 @@ public static class MasterLoader
         int vitality, int mental, int strength, int agility, int intelligence, int constitution, int appearance,
         string? defaultClassId, string? raceId, string? defaultWeaponId, string? defaultArmorId,
         List<string>? skillIds, Rarity? rarity,
-        string? background, string? personality, string? motivation, string? specialty,
-        string? fear, string? creed, string? selfIntroduction);
+        string? background);
 }
