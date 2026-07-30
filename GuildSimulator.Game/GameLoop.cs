@@ -97,7 +97,7 @@ public static class GameLoop
                 case "B": await BurialScreen.ShowAsync(guild); break;
                 case "J": await StoryJournalScreen.ShowAsync(db, questManager); break;
                 case "T": await BattleSimScreen.ShowAsync(db, guild); break;
-                case "H": await HelpScreen.ShowAsync(); break;
+                case "H": await HelpScreen.ShowAsync(db); break;
                 case "9":
                     if (questManager.HasPendingChoices)
                     {

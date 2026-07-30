@@ -11,7 +11,7 @@ namespace GuildSimulator.Game.Screens;
 
 public static class AdventurerScreen
 {
-    const int ClassChangeCostPerLevel = 10;
+    public const int ClassChangeCostPerLevel = 10;
 
     public static int CalculateClassChangeCost(int level) => Math.Max(1, level) * ClassChangeCostPerLevel;
 
@@ -78,6 +78,7 @@ public static class AdventurerScreen
             Ui.Write("  スキル: ");
             var skills = a.Skills;
             Ui.WriteLine(skills.Count == 0 ? "なし" : string.Join(", ", skills.Select(x => x.skillName)));
+            ShowClassMastery(a);
             Ui.WriteLine();
             ShowProfile(a);
             Ui.WriteLine();
@@ -119,6 +120,26 @@ public static class AdventurerScreen
             }
             return;
         }
+    }
+
+    /// <summary>
+    /// 職業スキルの解禁は「その職業での正規クリア回数」で決まる。今どこまで進んでいて、
+    /// 次に何があと何回で開くのかを出しておかないと、プレイヤーからは進捗が見えない。
+    /// </summary>
+    static void ShowClassMastery(AdventurerData a)
+    {
+        if (a.currentClass == null) return;
+        int clears = a.CurrentClassClearCount;
+        Ui.WriteLine($"  クラス習熟度: {clears}（{a.currentClass.className}での正規クリア回数）");
+
+        var next = a.currentClass.classSkills
+            .Where(e => e.Skill != null && e.requiredClearCount > clears)
+            .OrderBy(e => e.requiredClearCount)
+            .FirstOrDefault();
+        if (next != null)
+            Ui.Dim($"    次のスキル: {next.Skill!.skillName}（あと{next.requiredClearCount - clears}回）");
+        else
+            Ui.Dim("    この職業のスキルはすべて習得済み");
     }
 
     static void ShowProfile(AdventurerData a)

@@ -2,7 +2,10 @@ using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Battle;
+using GuildSimulator.Cli;
 using GuildSimulator.Game.Data;
+using GuildSimulator.Game.Presentation;
+using GuildSimulator.Game.Screens;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -11,7 +14,7 @@ namespace GuildSimulator.Tests;
 /// <summary>
 /// 武器クラスの個性とパワーバランスの検証。
 ///
-///   剣   : 尖った長所も短所もない基準точка。どのAV帯でも中庸
+///   剣   : 尖った長所も短所もない基準点。どのAV帯でも中庸
 ///   短剣 : 命中が高く会心域が広く連撃する。ただし1振りが軽く、硬い相手には通らない
 ///   槍   : 相手の装甲を無視して突く。硬い相手ほど強く、素肌の相手には旨みがない
 ///   斧   : 当てるたびに相手の装甲そのものを削る。当たりにくいが、粘るほど効く
@@ -19,6 +22,7 @@ namespace GuildSimulator.Tests;
 /// 「個性が立っている」と「4種の総合力が揃っている」を同時に測る。
 /// 出力を見るには: dotnet test --filter WeaponIdentity --logger "console;verbosity=detailed"
 /// </summary>
+[Collection("Console presentation")]
 public class WeaponIdentityTests
 {
     readonly ITestOutputHelper output;
@@ -256,6 +260,57 @@ public class WeaponIdentityTests
         Assert.Equal(new WeaponTraits(2, 0, 0, 0), db.equipment["eq_spear_01"].Traits);
         Assert.Equal(new WeaponTraits(0, 2, 0, 0), db.equipment["eq_axe_01"].Traits);
         Assert.Equal(WeaponTraits.None, db.equipment["eq_sword_01"].Traits);
+    }
+
+    [Fact]
+    public async Task TheHelpScreenExplainsEveryWeaponClassAndMasteryFromTheMasterData()
+    {
+        // ヘルプは数値を書き写さずマスタから組み立てている。実際に描画して、
+        // 武器クラスの個性とマスタリーの習得条件が漏れなく出ることを確かめる。
+        var db = Load();
+
+        // 7=武器の種類 → 空行でページ送り → 8=職業とマスタリー → 空行 → 0=戻る
+        string text = await CaptureHelpAsync(db, "7\n\n8\n\n0\n");
+
+        foreach (var word in new[] { "剣", "短剣", "槍", "斧", "弓" })
+            Assert.Contains(word, text);
+        foreach (var word in new[] { "連撃", "会心域", "装甲貫通", "装甲破壊" })
+            Assert.Contains(word, text);
+        Assert.Contains($"合計-{QudCombat.MAX_ARMOR_SHRED}", text);
+        Assert.Contains($"-{QudCombat.FOLLOW_UP_PV_PENALTY}ずつ下がる", text);
+
+        // 習得条件の要点。どれか1つでも欠けると、プレイヤーは習熟度が増えない理由に辿り着けない。
+        foreach (var word in new[] { "クラス習熟度", "正規クリア", "生存", "冒険者のランク以上", "クラスチェンジ" })
+            Assert.Contains(word, text);
+
+        // 職業スキルはマスタから列挙する。全職業・全スキルが必要習熟度つきで並ぶ。
+        foreach (var cls in db.classes.Values)
+        {
+            Assert.Contains(cls.className, text);
+            foreach (var entry in cls.classSkills.Where(e => e.Skill != null))
+                Assert.Contains($"習熟度{entry.requiredClearCount,2} {entry.Skill!.skillName}", text);
+        }
+    }
+
+    static async Task<string> CaptureHelpAsync(GameMasterData db, string input)
+    {
+        var originalIn = Console.In;
+        var originalOut = Console.Out;
+        using var reader = new StringReader(input);
+        using var writer = new StringWriter();
+        try
+        {
+            Console.SetIn(reader);
+            Console.SetOut(writer);
+            Ui.Use(new ConsoleGameIo());
+            await HelpScreen.ShowAsync(db);
+            return writer.ToString();
+        }
+        finally
+        {
+            Console.SetIn(originalIn);
+            Console.SetOut(originalOut);
+        }
     }
 
     // ---- 測定の下ごしらえ ----

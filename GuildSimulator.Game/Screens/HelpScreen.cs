@@ -1,13 +1,20 @@
 using GuildSimulator.Core.GameData;
+using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
+using GuildSimulator.Game.Data;
 using GuildSimulator.Game.Presentation;
 
 namespace GuildSimulator.Game.Screens;
 
 public static class HelpScreen
 {
-    public static async Task ShowAsync()
+    /// <summary>
+    /// 武器とマスタリーの説明はマスタデータから組み立てる。
+    /// JSONを触ったときにヘルプの記述だけが取り残されるのを防ぐため、数値はここに書き写さない。
+    /// </summary>
+    public static async Task ShowAsync(GameMasterData db)
     {
         while (true)
         {
@@ -22,7 +29,8 @@ public static class HelpScreen
                 new MenuOption("5", "ダメージ計算", "命中・貫通・損傷の計算式"),
                 new MenuOption("6", "能力値と戦闘数値", "能力値・装備が命中/DV/PV/AVに変わる過程"),
                 new MenuOption("7", "武器の種類", "剣・短剣・槍・斧・弓・魔法の得手不得手"),
-                new MenuOption("8", "冒険者・装備・遺物"),
+                new MenuOption("8", "職業とマスタリー", "マスタリーの効果と習得条件"),
+                new MenuOption("9", "冒険者・装備・遺物"),
                 new MenuOption("0", "戻る", Style: TextStyle.Dim),
             });
             switch (choice)
@@ -33,8 +41,9 @@ public static class HelpScreen
                 case "4": await ShowBattleAsync(); break;
                 case "5": await ShowDamageAsync(); break;
                 case "6": await ShowStatsAsync(); break;
-                case "7": await ShowWeaponClassesAsync(); break;
-                case "8": await ShowAdventurerAsync(); break;
+                case "7": await ShowWeaponClassesAsync(db); break;
+                case "8": await ShowMasteryAsync(db); break;
+                case "9": await ShowAdventurerAsync(); break;
                 default: return;
             }
         }
@@ -239,7 +248,7 @@ public static class HelpScreen
         await Ui.PauseAsync();
     }
 
-    static async Task ShowWeaponClassesAsync()
+    static async Task ShowWeaponClassesAsync(GameMasterData db)
     {
         Ui.BeginScreen();
         Ui.Header("武器の種類");
@@ -248,29 +257,31 @@ public static class HelpScreen
         Ui.WriteLine("  得意不得意を分けるのは、ほぼ相手のAV（装甲値）の高さである。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 剣 ── 何でもこなす、軽くて扱いやすい");
-        Ui.WriteLine("     命中+1、重量は軽め、基礎PVもダメージダイスも中庸。特殊な効果は持たない。");
+        Ui.WriteLine("     特殊な効果を持たない代わりに、命中補正が正で重量も軽い。");
         Ui.WriteLine("     尖った長所がない代わりに穴もないので、相手を選ばず、序盤ほど頼りになる。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 短剣 ── 手数と急所。当てやすいが一撃は軽い");
-        Ui.WriteLine("     ・連撃      : 1手番に2回斬りかかる。");
-        Ui.WriteLine($"                   ただし追撃はPVが-{QudCombat.FOLLOW_UP_PV_PENALTY}されるので、手数ほどには火力が伸びない。");
-        Ui.WriteLine("     ・会心域    : 1d20の出目18〜20が会心になる（他の武器は20のみ）。");
-        Ui.WriteLine("     ・命中+3、重量は最軽量。基礎PVとダメージダイスは全武器で最も小さい。");
+        Ui.WriteLine("     ・連撃      : 1手番に続けて斬りかかる。");
+        Ui.WriteLine($"                   ただし追撃はPVが-{QudCombat.FOLLOW_UP_PV_PENALTY}ずつ下がるので、手数ほどには火力が伸びない。");
+        Ui.WriteLine("     ・会心域    : 出目20だけでなく、19、18…でも会心になる（他の武器は20のみ）。");
+        Ui.WriteLine("     ・命中補正は全武器で最高、重量は最軽量。基礎PVとダメージダイスは最も小さい。");
         Ui.WriteLine("     装甲の薄い相手を数で押し潰すのが仕事。硬い相手には一撃が軽すぎて弾かれる。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 槍 ── 装甲を無視して突く。重くて当てにくい");
-        Ui.WriteLine("     ・装甲貫通  : 命中したとき、相手のAVを2だけ無かったことにして貫通判定を行う。");
+        Ui.WriteLine("     ・装甲貫通  : 命中したとき、相手のAVをその値だけ無かったことにして貫通判定を行う。");
         Ui.WriteLine("                   PVを上げるのとは違い、硬い相手にだけ効き、素肌の相手には何も起きない。");
-        Ui.WriteLine("     ・命中-2、重量は重め。基礎PVは高いがダメージダイスは小さい。");
-        Ui.WriteLine("     鎧を着た相手に強い。ただし効果はその一撃かぎりで、後には残らない。");
+        Ui.WriteLine("                   毎回の攻撃に必ず乗るが、効果はその一撃かぎりで後には残らない。");
+        Ui.WriteLine("     ・命中は負、重量は重め。基礎PVは高いがダメージダイスは小さい。");
+        Ui.WriteLine("     鎧を着た相手に強い。初撃から効くので、短い戦闘でも取りこぼしがない。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 斧 ── 装甲そのものを砕く。当たらないが一撃が重い");
-        Ui.WriteLine("     ・装甲破壊  : 貫通した攻撃1回につき、相手のAVを2だけ恒久的に削る。");
+        Ui.WriteLine("     ・装甲破壊  : 貫通した攻撃1回につき、相手のAVをその値だけ恒久的に削る。");
         Ui.WriteLine($"                   削れた装甲はその戦闘のあいだ戻らず、1体につき合計-{QudCombat.MAX_ARMOR_SHRED}まで積み上がる。");
         Ui.WriteLine("                   削るのは物理AVだけで、魔法装甲(mAV)は割れない。");
-        Ui.WriteLine("     ・命中-4（全武器で最悪）、重量は最重量。ダメージダイスは全武器で最大。");
-        Ui.WriteLine("     ・能力値上限が+8と最も高く、筋力を伸ばすほど伸びしろが残る。");
+        Ui.WriteLine("     ・命中は全武器で最も低く、重量は最重量。ダメージダイスは全武器で最大。");
+        Ui.WriteLine("     ・能力値上限が最も高く、筋力を伸ばすほど伸びしろが残る。");
         Ui.WriteLine("     削った装甲は味方全員の攻撃にも効く。斧使いが前を崩し、仲間が叩き込むと噛み合う。");
+        Ui.WriteLine("     ただし貫通できなければ削れない。初撃は素のAVと戦うので、立ち上がりは槍より遅い。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 弓 ── 後衛から撃てる");
         Ui.WriteLine($"     後衛から撃っても命中-{BattleResolver.REAR_MELEE_TO_HIT_PENALTY}を受けない。前衛に守られたまま攻撃に参加できる。");
@@ -278,18 +289,116 @@ public static class HelpScreen
         Ui.WriteLine("  ■ 魔法（火・風・水・土・闇） ── AVではなくmAVと戦う");
         Ui.WriteLine("     PVに乗るのは筋力ではなく知力。相手の魔法装甲(mAV)と突き合わせるので、");
         Ui.WriteLine("     鎧で固めた相手ほど通りやすい。弓と同じく後衛から撃っても不利にならない。");
-        Ui.WriteLine("     光の杖だけは攻撃ではなく手当てをする。");
+        Ui.WriteLine("     装甲貫通も装甲破壊もmAVには効かない。光の杖だけは攻撃ではなく手当てをする。");
         Ui.WriteLine();
-        Ui.WriteLine("  ■ マスタリー");
-        Ui.WriteLine("     職業スキルの「○○マスタリー」は、その武器種を握っているときだけ効く。");
-        Ui.WriteLine("     どれも基礎はPV+2で横並びだが、「・極」まで育つと得物ごとの持ち味が伸びる。");
-        Ui.WriteLine("       剣マスタリー・極   : PV+2 命中+2 DV+1（受け流しが利くようになる）");
-        Ui.WriteLine("       短剣マスタリー・極 : PV+2 命中+2 会心域+1（急所がさらに見えるようになる）");
-        Ui.WriteLine("       槍マスタリー・極   : PV+2 命中+2 AV+1 装甲貫通+1（間合いを取って深く突く）");
-        Ui.WriteLine("       斧マスタリー・極   : PV+2 命中+2 装甲破壊+1（一振りで割る量が増える）");
-        Ui.WriteLine("     武器を持ち替えるとマスタリーは効かなくなる。職業と得物は揃えたほうがよい。");
+        Ui.WriteLine("  ■ 近接4種の数値（同じ商店Tierで比べたもの）");
+        ShowMeleeComparisonTable(db);
+        Ui.WriteLine();
+        Ui.WriteLine("  マスタリーの効果と習得条件はヘルプの「職業とマスタリー」を参照。");
         await Ui.PauseAsync();
     }
+
+    /// <summary>近接4種を実データから並べる。数値はここに書き写さず equipment.json をそのまま読む。</summary>
+    static void ShowMeleeComparisonTable(GameMasterData db)
+    {
+        var melee = new[] { WeaponType.Sword, WeaponType.Dagger, WeaponType.Spear, WeaponType.Axe };
+        Ui.Dim($"     {Ui.PadWide("武器", 8)}{Ui.PadWide("命中", 8)}{Ui.PadWide("能力値上限", 12)}{Ui.PadWide("重量", 8)}個性");
+        foreach (var type in melee)
+        {
+            // 同じ武器種なら個性・能力値上限・命中補正は全Tier共通なので、代表を1本選べば足りる。
+            var sample = db.equipment.Values
+                .Where(e => e.type == EquipmentType.Weapon && e.weaponType == type)
+                .OrderBy(e => e.shopTier)
+                .FirstOrDefault();
+            if (sample == null) continue;
+
+            var traits = EquipmentText.TraitParts(sample.Traits);
+            Ui.WriteLine($"     {Ui.PadWide(EquipmentText.WeaponClassName(type), 8)}"
+                + Ui.PadWide($"{sample.bonus.toHit:+#;-#;+0}", 8)
+                + Ui.PadWide($"{sample.maxStatBonus:+#;-#;+0}", 12)
+                + Ui.PadWide($"{sample.weight}", 8)
+                + (traits.Count > 0 ? string.Join(" ", traits) : "なし"));
+        }
+        Ui.Dim("     基礎PVとダメージダイスはTierで上がる。商店や持ち物の画面で個別に確認できる。");
+    }
+
+    static async Task ShowMasteryAsync(GameMasterData db)
+    {
+        Ui.BeginScreen();
+        Ui.Header("職業とマスタリー");
+        Ui.WriteLine("  ■ マスタリーとは");
+        Ui.WriteLine("     職業スキルのうち「○○マスタリー」は、その武器種を握っているときだけ効く。");
+        Ui.WriteLine("     持ち替えると効果は消えるので、職業と得物は揃えたほうがよい。");
+        Ui.WriteLine("     基礎はどれもPV+2で横並びだが、「・極」まで育つと得物ごとの持ち味が伸びる。");
+        Ui.WriteLine("     基礎と「・極」は入れ替わりではなく両方が乗る（重ねがけになる）。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 習得条件 ── クラス習熟度");
+        Ui.WriteLine("     職業スキルは経験値やレベルではなく「その職業での正規クリア回数（クラス習熟度）」で開く。");
+        Ui.WriteLine("     一覧の各スキルには必要な習熟度が決まっていて、0のものは職業に就いた瞬間に手に入る。");
+        Ui.WriteLine();
+        Ui.WriteLine("     習熟度が1つ増えるのは、次をすべて満たしたときだけ。");
+        Ui.WriteLine("       ・そのクエストに参加していること");
+        Ui.WriteLine("       ・クエストを正規クリアすること（撤退・全滅では増えない）");
+        Ui.WriteLine("       ・帰還時に生存していること");
+        Ui.WriteLine("       ・クエストのランクが、その冒険者のランク以上であること");
+        Ui.WriteLine("         （ランクが上がった冒険者は、格下のクエストでは習熟度が増えなくなる）");
+        Ui.WriteLine();
+        Ui.WriteLine("     ・習熟度は職業ごとに別々に数える。今就いている職業のぶんだけが増える。");
+        Ui.WriteLine("     ・一度覚えたスキルは永久に残る。職業を変えても失われない。");
+        Ui.WriteLine("     ・習熟度も職業ごとに保存される。元の職業に戻れば、続きから数え直しになる。");
+        Ui.WriteLine("       別の職業のマスタリーを覚えてから戻れば、複数の得物を使い分けられる。");
+        Ui.WriteLine("     ・現在の習熟度は冒険者一覧の人物詳細で確認できる。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ クラスチェンジ");
+        Ui.WriteLine($"     冒険者一覧から「レベル×{AdventurerScreen.ClassChangeCostPerLevel}G」で変更できる。就ける職業は種族によって決まる。");
+        Ui.WriteLine("     変更した時点で、必要習熟度0のスキルと、すでに満たしている条件のスキルが手に入る。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 職業とスキル一覧（左端は解禁に必要な習熟度）");
+        ShowClassSkillTable(db);
+        await Ui.PauseAsync();
+    }
+
+    /// <summary>職業ごとの習得表。classes.json / skills.json をそのまま読むので、調整しても説明がずれない。</summary>
+    static void ShowClassSkillTable(GameMasterData db)
+    {
+        foreach (var cls in db.classes.Values)
+        {
+            Ui.WriteLine($"     ● {cls.className}");
+            foreach (var entry in cls.classSkills.Where(e => e.Skill != null)
+                         .OrderBy(e => e.requiredClearCount))
+            {
+                var skill = entry.Skill!;
+                var parts = EquipmentText.BonusParts(skill.add);
+                parts.AddRange(MultiplierParts(skill.mul));
+                string effect = parts.Count > 0 ? string.Join(" ", parts) : "効果なし";
+                string need = skill.requireWeaponType
+                    ? $"[{EquipmentText.WeaponClassName(skill.requiredWeaponType)}装備時]"
+                    : skill.requireArmorType ? $"[{ArmorName(skill.requiredArmorType)}装備時]" : "";
+                string where = skill.frontOnly ? "[前衛]" : skill.backOnly ? "[後衛]" : "";
+                string scope = skill.scope == SkillScope.UnitAura ? "[隊全体]" : "";
+                Ui.WriteLine($"        習熟度{entry.requiredClearCount,2} "
+                    + Ui.PadWide(skill.skillName, 22)
+                    + Ui.PadWide(effect, 29) + $"{need}{where}{scope}");
+            }
+        }
+    }
+
+    static List<string> MultiplierParts(StatMultiplier m)
+    {
+        var parts = new List<string>();
+        if (Math.Abs(m.hp - 1f) > 0.001f) parts.Add($"HPx{m.hp:0.##}");
+        if (Math.Abs(m.san - 1f) > 0.001f) parts.Add($"士気x{m.san:0.##}");
+        if (Math.Abs(m.heal - 1f) > 0.001f) parts.Add($"回復力x{m.heal:0.##}");
+        return parts;
+    }
+
+    static string ArmorName(ArmorType type) => type switch
+    {
+        ArmorType.Cloth => "布防具",
+        ArmorType.LightArmor => "軽鎧",
+        ArmorType.Plate => "重鎧",
+        _ => "防具",
+    };
 
     static async Task ShowAdventurerAsync()
     {
