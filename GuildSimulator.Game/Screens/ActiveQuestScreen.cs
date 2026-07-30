@@ -194,7 +194,7 @@ public static class ActiveQuestScreen
         Ui.WriteLine($"  資金精算: {Signed(goldDelta)}G（{before.Gold}G → {guild.Gold}G）");
         Ui.WriteLine($"  ギルドポイント: {Signed(pointDelta)}（{before.GuildPoints} → {guild.GuildPoints}）");
         if (guild.GuildRank != before.GuildRank)
-            Ui.Info($"  ギルドランク: {before.GuildRank} → {guild.GuildRank}");
+            Ui.Info($"  ギルドランク: {Rank.Label(before.GuildRank)} → {guild.GuildRankLabel}");
 
         int startUpkeep = q.guildUpkeepAtStart > 0 ? q.guildUpkeepAtStart : before.Upkeep;
         int currentUpkeep = guild.EffectiveUpkeepPerTurn;

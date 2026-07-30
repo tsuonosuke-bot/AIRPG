@@ -1,4 +1,5 @@
 using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Game.Data;
 using GuildSimulator.Game.Presentation;
@@ -49,7 +50,7 @@ public static class FacilityScreen
                 var f = candidates[i];
                 bool rankOk = guild.GuildRank >= f.requiredGuildRank;
                 bool affordable = guild.Gold >= f.buildCostGold;
-                string tag = !rankOk ? $"[ランク{f.requiredGuildRank}必要]" : !affordable ? "[資金不足]" : "";
+                string tag = !rankOk ? $"[ギルドランク{Rank.Label(f.requiredGuildRank)}必要]" : !affordable ? "[資金不足]" : "";
                 string label = $"{f.displayName}  建設費{f.buildCostGold}G 維持費{f.upkeepGoldPerTurn}G/Turn {tag}";
                 Ui.WriteLine($"  {i + 1}. {label}");
                 Ui.Dim($"       {f.description}");
@@ -68,7 +69,7 @@ public static class FacilityScreen
             var chosen = candidates[sel.Value - 1];
             if (guild.GuildRank < chosen.requiredGuildRank)
             {
-                Ui.Error($"ギルドランクが不足しています（必要: {chosen.requiredGuildRank}）");
+                Ui.Error($"ギルドランクが不足しています（必要: {Rank.Label(chosen.requiredGuildRank)}）");
                 await Ui.PauseAsync();
                 continue;
             }

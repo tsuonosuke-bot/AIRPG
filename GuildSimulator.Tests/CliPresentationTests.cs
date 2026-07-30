@@ -114,8 +114,8 @@ public class CliPresentationTests
             () => QuestBoardScreen.ShowAsync(manager, guild, currentTurn: 1));
 
         Assert.Equal(1, CountOccurrences(text, quest.questName));
-        Assert.Contains("1. 【Rank1】", text);
-        Assert.DoesNotContain("1. 1. 【Rank1】", text);
+        Assert.Contains("1. 【F】", text);
+        Assert.DoesNotContain("1. 1. 【F】", text);
     }
 
     static async Task<string> CaptureConsoleAsync(string inputText, Func<Task> action)

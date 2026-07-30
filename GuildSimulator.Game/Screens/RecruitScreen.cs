@@ -1,5 +1,6 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Game.Presentation;
 
@@ -54,7 +55,7 @@ public static class RecruitScreen
 
                     entries.Add(new MenuOption(
                         (i + 1).ToString(),
-                        $"{m.baseName}  Lv{m.defaultLevel} Rank{m.defaultRank}{tag}",
+                        $"{m.baseName}  Lv{m.defaultLevel} ランク{Rank.Label(m.defaultRank)}{tag}",
                         string.Join(Environment.NewLine, detail),
                         Ui.RarityStyle(m.rarity)));
                 }

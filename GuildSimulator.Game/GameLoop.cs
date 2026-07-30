@@ -51,7 +51,7 @@ public static class GameLoop
             Ui.BeginScreen();
             Ui.Header($"ギルドシミュレーター  Turn {currentTurn}");
             int upkeepPerTurn = guild.EffectiveUpkeepPerTurn;
-            Ui.WriteLine($"  所持金: {guild.Gold}G（維持費 {upkeepPerTurn}G/T）   ギルドランク: {guild.GuildRank}   ギルドポイント: {guild.GuildPoints}");
+            Ui.WriteLine($"  所持金: {guild.Gold}G（維持費 {upkeepPerTurn}G/T）   ギルドランク: {guild.GuildRankLabel}   ギルドポイント: {guild.GuildPoints}");
             Ui.WriteLine($"  冒険者: {guild.adventurers.Count}人   進行中クエスト: {questManager.activeQuests.Count}件   遺物: {guild.relics.Count}個   施設: {guild.facilities.Count}件");
             Ui.WriteLine($"  雇入れ候補: {recruitCandidates.Count}人");
             ShowPromotionProgress(db.allQuests, guild, questManager);

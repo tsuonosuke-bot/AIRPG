@@ -73,8 +73,8 @@ const sheetDefinitions = {
       "background", "personality", "motivation", "specialty", "fear", "creed", "selfIntroduction",
     ],
     labels: [
-      "ID", "名前", "維持費", "初期Lv", "初期Rank",
-      "採用GuildRank", "採用重み", "レアリティ",
+      "ID", "名前", "維持費", "初期Lv", "初期ランク(1=F〜7=S)",
+      "採用ギルドランク(1=F〜7=S)", "採用重み", "レアリティ",
       "生命力", "精神力", "筋力", "敏捷", "知力", "体格", "容姿",
       "初期職業", "種族", "初期武器", "初期防具",
       "スキル1", "スキル2", "スキル3", "スキル4", "スキル5", "スキル6",
@@ -154,7 +154,7 @@ const sheetDefinitions = {
       "ID", "クエスト名", "依頼人", "依頼文", "物語クエスト",
       "必要クエストID（カンマ区切り）", "必要手掛かりID（カンマ区切り）",
       "獲得手掛かりID（カンマ区切り）", "分岐ID",
-      "Rank", "総フェーズ", "ターン毎フェーズ",
+      "ランク(1=F〜7=S)", "総フェーズ", "ターン毎フェーズ",
       "報酬Gold", "Guildポイント", "経験値",
       "緊急クエスト", "クリア時RankUp", "必要Guildポイント",
       "ダンジョン", "ボス敵", "ボスフェーズ", "ボス報酬確定",
@@ -539,6 +539,11 @@ const exportWorkbook = async () => {
   addValidation(sheets.equipment, sheetDefinitions.equipment, "type", [0, 1]);
   addValidation(sheets.equipment, sheetDefinitions.equipment, "weaponType", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   addValidation(sheets.equipment, sheetDefinitions.equipment, "armorType", [0, 1, 2, 3]);
+  // 認定ランクは F(1) 〜 S(7) の7段階。3種のランクすべてが同じ物差しに乗っている。
+  const ranks = [1, 2, 3, 4, 5, 6, 7];
+  addValidation(sheets.quests, sheetDefinitions.quests, "rank", ranks);
+  addValidation(sheets.adventurers, sheetDefinitions.adventurers, "defaultRank", ranks);
+  addValidation(sheets.adventurers, sheetDefinitions.adventurers, "recruitGuildRank", ranks);
   addValidation(sheets.skills, sheetDefinitions.skills, "scope", [0, 1]);
   addValidation(sheets.skills, sheetDefinitions.skills, "requiredWeaponType", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   addValidation(sheets.skills, sheetDefinitions.skills, "requiredArmorType", [0, 1, 2, 3]);

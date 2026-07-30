@@ -49,6 +49,12 @@ public static class HelpScreen
         }
     }
 
+    /// <summary>F→E→…→S の並び。段階数を変えても説明が追随するよう、Rank から組み立てる。</summary>
+    static IEnumerable<string> RankLadder()
+    {
+        for (int r = Rank.Min; r <= Rank.Max; r++) yield return Rank.Label(r);
+    }
+
     static async Task ShowBasicsAsync()
     {
         Ui.BeginScreen();
@@ -73,6 +79,9 @@ public static class HelpScreen
         Ui.WriteLine("  ・ギルドポイント  : クエストクリアで得る昇格試験の解禁ポイント。撤退では入らない。");
         Ui.WriteLine("  ・ギルドランク    : 昇格試験（緊急クエスト）に正規クリアすると上がる。");
         Ui.WriteLine("                      ランクが上がると受注できるクエストの幅が広がる。");
+        Ui.WriteLine($"  ・ランク表記      : {string.Join(" → ", RankLadder())} の{Rank.Max}段階。{Rank.Label(Rank.Min)}が最も低く、{Rank.Label(Rank.Max)}が最高。");
+        Ui.WriteLine("                      冒険者・クエスト・ギルドのランクはすべてこの同じ物差しで比べる。");
+        Ui.WriteLine($"                      掲示されるのは「クエストランク ≦ ギルドランク」のものだけ。");
         Ui.WriteLine("  ・施設            : ゴールドで建設するギルドの恒常強化。建設後は維持費が増える代わりに、");
         Ui.WriteLine("                      クエスト掲示枠・商店品揃え・休息回復量・成長率のいずれかを高め続ける。");
         await Ui.PauseAsync();
@@ -83,6 +92,9 @@ public static class HelpScreen
         Ui.BeginScreen();
         Ui.Header("クエスト");
         Ui.WriteLine("  ・難易度（★）    : クエストボードで受注前に確認できる。戦闘率・罠率・敵レベル帯の目安。");
+        Ui.WriteLine($"  ・クエストランク  : {Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。ギルドランク以下のものだけが掲示される。");
+        Ui.WriteLine("                      冒険者ランクと突き合わせて「適正ランク」かどうかも決まり、");
+        Ui.WriteLine("                      適正ランクを正規クリアするとクラス習熟度が増える（ヘルプ8を参照）。");
         Ui.WriteLine("  ・緊急クエスト    : 通常枠とは別枠に掲示される特別なクエスト。昇格試験もこれに含まれる。");
         Ui.WriteLine("  ・昇格試験        : 必要ギルドポイントを満たすと出現する一度きりのクエスト。");
         Ui.WriteLine("                      クリアするとギルドランクが上がる（撤退・全滅ではランクは上がらない）。");
@@ -340,8 +352,15 @@ public static class HelpScreen
         Ui.WriteLine("       ・そのクエストに参加していること");
         Ui.WriteLine("       ・クエストを正規クリアすること（撤退・全滅では増えない）");
         Ui.WriteLine("       ・帰還時に生存していること");
-        Ui.WriteLine("       ・クエストのランクが、その冒険者のランク以上であること");
-        Ui.WriteLine("         （ランクが上がった冒険者は、格下のクエストでは習熟度が増えなくなる）");
+        Ui.WriteLine("       ・クエストが、その冒険者にとって適正ランクであること");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 適正ランクとは");
+        Ui.WriteLine($"     自分と同じランクから、{Rank.SuitableRangeAbove}つ上までのクエスト。");
+        Ui.WriteLine($"     例）ランク{Rank.Label(Rank.Min + 2)}の冒険者なら {Rank.SuitableRangeLabel(Rank.Min + 2)} のクエストが適正。");
+        Ui.WriteLine("     ・格下では学ぶものがない。ランクが上がった冒険者は、易しい依頼では伸びなくなる。");
+        Ui.WriteLine("     ・格上すぎても連れ回されているだけで身につかない。強い仲間への丸投げでは育たない。");
+        Ui.WriteLine("     クエストボードには、そのクエストで習熟度が入る冒険者ランクと、");
+        Ui.WriteLine("     待機中の何人が該当するかが出ている。冒険者詳細には自分の適正帯が出ている。");
         Ui.WriteLine();
         Ui.WriteLine("     ・習熟度は職業ごとに別々に数える。今就いている職業のぶんだけが増える。");
         Ui.WriteLine("     ・一度覚えたスキルは永久に残る。職業を変えても失われない。");
@@ -405,6 +424,8 @@ public static class HelpScreen
         Ui.BeginScreen();
         Ui.Header("冒険者・装備・遺物");
         Ui.WriteLine("  ・冒険者          : 雇用して編成に加える。クエストで経験値を得てレベルアップする。");
+        Ui.WriteLine($"  ・冒険者ランク    : {Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。自分のランク以上のクエストを正規クリアするとランクポイントが貯まり、");
+        Ui.WriteLine($"                      一定量で1つ上がる。{Rank.Label(Rank.Max)}が上限。レベルとは別の物差し。");
         Ui.WriteLine("                      死亡した冒険者は蘇生できない。");
         Ui.WriteLine("                      人物詳細では経歴・性格・動機・得意分野と、直近の遠征履歴を確認できる。");
         Ui.WriteLine("  ・装備            : 商店で購入・売却し、冒険者一覧画面で着せ替えできる。");

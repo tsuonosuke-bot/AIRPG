@@ -280,7 +280,7 @@ public class WeaponIdentityTests
         Assert.Contains($"-{QudCombat.FOLLOW_UP_PV_PENALTY}ずつ下がる", text);
 
         // 習得条件の要点。どれか1つでも欠けると、プレイヤーは習熟度が増えない理由に辿り着けない。
-        foreach (var word in new[] { "クラス習熟度", "正規クリア", "生存", "冒険者のランク以上", "クラスチェンジ" })
+        foreach (var word in new[] { "クラス習熟度", "正規クリア", "生存", "適正ランク", "クラスチェンジ" })
             Assert.Contains(word, text);
 
         // 職業スキルはマスタから列挙する。全職業・全スキルが必要習熟度つきで並ぶ。
