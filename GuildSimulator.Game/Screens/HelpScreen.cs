@@ -21,7 +21,8 @@ public static class HelpScreen
                 new MenuOption("4", "戦闘", "行動順・狙われ方・士気・隊列"),
                 new MenuOption("5", "ダメージ計算", "命中・貫通・損傷の計算式"),
                 new MenuOption("6", "能力値と戦闘数値", "能力値・装備が命中/DV/PV/AVに変わる過程"),
-                new MenuOption("7", "冒険者・装備・遺物"),
+                new MenuOption("7", "武器の種類", "剣・短剣・槍・斧・弓・魔法の得手不得手"),
+                new MenuOption("8", "冒険者・装備・遺物"),
                 new MenuOption("0", "戻る", Style: TextStyle.Dim),
             });
             switch (choice)
@@ -32,7 +33,8 @@ public static class HelpScreen
                 case "4": await ShowBattleAsync(); break;
                 case "5": await ShowDamageAsync(); break;
                 case "6": await ShowStatsAsync(); break;
-                case "7": await ShowAdventurerAsync(); break;
+                case "7": await ShowWeaponClassesAsync(); break;
+                case "8": await ShowAdventurerAsync(); break;
                 default: return;
             }
         }
@@ -144,9 +146,8 @@ public static class HelpScreen
         Ui.WriteLine("     PV ＝ 武器の基礎PV ＋ min(能力値modifier, 武器ごとの上限) ＋ 装備・スキルのPV補正");
         Ui.WriteLine($"     ・能力値modifier ＝ (能力値 - {QudCombat.MODIFIER_BASELINE}) ÷ {QudCombat.MODIFIER_STEP} の切り捨て。");
         Ui.WriteLine($"       {QudCombat.MODIFIER_BASELINE}で±0、{QudCombat.MODIFIER_BASELINE + QudCombat.MODIFIER_STEP}で+1、{QudCombat.MODIFIER_BASELINE - QudCombat.MODIFIER_STEP}で-1。");
-        Ui.WriteLine("     ・武器ごとに乗せられる上限がある。短剣や投石は腕力を乗せきれず頭打ちになり、");
-        Ui.WriteLine("       斧や大剣は上限がなく青天井に伸びる。");
-        Ui.WriteLine("       力自慢には重い得物を、器用な者には軽い得物を持たせるとよい。");
+        Ui.WriteLine("     ・武器ごとに乗せられる上限がある。短剣は腕力を乗せきれず+5で頭打ちになり、");
+        Ui.WriteLine("       斧は+8まで受け止める。力自慢には重い得物を、器用な者には軽い得物を持たせるとよい。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 物理と魔法");
         Ui.WriteLine("     どちらで殴るかは装備した武器で決まる（能力値の大小では決まらない）。");
@@ -156,6 +157,13 @@ public static class HelpScreen
         Ui.WriteLine("  ■ 会心（1d20の素の出目20）");
         Ui.WriteLine($"     命中が確定したうえで、PVが+{QudCombat.CRITICAL_PV_BONUS}される。");
         Ui.WriteLine("     さらに1回も抜けなかった場合でも、最低1貫通ぶんのダメージは通る。");
+        Ui.WriteLine("     短剣のように会心域を持つ武器は、出目18〜20でも会心になる（出目1は決して会心にならない）。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 武器の種類ごとの上乗せ");
+        Ui.WriteLine("     ・装甲貫通（槍）: 貫通判定の前に、相手のAVをその値だけ差し引く。");
+        Ui.WriteLine("     ・装甲破壊（斧）: 貫通した攻撃1回につき、相手のAVを恒久的に削る。");
+        Ui.WriteLine($"     ・連撃（短剣）  : 1手番に続けて振るう。追撃はPVが-{QudCombat.FOLLOW_UP_PV_PENALTY}ずつ下がっていく。");
+        Ui.WriteLine("     詳しくはヘルプの「武器の種類」を参照。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 戦闘ログの読み方");
         Ui.WriteLine("     「命中！（1d20=14+3=17 > DV6、物理 PV8 vs AV5） 2回貫通 1d6×2 ダメージ=7」は、");
@@ -187,15 +195,15 @@ public static class HelpScreen
         Ui.WriteLine();
         Ui.WriteLine("  ■ 命中補正の内訳");
         Ui.WriteLine("     命中補正 ＝ AGIのmodifier");
-        Ui.WriteLine("              ＋ 装備の命中補正の合計（短剣・投石・風杖は+2、槍・斧は-2〜-4）");
+        Ui.WriteLine("              ＋ 装備の命中補正の合計（短剣は+3、剣は+1、槍は-2、斧は-4）");
         Ui.WriteLine("              ＋ スキル・遺物の命中補正");
         Ui.WriteLine($"              － 過積載ペナルティ（最大-{overweightToHit}）");
         Ui.WriteLine($"              －（後衛から近接武器で殴る場合のみ）{BattleResolver.REAR_MELEE_TO_HIT_PENALTY}");
         Ui.WriteLine("     この合計を1d20に足し、相手のDVと比べる。行動順もこの値の高い順に決まる。");
-        Ui.WriteLine("     例）AGI12（modifier+2）が短剣（命中+2）を持つと命中補正は+4。");
-        Ui.WriteLine($"        DV{QudCombat.BASE_DV}の相手には1d20で3以上を出せば命中する（90%）。");
+        Ui.WriteLine("     例）AGI12（modifier+2）が短剣（命中+3）を持つと命中補正は+5。");
+        Ui.WriteLine($"        DV{QudCombat.BASE_DV}の相手には1d20で2以上を出せば命中する（95%）。");
         Ui.WriteLine("        同じ相手でも斧（命中-4）に持ち替えると命中補正は-2、命中率は60%まで落ちる。");
-        Ui.WriteLine("        当てにくい武器はそのぶん基礎PVとダメージダイスが大きい、という取引になっている。");
+        Ui.WriteLine("        当てにくい武器はそのぶん一撃が重い、という取引になっている。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 回避DVの内訳");
         Ui.WriteLine($"     DV ＝ {QudCombat.BASE_DV}（全員共通の下駄）＋ AGIのmodifier ＋ 装備のDV補正");
@@ -207,7 +215,7 @@ public static class HelpScreen
         Ui.WriteLine("     PV ＝ 武器の基礎PV ＋ min(STR/INTのmodifier, 武器ごとの上限) ＋ 装備・スキルのPV補正");
         Ui.WriteLine($"     ・素手は基礎PV{AdventurerData.UNARMED_PV}・ダメージ{AdventurerData.UNARMED_DAMAGE_DICE}。乗せるmodifierに上限はなく、膂力はそのまま拳に乗る。");
         Ui.WriteLine("       ただし基礎PVもダメージダイスも小さいので、武器はやはり持たせたほうがよい。");
-        Ui.WriteLine("     ・上限の目安は 短剣・投石・風杖が+5、剣・弓・水杖が+6、槍・土杖が+7、斧・火杖・闇杖が+8。");
+        Ui.WriteLine("     ・上限の目安は 短剣・風杖が+5、剣・弓・水杖が+6、槍・土杖が+7、斧・火杖・闇杖が+8。");
         Ui.WriteLine("       回復用の光杖は0で、力も知恵も上乗せできない。");
         Ui.WriteLine("     AV ＝ CONのmodifier ＋ 防具のAV補正 ＋ スキル・遺物（mAVはMENのmodifierから同様に）");
         Ui.WriteLine();
@@ -228,6 +236,58 @@ public static class HelpScreen
         Ui.WriteLine("     敵もまったく同じ式で命中・DV・PV・AVを組み立てる。");
         Ui.WriteLine($"     ・敵の能力値はレベル1を基準に、レベルが1上がるごとに+{EnemyData.GROWTH_PER_LEVEL * 100:0}%（線形）。");
         Ui.WriteLine("     ・獣は防具を着ていなくても、甲殻や毛皮のぶんのAV・mAVを持つ。");
+        await Ui.PauseAsync();
+    }
+
+    static async Task ShowWeaponClassesAsync()
+    {
+        Ui.BeginScreen();
+        Ui.Header("武器の種類");
+        Ui.WriteLine("  同じ段階の武器なら、どれを選んでも総合的な強さはほぼ揃えてある。");
+        Ui.WriteLine("  違うのは「どんな相手に強いか」で、噛み合う相手に当てるほど働く。");
+        Ui.WriteLine("  得意不得意を分けるのは、ほぼ相手のAV（装甲値）の高さである。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 剣 ── 何でもこなす、軽くて扱いやすい");
+        Ui.WriteLine("     命中+1、重量は軽め、基礎PVもダメージダイスも中庸。特殊な効果は持たない。");
+        Ui.WriteLine("     尖った長所がない代わりに穴もないので、相手を選ばず、序盤ほど頼りになる。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 短剣 ── 手数と急所。当てやすいが一撃は軽い");
+        Ui.WriteLine("     ・連撃      : 1手番に2回斬りかかる。");
+        Ui.WriteLine($"                   ただし追撃はPVが-{QudCombat.FOLLOW_UP_PV_PENALTY}されるので、手数ほどには火力が伸びない。");
+        Ui.WriteLine("     ・会心域    : 1d20の出目18〜20が会心になる（他の武器は20のみ）。");
+        Ui.WriteLine("     ・命中+3、重量は最軽量。基礎PVとダメージダイスは全武器で最も小さい。");
+        Ui.WriteLine("     装甲の薄い相手を数で押し潰すのが仕事。硬い相手には一撃が軽すぎて弾かれる。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 槍 ── 装甲を無視して突く。重くて当てにくい");
+        Ui.WriteLine("     ・装甲貫通  : 命中したとき、相手のAVを2だけ無かったことにして貫通判定を行う。");
+        Ui.WriteLine("                   PVを上げるのとは違い、硬い相手にだけ効き、素肌の相手には何も起きない。");
+        Ui.WriteLine("     ・命中-2、重量は重め。基礎PVは高いがダメージダイスは小さい。");
+        Ui.WriteLine("     鎧を着た相手に強い。ただし効果はその一撃かぎりで、後には残らない。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 斧 ── 装甲そのものを砕く。当たらないが一撃が重い");
+        Ui.WriteLine("     ・装甲破壊  : 貫通した攻撃1回につき、相手のAVを2だけ恒久的に削る。");
+        Ui.WriteLine($"                   削れた装甲はその戦闘のあいだ戻らず、1体につき合計-{QudCombat.MAX_ARMOR_SHRED}まで積み上がる。");
+        Ui.WriteLine("                   削るのは物理AVだけで、魔法装甲(mAV)は割れない。");
+        Ui.WriteLine("     ・命中-4（全武器で最悪）、重量は最重量。ダメージダイスは全武器で最大。");
+        Ui.WriteLine("     ・能力値上限が+8と最も高く、筋力を伸ばすほど伸びしろが残る。");
+        Ui.WriteLine("     削った装甲は味方全員の攻撃にも効く。斧使いが前を崩し、仲間が叩き込むと噛み合う。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 弓 ── 後衛から撃てる");
+        Ui.WriteLine($"     後衛から撃っても命中-{BattleResolver.REAR_MELEE_TO_HIT_PENALTY}を受けない。前衛に守られたまま攻撃に参加できる。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 魔法（火・風・水・土・闇） ── AVではなくmAVと戦う");
+        Ui.WriteLine("     PVに乗るのは筋力ではなく知力。相手の魔法装甲(mAV)と突き合わせるので、");
+        Ui.WriteLine("     鎧で固めた相手ほど通りやすい。弓と同じく後衛から撃っても不利にならない。");
+        Ui.WriteLine("     光の杖だけは攻撃ではなく手当てをする。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ マスタリー");
+        Ui.WriteLine("     職業スキルの「○○マスタリー」は、その武器種を握っているときだけ効く。");
+        Ui.WriteLine("     どれも基礎はPV+2で横並びだが、「・極」まで育つと得物ごとの持ち味が伸びる。");
+        Ui.WriteLine("       剣マスタリー・極   : PV+2 命中+2 DV+1（受け流しが利くようになる）");
+        Ui.WriteLine("       短剣マスタリー・極 : PV+2 命中+2 会心域+1（急所がさらに見えるようになる）");
+        Ui.WriteLine("       槍マスタリー・極   : PV+2 命中+2 AV+1 装甲貫通+1（間合いを取って深く突く）");
+        Ui.WriteLine("       斧マスタリー・極   : PV+2 命中+2 装甲破壊+1（一振りで割る量が増える）");
+        Ui.WriteLine("     武器を持ち替えるとマスタリーは効かなくなる。職業と得物は揃えたほうがよい。");
         await Ui.PauseAsync();
     }
 

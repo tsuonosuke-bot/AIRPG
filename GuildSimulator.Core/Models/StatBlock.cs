@@ -29,6 +29,18 @@ public struct StatBlock
 
     public int heal;
 
+    /// <summary>攻撃時に無視する相手の装甲値。武器クラスの個性（槍の貫通力）とスキルの合計。</summary>
+    public int armorPierce;
+
+    /// <summary>貫通に成功した攻撃1回につき、相手のAVを恒久的に削る量（斧の装甲破壊）。</summary>
+    public int armorShred;
+
+    /// <summary>会心になる1d20の出目の幅。0なら20のみ、1なら19〜20（短剣の会心しやすさ）。</summary>
+    public int critRange;
+
+    /// <summary>1手番あたりの追撃回数（短剣の連続攻撃）。追撃はPVが下がっていく。</summary>
+    public int extraAttacks;
+
     public static StatBlock operator +(StatBlock a, StatBlock b) => new()
     {
         hp = a.hp + b.hp,
@@ -40,5 +52,9 @@ public struct StatBlock
         dv = a.dv + b.dv,
         toHit = a.toHit + b.toHit,
         heal = a.heal + b.heal,
+        armorPierce = a.armorPierce + b.armorPierce,
+        armorShred = a.armorShred + b.armorShred,
+        critRange = a.critRange + b.critRange,
+        extraAttacks = a.extraAttacks + b.extraAttacks,
     };
 }

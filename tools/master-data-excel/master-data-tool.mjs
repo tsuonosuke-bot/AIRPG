@@ -10,7 +10,13 @@ const outputDir = path.join(repoRoot, "outputs", "master-data-editor");
 const workbookPath = path.join(outputDir, "マスタデータ統合_編集用.xlsx");
 const previewDir = path.join(outputDir, "previews");
 const masterFiles = ["adventurers", "equipment", "skills", "consumables", "clues", "quests", "dungeons"];
-const statKeys = ["hp", "san", "av", "mav", "pv", "mpv", "dv", "toHit", "heal"];
+const statKeys = [
+  "hp", "san", "av", "mav", "pv", "mpv", "dv", "toHit", "heal",
+  // 武器クラスの個性。スキル・遺物・装備の補正として足せる。
+  "armorPierce", "armorShred", "critRange", "extraAttacks",
+];
+// 武器そのものが持つ個性の列。武器クラスごとに固定で、Tierでは変えない。
+const weaponTraitKeys = ["armorPierce", "armorShred", "critRange", "extraAttacks"];
 // AV/DV/PVは1点が重いので倍率では触らない。mul列はこの3つだけを扱う。
 const mulKeys = ["hp", "san", "heal"];
 const rewardKeys = [
@@ -83,12 +89,14 @@ const sheetDefinitions = {
     keys: [
       "id", "displayName", "rarity", "type", "weaponType", "armorType", "allowedSlots",
       "attackKind", "damageDice", "basePv", "maxStatBonus",
+      ...weaponTraitKeys,
       "healPower", "flatHeal", "price", "weight", "shopTier",
       ...statKeys.map((key) => `bonus_${key}`),
     ],
     labels: [
       "ID", "表示名", "レアリティ", "装備種別", "武器種", "防具種", "装備スロット",
       "攻撃種別", "ダメージダイス", "武器PV", "能力値上限",
+      "装甲貫通", "装甲破壊", "会心域", "連撃",
       "回復係数", "固定回復", "価格", "重量", "商店Tier",
       ...statKeys.map((key) => `補正 ${key}`),
     ],
@@ -235,6 +243,7 @@ const makeRows = (data) => {
     e.id, e.displayName, clean(e.rarity), e.type, e.weaponType, e.armorType,
     clean(e.allowedSlots?.length ? e.allowedSlots.join(",") : null),
     clean(e.attackKind), clean(e.damageDice), clean(e.basePv), clean(e.maxStatBonus),
+    ...weaponTraitKeys.map((key) => clean(e[key])),
     clean(e.healPower), clean(e.flatHeal),
     e.price, e.weight, clean(e.shopTier),
     ...statKeys.map((key) => mapValue(e.bonus, key)),
@@ -528,10 +537,10 @@ const exportWorkbook = async () => {
   addValidation(sheets.equipment, sheetDefinitions.equipment, "rarity", rarities);
   addValidation(sheets.consumables, sheetDefinitions.consumables, "rarity", rarities);
   addValidation(sheets.equipment, sheetDefinitions.equipment, "type", [0, 1]);
-  addValidation(sheets.equipment, sheetDefinitions.equipment, "weaponType", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  addValidation(sheets.equipment, sheetDefinitions.equipment, "weaponType", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   addValidation(sheets.equipment, sheetDefinitions.equipment, "armorType", [0, 1, 2, 3]);
   addValidation(sheets.skills, sheetDefinitions.skills, "scope", [0, 1]);
-  addValidation(sheets.skills, sheetDefinitions.skills, "requiredWeaponType", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  addValidation(sheets.skills, sheetDefinitions.skills, "requiredWeaponType", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   addValidation(sheets.skills, sheetDefinitions.skills, "requiredArmorType", [0, 1, 2, 3]);
   addValidation(sheets.consumables, sheetDefinitions.consumables, "effectType", [
     "MaxHpPercent", "MoralePercent", "GoldRewardPercent", "ExpRewardPercent", "TrapDamageReductionPercent",
@@ -748,6 +757,9 @@ const importWorkbook = async (writeMode) => {
     optionalAssign(item, "damageDice", optionalText(x.damageDice));
     optionalAssign(item, "basePv", optionalNumber(x.basePv, "basePv", row, true));
     optionalAssign(item, "maxStatBonus", optionalNumber(x.maxStatBonus, "maxStatBonus", row, true));
+    for (const key of weaponTraitKeys) {
+      optionalAssign(item, key, optionalNumber(x[key], key, row, true));
+    }
     optionalAssign(item, "healPower", optionalNumber(x.healPower, "healPower", row));
     optionalAssign(item, "flatHeal", optionalNumber(x.flatHeal, "flatHeal", row, true));
     item.price = numberValue(x.price, "price", row, true);

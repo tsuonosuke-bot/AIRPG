@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
 
 namespace GuildSimulator.Game.Data;
@@ -110,6 +111,10 @@ public static class MasterLoader
                 damageDice = e.damageDice ?? "",
                 basePv = e.basePv,
                 maxStatBonus = Math.Max(0, e.maxStatBonus),
+                armorPierce = Math.Max(0, e.armorPierce),
+                armorShred = Math.Max(0, e.armorShred),
+                critRange = Math.Clamp(e.critRange, 0, QudCombat.MAX_CRIT_RANGE),
+                extraAttacks = Math.Max(0, e.extraAttacks),
                 allowedSlots = e.allowedSlots ?? new(),
             };
         }
@@ -337,6 +342,10 @@ public static class MasterLoader
         d.TryGetValue("pv", out b.pv); d.TryGetValue("mpv", out b.mpv);
         d.TryGetValue("dv", out b.dv); d.TryGetValue("toHit", out b.toHit);
         d.TryGetValue("heal", out b.heal);
+        d.TryGetValue("armorPierce", out b.armorPierce);
+        d.TryGetValue("armorShred", out b.armorShred);
+        d.TryGetValue("critRange", out b.critRange);
+        d.TryGetValue("extraAttacks", out b.extraAttacks);
         return b;
     }
 
@@ -378,6 +387,7 @@ public static class MasterLoader
         string? damageDice = null,
         int basePv = QudCombatDefaults.WeaponPv,
         int maxStatBonus = QudCombatDefaults.UnlimitedStatBonus,
+        int armorPierce = 0, int armorShred = 0, int critRange = 0, int extraAttacks = 0,
         List<EquipSlot>? allowedSlots = null);
 
     record ConsumableJson(string id, string displayName, string? description, Rarity rarity,

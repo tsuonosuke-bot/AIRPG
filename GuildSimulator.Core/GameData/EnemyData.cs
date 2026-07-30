@@ -41,6 +41,9 @@ public class EnemyData : IUnitMember
     public int AttackStatModifier => QudCombat.Modifier(
         IsMagicAttack ? Scaled(master.intelligence) : Scaled(master.strength));
 
+    // 牙や爪には武器クラスの個性がない。槍持ちのゴブリンなら、その槍の貫通力をそのまま使う。
+    public WeaponTraits Traits => master.DefaultWeapon?.Traits ?? WeaponTraits.None;
+
     public EnemyData(EnemyMasterData master, int level = 1)
     {
         this.master = master;

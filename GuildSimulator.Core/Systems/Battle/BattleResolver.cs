@@ -42,6 +42,10 @@ public static class BattleResolver
         int actions = 0;
         int round = 0;
 
+        // 斧に削られた装甲は戦闘が終わるまで戻らない。ラウンドをまたいで積み上がるので、
+        // 毎ラウンド作り直される statsByMember ではなくここで持つ。
+        var armorShredded = new Dictionary<IUnitMember, int>();
+
         logs.Add($"[Turn {turn}] Phase {phase}: 戦闘開始 冒険者 vs {DescribeComposition(enemySide)}");
 
         // 格上との遭遇はそれ自体が士気を削る。
@@ -112,53 +116,77 @@ public static class BattleResolver
                 }
                 else
                 {
-                    var target = PickTarget(enemySideArr);
-                    if (target == null) continue;
-                    var targetStats = statsByMember[target];
-
                     // 物理か魔法かは能力値の大小ではなく武器そのもので決まる。
                     // 魔道士が剣を持てば剣で殴り、戦士が杖を持てば魔法が飛ぶ。
                     bool isMagic = actor.IsMagicAttack;
 
+                    // 武器クラスの個性は「得物そのもの」＋「スキル・遺物の補正」。
+                    // 短剣なら連撃と広い会心域、槍なら装甲貫通、斧なら装甲破壊がここに入る。
+                    var traits = actor.Traits.Combine(actorStats);
+
                     int toHit = actorStats.toHit;
                     if (isRear && !IsRangedWeapon(actor)) toHit -= REAR_MELEE_TO_HIT_PENALTY;
 
-                    int dv = targetStats.dv;
-                    if (SlotOf(enemySideArr, target) >= 3 && HasAliveFront(enemySideArr))
-                        dv += REAR_COVER_DV_BONUS;
+                    // PVは武器の基礎値に能力値modifierを（武器ごとの上限つきで）乗せ、装備・スキル補正を足す。
+                    int basePv = QudCombat.EffectivePv(
+                        actor.WeaponBasePv, actor.AttackStatModifier, actor.MaxStatBonus,
+                        isMagic ? actorStats.mpv : actorStats.pv);
 
-                    var check = QudCombat.RollToHit(toHit, dv);
+                    // 連撃は同じ手番のうちに続けて振るう。狙いは1振りごとに選び直す。
+                    int swings = 1 + traits.extraAttacks;
+                    for (int swing = 0; swing < swings; swing++)
+                    {
+                        if (!AnyAlive(enemySideArr) || !actor.IsAlive) break;
 
-                    if (!check.hit)
-                    {
-                        logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} 回避！（1d20={check.roll}{toHit:+#;-#;+0}={check.total} ≦ DV{dv}） ダメージなし");
-                    }
-                    else
-                    {
-                        // PVは武器の基礎値に能力値modifierを（武器ごとの上限つきで）乗せ、装備・スキル補正を足す。
+                        var target = PickTarget(enemySideArr);
+                        if (target == null) break;
+                        var targetStats = statsByMember[target];
+
+                        int dv = targetStats.dv;
+                        if (SlotOf(enemySideArr, target) >= 3 && HasAliveFront(enemySideArr))
+                            dv += REAR_COVER_DV_BONUS;
+
+                        var check = QudCombat.RollToHit(toHit, dv, traits.critRange);
+                        string swingTag = swing == 0 ? "" : "追撃 ";
+
+                        if (!check.hit)
+                        {
+                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {swingTag}回避！（1d20={check.roll}{toHit:+#;-#;+0}={check.total} ≦ DV{dv}） ダメージなし");
+                            continue;
+                        }
+
                         // AVは装甲そのもの。どちらも小さな整数で、1点が貫通回数に効く。
-                        int pv = QudCombat.EffectivePv(
-                            actor.WeaponBasePv, actor.AttackStatModifier, actor.MaxStatBonus,
-                            isMagic ? actorStats.mpv : actorStats.pv);
-                        int av = Math.Max(0, isMagic ? targetStats.mav : targetStats.av);
+                        // 斧に削られたぶんは物理AVからのみ引く（魔法装甲は割れない）。
+                        int av = isMagic
+                            ? Math.Max(0, targetStats.mav)
+                            : Math.Max(0, targetStats.av - ShredOf(armorShredded, target));
 
-                        var dealt = QudCombat.ResolveAttack(pv, av, actor.DamageDice, check.critical);
+                        var dealt = QudCombat.ResolveAttack(
+                            QudCombat.FollowUpPv(basePv, swing), av, actor.DamageDice,
+                            check.critical, traits.armorPierce);
 
                         target.CombatHp -= dealt.damage;
                         string tag = check.critical ? "会心！" : "命中！";
                         string atkKind = isMagic ? "魔法" : "物理";
                         string roll = $"1d20={check.roll}{toHit:+#;-#;+0}={check.total} > DV{dv}";
-                        string judge = $"{atkKind} PV{dealt.pv} vs AV{dealt.av}";
+                        string pierce = traits.armorPierce > 0 && !isMagic
+                            ? $"（装甲貫通-{traits.armorPierce}）" : "";
+                        string judge = $"{atkKind} PV{dealt.pv} vs AV{dealt.av}{pierce}";
 
                         if (dealt.penetrations == 0)
                         {
-                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {tag}（{roll}、{judge}） 装甲に弾かれた ダメージなし");
+                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {swingTag}{tag}（{roll}、{judge}） 装甲に弾かれた ダメージなし");
                         }
                         else
                         {
                             string dice = string.IsNullOrWhiteSpace(actor.DamageDice)
                                 ? QudCombat.DEFAULT_DAMAGE_DICE : actor.DamageDice;
-                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {tag}（{roll}、{judge}） {dealt.penetrations}回貫通 {dice}×{dealt.penetrations} ダメージ={dealt.damage} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
+                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {swingTag}{tag}（{roll}、{judge}） {dealt.penetrations}回貫通 {dice}×{dealt.penetrations} ダメージ={dealt.damage} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
+
+                            // 装甲破壊は「貫通した攻撃」にだけ乗る。削れた装甲は味方全員の攻撃にも効く。
+                            int shred = ApplyArmorShred(armorShredded, target, traits.armorShred, isMagic);
+                            if (shred > 0)
+                                logs.Add($"  Phase {phase}: {target.Name} の装甲が砕けた（AV-{shred} 累計-{ShredOf(armorShredded, target)}）");
                         }
 
                         if (target.CombatHp <= 0)
@@ -243,6 +271,24 @@ public static class BattleResolver
                 : $"{g.Key.Name}(Lv{g.Key.Level})");
         var desc = string.Join("、", groups);
         return desc.Length > 0 ? desc : "敵";
+    }
+
+    static int ShredOf(Dictionary<IUnitMember, int> shredded, IUnitMember target)
+        => shredded.TryGetValue(target, out var v) ? v : 0;
+
+    /// <summary>
+    /// 装甲破壊を積む。1体につき<see cref="QudCombat.MAX_ARMOR_SHRED"/>までで打ち止めにして、
+    /// 長引いた戦闘で装甲が意味を失うのを防ぐ。実際に削れた量を返す。
+    /// </summary>
+    static int ApplyArmorShred(
+        Dictionary<IUnitMember, int> shredded, IUnitMember target, int amount, bool isMagic)
+    {
+        if (amount <= 0 || isMagic) return 0;
+        int current = ShredOf(shredded, target);
+        int applied = Math.Min(amount, QudCombat.MAX_ARMOR_SHRED - current);
+        if (applied <= 0) return 0;
+        shredded[target] = current + applied;
+        return applied;
     }
 
     static bool AnyAlive(IUnitMember?[] side)

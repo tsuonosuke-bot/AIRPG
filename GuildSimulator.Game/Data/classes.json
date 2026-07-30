@@ -20,6 +20,13 @@
       { "skillId": "skill_toughBody",     "requiredClearCount": 6 },
       { "skillId": "skill_swordMastery2", "requiredClearCount": 10 }
     ] },
+  { "id": "class_Rogue",     "className": "盗賊",     "vitGrowth": 0.10, "mentGrowth": 0.15, "strGrowth": 0.20, "intGrowth": 0.15, "agiGrowth": 0.55,
+    "classSkills": [
+      { "skillId": "skill_daggerMastery",  "requiredClearCount": 0 },
+      { "skillId": "skill_swiftStep",      "requiredClearCount": 3 },
+      { "skillId": "skill_backstab",       "requiredClearCount": 6 },
+      { "skillId": "skill_daggerMastery2", "requiredClearCount": 10 }
+    ] },
   { "id": "class_Archer",    "className": "アーチャー","vitGrowth": 0.25, "mentGrowth": 0.15, "strGrowth": 0.30, "intGrowth": 0.10, "agiGrowth": 0.30,
     "classSkills": [
       { "skillId": "skill_bowSpear",    "requiredClearCount": 0 },

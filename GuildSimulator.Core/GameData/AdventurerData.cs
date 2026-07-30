@@ -44,6 +44,9 @@ public class AdventurerData : IUnitMember
     public int MaxStatBonus => Weapon?.maxStatBonus ?? UNARMED_MAX_STAT_BONUS;
     public int AttackStatModifier => QudCombat.Modifier(IsMagicAttack ? intelligence : strength);
 
+    // 素手には武器クラスの個性がない。連撃も装甲破壊も、得物を持って初めて手に入る。
+    public WeaponTraits Traits => Weapon?.Traits ?? WeaponTraits.None;
+
     public const int UNARMED_PV = 2;
 
     /// <summary>素手のダメージダイス。</summary>

@@ -139,7 +139,8 @@ public static class AdventurerScreen
     static string DescribeItem(EquipmentMasterData? item)
     {
         if (item == null) return "";
-        var parts = BonusParts(item.bonus);
+        var parts = EquipmentText.TraitParts(item.Traits);
+        parts.AddRange(EquipmentText.BonusParts(item.bonus));
         return parts.Count == 0 ? "" : $"（{string.Join(" ", parts)}）";
     }
 
@@ -355,35 +356,9 @@ public static class AdventurerScreen
 
     static string DescribeEquipDetail(EquipmentMasterData item)
     {
-        var parts = new List<string>();
-        if (item.type == EquipmentType.Weapon)
-        {
-            if (item.attackKind == AttackKind.Heal) parts.Add($"回復効果x{item.healPower:0.##}");
-            else
-            {
-                parts.Add($"{(item.attackKind == AttackKind.Magic ? "魔法" : "物理")} PV{item.basePv}");
-                if (!string.IsNullOrWhiteSpace(item.damageDice)) parts.Add($"{item.damageDice}/貫通");
-                parts.Add(item.maxStatBonus >= QudCombatDefaults.UnlimitedStatBonus
-                    ? "能力値上限なし" : $"能力値上限+{item.maxStatBonus}");
-            }
-        }
-        parts.AddRange(BonusParts(item.bonus));
+        var parts = EquipmentText.WeaponParts(item);
+        parts.AddRange(EquipmentText.BonusParts(item.bonus));
         parts.Add($"重量{item.weight}");
         return string.Join(" ", parts);
-    }
-
-    static List<string> BonusParts(StatBlock b)
-    {
-        var parts = new List<string>();
-        void Add(string name, int v) { if (v != 0) parts.Add($"{name}{(v > 0 ? "+" : "")}{v}"); }
-        Add("HP", b.hp);
-        Add("AV", b.av);
-        Add("mAV", b.mav);
-        Add("PV", b.pv);
-        Add("mPV", b.mpv);
-        Add("DV", b.dv);
-        Add("命中", b.toHit);
-        Add("回復力", b.heal);
-        return parts;
     }
 }
