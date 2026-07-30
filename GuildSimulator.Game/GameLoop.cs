@@ -71,6 +71,7 @@ public static class GameLoop
                 new MenuOption("8", "経済ログ", Group: "ギルド管理"),
                 new MenuOption("B", "埋葬記録", Group: "ギルド管理"),
                 new MenuOption("J", "調査記録", Group: "ギルド管理"),
+                new MenuOption("T", "戦闘シミュレーター", Group: "ギルド管理"),
                 new MenuOption("H", "ヘルプ・用語集", Group: "ギルド管理"),
                 // 同じグループは連続させる（グループ見出しは切り替わりでしか出さないため）。
                 new MenuOption("9", "ターンを進める", Group: "ターン操作"),
@@ -95,6 +96,7 @@ public static class GameLoop
                 case "8": await ShowEconomyLogAsync(guild); break;
                 case "B": await BurialScreen.ShowAsync(guild); break;
                 case "J": await StoryJournalScreen.ShowAsync(db, questManager); break;
+                case "T": await BattleSimScreen.ShowAsync(db, guild); break;
                 case "H": await HelpScreen.ShowAsync(); break;
                 case "9":
                     if (questManager.HasPendingChoices)
