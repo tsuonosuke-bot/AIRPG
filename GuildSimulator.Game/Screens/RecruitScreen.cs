@@ -47,10 +47,8 @@ public static class RecruitScreen
                         $"VIT:{m.vitality} MEN:{m.mental} STR:{m.strength} AGI:{m.agility} INT:{m.intelligence} CON:{m.constitution}",
                         $"武器:{m.DefaultWeapon?.displayName ?? "なし"}  防具:{m.DefaultArmor?.displayName ?? "なし"}",
                     };
-                    if (!string.IsNullOrWhiteSpace(m.selfIntroduction))
-                        detail.Add($"「{m.selfIntroduction}」");
-                    if (!string.IsNullOrWhiteSpace(m.personality) || !string.IsNullOrWhiteSpace(m.specialty))
-                        detail.Add($"人柄:{ValueOrUnknown(m.personality)}  得意:{ValueOrUnknown(m.specialty)}");
+                    if (!string.IsNullOrWhiteSpace(m.background))
+                        detail.Add(m.background);
                     if (!alreadyHired && candidateAfterHire >= 0)
                         detail.Add($"雇用後: {candidateAfterHire}G  合計維持費:{candidateUpkeep}G/T  資金猶予:{runway}T");
 
@@ -114,9 +112,6 @@ public static class RecruitScreen
     public static int CalcHireCost(AdventurerMasterData m)
         // 維持費バランスの変更で初期雇用費まで連動しないよう、従来のLv単価を維持する。
         => Math.Max(10, Math.Max(1, m.defaultLevel) * 55);
-
-    static string ValueOrUnknown(string value) =>
-        string.IsNullOrWhiteSpace(value) ? "記録なし" : value;
 
     static async Task RerollCandidatesAsync(
         List<AdventurerMasterData> candidates,

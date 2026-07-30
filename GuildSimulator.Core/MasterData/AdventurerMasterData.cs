@@ -27,12 +27,6 @@ public class AdventurerMasterData
 
     // 人物として採用・編成を考えるためのプロフィール。
     public string background = "";
-    public string personality = "";
-    public string motivation = "";
-    public string specialty = "";
-    public string fear = "";
-    public string creed = "";
-    public string selfIntroduction = "";
 
     public ClassMasterData? DefaultClass { get; set; }
     public RaceMasterData? Race { get; set; }

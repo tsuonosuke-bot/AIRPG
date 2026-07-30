@@ -44,7 +44,24 @@ else
         </div>
 
         <div class="controls">
-            @if (_io.IsTextInput)
+            @if (_io.IsFinished)
+            {
+                @if (_io.FailureMessage != null)
+                {
+                    <div class="prompt s-error">エラーが発生したため中断しました: @_io.FailureMessage</div>
+                }
+                else
+                {
+                    <div class="prompt">ゲームを終了しました。お疲れさまでした。</div>
+                }
+                <div class="option-row">
+                    <button type="button" class="option s-accent" @onclick="Restart">
+                        <span class="option-label">もう一度遊ぶ</span>
+                        <span class="option-detail">最初から始めます（セーブデータは残ります）</span>
+                    </button>
+                </div>
+            }
+            else if (_io.IsTextInput)
             {
                 <div class="prompt">@_io.Prompt</div>
                 <form class="text-input" @onsubmit="SubmitText" @formname="freetext">
@@ -93,6 +110,8 @@ else
     bool _ready;
     string? _error;
     string _textValue = "";
+    GameMasterData? _db;
+    LocalStorageSaveStore? _saveStore;
 
     protected override async Task OnInitializedAsync()
     {
@@ -103,19 +122,45 @@ else
             foreach (var file in MasterLoader.DataFileNames)
                 json[file] = await Http.GetStringAsync($"Data/{file}");
 
-            var db = MasterLoader.Load(file => json[file]);
+            _db = MasterLoader.Load(file => json[file]);
+            _saveStore = new LocalStorageSaveStore(Js);
 
             Ui.Use(_io);
             _io.StateChanged += OnIoStateChanged;
             _ready = true;
 
-            // ゲームループは待たずに走らせる。入力待ちのたびに制御がブラウザへ戻る。
-            _ = GameLoop.RunAsync(db, new LocalStorageSaveStore(Js));
+            StartGameLoop();
         }
         catch (Exception ex)
         {
             _error = ex.Message;
         }
+    }
+
+    /// <summary>
+    /// ゲームループは待たずに走らせる。入力待ちのたびに制御がブラウザへ戻る。
+    /// 終了と例外は必ず <see cref="WebGameIo.Finish"/> で拾う。拾わないとループが消えたことが
+    /// 画面に伝わらず、入力待ちでもないため「処理中...」の表示のまま固まってしまう。
+    /// </summary>
+    void StartGameLoop() => _ = RunGameLoopAsync();
+
+    async Task RunGameLoopAsync()
+    {
+        try
+        {
+            await GameLoop.RunAsync(_db!, _saveStore!);
+            _io.Finish();
+        }
+        catch (Exception ex)
+        {
+            _io.Finish(ex.Message);
+        }
+    }
+
+    void Restart()
+    {
+        _io.Reset();
+        StartGameLoop();
     }
 
     void OnIoStateChanged() => InvokeAsync(async () =>
