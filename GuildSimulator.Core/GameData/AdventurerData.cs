@@ -44,6 +44,9 @@ public class AdventurerData : IUnitMember
     public int MaxStatBonus => Weapon?.maxStatBonus ?? UNARMED_MAX_STAT_BONUS;
     public int AttackStatModifier => QudCombat.Modifier(IsMagicAttack ? intelligence : strength);
 
+    // 素手には武器クラスの個性がない。連撃も装甲破壊も、得物を持って初めて手に入る。
+    public WeaponTraits Traits => Weapon?.Traits ?? WeaponTraits.None;
+
     public const int UNARMED_PV = 2;
 
     /// <summary>素手のダメージダイス。</summary>
@@ -85,7 +88,7 @@ public class AdventurerData : IUnitMember
         this.master = master;
         name = master.baseName;
         level = master.defaultLevel;
-        rank = Math.Max(1, master.defaultRank);
+        rank = Rank.Clamp(master.defaultRank);
         race = master.Race;
         currentClass = master.DefaultClass;
         vitality = master.vitality;
@@ -170,28 +173,46 @@ public class AdventurerData : IUnitMember
         MarkDirty();
     }
 
+    /// <summary>
+    /// クラス習熟度は「適正ランクのクエストを正規クリアした回数」で増える。
+    /// 格下では学ぶものがなく、格上すぎるクエストは連れ回されているだけなので、どちらも数えない。
+    /// </summary>
     public void OnClearQuest(int questRank)
     {
-        if (!isAlive || questRank < rank) return;
+        if (!isAlive || !Rank.IsSuitable(questRank, rank)) return;
         if (currentClass == null) return;
         classClearCounts.TryGetValue(currentClass.id, out var c);
         classClearCounts[currentClass.id] = c + 1;
         CheckClassSkillUnlock();
     }
 
+    /// <summary>今の自分にとって適正ランクのクエストか。冒険者詳細やクエストボードの目印に使う。</summary>
+    public bool IsSuitableQuestRank(int questRank) => Rank.IsSuitable(questRank, rank);
+
+    /// <summary>適正帯の表記（例: "D〜B"）。</summary>
+    public string SuitableRankRangeLabel => Rank.SuitableRangeLabel(rank);
+
     // ---- Adventurer rank ----
+    public string RankLabel => Rank.Label(rank);
+
+    public bool IsMaxRank => Rank.IsMax(rank);
+
     public int RequiredRankPointForNextRank => 10 * Math.Max(1, rank);
 
     public void AddRankPoints(int amount, out int rankUps)
     {
         rankUps = 0;
         if (!isAlive || amount <= 0) return;
+        // Sに達したらランクポイントも溜めない。溜めても行き場がないうえ、
+        // 上限に張り付いた冒険者のRP表示が伸び続けると昇格できるように見えてしまう。
+        if (IsMaxRank) return;
         rankPoint += amount;
         while (rankPoint >= RequiredRankPointForNextRank)
         {
             rankPoint -= RequiredRankPointForNextRank;
-            rank++;
+            rank = Rank.Clamp(rank + 1);
             rankUps++;
+            if (IsMaxRank) { rankPoint = 0; break; }
         }
     }
 

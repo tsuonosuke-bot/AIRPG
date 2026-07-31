@@ -33,6 +33,35 @@ public static class Ui
     /// <summary>レアリティに応じた色で名前を書く（改行しない）。</summary>
     public static void WriteRarityName(string name, Rarity rarity) => Io.Write(name, RarityStyle(rarity));
 
+    /// <summary>
+    /// 等幅端末での表示幅。日本語などの全角文字は2列を占めるので、
+    /// string.Length で桁を数えると表がずれる。
+    /// </summary>
+    public static int DisplayWidth(string text)
+    {
+        int width = 0;
+        foreach (var rune in text.EnumerateRunes()) width += IsWide(rune) ? 2 : 1;
+        return width;
+    }
+
+    /// <summary>表示幅を揃えて右側を空白で埋める。足りなければそのまま返す。</summary>
+    public static string PadWide(string text, int width)
+        => text + new string(' ', Math.Max(0, width - DisplayWidth(text)));
+
+    // CJKの主要な全角レンジ。この作品で使うのは日本語と記号だけなので、そこだけを見る。
+    static bool IsWide(System.Text.Rune rune) => rune.Value switch
+    {
+        >= 0x1100 and <= 0x115F => true,   // ハングル字母
+        >= 0x2E80 and <= 0x303E => true,   // CJK部首・記号（「」【】など）
+        >= 0x3041 and <= 0x33FF => true,   // かな・カタカナ・互換文字
+        >= 0x3400 and <= 0x4DBF => true,   // CJK拡張A
+        >= 0x4E00 and <= 0x9FFF => true,   // CJK統合漢字
+        >= 0xF900 and <= 0xFAFF => true,   // CJK互換漢字
+        >= 0xFF01 and <= 0xFF60 => true,   // 全角英数・記号
+        >= 0xFFE0 and <= 0xFFE6 => true,   // 全角通貨記号
+        _ => false,
+    };
+
     public static TextStyle RarityStyle(Rarity rarity) => rarity switch
     {
         Rarity.Uncommon => TextStyle.Info,

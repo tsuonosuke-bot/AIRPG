@@ -25,6 +25,28 @@ public class EquipmentMasterData
     /// </summary>
     public int maxStatBonus = QudCombatDefaults.UnlimitedStatBonus;
 
+    /// <summary>
+    /// 攻撃時に無視する相手の装甲値。槍の「貫通力」。PVを上げるのではなく相手のAVを差し引くので、
+    /// 硬い相手ほど恩恵が大きく、素肌の相手には何も起きない。
+    /// </summary>
+    public int armorPierce;
+
+    /// <summary>
+    /// 貫通に成功した攻撃1回につき、相手のAVを恒久的に削る量。斧の「装甲破壊」。
+    /// 削れた装甲はその戦闘のあいだ戻らず、味方全員の攻撃が通りやすくなる。
+    /// </summary>
+    public int armorShred;
+
+    /// <summary>
+    /// 会心になる1d20の出目の幅。0なら20のみ、1なら19〜20。短剣の「会心の出やすさ」。
+    /// </summary>
+    public int critRange;
+
+    /// <summary>
+    /// 1手番あたりの追撃回数。短剣の「連続攻撃」。追撃はPVが下がっていくので手数ほどには伸びない。
+    /// </summary>
+    public int extraAttacks;
+
     /// <summary>回復杖の回復力倍率。0なら回復武器ではない。</summary>
     public float healPower;
 
@@ -44,6 +66,9 @@ public class EquipmentMasterData
 
     public bool IsHealWeapon => attackKind == AttackKind.Heal && healPower > 0f;
     public bool IsMagicWeapon => attackKind == AttackKind.Magic;
+
+    /// <summary>武器クラスの個性をまとめたもの。スキル由来の補正はここには含まれない。</summary>
+    public WeaponTraits Traits => new(armorPierce, armorShred, critRange, extraAttacks);
 
     public IReadOnlyList<EquipSlot> GetAllowedSlots()
     {
@@ -68,4 +93,7 @@ public static class QudCombatDefaults
 
     /// <summary>能力値modifierの上限なしを表す値。</summary>
     public const int UnlimitedStatBonus = 99;
+
+    /// <summary>会心になる出目の下限（critRange 0 のとき）。表示用に切り出してある。</summary>
+    public const int CriticalRollFloor = 20;
 }

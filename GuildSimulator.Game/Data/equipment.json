@@ -23,16 +23,18 @@
     "rarity": "Common",
     "shopTier": 1,
     "type": 0,
-    "weaponType": 0,
+    "weaponType": 11,
     "armorType": 3,
     "attackKind": "Physical",
     "damageDice": "1d2",
-    "basePv": 3,
+    "basePv": 1,
     "maxStatBonus": 5,
+    "critRange": 2,
+    "extraAttacks": 1,
     "price": 25,
     "weight": 2,
     "bonus": {
-      "toHit": 2
+      "toHit": 3
     }
   },
   {
@@ -45,8 +47,9 @@
     "armorType": 3,
     "attackKind": "Physical",
     "damageDice": "1d2",
-    "basePv": 4,
+    "basePv": 5,
     "maxStatBonus": 7,
+    "armorPierce": 2,
     "price": 35,
     "weight": 4,
     "bonus": {
@@ -62,13 +65,14 @@
     "weaponType": 1,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "1d2",
-    "basePv": 4,
+    "damageDice": "1d4",
+    "basePv": 2,
     "maxStatBonus": 8,
+    "armorShred": 2,
     "price": 40,
     "weight": 5,
     "bonus": {
-      "toHit": -3
+      "toHit": -4
     }
   },
   {
@@ -100,7 +104,7 @@
     "attackKind": "Physical",
     "damageDice": "1d2",
     "basePv": 2,
-    "maxStatBonus": 5,
+    "maxStatBonus": 6,
     "price": 25,
     "weight": 2,
     "bonus": {
@@ -241,16 +245,18 @@
     "rarity": "Common",
     "shopTier": 2,
     "type": 0,
-    "weaponType": 0,
+    "weaponType": 11,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "1d3",
-    "basePv": 4,
+    "damageDice": "1d2",
+    "basePv": 3,
     "maxStatBonus": 5,
+    "critRange": 2,
+    "extraAttacks": 1,
     "price": 75,
     "weight": 2,
     "bonus": {
-      "toHit": 2
+      "toHit": 3
     }
   },
   {
@@ -262,9 +268,10 @@
     "weaponType": 2,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "1d1+1",
-    "basePv": 5,
+    "damageDice": "1d3",
+    "basePv": 6,
     "maxStatBonus": 7,
+    "armorPierce": 2,
     "price": 100,
     "weight": 5,
     "bonus": {
@@ -280,9 +287,10 @@
     "weaponType": 1,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "1d2+1",
-    "basePv": 5,
+    "damageDice": "1d4+1",
+    "basePv": 2,
     "maxStatBonus": 8,
+    "armorShred": 2,
     "price": 110,
     "weight": 6,
     "bonus": {
@@ -441,16 +449,18 @@
     "rarity": "Common",
     "shopTier": 3,
     "type": 0,
-    "weaponType": 0,
+    "weaponType": 11,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "1d4",
+    "damageDice": "1d3",
     "basePv": 5,
     "maxStatBonus": 5,
+    "critRange": 2,
+    "extraAttacks": 1,
     "price": 180,
     "weight": 3,
     "bonus": {
-      "toHit": 2
+      "toHit": 3
     }
   },
   {
@@ -462,9 +472,10 @@
     "weaponType": 2,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "2d2",
+    "damageDice": "1d3+1",
     "basePv": 7,
     "maxStatBonus": 7,
+    "armorPierce": 2,
     "price": 240,
     "weight": 6,
     "bonus": {
@@ -480,9 +491,10 @@
     "weaponType": 1,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "1d3+1",
-    "basePv": 7,
+    "damageDice": "1d6+1",
+    "basePv": 4,
     "maxStatBonus": 8,
+    "armorShred": 2,
     "price": 260,
     "weight": 8,
     "bonus": {
@@ -837,7 +849,7 @@
     "attackKind": "Physical",
     "damageDice": "2d4",
     "basePv": 8,
-    "maxStatBonus": 8,
+    "maxStatBonus": 6,
     "price": 480,
     "weight": 8,
     "bonus": {

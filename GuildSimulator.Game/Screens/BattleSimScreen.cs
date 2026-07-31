@@ -51,7 +51,7 @@ public static class BattleSimScreen
             entries.Add(new MenuOption(
                 (i + 1).ToString(),
                 $"{a.name} Lv{a.level}",
-                $"Rank{a.rank} {a.ClassAndRace}",
+                $"ランク{a.RankLabel} {a.ClassAndRace}",
                 Ui.RarityStyle(a.master.rarity)));
         }
 

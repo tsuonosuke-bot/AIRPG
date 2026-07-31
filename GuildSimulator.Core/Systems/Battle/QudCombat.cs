@@ -29,6 +29,7 @@ public static class QudCombat
     public const int BASE_DV = 6;          // Qud同様、DVには常に下駄6を履かせる
     public const int CRITICAL_ROLL = 20;   // 出目20は素の値で判定し、DVに関わらず命中する
     public const int FUMBLE_ROLL = 1;      // 出目1は補正に関わらず必中しない
+    public const int MAX_CRIT_RANGE = 5;   // 会心域の上限。広げても15〜20（30%）で頭打ちにする
 
     // ---- 貫通判定 ----
     public const int PENETRATION_DIE = 10;         // 1d10
@@ -41,15 +42,30 @@ public static class QudCombat
     public const string DEFAULT_DAMAGE_DICE = "1d2"; // 素手・自然攻撃のフォールバック
     public const int DEFAULT_WEAPON_PV = 4;          // Qudの標準的な武器のPV
 
+    // ---- 武器クラスの個性 ----
+    /// <summary>追撃はn回目ごとにPVがこれだけ下がる。手数がそのまま火力倍増にならないための減衰。</summary>
+    public const int FOLLOW_UP_PV_PENALTY = 2;
+
+    /// <summary>1体につき1回の戦闘で削れる装甲の上限。斧の削りが青天井に走らないための蓋。</summary>
+    public const int MAX_ARMOR_SHRED = 3;
+
     /// <summary>命中判定の結果。ログに出目をそのまま載せられるよう内訳を持ち回る。</summary>
     public readonly record struct HitResult(int roll, int total, bool hit, bool critical);
 
-    /// <summary>1d20を振って命中補正を足し、DVと比べる。</summary>
-    public static HitResult RollToHit(int toHitBonus, int dv)
+    /// <summary>会心になる最小の出目。critRangeを広げるほど下がる（0なら20のみ）。</summary>
+    public static int CriticalThreshold(int critRange)
+        => CRITICAL_ROLL - Math.Clamp(critRange, 0, MAX_CRIT_RANGE);
+
+    /// <summary>
+    /// 1d20を振って命中補正を足し、DVと比べる。
+    /// critRangeを持つ武器（短剣）は出目20だけでなく19、18…も会心になる。
+    /// ただし出目1は会心域には決してならず、常に外れる。
+    /// </summary>
+    public static HitResult RollToHit(int toHitBonus, int dv, int critRange = 0)
     {
         int roll = GameRandom.Range(1, HIT_DIE + 1);
-        bool critical = roll == CRITICAL_ROLL;
         bool fumble = roll == FUMBLE_ROLL;
+        bool critical = !fumble && roll >= CriticalThreshold(critRange);
         int total = roll + toHitBonus;
         bool hit = critical || (!fumble && total > dv);
         return new HitResult(roll, total, hit, critical);
@@ -95,7 +111,7 @@ public static class QudCombat
         return penetrations;
     }
 
-    /// <summary>攻撃1回の結果。</summary>
+    /// <summary>攻撃1回の結果。avは装甲貫通を差し引いた後の実効値。</summary>
     public readonly record struct AttackResult(
         int pv, int av, int penetrations, int damage);
 
@@ -103,10 +119,15 @@ public static class QudCombat
     /// 命中後の解決。貫通回数を出し、その回数だけダメージダイスを振って合計する。
     /// 決定的命中はPVに+1され、かつ1回も抜けなかった場合でも最低1貫通は保証される。
     /// 貫通が0なら装甲に阻まれてダメージは通らない。最低保証ダメージはない。
+    ///
+    /// armorPierce（槍の貫通力）は相手のAVをその値だけ無視する。PVを上げるのとは違い、
+    /// 硬い相手ほど効き、素肌の相手にはまったく効かない。
     /// </summary>
-    public static AttackResult ResolveAttack(int pv, int av, string? diceNotation, bool critical)
+    public static AttackResult ResolveAttack(
+        int pv, int av, string? diceNotation, bool critical, int armorPierce = 0)
     {
         if (critical) pv += CRITICAL_PV_BONUS;
+        av = Math.Max(0, av - Math.Max(0, armorPierce));
 
         int penetrations = RollPenetrations(pv, av);
         if (critical && penetrations == 0) penetrations = 1;
@@ -127,4 +148,11 @@ public static class QudCombat
     /// </summary>
     public static int EffectivePv(int weaponBasePv, int statModifier, int maxStatBonus, int flatBonus)
         => weaponBasePv + Math.Min(statModifier, maxStatBonus) + flatBonus;
+
+    /// <summary>
+    /// 同じ手番のうちswingIndex回目（0が本命、1以降が追撃）の実効PV。
+    /// 追撃ほど軽くなるので、連撃の手数は火力の掛け算にはならない。
+    /// </summary>
+    public static int FollowUpPv(int pv, int swingIndex)
+        => pv - FOLLOW_UP_PV_PENALTY * Math.Max(0, swingIndex);
 }

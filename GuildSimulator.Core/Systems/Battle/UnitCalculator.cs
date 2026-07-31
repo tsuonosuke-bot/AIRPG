@@ -28,6 +28,8 @@ public static class UnitCalculator
             u.pv += s.pv; u.mpv += s.mpv;
             u.dv += s.dv; u.toHit += s.toHit;
             u.heal += s.heal;
+            u.armorPierce += s.armorPierce; u.armorShred += s.armorShred;
+            u.critRange += s.critRange; u.extraAttacks += s.extraAttacks;
         }
 
         u.hp += auraAdd.hp; u.san += auraAdd.san;
@@ -35,6 +37,8 @@ public static class UnitCalculator
         u.pv += auraAdd.pv; u.mpv += auraAdd.mpv;
         u.dv += auraAdd.dv; u.toHit += auraAdd.toHit;
         u.heal += auraAdd.heal;
+        u.armorPierce += auraAdd.armorPierce; u.armorShred += auraAdd.armorShred;
+        u.critRange += auraAdd.critRange; u.extraAttacks += auraAdd.extraAttacks;
         ApplyMulToStats(ref u, auraMul);
 
         if (isAllySide)
@@ -45,6 +49,8 @@ public static class UnitCalculator
             u.pv += relicAdd.pv; u.mpv += relicAdd.mpv;
             u.dv += relicAdd.dv; u.toHit += relicAdd.toHit;
             u.heal += relicAdd.heal;
+            u.armorPierce += relicAdd.armorPierce; u.armorShred += relicAdd.armorShred;
+            u.critRange += relicAdd.critRange; u.extraAttacks += relicAdd.extraAttacks;
             ApplyMulToStats(ref u, relicMul);
         }
 

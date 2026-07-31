@@ -11,7 +11,7 @@ namespace GuildSimulator.Game.Screens;
 
 public static class AdventurerScreen
 {
-    const int ClassChangeCostPerLevel = 10;
+    public const int ClassChangeCostPerLevel = 10;
 
     public static int CalculateClassChangeCost(int level) => Math.Max(1, level) * ClassChangeCostPerLevel;
 
@@ -29,14 +29,14 @@ public static class AdventurerScreen
                 string busy = questManager?.IsAdventurerBusy(a.id) == true ? "[出発中]" : "";
                 Ui.Write($"  {i + 1}. ");
                 Ui.WriteRarityName(a.name, a.master.rarity);
-                Ui.Write($" Lv{a.level} Rank{a.rank} {a.ClassAndRace} {busy}");
+                Ui.Write($" Lv{a.level} ランク{a.RankLabel} {a.ClassAndRace} {busy}");
                 if (!a.isAlive) Ui.Write("[死亡]", TextStyle.Error);
                 Ui.WriteLine();
 
                 entries.Add(new MenuOption(
                     (i + 1).ToString(),
                     $"{a.name} Lv{a.level}{(a.isAlive ? "" : "[死亡]")}",
-                    $"Rank{a.rank} {a.ClassAndRace} {busy}",
+                    $"ランク{a.RankLabel} {a.ClassAndRace} {busy}",
                     a.isAlive ? Ui.RarityStyle(a.master.rarity) : TextStyle.Error));
             }
 
@@ -54,7 +54,10 @@ public static class AdventurerScreen
             Ui.Header($"冒険者詳細: {a.name}");
             Ui.WriteLine($"  クラス/種族 : {a.ClassAndRace}");
             Ui.WriteLine($"  レベル      : {a.level}  (経験値 {a.experience}/{a.RequiredExpForNextLevel})");
-            Ui.WriteLine($"  冒険者ランク: {a.rank}  (RP {a.rankPoint}/{a.RequiredRankPointForNextRank})");
+            string rankProgress = a.IsMaxRank
+                ? "最高ランク"
+                : $"RP {a.rankPoint}/{a.RequiredRankPointForNextRank} → {Rank.Label(a.rank + 1)}";
+            Ui.WriteLine($"  冒険者ランク: {a.RankLabel}  ({rankProgress})");
             Ui.WriteLine($"  維持費      : {GuildManager.CalculateAdventurerUpkeep(a.level)}G/T（Lv×{GuildManager.UpkeepGoldPerLevel}G）");
             Ui.WriteLine($"  状態        : {(a.isAlive ? "生存" : "死亡")}");
             Ui.WriteLine();
@@ -78,6 +81,7 @@ public static class AdventurerScreen
             Ui.Write("  スキル: ");
             var skills = a.Skills;
             Ui.WriteLine(skills.Count == 0 ? "なし" : string.Join(", ", skills.Select(x => x.skillName)));
+            ShowClassMastery(a);
             Ui.WriteLine();
             ShowProfile(a);
             Ui.WriteLine();
@@ -121,6 +125,27 @@ public static class AdventurerScreen
         }
     }
 
+    /// <summary>
+    /// 職業スキルの解禁は「その職業での正規クリア回数」で決まる。今どこまで進んでいて、
+    /// 次に何があと何回で開くのかを出しておかないと、プレイヤーからは進捗が見えない。
+    /// </summary>
+    static void ShowClassMastery(AdventurerData a)
+    {
+        if (a.currentClass == null) return;
+        int clears = a.CurrentClassClearCount;
+        Ui.WriteLine($"  クラス習熟度: {clears}"
+            + $"（{a.currentClass.className}で適正ランク{a.SuitableRankRangeLabel}のクエストを正規クリアした回数）");
+
+        var next = a.currentClass.classSkills
+            .Where(e => e.Skill != null && e.requiredClearCount > clears)
+            .OrderBy(e => e.requiredClearCount)
+            .FirstOrDefault();
+        if (next != null)
+            Ui.Dim($"    次のスキル: {next.Skill!.skillName}（あと{next.requiredClearCount - clears}回）");
+        else
+            Ui.Dim("    この職業のスキルはすべて習得済み");
+    }
+
     static void ShowProfile(AdventurerData a)
     {
         var m = a.master;
@@ -139,7 +164,8 @@ public static class AdventurerScreen
     static string DescribeItem(EquipmentMasterData? item)
     {
         if (item == null) return "";
-        var parts = BonusParts(item.bonus);
+        var parts = EquipmentText.TraitParts(item.Traits);
+        parts.AddRange(EquipmentText.BonusParts(item.bonus));
         return parts.Count == 0 ? "" : $"（{string.Join(" ", parts)}）";
     }
 
@@ -355,35 +381,9 @@ public static class AdventurerScreen
 
     static string DescribeEquipDetail(EquipmentMasterData item)
     {
-        var parts = new List<string>();
-        if (item.type == EquipmentType.Weapon)
-        {
-            if (item.attackKind == AttackKind.Heal) parts.Add($"回復効果x{item.healPower:0.##}");
-            else
-            {
-                parts.Add($"{(item.attackKind == AttackKind.Magic ? "魔法" : "物理")} PV{item.basePv}");
-                if (!string.IsNullOrWhiteSpace(item.damageDice)) parts.Add($"{item.damageDice}/貫通");
-                parts.Add(item.maxStatBonus >= QudCombatDefaults.UnlimitedStatBonus
-                    ? "能力値上限なし" : $"能力値上限+{item.maxStatBonus}");
-            }
-        }
-        parts.AddRange(BonusParts(item.bonus));
+        var parts = EquipmentText.WeaponParts(item);
+        parts.AddRange(EquipmentText.BonusParts(item.bonus));
         parts.Add($"重量{item.weight}");
         return string.Join(" ", parts);
-    }
-
-    static List<string> BonusParts(StatBlock b)
-    {
-        var parts = new List<string>();
-        void Add(string name, int v) { if (v != 0) parts.Add($"{name}{(v > 0 ? "+" : "")}{v}"); }
-        Add("HP", b.hp);
-        Add("AV", b.av);
-        Add("mAV", b.mav);
-        Add("PV", b.pv);
-        Add("mPV", b.mpv);
-        Add("DV", b.dv);
-        Add("命中", b.toHit);
-        Add("回復力", b.heal);
-        return parts;
     }
 }

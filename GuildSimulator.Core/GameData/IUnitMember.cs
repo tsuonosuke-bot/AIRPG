@@ -35,4 +35,7 @@ public interface IUnitMember
 
     /// <summary>PVに乗る能力値modifier（物理は筋力、魔法は知力）。上限の適用前の値。</summary>
     int AttackStatModifier { get; }
+
+    /// <summary>握っている得物そのものの個性（装甲貫通・装甲破壊・会心域・追撃）。スキル補正は含まない。</summary>
+    WeaponTraits Traits { get; }
 }

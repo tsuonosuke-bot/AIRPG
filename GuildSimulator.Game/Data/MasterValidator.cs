@@ -1,4 +1,5 @@
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems.Battle;
 
 namespace GuildSimulator.Game.Data;
 
@@ -20,6 +21,32 @@ public static class MasterValidator
                 errors.Add($"{a.id}: 不明なdefaultWeaponId '{a.defaultWeaponId}'");
             if (!string.IsNullOrEmpty(a.defaultArmorId) && a.DefaultArmor == null)
                 errors.Add($"{a.id}: 不明なdefaultArmorId '{a.defaultArmorId}'");
+        }
+
+        // 武器クラスの個性は「同じ武器種なら同じ値」で揃える。Tier差は basePv とダメージダイスが表す。
+        foreach (var group in db.equipment.Values
+                     .Where(e => e.type == EquipmentType.Weapon && e.weaponType != WeaponType.Null)
+                     .GroupBy(e => e.weaponType))
+        {
+            var head = group.First();
+            foreach (var e in group.Skip(1))
+            {
+                if (e.maxStatBonus != head.maxStatBonus)
+                    errors.Add($"{e.id}: maxStatBonusが同じ武器種の{head.id}({head.maxStatBonus})と違います({e.maxStatBonus})");
+                if (e.Traits != head.Traits)
+                    errors.Add($"{e.id}: 武器クラスの個性(armorPierce/armorShred/critRange/extraAttacks)が"
+                        + $"同じ武器種の{head.id}と違います");
+            }
+        }
+
+        foreach (var e in db.equipment.Values)
+        {
+            if (e.critRange < 0 || e.critRange > QudCombat.MAX_CRIT_RANGE)
+                errors.Add($"{e.id}: critRangeは0〜{QudCombat.MAX_CRIT_RANGE}にしてください");
+            if (e.armorPierce < 0 || e.armorShred < 0 || e.extraAttacks < 0)
+                errors.Add($"{e.id}: armorPierce/armorShred/extraAttacksは0以上にしてください");
+            if (e.type != EquipmentType.Weapon && !e.Traits.Equals(WeaponTraits.None))
+                errors.Add($"{e.id}: 武器以外に武器クラスの個性は設定できません");
         }
 
         foreach (var enemy in db.enemies.Values)

@@ -19,7 +19,7 @@ public static class QuestBoardScreen
             var board = questManager.questBoard;
             var availableAdvs = guild.adventurers.Where(a => a.isAlive && !questManager.IsAdventurerBusy(a.id)).ToList();
             int partyAvgLevel = availableAdvs.Count > 0 ? (int)Math.Round(availableAdvs.Average(a => a.level)) : 0;
-            Ui.WriteLine($"  受注可能: ギルドランク{guild.GuildRank}以下    待機中冒険者: {availableAdvs.Count}人（平均Lv{partyAvgLevel}）");
+            Ui.WriteLine($"  受注可能: ギルドランク{guild.GuildRankLabel}以下    待機中冒険者: {availableAdvs.Count}人（平均Lv{partyAvgLevel}）");
             Ui.WriteLine();
             if (board.Count == 0)
             {
@@ -52,11 +52,15 @@ public static class QuestBoardScreen
                 string bossInfo = diff.hasBoss ? $"  ボス:Lv{diff.bossLevel}" : "";
                 detail.Add($"場所: {q.Dungeon?.dungeonName ?? "？"}  敵{diff.EnemyLevelRange}"
                     + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
+                // 習熟度は適正ランクのクエストでしか増えない。誰を出せば伸びるのかを受注前に見せる。
+                int suitableCount = availableAdvs.Count(a => a.IsSuitableQuestRank(q.rank));
+                detail.Add($"習熟度: ランク{Rank.SuitableAdventurerRangeLabel(q.rank)}の冒険者に入る"
+                    + $"（待機中 {suitableCount}/{availableAdvs.Count}人が該当）");
                 detail.Add($"掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
 
                 entries.Add(new MenuOption(
                     (i + 1).ToString(),
-                    $"【Rank{q.rank}】{q.questName}  所要:{estTurns}T{emg}{story}",
+                    $"【{Rank.Label(q.rank)}】{q.questName}  所要:{estTurns}T{emg}{story}",
                     string.Join(Environment.NewLine, detail),
                     q.isEmergencyQuest ? TextStyle.Warn : TextStyle.Normal));
             }

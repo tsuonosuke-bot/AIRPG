@@ -1,5 +1,6 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
 
 namespace GuildSimulator.Core.Systems.Guild;
 
@@ -21,10 +22,15 @@ public class GuildManager
     public Dictionary<string, int> shopConsumableStock = new();
     public int LastShopRefreshTurn { get; private set; }
 
-    public GuildManager(int startGold = 50, int startRank = 1)
+    /// <summary>プレイヤーに見せるギルドランクの表記（F〜S）。</summary>
+    public string GuildRankLabel => Rank.Label(GuildRank);
+
+    public bool IsMaxGuildRank => Rank.IsMax(GuildRank);
+
+    public GuildManager(int startGold = 50, int startRank = Rank.Min)
     {
         Gold = startGold;
-        GuildRank = startRank;
+        GuildRank = Rank.Clamp(startRank);
         RelicSystem.SetRelics(relics);
         FacilitySystem.SetFacilities(facilities);
         economyLogs.Add($"初期資金: {Gold}G");
@@ -46,9 +52,9 @@ public class GuildManager
 
     public void RankUp(int amount, string reason)
     {
-        if (amount <= 0) return;
-        GuildRank = Math.Max(1, GuildRank + amount);
-        economyLogs.Add($"{reason}: 認定ランク → {GuildRank}");
+        if (amount <= 0 || IsMaxGuildRank) return;
+        GuildRank = Rank.Clamp(GuildRank + amount);
+        economyLogs.Add($"{reason}: 認定ランク → {GuildRankLabel}");
     }
 
     public void AddAdventurer(AdventurerData adv)
@@ -85,7 +91,7 @@ public class GuildManager
     public void RestoreEconomy(int gold, int guildRank, int guildPoints)
     {
         Gold = gold;
-        GuildRank = guildRank;
+        GuildRank = Rank.Clamp(guildRank);
         GuildPoints = guildPoints;
     }
 
@@ -152,7 +158,7 @@ public class GuildManager
         if (HasFacility(facility)) { reason = $"既に建設済みです: {facility.displayName}"; return false; }
         if (GuildRank < facility.requiredGuildRank)
         {
-            reason = $"ギルドランクが不足しています（必要: {facility.requiredGuildRank}）";
+            reason = $"ギルドランクが不足しています（必要: {Rank.Label(facility.requiredGuildRank)}）";
             return false;
         }
         if (Gold < facility.buildCostGold)

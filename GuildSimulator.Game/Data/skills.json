@@ -56,6 +56,52 @@
     "mul": {}
   },
   {
+    "id": "skill_daggerMastery",
+    "skillName": "短剣マスタリー",
+    "scope": 0,
+    "frontOnly": true,
+    "backOnly": false,
+    "requireWeaponType": true,
+    "requiredWeaponType": 11,
+    "requireArmorType": false,
+    "add": {
+      "pv": 2,
+      "critRange": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_daggerMastery2",
+    "skillName": "短剣マスタリー・極",
+    "scope": 0,
+    "frontOnly": true,
+    "backOnly": false,
+    "requireWeaponType": true,
+    "requiredWeaponType": 11,
+    "requireArmorType": false,
+    "add": {
+      "pv": 2,
+      "toHit": 2,
+      "critRange": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_backstab",
+    "skillName": "不意打ち",
+    "scope": 0,
+    "frontOnly": true,
+    "backOnly": false,
+    "requireWeaponType": true,
+    "requiredWeaponType": 11,
+    "requireArmorType": false,
+    "add": {
+      "pv": 2,
+      "toHit": 2
+    },
+    "mul": {}
+  },
+  {
     "id": "skill_fireMastery",
     "skillName": "炎魔法マスタリー",
     "scope": 0,
@@ -152,7 +198,8 @@
     "requireArmorType": false,
     "add": {
       "pv": 2,
-      "toHit": 2
+      "toHit": 2,
+      "armorShred": 1
     },
     "mul": {}
   },
@@ -167,7 +214,8 @@
     "requireArmorType": false,
     "add": {
       "pv": 2,
-      "toHit": 2
+      "toHit": 2,
+      "dv": 1
     },
     "mul": {}
   },
@@ -183,7 +231,8 @@
     "add": {
       "pv": 2,
       "toHit": 2,
-      "av": 1
+      "av": 1,
+      "armorPierce": 1
     },
     "mul": {}
   },
