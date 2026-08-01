@@ -96,9 +96,10 @@ public static class MasterBandChecker
     }
 
     /// <summary>
-    /// 採取クエストが目標数に届くか。届かないまま最終フェーズを迎えると報酬ゼロの撤退になり、
-    /// 途中まで集めたぶんの救済もない。「戦闘で負けた」ではなく「抽選が渋かった」で落ちるのは
-    /// プレイヤーに手の打ちようがないので、数値の側で余裕を確保しておく。
+    /// 採取クエストが予定フェーズ内に目標数へ届くか。届かなくても即撤退にはならず、
+    /// 延長するか引き上げるかの判断になるが、それが毎回起きるようでは予定が予定にならない。
+    /// 「戦闘で負けた」ではなく「抽選が渋かった」で行程が延びるのはプレイヤーに手の打ちようが
+    /// ないので、通常は予定内で収まる余裕を数値の側に持たせておく。
     /// </summary>
     static void CheckGatherQuests(GameMasterData db, List<string> warnings)
     {
@@ -127,7 +128,7 @@ public static class MasterBandChecker
                 warnings.Add($"{where}: 採取の期待量が {expected:0.#} しかなく、"
                     + $"gatherTargetCount {q.gatherTargetCount} の"
                     + $"{RankBandTable.GatherSurplusFactor:0.#}倍（{needed:0.#}）に届きません"
-                    + "（目標未達で撤退になりやすい設定です）");
+                    + "（予定フェーズ内に終わらず、延長判断が頻発する設定です）");
         }
     }
 

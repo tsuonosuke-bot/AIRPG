@@ -99,9 +99,9 @@ public static class GameLoop
                 case "T": await BattleSimScreen.ShowAsync(db, guild); break;
                 case "H": await HelpScreen.ShowAsync(db); break;
                 case "9":
-                    if (questManager.HasPendingChoices)
+                    if (questManager.HasPendingDecisions)
                     {
-                        Ui.Warn("未解決の選択イベントがあります。すべて決定するまで次のターンへ進めません");
+                        Ui.Warn("指示待ちのクエストがあります。すべて決定するまで次のターンへ進めません");
                         await ShowPendingChoicesAsync(questManager, guild);
                         break;
                     }
@@ -207,7 +207,9 @@ public static class GameLoop
     // これが無いと「進行中クエスト」画面を毎ターン自発的に覗かない限りクリアに気づけない。
     static async Task ShowQuestsNeedingAttentionAsync(QuestManager qm, GuildManager guild)
     {
-        var needAttention = qm.activeQuests.Where(q => q.failed || q.CanComplete || q.HasPendingChoice).ToList();
+        var needAttention = qm.activeQuests
+            .Where(q => q.failed || q.CanComplete || q.HasPendingChoice || q.HasGatherDecision)
+            .ToList();
         if (needAttention.Count == 0) return;
 
         Ui.Header("結果報告");
@@ -220,7 +222,8 @@ public static class GameLoop
 
     static async Task ShowPendingChoicesAsync(QuestManager qm, GuildManager guild)
     {
-        foreach (var q in qm.activeQuests.Where(q => q.HasPendingChoice).ToList())
+        foreach (var q in qm.activeQuests
+                     .Where(q => q.HasPendingChoice || q.HasGatherDecision).ToList())
             await ActiveQuestScreen.HandleQuestAsync(q, qm, guild);
     }
 

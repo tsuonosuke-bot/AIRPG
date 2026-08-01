@@ -41,6 +41,13 @@ public class QuestManager
     public bool IsAdventurerBusy(string id) => busyIds.Contains(id);
     public bool HasPendingChoices => activeQuests.Any(q => q.HasPendingChoice);
 
+    /// <summary>
+    /// 選択イベントと採取の続行判断をまとめたもの。どちらもパーティが現地で指示を待って
+    /// 止まっている状態なので、ターンを進める前に片付けさせる。
+    /// </summary>
+    public bool HasPendingDecisions =>
+        activeQuests.Any(q => q.HasPendingChoice || q.HasGatherDecision);
+
     // ---- クエストボード ----
 
     /// <summary>
@@ -164,7 +171,7 @@ public class QuestManager
     {
         foreach (var q in activeQuests.ToList())
         {
-            if (q.HasPendingChoice) continue;
+            if (q.HasPendingChoice || q.HasGatherDecision) continue;
             int steps = q.def.phasesPerTurn;
             for (int i = 0; i < steps && q.IsInProgress; i++)
                 progressor.AdvanceOnePhase(q, currentTurn);
@@ -208,6 +215,55 @@ public class QuestManager
             if (roll < 0) return ev;
         }
         return null;
+    }
+
+    /// <summary>
+    /// 採取が目標に届かないまま予定フェーズを使い切ったときの二択を解決する。
+    ///
+    /// 続行を選ぶと <c>phasesPerTurn</c> ぶんフェーズが伸びる。伸びたぶんが進むのは次のターンなので、
+    /// 延長の代価は「もう1ターン帰ってこない」こと——余分な維持費と、踏み足すフェーズぶんの
+    /// 遭遇・罠・士気の消耗——になる。回数制限はなく、届くまで何度でも聞く。
+    /// </summary>
+    public bool ResolveGatherDecision(QuestRun q, bool keepSearching, out string result)
+    {
+        result = "";
+        if (!q.HasGatherDecision) { result = "採取の判断待ちではありません"; return false; }
+
+        int currentTurn = q.gatherDecisionTurn > 0 ? q.gatherDecisionTurn : q.startedTurn;
+        q.gatherDecisionPending = false;
+        string progress = $"{q.def.gatherItemName} {q.gatheredCount}/{q.def.gatherTargetCount}";
+
+        if (keepSearching)
+        {
+            int added = Math.Max(1, q.def.phasesPerTurn);
+            q.extraPhases += added;
+            q.gatherExtensions++;
+            result = $"捜索を続けさせた（{progress}）。行程を {added} フェーズ延ばす"
+                + $"（Phase {q.currentPhase}/{q.PhaseLimit}、延長 {q.gatherExtensions} 回目）";
+            q.logs.Add($"[Turn {currentTurn}] 続行を指示。{result}");
+            q.AddReportEvent(
+                currentTurn,
+                q.currentPhase,
+                ExpeditionEventKind.Decision,
+                "捜索続行",
+                $"{progress} のまま帰るわけにはいかない。ギルドは滞在の延長を認めた"
+                    + $"（延長 {q.gatherExtensions} 回目、Phase {q.PhaseLimit} まで）。",
+                important: true);
+            return true;
+        }
+
+        q.retreated = true;
+        q.retreatReason = ExpeditionRetreatReason.GatherTargetMissed;
+        result = $"引き上げを指示した（{progress}）";
+        q.logs.Add($"[Turn {currentTurn}] 撤退を指示。{result}");
+        q.AddReportEvent(
+            currentTurn,
+            q.currentPhase,
+            ExpeditionEventKind.Retreat,
+            "撤退",
+            $"採取目標未達（{progress}）。ギルドの判断でパーティを引き上げさせた。",
+            important: true);
+        return true;
     }
 
     public bool ResolveChoice(QuestRun q, int optionIndex, out string result)
