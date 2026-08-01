@@ -279,7 +279,7 @@ public class AdventurerData : IUnitMember
     public bool IsHigherRankQuest(int questRank) => questRank > rank;
 
     // ---- Exp / Level ----
-    public int RequiredExpForNextLevel => 100 + (level - 1) * 50;
+    public int RequiredExpForNextLevel => 10 + (level - 1) * 5;
 
     public bool AddExperience(int amount, out int levelUps)
     {
