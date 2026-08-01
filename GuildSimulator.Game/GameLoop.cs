@@ -16,6 +16,7 @@ namespace GuildSimulator.Game;
 public static class GameLoop
 {
     const int MaxCandidateCount = 3;
+    const int StartingGold = 300;
 
     /// <summary>リスタートを含めてゲームが終了するまで回す。</summary>
     public static async Task RunAsync(GameMasterData db, ISaveStore saveStore)
@@ -36,7 +37,7 @@ public static class GameLoop
     static async Task<bool> RunGameAsync(GameMasterData db, ISaveStore saveStore)
     {
         // ---- 初期化 ----
-        var guild = new GuildManager(startGold: 200, startRank: 1);
+        var guild = new GuildManager(startGold: StartingGold, startRank: 1);
         var questManager = new QuestManager(guild);
 
         int currentTurn = 1;
