@@ -64,7 +64,7 @@ public static class AdventurerScreen
             if (a.ConditionTitle != null)
                 Ui.Info($"  称号        : {a.ConditionTitle}");
             Ui.WriteLine();
-            Ui.WriteLine($"  VIT:{a.vitality} MEN:{a.mental} STR:{a.strength} AGI:{a.agility} INT:{a.intelligence} CON:{a.constitution}");
+            Ui.WriteLine($"  VIT:{a.vitality} MEN:{a.mental} STR:{a.strength} AGI:{a.agility} INT:{a.intelligence} SIZ:{a.constitution}");
             var s = a.GetFinalCombatStats();
             int hpMax = a.CombatHpMax > 0 ? a.CombatHpMax : s.hp;
             int hpCur = a.CombatHpMax > 0 ? a.CombatHp : s.hp;

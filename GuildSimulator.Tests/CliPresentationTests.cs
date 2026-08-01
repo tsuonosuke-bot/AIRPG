@@ -95,6 +95,8 @@ public class CliPresentationTests
 
         Assert.Equal(1, CountOccurrences(text, candidate.baseName));
         Assert.Contains("VIT:", text);
+        Assert.Contains("SIZ:", text);
+        Assert.DoesNotContain("CON:", text);
     }
 
     [Fact]

@@ -211,8 +211,8 @@ public static class HelpScreen
         Ui.WriteLine($"  多くは modifier を通す。modifier ＝ (能力値 - {QudCombat.MODIFIER_BASELINE}) ÷ {QudCombat.MODIFIER_STEP} の切り捨て。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 能力値がどこに効くか");
-        Ui.WriteLine("     VIT 体力 : HP＝(VIT×10＋CON×5)÷2 / 積載上限");
-        Ui.WriteLine("     CON 耐久 : AV＝CONのmodifier / HP / 積載上限");
+        Ui.WriteLine("     VIT 体力 : HP＝(VIT×10＋SIZ×5)÷2 / 積載上限");
+        Ui.WriteLine("     SIZ 体格 : AV＝SIZのmodifier / HP / 積載上限");
         Ui.WriteLine("     MEN 精神 : 士気＝MEN×10（パーティ合計が最大値）/ mAV＝MENのmodifier / 回復力");
         Ui.WriteLine($"     AGI 敏捷 : 命中補正＝AGIのmodifier / DV＝{QudCombat.BASE_DV}＋AGIのmodifier");
         Ui.WriteLine("     STR 筋力 : 物理PV＝STRのmodifier（武器の上限まで）/ 積載上限");
@@ -222,7 +222,7 @@ public static class HelpScreen
         Ui.WriteLine("       VIT・MEN・STR・AGI・INTのどれが伸びるかは種族と職業の重みで抽選され、選べない。");
         Ui.WriteLine("       得意な能力ほど当たりやすいが、不得手な能力も稀に伸びる。");
         Ui.WriteLine("       同じ職業・同じレベルでも育ち方が食い違うので、代わりの利かない一人になっていく。");
-        Ui.WriteLine("     ・CONは伸びない。素の装甲AVと積載上限は雇用したときの素質で決まる。");
+        Ui.WriteLine("     ・SIZは伸びない。素の装甲AVと積載上限は雇用したときの素質で決まる。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 命中補正の内訳");
         Ui.WriteLine("     命中補正 ＝ AGIのmodifier");
@@ -248,13 +248,13 @@ public static class HelpScreen
         Ui.WriteLine("       ただし基礎PVもダメージダイスも小さいので、武器はやはり持たせたほうがよい。");
         Ui.WriteLine("     ・上限の目安は 短剣・風杖が+5、剣・弓・水杖が+6、槍・土杖が+7、斧・火杖・闇杖が+8。");
         Ui.WriteLine("       回復用の光杖は0で、力も知恵も上乗せできない。");
-        Ui.WriteLine("     AV ＝ CONのmodifier ＋ 防具のAV補正 ＋ スキル・遺物（mAVはMENのmodifierから同様に）");
+        Ui.WriteLine("     AV ＝ SIZのmodifier ＋ 防具のAV補正 ＋ スキル・遺物（mAVはMENのmodifierから同様に）");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 積載と過積載");
-        Ui.WriteLine("     積載上限 ＝ CON ＋ (STR＋VIT)÷2。装備の重さの合計がこれを超えると過積載になる。");
+        Ui.WriteLine("     積載上限 ＝ SIZ ＋ (STR＋VIT)÷2。装備の重さの合計がこれを超えると過積載になる。");
         Ui.WriteLine($"     ・上限を1超えるごとに過積載率が{AdventurerData.OVERWEIGHT_RATE_PER_POINT * 100:0}%増える（最大100%）。");
         Ui.WriteLine($"     ・過積載率に比例して DV最大-{overweightDv}、命中最大-{overweightToHit}。AVは担いでいるぶんそのまま効くので削られない。");
-        Ui.WriteLine("     ・重い鎧を着せるなら、CONとSTRの高い者に。");
+        Ui.WriteLine("     ・重い鎧を着せるなら、SIZとSTRの高い者に。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 補正の重ねかた");
         Ui.WriteLine("     ・装備      : 装備している全スロットの補正を合計する。");

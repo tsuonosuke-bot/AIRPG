@@ -162,7 +162,7 @@ public class EquipmentSlotTests
     [Fact]
     public void ShieldsAndTwoHandedWeaponsMakeCarryCapacityMatter()
     {
-        // 盾と両手武器が入ったことで、積載上限（CON + (STR+VIT)/2）が実際の制約になる。
+        // 盾と両手武器が入ったことで、積載上限（SIZ + (STR+VIT)/2）が実際の制約になる。
         var db = Load();
         var weakling = new AdventurerData(new AdventurerMasterData
         {

@@ -296,7 +296,7 @@ public class AdventurerData : IUnitMember
     }
 
     /// <summary>
-    /// レベルアップで伸びる能力の候補。体格(CON)は含まない。
+    /// レベルアップで伸びる能力の候補。体格(SIZ)は含まない。
     /// 素の装甲値(AV)と積載上限は雇用時の素質で決まる、というのがこのゲームの取り決め。
     /// </summary>
     public static readonly IReadOnlyList<StatType> GrowableStats = new[]

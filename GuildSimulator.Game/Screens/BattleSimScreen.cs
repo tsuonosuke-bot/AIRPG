@@ -75,7 +75,7 @@ public static class BattleSimScreen
             entries.Add(new MenuOption(
                 (i + 1).ToString(),
                 e.baseName,
-                $"VIT:{e.vitality} MEN:{e.mental} STR:{e.strength} AGI:{e.agility} INT:{e.intelligence} CON:{e.constitution}  武器:{e.DefaultWeapon?.displayName ?? "なし"}  防具:{e.DefaultArmor?.displayName ?? "なし"}"));
+                $"VIT:{e.vitality} MEN:{e.mental} STR:{e.strength} AGI:{e.agility} INT:{e.intelligence} SIZ:{e.constitution}  武器:{e.DefaultWeapon?.displayName ?? "なし"}  防具:{e.DefaultArmor?.displayName ?? "なし"}"));
         }
 
         int? sel = await Ui.SelectIndexAsync("対戦相手の敵を選択", entries);

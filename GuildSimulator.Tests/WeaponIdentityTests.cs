@@ -365,7 +365,7 @@ public class WeaponIdentityTests
             id = "test_dummy", baseName = "案山子",
             vitality = 10, mental = 10, strength = 1, agility = 1,
             intelligence = 1, constitution = 8,
-            naturalAv = naturalAv - QudCombat.Modifier(8), // CON由来のAVを差し引いて狙った実効AVに合わせる
+            naturalAv = naturalAv - QudCombat.Modifier(8), // SIZ由来のAVを差し引いて狙った実効AVに合わせる
             naturalDamageDice = "1d1-1",
             naturalPv = 0,
         })
