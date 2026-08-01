@@ -14,9 +14,13 @@ const statKeys = [
   "hp", "san", "av", "mav", "pv", "mpv", "dv", "toHit", "heal",
   // 武器クラスの個性。スキル・遺物・装備の補正として足せる。
   "armorPierce", "armorShred", "critRange", "extraAttacks",
+  // 二刀流の発動率と盾の受け率。スキルから伸ばせる。
+  "offHandChance", "blockChance",
 ];
 // 武器そのものが持つ個性の列。武器クラスごとに固定で、Tierでは変えない。
-const weaponTraitKeys = ["armorPierce", "armorShred", "critRange", "extraAttacks"];
+const weaponTraitKeys = ["armorPierce", "armorShred", "critRange", "extraAttacks", "offHandBonus"];
+// 両手武器と盾。盾の装甲は blockAv にだけ書く（bonus_av に書くと常時加算になる）。
+const handKeys = ["isTwoHanded", "blockChance", "blockAv"];
 // AV/DV/PVは1点が重いので倍率では触らない。mul列はこの3つだけを扱う。
 const mulKeys = ["hp", "san", "heal"];
 const rewardKeys = [
@@ -90,13 +94,15 @@ const sheetDefinitions = {
       "id", "displayName", "rarity", "type", "weaponType", "armorType", "allowedSlots",
       "attackKind", "damageDice", "basePv", "maxStatBonus",
       ...weaponTraitKeys,
+      ...handKeys,
       "healPower", "flatHeal", "price", "weight", "shopTier",
       ...statKeys.map((key) => `bonus_${key}`),
     ],
     labels: [
       "ID", "表示名", "レアリティ", "装備種別", "武器種", "防具種", "装備スロット",
       "攻撃種別", "ダメージダイス", "武器PV", "能力値上限",
-      "装甲貫通", "装甲破壊", "会心域", "連撃",
+      "装甲貫通", "装甲破壊", "会心域", "連撃", "左手ボーナス%",
+      "両手武器", "受け率%", "受け成功時AV",
       "回復係数", "固定回復", "価格", "重量", "商店Tier",
       ...statKeys.map((key) => `補正 ${key}`),
     ],
@@ -185,8 +191,8 @@ const sheetDefinitions = {
     title: "ダンジョンマスタ",
     capacity: 100,
     unique: true,
-    keys: ["id", "dungeonName", "enemyLevelPerPhase", "turnEndEventChance"],
-    labels: ["ID", "ダンジョン名", "敵Lv/フェーズ", "終了イベント確率"],
+    keys: ["id", "dungeonName", "turnEndEventChance"],
+    labels: ["ID", "ダンジョン名", "終了イベント確率"],
   },
   dungeonEvents: {
     name: "ダンジョンイベント",
@@ -244,6 +250,7 @@ const makeRows = (data) => {
     clean(e.allowedSlots?.length ? e.allowedSlots.join(",") : null),
     clean(e.attackKind), clean(e.damageDice), clean(e.basePv), clean(e.maxStatBonus),
     ...weaponTraitKeys.map((key) => clean(e[key])),
+    Boolean(e.isTwoHanded), clean(e.blockChance), clean(e.blockAv),
     clean(e.healPower), clean(e.flatHeal),
     e.price, e.weight, clean(e.shopTier),
     ...statKeys.map((key) => mapValue(e.bonus, key)),
@@ -283,7 +290,7 @@ const makeRows = (data) => {
     (q.fixedEvents ?? []).map((event, index) => [q.id, index + 1, event.phase, event.type]));
 
   const dungeons = data.dungeons.map((d) => [
-    d.id, d.dungeonName, d.enemyLevelPerPhase, clean(d.turnEndEventChance),
+    d.id, d.dungeonName, clean(d.turnEndEventChance),
   ]);
   const dungeonEvents = data.dungeons.flatMap((d) =>
     Object.entries(d.eventTable ?? {}).map(([eventType, weight], index) => [d.id, index + 1, eventType, weight]));
@@ -525,6 +532,7 @@ const exportWorkbook = async () => {
 
   const boolFields = {
     skills: ["frontOnly", "backOnly", "requireWeaponType", "requireArmorType"],
+    equipment: ["isTwoHanded"],
     quests: ["isStoryQuest", "isEmergencyQuest", "bossDropsAreGuaranteed"],
     questRewards: ["unique"],
     dungeonRewards: ["unique"],
@@ -536,7 +544,7 @@ const exportWorkbook = async () => {
   addValidation(sheets.adventurers, sheetDefinitions.adventurers, "rarity", rarities);
   addValidation(sheets.equipment, sheetDefinitions.equipment, "rarity", rarities);
   addValidation(sheets.consumables, sheetDefinitions.consumables, "rarity", rarities);
-  addValidation(sheets.equipment, sheetDefinitions.equipment, "type", [0, 1]);
+  addValidation(sheets.equipment, sheetDefinitions.equipment, "type", [0, 1, 2, 3]);
   addValidation(sheets.equipment, sheetDefinitions.equipment, "weaponType", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   addValidation(sheets.equipment, sheetDefinitions.equipment, "armorType", [0, 1, 2, 3]);
   // 認定ランクは F(1) 〜 S(7) の7段階。3種のランクすべてが同じ物差しに乗っている。
@@ -765,6 +773,9 @@ const importWorkbook = async (writeMode) => {
     for (const key of weaponTraitKeys) {
       optionalAssign(item, key, optionalNumber(x[key], key, row, true));
     }
+    if (optionalBool(x.isTwoHanded, "isTwoHanded", row) === true) item.isTwoHanded = true;
+    optionalAssign(item, "blockChance", optionalNumber(x.blockChance, "blockChance", row, true));
+    optionalAssign(item, "blockAv", optionalNumber(x.blockAv, "blockAv", row, true));
     optionalAssign(item, "healPower", optionalNumber(x.healPower, "healPower", row));
     optionalAssign(item, "flatHeal", optionalNumber(x.flatHeal, "flatHeal", row, true));
     item.price = numberValue(x.price, "price", row, true);
@@ -813,7 +824,6 @@ const importWorkbook = async (writeMode) => {
     const item = {
       id: text(x.id),
       dungeonName: text(x.dungeonName),
-      enemyLevelPerPhase: numberValue(x.enemyLevelPerPhase, "enemyLevelPerPhase", row),
     };
     optionalAssign(item, "turnEndEventChance", optionalNumber(x.turnEndEventChance, "turnEndEventChance", row));
     return item;
