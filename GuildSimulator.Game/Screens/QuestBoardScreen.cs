@@ -37,41 +37,60 @@ public static class QuestBoardScreen
                 string story = q.isStoryQuest ? " [物語]" : "";
                 int estTurns = (int)Math.Ceiling((double)q.totalPhases / q.phasesPerTurn);
                 var diff = DungeonDifficulty.Evaluate(q);
-                var detail = new List<string>();
-                if (!string.IsNullOrWhiteSpace(q.clientName))
-                    detail.Add($"依頼人: {q.clientName}");
-                if (!string.IsNullOrWhiteSpace(q.description))
-                    detail.Add(q.description);
-                detail.Add($"難易度 {diff.label}（スコア{diff.score:0}）  基本報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
-                int estimatedUpkeep = guild.EffectiveUpkeepPerTurn * estTurns;
-                int estimatedNet = guild.EstimateNetAfterUpkeep(q.rewardGold, estTurns);
-                string netText = $"予想収支: 基本報酬{q.rewardGold}G - 維持費{estimatedUpkeep}G = {estimatedNet:+#;-#;0}G（概算）";
-                detail.Add(estimatedNet < 0 ? $"⚠ {netText}" : netText);
-                detail.Add("追加収入: 宝箱・敵ドロップ・選択イベントは上の概算に含みません（結果により大きく変動）");
-                if (q.IsGatherQuest)
-                    detail.Add($"採取: {q.gatherItemName} x{q.gatherTargetCount}"
-                        + $"（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還"
-                        + $" / {q.totalPhases}フェーズで足りなければ延長か撤退を選ぶ）");
-                string bossInfo = diff.hasBoss ? $"  ボス:脅威度{diff.BossThreatLabel}" : "";
-                detail.Add($"場所: {q.Dungeon?.dungeonName ?? "？"}  敵の脅威度{diff.EnemyThreatRange}"
-                    + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
-                // 習熟度は適正ランクのクエストでしか増えない。誰を出せば伸びるのかを受注前に見せる。
-                int suitableCount = availableAdvs.Count(a => a.IsSuitableQuestRank(q.rank));
-                detail.Add($"習熟度: ランク{Rank.SuitableAdventurerRangeLabel(q.rank)}の冒険者に入る"
-                    + $"（待機中 {suitableCount}/{availableAdvs.Count}人が該当）");
-                detail.Add($"掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
+
+                // 一覧は一目で比較できる要点だけにする。詳細はタップ後の確認画面で見せる。
+                string summary = $"難易度 {diff.label}（スコア{diff.score:0}）  基本報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}"
+                    + $"　掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン";
 
                 entries.Add(new MenuOption(
                     (i + 1).ToString(),
                     $"【{Rank.Label(q.rank)}】{q.questName}  所要:{estTurns}T{emg}{story}",
-                    string.Join(Environment.NewLine, detail),
+                    summary,
                     q.isEmergencyQuest ? TextStyle.Warn : TextStyle.Normal));
             }
 
             int? sel = await Ui.SelectIndexAsync("受注するクエスト", entries);
             if (sel == null) return;
-            await SelectAndStartAsync(board[sel.Value - 1].quest, questManager, guild, currentTurn);
+            var entry = board[sel.Value - 1];
+            if (await ShowQuestDetailAsync(entry, questManager, currentTurn, availableAdvs))
+                await SelectAndStartAsync(entry.quest, questManager, guild, currentTurn);
         }
+    }
+
+    /// <summary>タップ後に詳細を出し、受注するかどうかをここで確定させる。</summary>
+    static async Task<bool> ShowQuestDetailAsync(
+        QuestBoardEntry e, QuestManager questManager, int currentTurn, List<AdventurerData> availableAdvs)
+    {
+        var q = e.quest;
+        int estTurns = (int)Math.Ceiling((double)q.totalPhases / q.phasesPerTurn);
+        var diff = DungeonDifficulty.Evaluate(q);
+        string emg = q.isEmergencyQuest ? " [緊急]" : "";
+        string story = q.isStoryQuest ? " [物語]" : "";
+
+        Ui.BeginScreen();
+        Ui.Header($"【{Rank.Label(q.rank)}】{q.questName}{emg}{story}");
+        if (!string.IsNullOrWhiteSpace(q.clientName))
+            Ui.WriteLine($"  依頼人: {q.clientName}");
+        if (!string.IsNullOrWhiteSpace(q.description))
+            Ui.WriteLine($"  {q.description}");
+        Ui.WriteLine();
+        Ui.WriteLine($"  所要: {estTurns}ターン　難易度 {diff.label}（スコア{diff.score:0}）");
+        Ui.WriteLine($"  基本報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
+        if (q.IsGatherQuest)
+            Ui.WriteLine($"  採取: {q.gatherItemName} x{q.gatherTargetCount}"
+                + $"（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還"
+                + $" / {q.totalPhases}フェーズで足りなければ延長か撤退を選ぶ）");
+        string bossInfo = diff.hasBoss ? $"  ボス:脅威度{diff.BossThreatLabel}" : "";
+        Ui.WriteLine($"  場所: {q.Dungeon?.dungeonName ?? "？"}  敵の脅威度{diff.EnemyThreatRange}"
+            + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
+        // 習熟度は適正ランクのクエストでしか増えない。誰を出せば伸びるのかを受注前に見せる。
+        int suitableCount = availableAdvs.Count(a => a.IsSuitableQuestRank(q.rank));
+        Ui.WriteLine($"  習熟度: ランク{Rank.SuitableAdventurerRangeLabel(q.rank)}の冒険者に入る"
+            + $"（待機中 {suitableCount}/{availableAdvs.Count}人が該当）");
+        Ui.WriteLine($"  掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
+        Ui.WriteLine();
+
+        return await Ui.ConfirmAsync("このクエストを受注しますか？");
     }
 
     static async Task SelectAndStartAsync(
