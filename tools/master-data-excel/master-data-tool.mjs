@@ -80,6 +80,7 @@ const sheetDefinitions = {
       "id", "baseName", "defaultLevel", "defaultRank",
       "recruitGuildRank", "recruitWeight", "rarity",
       "vitality", "mental", "strength", "agility", "intelligence", "constitution", "appearance",
+      "gender",
       "defaultClassId", "raceId", "defaultWeaponId", "defaultArmorId",
       "skillId1", "skillId2", "skillId3", "skillId4", "skillId5", "skillId6",
       "background", "personality", "motivation", "specialty", "fear", "creed", "selfIntroduction",
@@ -88,6 +89,7 @@ const sheetDefinitions = {
       "ID", "名前", "初期Lv", "初期ランク(1=F〜7=S)",
       "採用ギルドランク(1=F〜7=S)", "採用重み", "レアリティ",
       "生命力", "精神力", "筋力", "敏捷", "知力", "体格", "容姿",
+      "性別",
       "初期職業", "種族", "初期武器", "初期防具",
       "スキル1", "スキル2", "スキル3", "スキル4", "スキル5", "スキル6",
       "経歴", "性格", "動機", "得意分野", "苦手・恐怖", "信条", "自己紹介",
@@ -366,6 +368,7 @@ const makeRows = (data) => {
     a.id, a.baseName, a.defaultLevel, a.defaultRank,
     clean(a.recruitGuildRank), clean(a.recruitWeight), clean(a.rarity),
     a.vitality, a.mental, a.strength, a.agility, a.intelligence, a.constitution, a.appearance,
+    clean(a.gender),
     clean(a.defaultClassId), clean(a.raceId), clean(a.defaultWeaponId), clean(a.defaultArmorId),
     ...Array.from({ length: 6 }, (_, index) => clean(a.skillIds?.[index])),
     clean(a.background), clean(a.personality), clean(a.motivation), clean(a.specialty),
@@ -794,6 +797,7 @@ const exportWorkbook = async () => {
   }
   const rarities = ["Common", "Uncommon", "Rare", "Unique", "Legend"];
   addValidation(sheets.adventurers, sheetDefinitions.adventurers, "rarity", rarities);
+  addValidation(sheets.adventurers, sheetDefinitions.adventurers, "gender", ["Unspecified", "Male", "Female"]);
   addValidation(sheets.equipment, sheetDefinitions.equipment, "rarity", rarities);
   addValidation(sheets.consumables, sheetDefinitions.consumables, "rarity", rarities);
   addValidation(sheets.equipment, sheetDefinitions.equipment, "type", [0, 1, 2, 3]);
@@ -1529,6 +1533,7 @@ const importWorkbook = async (writeMode) => {
     item.intelligence = numberValue(x.intelligence, "intelligence", row, true);
     item.constitution = numberValue(x.constitution, "constitution", row, true);
     item.appearance = numberValue(x.appearance, "appearance", row, true);
+    optionalAssign(item, "gender", optionalText(x.gender));
     item.defaultClassId = text(x.defaultClassId);
     item.raceId = text(x.raceId);
     item.defaultWeaponId = text(x.defaultWeaponId);

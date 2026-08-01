@@ -68,6 +68,19 @@
     "recruitMinBonus": 0
   },
   {
+    "id": "fac_class_change_01",
+    "displayName": "転職指南所",
+    "description": "他の職業を修めた指南役を招き、冒険者のクラスチェンジを受け付けられるようにする。",
+    "buildCostGold": 450,
+    "upkeepGoldPerTurn": 15,
+    "requiredGuildRank": 1,
+    "questBoardBonus": 0,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
+  },
+  {
     "id": "fac_recruitment_office_01",
     "displayName": "求人窓口",
     "description": "街道沿いに求人看板を設置し、毎ターン最低1人は雇入れ候補が来るようになる。",

@@ -48,6 +48,8 @@ public static class RecruitScreen
                         $"VIT:{m.vitality} MEN:{m.mental} STR:{m.strength} AGI:{m.agility} INT:{m.intelligence} SIZ:{m.constitution}",
                         $"武器:{m.DefaultWeapon?.displayName ?? "なし"}  防具:{m.DefaultArmor?.displayName ?? "なし"}",
                     };
+                    if (m.gender != Gender.Unspecified)
+                        detail.Add($"性別: {(m.gender == Gender.Male ? "男性" : "女性")}");
                     if (!string.IsNullOrWhiteSpace(m.background))
                         detail.Add(m.background);
                     if (!alreadyHired && candidateAfterHire >= 0)
