@@ -8,6 +8,7 @@ using Xunit;
 
 namespace GuildSimulator.Tests;
 
+[Collection("Guild static state")]
 public class SaveLoadTests
 {
     static GameMasterData LoadDb()

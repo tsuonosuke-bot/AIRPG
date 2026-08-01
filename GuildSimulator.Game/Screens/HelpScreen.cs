@@ -212,7 +212,11 @@ public static class HelpScreen
         Ui.WriteLine("     STR 筋力 : 物理PV＝STRのmodifier（武器の上限まで）/ 積載上限");
         Ui.WriteLine("     INT 知力 : 魔法PV＝INTのmodifier（武器の上限まで）/ 回復力");
         Ui.WriteLine("     ・敏捷は命中とDVの両方に効くので、1点の価値がもっとも広い。");
-        Ui.WriteLine("     ・レベルアップで伸びるのはVIT・MEN・STR・AGI・INTの5つ。CONは伸びない。");
+        Ui.WriteLine($"     ・レベルアップで伸びるのは1レベルにつき{AdventurerData.StatPointsPerLevel}能力だけ。");
+        Ui.WriteLine("       VIT・MEN・STR・AGI・INTのどれが伸びるかは種族と職業の重みで抽選され、選べない。");
+        Ui.WriteLine("       得意な能力ほど当たりやすいが、不得手な能力も稀に伸びる。");
+        Ui.WriteLine("       同じ職業・同じレベルでも育ち方が食い違うので、代わりの利かない一人になっていく。");
+        Ui.WriteLine("     ・CONは伸びない。素の装甲AVと積載上限は雇用したときの素質で決まる。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 命中補正の内訳");
         Ui.WriteLine("     命中補正 ＝ AGIのmodifier");

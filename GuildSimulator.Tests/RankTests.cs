@@ -10,6 +10,7 @@ namespace GuildSimulator.Tests;
 /// F〜Sの7段階ランクと、クラス習熟度が入る「適正ランク」の検証。
 /// 冒険者・クエスト・ギルドの3つのランクは同じ物差しに乗っている。
 /// </summary>
+[Collection("Guild static state")]
 public class RankTests
 {
     [Theory]

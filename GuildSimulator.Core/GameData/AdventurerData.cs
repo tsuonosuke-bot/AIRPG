@@ -243,15 +243,78 @@ public class AdventurerData : IUnitMember
         return true;
     }
 
+    /// <summary>
+    /// レベルアップで伸びる能力の候補。体格(CON)は含まない。
+    /// 素の装甲値(AV)と積載上限は雇用時の素質で決まる、というのがこのゲームの取り決め。
+    /// </summary>
+    public static readonly IReadOnlyList<StatType> GrowableStats = new[]
+    {
+        StatType.Vitality, StatType.Mental, StatType.Strength,
+        StatType.Agility, StatType.Intelligence,
+    };
+
+    /// <summary>
+    /// 1レベルにつき伸びる能力の数。
+    /// レベルを重ねるだけでキャラクターが置き換え可能になるのを避けるため、成長は1点に絞ってある。
+    /// 育ちの差は「どの能力に振られたか」の運と、クエスト中の出来事が作る。
+    /// </summary>
+    public const int StatPointsPerLevel = 1;
+
     void LevelUp()
     {
         level++;
-        TryGrow(StatType.Vitality, ref vitality);
-        TryGrow(StatType.Mental, ref mental);
-        TryGrow(StatType.Strength, ref strength);
-        TryGrow(StatType.Agility, ref agility);
-        TryGrow(StatType.Intelligence, ref intelligence);
+        for (int i = 0; i < StatPointsPerLevel; i++) GrowOneStat();
+
+        // 施設の成長支援は「たまにもう1点」という形で効かせる。
+        // 全能力に薄く配ると、1レベル1点という枠組みそのものが崩れてしまう。
+        float bonus = FacilitySystem.GetGrowthRateBonus();
+        if (bonus > 0f && GameRandom.NextFloat() < bonus) GrowOneStat();
     }
+
+    /// <summary>
+    /// 種族とクラスの重みで1能力だけ選んで+1する。
+    /// どこが伸びるかはプレイヤーには選べない。特定の能力だけを狙って伸ばせてしまうと、
+    /// 過積載や命中のような釣り合いを一方向に崩せてしまうため。
+    /// </summary>
+    void GrowOneStat()
+    {
+        Span<float> weights = stackalloc float[GrowableStats.Count];
+        float total = 0f;
+        for (int i = 0; i < GrowableStats.Count; i++)
+        {
+            var t = GrowableStats[i];
+            // 下駄を履かせたうえで種族・クラスの得手不得手を足す。不得手でも0未満にはしない。
+            weights[i] = Math.Max(0f, BaseGrowthWeight + GetRaceGrowth(t) + GetClassGrowth(t));
+            total += weights[i];
+        }
+
+        int picked = GrowableStats.Count - 1;
+        if (total <= 0f)
+        {
+            picked = GameRandom.Range(0, GrowableStats.Count);
+        }
+        else
+        {
+            float roll = GameRandom.NextFloat() * total;
+            for (int i = 0; i < GrowableStats.Count; i++)
+            {
+                roll -= weights[i];
+                if (roll < 0f) { picked = i; break; }
+            }
+        }
+
+        switch (GrowableStats[picked])
+        {
+            case StatType.Vitality: vitality++; break;
+            case StatType.Mental: mental++; break;
+            case StatType.Strength: strength++; break;
+            case StatType.Agility: agility++; break;
+            case StatType.Intelligence: intelligence++; break;
+        }
+    }
+
+    /// <summary>全能力に共通の下駄。得意でない能力もときどき伸びるようにするための底上げ。</summary>
+    public const float BaseGrowthWeight = 0.2f;
 
     float GetRaceGrowth(StatType t) => race == null ? 0f : t switch
     {
@@ -272,18 +335,6 @@ public class AdventurerData : IUnitMember
         StatType.Intelligence => currentClass.intGrowth,
         _ => 0f,
     };
-
-    void TryGrow(StatType type, ref int stat)
-    {
-        float chance = 0.2f + GetRaceGrowth(type) + GetClassGrowth(type) + FacilitySystem.GetGrowthRateBonus();
-        if (chance <= 0f) return;
-        int loops = (int)Math.Ceiling(chance);
-        for (int i = 0; i < loops; i++)
-        {
-            if (chance >= 1.0f) { stat++; chance -= 1.0f; }
-            else if (GameRandom.NextFloat() < chance) stat++;
-        }
-    }
 
     // ---- Combat ----
     int TotalWeight => equippedSlots.Values.Sum(e => e.weight);

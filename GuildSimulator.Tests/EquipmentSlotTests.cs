@@ -11,6 +11,7 @@ namespace GuildSimulator.Tests;
 /// 右手・左手のルール。両手武器は左手を塞ぎ、盾は左手にしか構えられず、
 /// 左手に握った武器は攻撃にだけ使われて数値ボーナスは供給しない。
 /// </summary>
+[Collection("Guild static state")]
 public class EquipmentSlotTests
 {
     static GameMasterData Load() => MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
