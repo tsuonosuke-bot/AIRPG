@@ -176,7 +176,7 @@ public class QuestProgressor
         }
 
         q.currentPhase = phase;
-        q.logs.Add($"[Turn {currentTurn}] Phase {q.currentPhase}/{q.def.totalPhases}: {evTitle} - {evResult}");
+        q.logs.Add($"[Turn {currentTurn}] Phase {q.currentPhase}/{q.PhaseLimit}: {evTitle} - {evResult}");
         q.AddReportEvent(
             currentTurn,
             phase,
@@ -193,27 +193,33 @@ public class QuestProgressor
             string gatherResult = got <= 0
                 ? $"{q.def.gatherItemName} は見つからなかった（{q.gatheredCount}/{q.def.gatherTargetCount}）"
                 : $"{q.def.gatherItemName} を {got} 個採取（{q.gatheredCount}/{q.def.gatherTargetCount}）";
-            q.logs.Add($"[Turn {currentTurn}] Phase {q.currentPhase}/{q.def.totalPhases}: 採取 - {gatherResult}");
+            q.logs.Add($"[Turn {currentTurn}] Phase {q.currentPhase}/{q.PhaseLimit}: 採取 - {gatherResult}");
             q.AddReportEvent(currentTurn, phase, ExpeditionEventKind.Gather, "採取", gatherResult);
         }
 
-        if (!q.failed && q.def.IsGatherQuest && !q.GatherFulfilled && q.currentPhase >= q.def.totalPhases)
+        // 予定のフェーズを使い切っても素材が足りないとき、パーティは勝手に引き返さず判断を仰ぐ。
+        // 延ばすか引くかはプレイヤーが決める。延長の代価は「もう1ターン帰ってこない」ことそのもの
+        // （そのぶんの維持費と、余分に踏むフェーズぶんの遭遇リスク）。
+        if (!q.failed && !q.retreated && q.def.IsGatherQuest
+            && !q.GatherFulfilled && q.currentPhase >= q.PhaseLimit)
         {
-            q.retreated = true;
-            q.retreatReason = ExpeditionRetreatReason.GatherTargetMissed;
-            q.logs.Add($"[Turn {currentTurn}] {q.def.gatherItemName} が目標数に届かなかった（{q.gatheredCount}/{q.def.gatherTargetCount}）→ 採取未達で撤退扱い");
+            q.gatherDecisionPending = true;
+            q.gatherDecisionTurn = currentTurn;
+            q.logs.Add($"[Turn {currentTurn}] {q.def.gatherItemName} が目標数に届かないまま予定のフェーズを使い切った"
+                + $"（{q.gatheredCount}/{q.def.gatherTargetCount}）→ 続行するか引き上げるかの指示待ち");
             q.AddReportEvent(
                 currentTurn,
                 q.currentPhase,
-                ExpeditionEventKind.Retreat,
-                "撤退",
-                $"採取目標未達（{q.gatheredCount}/{q.def.gatherTargetCount}）",
+                ExpeditionEventKind.Decision,
+                "指示待ち",
+                $"{q.def.gatherItemName} が {q.gatheredCount}/{q.def.gatherTargetCount}。"
+                    + "パーティは現地に留まり、続行の可否を待っている。",
                 important: true);
         }
 
         if (!q.failed && q.def.IsGatherQuest && q.GatherFulfilled)
             q.logs.Add($"[Turn {currentTurn}] {q.def.gatherItemName} の必要数を確保。ギルドへ帰還できます");
-        else if (!q.failed && !q.retreated && q.currentPhase >= q.def.totalPhases)
+        else if (!q.failed && !q.retreated && !q.def.IsGatherQuest && q.currentPhase >= q.PhaseLimit)
             q.logs.Add($"[Turn {currentTurn}] クエスト完了！報酬を受け取れます");
     }
 

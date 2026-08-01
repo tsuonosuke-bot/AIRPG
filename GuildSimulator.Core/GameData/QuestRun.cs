@@ -43,6 +43,22 @@ public class QuestRun
 
     // 採取クエストの収集数。目標に達した時点で最終フェーズを待たずに帰還できる。
     public int gatheredCount;
+
+    /// <summary>
+    /// 採取が目標に届かないまま予定フェーズを使い切ったとき、パーティは撤退せず判断を仰いでくる。
+    /// これが立っている間は進行が止まり、プレイヤーが「延長」か「撤退」を選ぶまで動かない。
+    /// </summary>
+    public bool gatherDecisionPending;
+
+    /// <summary>判断を仰いだターン。報告書の並びを合わせるために覚えておく。</summary>
+    public int gatherDecisionTurn;
+
+    /// <summary>延長で積み増したフェーズ数。1回の延長で phasesPerTurn ぶん伸びる。</summary>
+    public int extraPhases;
+
+    /// <summary>延長した回数。回数制限はなく、届くまで何度でも聞かれる。</summary>
+    public int gatherExtensions;
+
     public PendingQuestChoice? pendingChoice;
     public List<string> usedConsumableIds = new();
     public int goldRewardBonusPercent;
@@ -51,15 +67,27 @@ public class QuestRun
 
     public bool GatherFulfilled => def.IsGatherQuest && gatheredCount >= def.gatherTargetCount;
 
-    /// <summary>踏破・採取目標の達成。撤退や全滅は含まない。</summary>
-    public bool ReachedGoal => currentPhase >= def.totalPhases || GatherFulfilled;
+    /// <summary>今回の遠征で踏み込めるフェーズ数。延長するたびに伸びる。</summary>
+    public int PhaseLimit => def.totalPhases + extraPhases;
+
+    /// <summary>
+    /// 踏破・採取目標の達成。撤退や全滅は含まない。
+    /// <b>採取クエストの達成は素材が揃ったかどうかだけで決まる</b>。フェーズを使い切っても
+    /// 手ぶらならクリアではなく、延長するか撤退するかの判断待ちになる。
+    /// </summary>
+    public bool ReachedGoal => def.IsGatherQuest ? GatherFulfilled : currentPhase >= PhaseLimit;
 
     /// <summary>正規クリア。ランクポイントや昇格はこれを満たしたときだけ。</summary>
     public bool IsCleared => !failed && !retreated && ReachedGoal;
 
-    public bool IsInProgress => !failed && !retreated && !rewarded && !ReachedGoal;
+    public bool IsInProgress =>
+        !failed && !retreated && !rewarded && !ReachedGoal && !gatherDecisionPending;
+
     public bool CanComplete => !failed && !rewarded && (retreated || ReachedGoal);
     public bool HasPendingChoice => pendingChoice != null;
+
+    /// <summary>採取の続行判断を待っている。進行も完了もここで止まる。</summary>
+    public bool HasGatherDecision => gatherDecisionPending && !failed && !retreated && !rewarded;
 
     public QuestRun(QuestMasterData def, int startedTurn)
     {

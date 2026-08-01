@@ -48,7 +48,9 @@ public static class QuestBoardScreen
                 string netText = $"予想収支: {q.rewardGold}G - 維持費{estimatedUpkeep}G = {estimatedNet:+#;-#;0}G（概算）";
                 detail.Add(estimatedNet < 0 ? $"⚠ {netText}" : netText);
                 if (q.IsGatherQuest)
-                    detail.Add($"採取: {q.gatherItemName} x{q.gatherTargetCount}（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還）");
+                    detail.Add($"採取: {q.gatherItemName} x{q.gatherTargetCount}"
+                        + $"（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還"
+                        + $" / {q.totalPhases}フェーズで足りなければ延長か撤退を選ぶ）");
                 string bossInfo = diff.hasBoss ? $"  ボス:脅威度{diff.BossThreatLabel}" : "";
                 detail.Add($"場所: {q.Dungeon?.dungeonName ?? "？"}  敵の脅威度{diff.EnemyThreatRange}"
                     + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");

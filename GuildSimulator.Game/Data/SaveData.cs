@@ -120,6 +120,10 @@ public class QuestRunSaveData
     public List<PendingLootSave> pendingLoot = new();
     public List<TreasureChestSave> chests = new();
     public int gatheredCount;
+    public bool gatherDecisionPending;
+    public int gatherDecisionTurn;
+    public int extraPhases;
+    public int gatherExtensions;
     public List<string> usedConsumableIds = new();
     public int goldRewardBonusPercent;
     public int expRewardBonusPercent;

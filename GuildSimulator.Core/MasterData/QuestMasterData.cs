@@ -32,12 +32,18 @@ public class QuestMasterData
 
     // ---- 採取クエスト ----
     // gatherTargetCount > 0 のとき採取クエストとして扱う。道中で採取イベントが抽選され、
-    // 目標数に達した時点で即帰還できる。最終フェーズまで足りなければ残数を一括採取して達成。
+    // 目標数に達した時点で即帰還できる。**達成条件は素材が揃ったかどうかだけ**で、
+    // 予定フェーズを踏破しても手ぶらならクリアにはならない（QuestRun.ReachedGoal）。
+    //
+    // 予定フェーズを使い切って足りないときは撤退ではなく指示待ちになり、行程を延ばすか
+    // 引き上げるかをプレイヤーが選ぶ（QuestManager.ResolveGatherDecision）。延長は無制限だが、
+    // そのぶん維持費と道中のリスクを負う。とはいえ毎回延長になるようでは予定が予定にならないので、
+    // 目標数は「採取の期待量の 1/1.5 以下」に置く。決め方は MASTER_DATA.md「採取クエスト」を参照。
     public string gatherItemName = "";
     public int gatherTargetCount;
     public int gatherMinPerEvent = 1;
     public int gatherMaxPerEvent = 3;
-    public float gatherChance = 0.5f;   // 各フェーズで採取イベントになる確率
+    public float gatherChance = 0.7f;   // 各フェーズで採取イベントになる確率
     public int gatherGoldPerItem;       // 目標数を超えた採取1個あたりの追加Gold
 
     public bool IsGatherQuest => gatherTargetCount > 0;

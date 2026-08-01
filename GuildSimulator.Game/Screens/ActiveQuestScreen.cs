@@ -29,8 +29,9 @@ public static class ActiveQuestScreen
                 string status = q.failed ? "[全滅]"
                     : q.retreated ? "[撤退]"
                     : q.HasPendingChoice ? "[選択待ち]"
+                    : q.HasGatherDecision ? "[採取の指示待ち]"
                     : q.CanComplete ? "[完了可能]"
-                    : $"Phase {q.currentPhase}/{q.def.totalPhases}";
+                    : $"Phase {q.currentPhase}/{q.PhaseLimit}";
                 string hp = q.unitHpMax > 0 ? $"HP {q.unitHpCurrent}/{q.unitHpMax}" : "";
                 string morale = $"  士気 {q.morale.Current}/{q.morale.Max}";
                 string gather = q.def.IsGatherQuest
@@ -53,7 +54,7 @@ public static class ActiveQuestScreen
                     $"{i + 1}. {q.def.questName}  {status}",
                     $"{hp}{morale}{gather}",
                     q.failed ? TextStyle.Error
-                        : q.CanComplete || q.HasPendingChoice ? TextStyle.Info
+                        : q.CanComplete || q.HasPendingChoice || q.HasGatherDecision ? TextStyle.Info
                         : TextStyle.Normal));
             }
 
@@ -79,13 +80,19 @@ public static class ActiveQuestScreen
             await ShowChoiceAsync(q, qm);
             return;
         }
+        if (q.HasGatherDecision)
+        {
+            await ShowGatherDecisionAsync(q, qm);
+            return;
+        }
         int offset = 0; // 0 = 最新ページ。増えるほど過去へ遡る
         while (true)
         {
             string state = q.failed ? "全滅" : q.retreated ? "撤退" : q.CanComplete ? "完了可能" : "進行中";
             Ui.BeginScreen();
             Ui.Header($"クエスト: {q.def.questName}");
-            Ui.WriteLine($"  フェーズ: {q.currentPhase}/{q.def.totalPhases}  状態: {state}");
+            Ui.WriteLine($"  フェーズ: {q.currentPhase}/{q.PhaseLimit}  状態: {state}"
+                + (q.gatherExtensions > 0 ? $"（延長 {q.gatherExtensions} 回）" : ""));
             Ui.WriteLine($"  遠征方針  : {QuestManager.PolicyName(q.policy)}");
             Ui.WriteLine($"  ユニットHP: {q.unitHpCurrent}/{q.unitHpMax}");
             Ui.WriteLine($"  士気　　　: {q.morale.Current}/{q.morale.Max}"
@@ -263,6 +270,54 @@ public static class ActiveQuestScreen
             if (!string.IsNullOrWhiteSpace(e.detail))
                 Ui.Dim($"       {e.detail}");
         }
+    }
+
+    /// <summary>
+    /// 採取が目標に届かないまま予定フェーズを使い切ったときの二択。
+    /// 延長には回数制限がないので、引き際を決めるのはプレイヤーの側になる。
+    /// 判断材料（残り士気・HP・現地の消耗）を並べたうえで聞く。
+    /// </summary>
+    static async Task ShowGatherDecisionAsync(QuestRun q, QuestManager qm)
+    {
+        int added = Math.Max(1, q.def.phasesPerTurn);
+        int shortage = Math.Max(0, q.def.gatherTargetCount - q.gatheredCount);
+
+        Ui.BeginScreen();
+        Ui.Header($"採取の指示待ち: {q.def.questName}");
+        Ui.Warn($"  予定していた {q.PhaseLimit} フェーズを使い切りましたが、"
+            + $"{q.def.gatherItemName} が {shortage} 個足りません");
+        Ui.WriteLine($"  採取状況　: {q.def.gatherItemName} {q.gatheredCount}/{q.def.gatherTargetCount}");
+        Ui.WriteLine($"  ユニットHP: {q.unitHpCurrent}/{q.unitHpMax}");
+        Ui.WriteLine($"  士気　　　: {q.morale.Current}/{q.morale.Max}"
+            + (q.morale.Rate <= 0.3f && !q.morale.IsBroken ? "  ← 危険域" : ""));
+        if (q.gatherExtensions > 0)
+            Ui.Dim($"  すでに {q.gatherExtensions} 回延長しています");
+        if (q.chests.Count > 0)
+            Ui.Dim($"  未開封の宝箱 {q.chests.Count}個を抱えています（全滅すると失います）");
+        Ui.WriteLine();
+
+        var options = new List<MenuOption>
+        {
+            new("1", $"捜索を続けさせる（+{added}フェーズ）",
+                "帰還が1ターン遅れ、そのぶん維持費がかかります。踏み足すフェーズでは戦闘も罠も起こります"),
+            new("2", "引き上げさせる",
+                $"撤退扱い。基本報酬は{QuestRewardService.RetreatRewardRate:P0}、ギルドポイントはなし。"
+                    + "拾った戦利品と宝箱は持ち帰れます"),
+        };
+        foreach (var option in options)
+            Ui.WriteLine($"  {option.Key}. {option.Label}"
+                + (string.IsNullOrEmpty(option.Detail) ? "" : $"（{option.Detail}）"));
+
+        int? selected = await Ui.SelectIndexAsync("指示", options, "あとで決める");
+        if (selected == null) return;
+
+        if (qm.ResolveGatherDecision(q, keepSearching: selected.Value == 1, out var result))
+        {
+            Ui.Info(result);
+            await Ui.PauseAsync();
+        }
+        else
+            Ui.Error(result);
     }
 
     static async Task ShowChoiceAsync(QuestRun q, QuestManager qm)

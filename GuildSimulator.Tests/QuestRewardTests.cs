@@ -37,16 +37,66 @@ public class QuestRewardTests
         Assert.Equal(expectedGold, guild.Gold);
     }
 
+    // 目標に届かないまま予定フェーズを使い切っても、勝手に引き返さず指示を待つ。
     [Fact]
-    public void GatherQuestRetreatsWhenTargetNotMetAtFinalPhase()
+    public void GatherQuestAsksForOrdersWhenTargetNotMetAtFinalPhase()
+    {
+        var run = RunOutOfPhases();
+
+        Assert.True(run.HasGatherDecision);
+        Assert.False(run.retreated);
+        Assert.False(run.IsCleared);
+        Assert.False(run.CanComplete);   // 判断が済むまで完了処理には進めない
+        Assert.False(run.IsInProgress);  // 進行も止まる
+        Assert.Equal(0, run.gatheredCount);
+    }
+
+    [Fact]
+    public void ContinuingTheSearchExtendsThePhasesAndResumesProgress()
+    {
+        var run = RunOutOfPhases();
+        var manager = new QuestManager(new GuildManager(startGold: 0));
+
+        Assert.True(manager.ResolveGatherDecision(run, keepSearching: true, out _));
+
+        Assert.False(run.HasGatherDecision);
+        Assert.False(run.retreated);
+        Assert.True(run.IsInProgress);
+        Assert.Equal(1, run.gatherExtensions);
+        Assert.Equal(run.def.totalPhases + run.def.phasesPerTurn, run.PhaseLimit);
+
+        // 延ばしたぶんを使い切れば、また同じ二択に戻ってくる（回数制限はない）。
+        var progressor = new QuestProgressor();
+        for (int i = 0; i < run.def.phasesPerTurn; i++) progressor.AdvanceOnePhase(run, currentTurn: 2);
+        Assert.True(run.HasGatherDecision);
+        Assert.True(manager.ResolveGatherDecision(run, keepSearching: true, out _));
+        Assert.Equal(2, run.gatherExtensions);
+    }
+
+    [Fact]
+    public void PullingOutOfAGatherQuestRetreatsWithTheMissedTargetReason()
+    {
+        var run = RunOutOfPhases();
+        var manager = new QuestManager(new GuildManager(startGold: 0));
+
+        Assert.True(manager.ResolveGatherDecision(run, keepSearching: false, out _));
+
+        Assert.True(run.retreated);
+        Assert.Equal(ExpeditionRetreatReason.GatherTargetMissed, run.retreatReason);
+        Assert.False(run.IsCleared);
+        Assert.True(run.CanComplete);
+    }
+
+    // 採取が一切起きないクエストを予定フェーズぶん進め、指示待ちの状態を作る。
+    static QuestRun RunOutOfPhases()
     {
         var dungeon = new DungeonMasterData { id = "dungeon", dungeonName = "試験場" };
         dungeon.eventTable[DungeonEventType.Nothing] = 1;
 
         var definition = new QuestMasterData
         {
-            id = "gather_quest", questName = "薬草採取", totalPhases = 3, bossPhase = 0,
-            dungeonId = dungeon.id, Dungeon = dungeon,
+            id = "gather_quest", questName = "薬草採取", totalPhases = 3, phasesPerTurn = 5,
+            bossPhase = 0, dungeonId = dungeon.id, Dungeon = dungeon,
             gatherItemName = "薬草", gatherTargetCount = 999,
             gatherChance = 0f, gatherMinPerEvent = 0, gatherMaxPerEvent = 0,
         };
@@ -54,9 +104,20 @@ public class QuestRewardTests
         var run = new QuestRun(definition, startedTurn: 1) { morale = new MoraleState(999) };
         var progressor = new QuestProgressor();
         for (int i = 0; i < 3; i++) progressor.AdvanceOnePhase(run, currentTurn: 1);
+        return run;
+    }
 
-        Assert.True(run.retreated);
-        Assert.Equal(0, run.gatheredCount);
+    // 予定フェーズを使い切っても素材が揃っていなければクリアではない。
+    // ここを取り違えると、手ぶらの遠征が満額報酬になる。
+    [Fact]
+    public void RunningOutOfPhasesEmptyHandedIsNotAClear()
+    {
+        var run = RunOutOfPhases();
+        Assert.False(run.ReachedGoal);
+
+        run.gatheredCount = run.def.gatherTargetCount;
+        Assert.True(run.ReachedGoal);
+        Assert.True(run.GatherFulfilled);
     }
 
     [Fact]
