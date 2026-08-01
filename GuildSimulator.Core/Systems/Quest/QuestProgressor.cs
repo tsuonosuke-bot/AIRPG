@@ -108,9 +108,11 @@ public class QuestProgressor
                         {
                             if (a == null || !a.isAlive || a.isIncapacitated) continue;
                             int levelBefore = a.level;
-                            if (a.AddExperience(totalExp, out var ups))
+                            if (a.AddExperience(totalExp, out var ups, out var grownStats))
                             {
-                                string levelUpText = ups > 0 ? $"（レベルアップ {levelBefore}lv→{a.level}lv）" : "";
+                                string levelUpText = ups > 0
+                                    ? $"（レベルアップ {levelBefore}lv→{a.level}lv、{QuestManager.FormatGrownStats(grownStats)}）"
+                                    : "";
                                 q.logs.Add($"  {a.name} 経験値 +{totalExp}{levelUpText}");
                             }
                         }

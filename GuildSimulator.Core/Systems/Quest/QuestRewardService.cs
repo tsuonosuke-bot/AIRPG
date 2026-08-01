@@ -128,8 +128,10 @@ public class QuestRewardService
             var a = members[i]!;
             int questExp = share + (i < remainder ? 1 : 0);
             int levelBefore = a.level;
-            a.AddExperience(questExp, out var ups);
-            string levelUpText = ups > 0 ? $"（レベルアップ {levelBefore}lv→{a.level}lv）" : "";
+            a.AddExperience(questExp, out var ups, out var grownStats);
+            string levelUpText = ups > 0
+                ? $"（レベルアップ {levelBefore}lv→{a.level}lv、{QuestManager.FormatGrownStats(grownStats)}）"
+                : "";
             q.logs.Add($"{prefix} {a.name} 経験値 +{questExp}{levelUpText}");
         }
 

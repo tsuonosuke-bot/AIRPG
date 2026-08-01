@@ -7,7 +7,7 @@ namespace GuildSimulator.Core.Systems.Guild;
 public class GuildManager
 {
     public const int GuildBaseUpkeepGoldPerTurn = 10;
-    public const int UpkeepGoldPerLevel = 5;
+    public const int UpkeepGoldPerLevel = 3;
 
     public List<AdventurerData> adventurers = new();
     public int Gold { get; private set; }
