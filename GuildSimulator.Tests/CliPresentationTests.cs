@@ -120,7 +120,30 @@ public class CliPresentationTests
         Assert.Contains("1. 【F】", text);
         Assert.DoesNotContain("1. 1. 【F】", text);
         Assert.Contains("基本報酬", text);
-        Assert.Contains("宝箱・敵ドロップ・選択イベントは上の概算に含みません", text);
+        Assert.DoesNotContain("予想収支", text);
+        Assert.DoesNotContain("宝箱・敵ドロップ・選択イベントは上の概算に含みません", text);
+    }
+
+    [Fact]
+    public async Task QuestBoardShowsDetailScreenBeforeAcceptingQuest()
+    {
+        var guild = new GuildManager(startGold: 100);
+        var manager = new QuestManager(guild);
+        var quest = new QuestMasterData
+        {
+            id = "detail",
+            questName = "詳細確認クエスト",
+            description = "掲示板には出ない詳しい依頼内容",
+            rewardGold = 50,
+        };
+        manager.questBoard.Add(new QuestBoardEntry(quest, postedTurn: 1));
+
+        string text = await CaptureConsoleAsync(
+            "1\nn\n0\n",
+            () => QuestBoardScreen.ShowAsync(manager, guild, currentTurn: 1));
+
+        Assert.Contains("掲示板には出ない詳しい依頼内容", text);
+        Assert.Contains("このクエストを受注しますか？", text);
     }
 
     [Fact]

@@ -1,3 +1,4 @@
+using GuildSimulator.Core;
 using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Battle;
 
@@ -158,6 +159,14 @@ public static class MasterValidator
                         e => e.options.Any(o => o.effectType == QuestChoiceEffectType.Treasure)))
                     errors.Add($"{dungeon.id}: 宝箱の選択肢があるのにtreasureTableが空です");
             }
+
+            // 遺物システムの凍結中、遺物エントリは抽選候補から外れる。
+            // 遺物しか残らないテーブルは必ず空っぽになるので、他の中身も置いておく。
+            if (!GameFeatures.RelicsEnabled
+                && dungeon.treasureTable.Count > 0
+                && !dungeon.treasureTable.Any(e => e.weight > 0 && e.type != RewardType.Relic))
+                errors.Add($"{dungeon.id}: treasureTableに遺物以外の中身がありません"
+                    + "（遺物システムは凍結中なので、宝箱が必ず空っぽになります）");
         }
 
         var questIds = db.allQuests.Select(q => q.id).ToHashSet();
@@ -169,6 +178,13 @@ public static class MasterValidator
             foreach (var clueId in quest.requiredClueIds.Concat(quest.grantedClueIds))
                 if (!db.clues.ContainsKey(clueId))
                     errors.Add($"{quest.id}: 不明なclueId '{clueId}'");
+
+            // 同じく、遺物しか入っていないボスの宝箱は凍結中に必ず空っぽになる。
+            if (!GameFeatures.RelicsEnabled
+                && quest.bossDrops.Count > 0
+                && quest.bossDrops.All(d => d.type == RewardType.Relic))
+                errors.Add($"{quest.id}: bossDropsに遺物以外の中身がありません"
+                    + "（遺物システムは凍結中なので、ボスの宝箱が必ず空っぽになります）");
 
             // ボスドロップは1件ずつ確率抽選する。bossDropsAreGuaranteed のクエストだけ抽選しない。
             if (quest.bossDropsAreGuaranteed) continue;

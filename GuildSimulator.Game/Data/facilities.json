@@ -15,7 +15,7 @@
   {
     "id": "fac_shop_ext_01",
     "displayName": "商店の増築",
-    "description": "商店の取引ルートを広げ、鋼製の武具など上位の品を仕入れられるようにする。",
+    "description": "商店の取引ルートを広げ、鉄製の武具など上位の品を仕入れられるようにする。",
     "buildCostGold": 400,
     "upkeepGoldPerTurn": 15,
     "requiredGuildRank": 1,

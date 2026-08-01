@@ -287,6 +287,13 @@
         "relicId": "relic_ironheart",
         "weight": 0,
         "unique": true
+      },
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
       }
     ],
     "fixedEvents": [
@@ -450,6 +457,13 @@
         "relicId": "relic_grimoire",
         "weight": 0,
         "unique": true
+      },
+      {
+        "type": 2,
+        "gold": 500,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
       }
     ],
     "fixedEvents": [

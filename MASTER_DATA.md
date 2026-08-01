@@ -12,6 +12,21 @@
 - 物語の手掛かり: `clues.json`
 - ダンジョンへのイベント割当: `dungeons.json`
 - ギルド施設: `facilities.json`
+- 遺物: `relics.json`（**システムごと凍結中**。下記「遺物は凍結中」を参照）
+
+## 遺物は凍結中
+
+遺物システムは `GameFeatures.RelicsEnabled`（`GuildSimulator.Core/GameFeatures.cs`）で
+**止めてあります**。永久バフの入手経路を施設へ一本化するためで、機能を消したわけではありません。
+
+- `relics.json` と、宝箱・ボスドロップに書かれた `relicId` のエントリは**そのまま残してください**。
+  消すと復活できなくなります
+- 凍結中、遺物エントリは抽選候補から外れます。除外したあとに重みを取り直すので、
+  同じテーブルにある他の中身の出やすさの比率は変わりません
+- したがって、**遺物エントリしか無いテーブル**は凍結中に空振りします。
+  `dungeons.json` の `treasureTable` と `quests.json` の `bossDrops` には、
+  遺物以外の中身も1件は入れておいてください
+- 復活させるときはフラグを `true` に戻すだけです（詳細は [README.md](README.md) の「機能フラグ」）
 
 冒険者には戦闘能力に加えて、`background`、`personality`、`motivation`、
 `specialty`、`fear`、`creed`、`selfIntroduction` を設定できます。

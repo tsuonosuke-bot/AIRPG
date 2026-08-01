@@ -147,6 +147,9 @@ public class QuestRewardTests
     [Fact]
     public void BossDefeatYieldsAnUnopenedChestOpenedOnReturn()
     {
+        // 遺物は凍結中なので、遺物入りのボスドロップを試すには一時的に有効化する。
+        using var relicsEnabled = new RelicFeatureScope();
+
         var relic = new RelicMasterData { id = "relic", relicName = "試練の証" };
         var run = DefeatBoss(new()
         {
@@ -216,6 +219,8 @@ public class QuestRewardTests
     [Fact]
     public void TreasureSkipsRelicsTheGuildAlreadyOwns()
     {
+        using var relicsEnabled = new RelicFeatureScope();
+
         var owned = new RelicMasterData { id = "relic", relicName = "所持済みの遺物" };
         var dungeon = new DungeonMasterData { id = "dungeon", dungeonName = "試験場" };
         dungeon.treasureTable.Add(new RewardEntryData
