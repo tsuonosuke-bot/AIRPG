@@ -66,10 +66,16 @@ public static class MasterLoader
             var sd = new SkillMasterData
             {
                 id = s.id, skillName = s.skillName, scope = s.scope,
+                family = s.family ?? "", level = s.level,
                 frontOnly = s.frontOnly, backOnly = s.backOnly,
                 requireWeaponType = s.requireWeaponType, requiredWeaponType = s.requiredWeaponType,
                 requireArmorType = s.requireArmorType, requiredArmorType = s.requiredArmorType,
+                requireUnarmed = s.requireUnarmed, requireTwoHanded = s.requireTwoHanded,
+                requireShield = s.requireShield, requireOffHandWeapon = s.requireOffHandWeapon,
+                requirePhysicalWeapon = s.requirePhysicalWeapon,
+                unarmedDamageDice = s.unarmedDamageDice ?? "",
                 add = ParseStatBlock(s.add), mul = ParseMul(s.mul),
+                expedition = ParseExpedition(s.expedition),
             };
             db.skills[s.id] = sd;
         }
@@ -420,7 +426,24 @@ public static class MasterLoader
         d.TryGetValue("extraAttacks", out b.extraAttacks);
         d.TryGetValue("offHandChance", out b.offHandChance);
         d.TryGetValue("blockChance", out b.blockChance);
+        d.TryGetValue("blockNegate", out b.blockNegate);
+        d.TryGetValue("carry", out b.carry);
+        d.TryGetValue("threatWeight", out b.threatWeight);
+        d.TryGetValue("autoPenetrate", out b.autoPenetrate);
+        d.TryGetValue("critPv", out b.critPv);
+        d.TryGetValue("emergencyHeal", out b.emergencyHeal);
         return b;
+    }
+
+    static SkillExpeditionEffect ParseExpedition(Dictionary<string, int>? d)
+    {
+        if (d == null) return default;
+        SkillExpeditionEffect e = default;
+        d.TryGetValue("goldPercent", out e.goldPercent);
+        d.TryGetValue("expPercent", out e.expPercent);
+        d.TryGetValue("treasureChancePercent", out e.treasureChancePercent);
+        d.TryGetValue("trapChancePercent", out e.trapChancePercent);
+        return e;
     }
 
     static StatMultiplier ParseMul(Dictionary<string, float>? d)
@@ -449,7 +472,13 @@ public static class MasterLoader
     record SkillJson(string id, string skillName, SkillScope scope,
         bool frontOnly, bool backOnly, bool requireWeaponType, WeaponType requiredWeaponType,
         bool requireArmorType, ArmorType requiredArmorType,
-        Dictionary<string, int>? add, Dictionary<string, float>? mul);
+        Dictionary<string, int>? add, Dictionary<string, float>? mul,
+        string? family = null, int level = 0,
+        bool requireUnarmed = false, bool requireTwoHanded = false,
+        bool requireShield = false, bool requireOffHandWeapon = false,
+        bool requirePhysicalWeapon = false,
+        string? unarmedDamageDice = null,
+        Dictionary<string, int>? expedition = null);
 
     record ClassSkillEntryJson(string skillId, int requiredClearCount);
     record ClassJson(string id, string className, float vitGrowth, float mentGrowth, float strGrowth, float intGrowth, float agiGrowth, List<ClassSkillEntryJson>? classSkills);

@@ -49,8 +49,26 @@ public class AdventurerData : IUnitMember
     /// <summary>左手に握った武器（二刀流の対象）。盾でも両手武器でもないときだけ返す。</summary>
     public EquipmentMasterData? OffHandWeapon =>
         GetEquipped(EquipSlot.LeftHand) is { type: EquipmentType.Weapon } left ? left : null;
-    public string DamageDice => Weapon?.damageDice ?? UNARMED_DAMAGE_DICE;
+    public string DamageDice => Weapon?.damageDice ?? BestUnarmedDamageDice();
     public bool IsMagicAttack => Weapon != null && Weapon.IsMagicWeapon;
+
+    /// <summary>
+    /// 素手で殴るときのダメージダイス。格闘スキルを持っていれば拳そのものが強くなる。
+    /// 段階スキルを重ねて持っていても足し算にはならず、いちばん強い一本だけが採用される。
+    /// </summary>
+    string BestUnarmedDamageDice()
+    {
+        string best = UNARMED_DAMAGE_DICE;
+        int bestMax = Dice.Parse(best).Max;
+        foreach (var sk in Skills)
+        {
+            if (string.IsNullOrWhiteSpace(sk.unarmedDamageDice)) continue;
+            if (!UnitCalculator.MeetsGearRequirements(sk, this)) continue;
+            int max = Dice.Parse(sk.unarmedDamageDice).Max;
+            if (max > bestMax) { best = sk.unarmedDamageDice; bestMax = max; }
+        }
+        return best;
+    }
 
     // 素手は武器そのもののPVが小さく、殴る力も1d2しかない。ただし拳に上限はないので膂力はそのまま乗る。
     public int WeaponBasePv => Weapon?.basePv ?? UNARMED_PV;
@@ -128,15 +146,15 @@ public class AdventurerData : IUnitMember
     IReadOnlyList<SkillMasterData> GetActiveSkills()
     {
         if (!activeSkillDirty) return activeSkillCache;
-        activeSkillCache.Clear();
-        foreach (var ls in learnedSkills)
-        {
-            if (!activeSkillCache.Contains(ls.skill))
-                activeSkillCache.Add(ls.skill);
-        }
+
+        // 覚えたものはすべて残るが、同系統の段階スキルは最上位だけが効く。
+        SkillProgression.CollapseInto(learnedSkills.Select(ls => ls.skill), activeSkillCache);
         activeSkillDirty = false;
         return activeSkillCache;
     }
+
+    /// <summary>覚えた順の全スキル（下位の段階も含む）。習得履歴の表示に使う。</summary>
+    public IEnumerable<SkillMasterData> AllLearnedSkills => learnedSkills.Select(ls => ls.skill);
 
     bool HasLearnedAny(SkillMasterData skill)
         => learnedSkills.Any(x => x.skill == skill);
@@ -381,7 +399,25 @@ public class AdventurerData : IUnitMember
 
     // ---- Combat ----
     int TotalWeight => equippedSlots.Values.Sum(e => e.weight);
-    int CarryLimit => constitution + (strength + vitality) / 2;
+
+    /// <summary>
+    /// 担げる重さ。素の上限に、スキルで鍛えた「担ぐ余裕」を足す。
+    /// 立ち位置に左右されない構えの条件だけで判定するので、隊列を組む前でも同じ値になる。
+    /// </summary>
+    public int CarryLimit => constitution + (strength + vitality) / 2 + SkillCarryBonus;
+
+    /// <summary>今の装備で有効になっているスキル由来の積載ボーナス。</summary>
+    public int SkillCarryBonus
+    {
+        get
+        {
+            int bonus = 0;
+            foreach (var sk in Skills)
+                if (sk.add.carry != 0 && UnitCalculator.MeetsGearRequirements(sk, this))
+                    bonus += sk.add.carry;
+            return bonus;
+        }
+    }
     float OverweightRate
     {
         get

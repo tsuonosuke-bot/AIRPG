@@ -128,7 +128,15 @@ public static class QudCombat
 
     /// <summary>攻撃1回の結果。avは装甲貫通を差し引いた後の実効値。</summary>
     public readonly record struct AttackResult(
-        int pv, int av, int penetrations, int damage);
+        int pv, int av, int penetrations, int damage, bool autoPenetrated = false);
+
+    /// <summary>装甲判定を無条件で1回通したか。貫通が0だったときにだけ振る。</summary>
+    public static bool RollAutoPenetrate(int chance)
+        => chance > 0 && GameRandom.Range(0, 100) < Math.Min(chance, 100);
+
+    /// <summary>盾で受けきってダメージを丸ごと消したか。受けに成功した一撃にだけ振る。</summary>
+    public static bool RollBlockNegate(int chance)
+        => chance > 0 && GameRandom.Range(0, 100) < Math.Min(chance, 100);
 
     /// <summary>
     /// 命中後の解決。貫通回数を出し、その回数だけダメージダイスを振って合計する。
@@ -137,15 +145,27 @@ public static class QudCombat
     ///
     /// armorPierce（槍の貫通力）は相手のAVをその値だけ無視する。PVを上げるのとは違い、
     /// 硬い相手ほど効き、素肌の相手にはまったく効かない。
+    ///
+    /// critPv は会心の「効き」そのものを重くする上乗せぶん。
+    /// autoPenetrate は貫通が1回も出なかったときにだけ振る救済で、
+    /// 成功すれば装甲に関わらず1貫通を拾う（格上相手に手も足も出ない事故を減らす）。
     /// </summary>
     public static AttackResult ResolveAttack(
-        int pv, int av, string? diceNotation, bool critical, int armorPierce = 0)
+        int pv, int av, string? diceNotation, bool critical,
+        int armorPierce = 0, int critPv = 0, int autoPenetrate = 0)
     {
-        if (critical) pv += CRITICAL_PV_BONUS;
+        if (critical) pv += CRITICAL_PV_BONUS + Math.Max(0, critPv);
         av = Math.Max(0, av - Math.Max(0, armorPierce));
 
         int penetrations = RollPenetrations(pv, av);
         if (critical && penetrations == 0) penetrations = 1;
+
+        bool autoPenetrated = false;
+        if (penetrations == 0 && RollAutoPenetrate(autoPenetrate))
+        {
+            penetrations = 1;
+            autoPenetrated = true;
+        }
 
         int damage = 0;
         if (penetrations > 0)
@@ -154,7 +174,7 @@ public static class QudCombat
             for (int i = 0; i < penetrations; i++) damage += dice.Roll();
             damage = Math.Max(0, damage);
         }
-        return new AttackResult(pv, av, penetrations, damage);
+        return new AttackResult(pv, av, penetrations, damage, autoPenetrated);
     }
 
     /// <summary>

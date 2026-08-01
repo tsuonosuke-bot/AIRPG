@@ -98,12 +98,18 @@ public class QuestRewardService
         if (q.retreated)
             q.logs.Add($"{prefix} 撤退のため基本報酬は {RetreatRewardRate:P0}（戦利品はそのまま持ち帰り）");
 
-        int gold = (int)Math.Floor((baseGold + gatherGold) * rate
-            * RelicSystem.GetGoldRewardMultiplier() * (1f + q.goldRewardBonusPercent / 100f));
-        guild.AddGold(gold, $"クエスト報酬: {q.def.questName}");
-        q.logs.Add($"{prefix} 資金 +{gold}G（基本 {baseGold}{(gatherGold > 0 ? $" + 買取 {gatherGold}" : "")}）");
+        // 連れて行った顔ぶれのスキル（値切り・目利き・教導など）は報酬そのものに効く。
+        var partySkills = PartySkillEffects.Of(q.formation);
 
-        int totalExp = (int)Math.Floor(q.def.rewardExp * rate * (1f + q.expRewardBonusPercent / 100f));
+        int gold = (int)Math.Floor((baseGold + gatherGold) * rate
+            * RelicSystem.GetGoldRewardMultiplier() * (1f + q.goldRewardBonusPercent / 100f)
+            * partySkills.GoldMultiplier);
+        guild.AddGold(gold, $"クエスト報酬: {q.def.questName}");
+        string goldSkillNote = partySkills.goldPercent != 0 ? $" / スキル {partySkills.goldPercent:+#;-#;0}%" : "";
+        q.logs.Add($"{prefix} 資金 +{gold}G（基本 {baseGold}{(gatherGold > 0 ? $" + 買取 {gatherGold}" : "")}{goldSkillNote}）");
+
+        int totalExp = (int)Math.Floor(
+            q.def.rewardExp * rate * (1f + q.expRewardBonusPercent / 100f) * partySkills.ExpMultiplier);
         var members = q.formation.Where(x => x != null).ToList();
         int memberCount = members.Count;
         int share = memberCount > 0 ? totalExp / memberCount : 0;

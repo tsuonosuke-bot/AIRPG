@@ -18,7 +18,10 @@ public class EnemyData : IUnitMember
     public string Name => name;
     public int CombatHp { get; set; }
     public int CombatHpMax { get; set; }
-    public IReadOnlyList<SkillMasterData> Skills => master.Skills;
+    // 冒険者と同じく、同系統の段階スキルは最上位だけが効く。
+    // マスタに Lv1 と Lv3 を並べて書いても二重には乗らない。
+    public IReadOnlyList<SkillMasterData> Skills => skills ??= SkillProgression.Collapse(master.Skills);
+    IReadOnlyList<SkillMasterData>? skills;
     public EquipmentMasterData? Weapon => master.DefaultWeapon;
     public EquipmentMasterData? Armor => master.DefaultArmor;
 

@@ -15,7 +15,7 @@ public class QuestProgressor
         bool isBoss = (q.def.BossEnemy != null && phase == q.def.bossPhase)
                    || qe == QuestEventType.ForceBossEncounter;
 
-        DungeonEventType ev = RollDungeonEvent(q.def.Dungeon, phase);
+        DungeonEventType ev = RollDungeonEvent(q.def.Dungeon, phase, PartySkillEffects.Of(q.formation));
 
         if (qe == QuestEventType.ForceEnemyEncounter) ev = DungeonEventType.EnemyEncounter;
         else if (qe == QuestEventType.ForceHeal) ev = DungeonEventType.Heal;
@@ -77,7 +77,8 @@ public class QuestProgressor
                         if (rally > 0) q.logs.Add($"  Phase {phase}: 勝利で士気を持ち直した（+{rally}）");
                         int totalExp = (int)Math.Floor(
                             enemyMembers.Sum(e => e?.master.exp ?? 0)
-                            * (1f + q.expRewardBonusPercent / 100f));
+                            * (1f + q.expRewardBonusPercent / 100f)
+                            * PartySkillEffects.Of(q.formation).ExpMultiplier);
                         if (isBoss)
                         {
                             q.bossDefeated = true;
@@ -242,19 +243,23 @@ public class QuestProgressor
     };
 
     // ダンジョンの重み表からフェーズごとに1イベント抽選。未設定なら Nothing。
-    static DungeonEventType RollDungeonEvent(DungeonMasterData? d, int phase)
+    // 宝探しや罠の勘といったスキルは、この重みそのものを歪める。
+    // 重みが0のイベント（そのダンジョンには存在しないもの）はスキルでも生やせない。
+    static DungeonEventType RollDungeonEvent(
+        DungeonMasterData? d, int phase, PartySkillEffects partySkills)
     {
         if (d == null || d.eventTable.Count == 0) return DungeonEventType.Nothing;
 
-        int total = 0;
-        foreach (var w in d.eventTable.Values) if (w > 0) total += w;
+        float total = 0;
+        foreach (var kv in d.eventTable)
+            if (kv.Value > 0) total += kv.Value * partySkills.ChanceMultiplierFor(kv.Key);
         if (total <= 0) return DungeonEventType.Nothing;
 
-        int roll = GameRandom.Range(0, total);
+        float roll = GameRandom.NextFloat() * total;
         foreach (var kv in d.eventTable)
         {
             if (kv.Value <= 0) continue;
-            roll -= kv.Value;
+            roll -= kv.Value * partySkills.ChanceMultiplierFor(kv.Key);
             if (roll < 0) return kv.Key;
         }
         return DungeonEventType.Nothing;

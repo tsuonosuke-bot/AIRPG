@@ -91,6 +91,25 @@ public static class EquipmentText
         Add("連撃", b.extraAttacks);
         Add("左手発動%", b.offHandChance);
         Add("受け%", b.blockChance);
+        Add("完全防御%", b.blockNegate);
+        Add("士気", b.san);
+        Add("積載", b.carry);
+        Add("ヘイト%", b.threatWeight);
+        Add("貫通成功%", b.autoPenetrate);
+        Add("会心PV", b.critPv);
+        Add("応急処置%", b.emergencyHeal);
+        return parts;
+    }
+
+    /// <summary>遠征そのものに効くスキル効果。0の項目は出さない。</summary>
+    public static List<string> ExpeditionParts(SkillExpeditionEffect e)
+    {
+        var parts = new List<string>();
+        void Add(string name, int v) { if (v != 0) parts.Add($"{name}{(v > 0 ? "+" : "")}{v}%"); }
+        Add("報酬G", e.goldPercent);
+        Add("経験値", e.expPercent);
+        Add("宝箱率", e.treasureChancePercent);
+        Add("罠率", e.trapChancePercent);
         return parts;
     }
 }

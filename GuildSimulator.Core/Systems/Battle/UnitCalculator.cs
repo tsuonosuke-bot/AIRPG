@@ -131,8 +131,22 @@ public static class UnitCalculator
     {
         if (sk.frontOnly && !isFront) return false;
         if (sk.backOnly && isFront) return false;
+        return MeetsGearRequirements(sk, m);
+    }
+
+    /// <summary>
+    /// 立ち位置を除いた「構え」の条件。装備さえ見れば決まるので、
+    /// 戦闘前に積載や素手ダメージを計算する側からも同じ判定を使える。
+    /// </summary>
+    public static bool MeetsGearRequirements(SkillMasterData sk, IUnitMember m)
+    {
         if (sk.requireWeaponType && (m.Weapon == null || m.Weapon.weaponType != sk.requiredWeaponType)) return false;
         if (sk.requireArmorType && (m.Armor == null || m.Armor.armorType != sk.requiredArmorType)) return false;
+        if (sk.requireUnarmed && m.Weapon != null) return false;
+        if (sk.requireTwoHanded && m.Weapon is not { isTwoHanded: true }) return false;
+        if (sk.requirePhysicalWeapon && (m.Weapon == null || m.IsMagicAttack)) return false;
+        if (sk.requireShield && m.Shield == null) return false;
+        if (sk.requireOffHandWeapon && m.OffHandWeapon == null) return false;
         return true;
     }
 

@@ -3,6 +3,8 @@
 ゲームを起動せず、`GuildSimulator.Game/Data` 配下のJSONを直接編集できます。
 
 - 冒険者: `adventurers.json`
+- スキル: `skills.json`
+- 職業とスキルの解禁: `classes.json`
 - 装備とレアリティ: `equipment.json`
 - 敵とレアドロップ: `enemies.json`
 - 消費アイテム: `consumables.json`
@@ -497,6 +499,75 @@ Tier4の両手剣は既存の `eq_drop_bone`（`basePv` 9 / 2d4）を基準と�
 割り当てています（`dungeons.json` の `turnEndEventIds`）。**どのダンジョンからも
 参照されていないイベントは一度も発生しません。**
 
+## スキル (`skills.json`)
+
+スキルは「装備の条件を満たしている間だけ乗る補正」です。冒険者も敵も同じ表を引きます。
+
+### 段階スキル (`family` / `level`)
+
+同系統のスキルは `family` で束ね、`level` で段階を表します（Lv1〜Lv5）。
+
+**同じ `family` の中では、覚えているうち `level` がいちばん大きい1つだけが効きます。**
+下位の段階は押しのけられて数値が積み上がらないので、各段階の `add` / `mul` には
+**その段階での最終的な強さをそのまま書きます**（差分ではありません）。
+畳み込みは `SkillProgression.Collapse` が行い、冒険者の `Skills` と敵の `Skills` の
+両方に効きます。`family` が空のスキルは単独扱いで、常にそのまま乗ります。
+
+`level` を飛ばして与えても構いません（Lv1 の次に Lv3 を渡せば、Lv2 は素通しで Lv3 が効く）。
+
+### 有効になる条件
+
+| フィールド | 条件 |
+| --- | --- |
+| `frontOnly` / `backOnly` | 前衛（スロット0〜2）／後衛（3〜5）にいるとき |
+| `requireWeaponType` + `requiredWeaponType` | その武器種を右手に握っているとき |
+| `requireArmorType` + `requiredArmorType` | その防具種を胴に着ているとき |
+| `requireUnarmed` | 右手に何も握っていないとき（格闘術） |
+| `requireTwoHanded` | 両手武器を構えているとき |
+| `requirePhysicalWeapon` | 物理武器を構えているとき（杖を除きたい両手武器術で併用） |
+| `requireShield` | 左手に盾を構えているとき |
+| `requireOffHandWeapon` | 左手に武器を握っているとき（二刀流） |
+
+判定は `UnitCalculator.MeetsGearRequirements` にまとまっています。
+立ち位置を見ない条件だけを切り出してあるので、積載や素手ダメージのように
+隊列を組む前に決まる値からも同じ判定を使えます。
+
+### `add` に書ける項目
+
+従来の `hp` `san` `av` `mav` `pv` `mpv` `dv` `toHit` `heal` `armorPierce`
+`armorShred` `critRange` `extraAttacks` `offHandChance` `blockChance` に加えて、
+
+| 項目 | 意味 |
+| --- | --- |
+| `blockNegate` | 盾で受けたとき、相手のPVに関わらずダメージを丸ごと消す確率（%） |
+| `carry` | 積載上限への加算。重い装備の過積載ペナルティを打ち消す |
+| `threatWeight` | 狙われやすさ（%）。+で囮、-で的にされにくい。下限は素の重みの10% |
+| `autoPenetrate` | 貫通が1回も出なかったときに、装甲を無視して1貫通を拾う確率（%） |
+| `critPv` | 会心したときに上乗せするPV（会心の効きそのものを重くする） |
+| `emergencyHeal` | HPが半分を切った瞬間に最大HPのこの%を回復（1戦闘に1度きり） |
+
+`mul` は従来どおり `hp` `san` `heal` の3つだけです。AV/DV/PVは1点の重みが大きいので倍率では触りません。
+
+`unarmedDamageDice` は素手のダメージダイスの差し替えです（例 `"1d6"`）。
+複数持っていても最大出目がいちばん大きい1本だけが採用されます。
+
+### 遠征に効く効果 (`expedition`)
+
+戦闘の数値ではなく「持ち帰るもの」と「道中で起きること」に効きます。
+
+| 項目 | 意味 |
+| --- | --- |
+| `goldPercent` | クエスト報酬のゴールドへの増減（%） |
+| `expPercent` | 経験値への増減（%）。クエスト報酬と戦闘報酬の両方に効く |
+| `treasureChancePercent` | ダンジョンの宝箱イベントの出やすさへの増減（%） |
+| `trapChancePercent` | 罠イベントの出やすさへの増減（%）。負で踏みにくくなる |
+
+**パーティ全員ぶんが合算されます**（`PartySkillEffects`）。隊列も生死も関係なく、
+その遠征に誰を出したかだけで決まります。ゴールドと経験値の減少は -100% で下げ止まります。
+
+イベント確率は `dungeons.json` の `eventTable` の重みに掛かるので、
+**そのダンジョンで重みが0のイベントはスキルでも生やせません**。
+
 ## 職業スキルの解禁 (`classes.json`)
 
 `classSkills` の `requiredClearCount` は「**その職業で適正ランクのクエストを正規クリアした回数**
@@ -524,6 +595,14 @@ Tier4の両手剣は既存の `eq_drop_bone`（`basePv` 9 / 2d4）を基準と�
 習熟度は職業ごとに別勘定で、一度覚えたスキルは職業を変えても失われません。
 元の職業に戻れば習熟度は続きから数え直しになるため、複数の職業を渡り歩いて
 マスタリーを集めることもできます。
+
+現在の7職業はどれも12段構成で、看板の武器マスタリーが Lv1→Lv5 まで伸びる骨組みに
+防具マスタリーと持ち味のスキルを挟んであります。解禁の習熟度は
+0 / 2 / 4 / 6 / 8 / 10 / 13 / 16 / 19 / 22 / 26 / 30 です。
+Lv5 は 30 回と遠いので、**終盤の目標**として置いてある想定です。
+
+同系統は最上位だけが効くので、`classSkills` に Lv1〜Lv5 を全部並べても二重には乗りません。
+低いLvを並べるのは「育つ途中の姿」を作るためです。
 
 なお `MasterLoader` はスキルIDが解決できない `classSkills` を黙って読み飛ばします。
 ID を打ち間違えるとそのスキルは永久に手に入らないので、追加したら

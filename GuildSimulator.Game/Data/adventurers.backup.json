@@ -18,7 +18,7 @@
     "defaultWeaponId": "eq_sword_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_swordMastery"
+      "skill_swordMastery_lv2"
     ],
     "rarity": "Rare",
     "background": "辺境守備隊で六年間斥候を務めた元兵士。部隊の壊滅後、行方不明者を探して各地を渡っている。",
@@ -160,7 +160,7 @@
     "defaultWeaponId": "eq_sword_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_swordMastery"
+      "skill_swordMastery_lv2"
     ],
     "rarity": "Common"
   },
@@ -183,7 +183,7 @@
     "defaultWeaponId": "eq_sword_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_swordMastery"
+      "skill_swordMastery_lv2"
     ],
     "rarity": "Common"
   },
@@ -248,7 +248,7 @@
     "defaultWeaponId": "eq_axe_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_axeMastery"
+      "skill_axeMastery_lv2"
     ],
     "rarity": "Uncommon"
   },
@@ -271,7 +271,7 @@
     "defaultWeaponId": "eq_axe_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_axeMastery"
+      "skill_axeMastery_lv2"
     ],
     "rarity": "Uncommon"
   },
@@ -462,7 +462,7 @@
     "defaultWeaponId": "eq_water_01",
     "defaultArmorId": "eq_cloth_01",
     "skillIds": [
-      "skill_waterMastery"
+      "skill_waterMastery_lv2"
     ],
     "rarity": "Common"
   },
@@ -485,7 +485,7 @@
     "defaultWeaponId": "eq_Light_01",
     "defaultArmorId": "eq_cloth_01",
     "skillIds": [
-      "skill_lightMastery"
+      "skill_lightMastery_lv2"
     ],
     "rarity": "Common"
   },
@@ -508,7 +508,7 @@
     "defaultWeaponId": "eq_spear_01",
     "defaultArmorId": "eq_plate_01",
     "skillIds": [
-      "skill_swordSpear"
+      "skill_spearMastery_lv2"
     ],
     "rarity": "Common"
   },
@@ -531,7 +531,7 @@
     "defaultWeaponId": "eq_bow_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_bowSpear"
+      "skill_bowMastery_lv2"
     ],
     "rarity": "Common"
   },
@@ -554,8 +554,8 @@
     "defaultWeaponId": "eq_axe_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_axeMastery",
-      "skill_battleCry"
+      "skill_axeMastery_lv2",
+      "skill_battleCry_lv1"
     ],
     "rarity": "Common"
   },
@@ -578,8 +578,8 @@
     "defaultWeaponId": "eq_fire_01",
     "defaultArmorId": "eq_cloth_01",
     "skillIds": [
-      "skill_fireMastery",
-      "skill_manaFlow"
+      "skill_fireMastery_lv2",
+      "skill_manaFlow_lv2"
     ],
     "rarity": "Common"
   },
@@ -602,7 +602,7 @@
     "defaultWeaponId": "eq_spear_01",
     "defaultArmorId": "eq_plate_01",
     "skillIds": [
-      "skill_swordSpear",
+      "skill_spearMastery_lv2",
       "skill_ironWall"
     ],
     "rarity": "Common"
@@ -626,8 +626,8 @@
     "defaultWeaponId": "eq_Light_01",
     "defaultArmorId": "eq_cloth_01",
     "skillIds": [
-      "skill_lightMastery",
-      "skill_prayer"
+      "skill_lightMastery_lv2",
+      "skill_prayer_lv2"
     ],
     "rarity": "Common"
   },
@@ -650,8 +650,8 @@
     "defaultWeaponId": "eq_sword_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_swordMastery",
-      "skill_swiftStep"
+      "skill_swordMastery_lv2",
+      "skill_swiftStep_lv2"
     ],
     "rarity": "Common"
   },
@@ -674,8 +674,8 @@
     "defaultWeaponId": "eq_bow_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_bowSpear",
-      "skill_eagleEye"
+      "skill_bowMastery_lv2",
+      "skill_eagleEye_lv2"
     ],
     "rarity": "Common"
   },
@@ -698,8 +698,8 @@
     "defaultWeaponId": "eq_axe_02",
     "defaultArmorId": "eq_chain_01",
     "skillIds": [
-      "skill_axeMastery",
-      "skill_toughBody"
+      "skill_axeMastery_lv2",
+      "skill_toughBody_lv3"
     ],
     "rarity": "Rare"
   },
@@ -722,8 +722,8 @@
     "defaultWeaponId": "eq_sword_02",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_swordMastery",
-      "skill_swiftStep"
+      "skill_swordMastery_lv2",
+      "skill_swiftStep_lv2"
     ],
     "rarity": "Rare"
   },
@@ -746,9 +746,9 @@
     "defaultWeaponId": "eq_spear_02",
     "defaultArmorId": "eq_plate_01",
     "skillIds": [
-      "skill_swordSpear",
+      "skill_spearMastery_lv2",
       "skill_ironWall",
-      "skill_guardian"
+      "skill_guardian_lv2"
     ],
     "rarity": "Common"
   },
@@ -771,8 +771,8 @@
     "defaultWeaponId": "eq_fire_02",
     "defaultArmorId": "eq_robe_02",
     "skillIds": [
-      "skill_fireMastery",
-      "skill_manaFlow"
+      "skill_fireMastery_lv2",
+      "skill_manaFlow_lv2"
     ],
     "rarity": "Common"
   },
@@ -795,9 +795,9 @@
     "defaultWeaponId": "eq_sword_02",
     "defaultArmorId": "eq_chain_01",
     "skillIds": [
-      "skill_swordMastery",
-      "skill_swiftStep",
-      "skill_toughBody"
+      "skill_swordMastery_lv2",
+      "skill_swiftStep_lv2",
+      "skill_toughBody_lv3"
     ],
     "rarity": "Common"
   },
@@ -820,8 +820,8 @@
     "defaultWeaponId": "eq_Light_02",
     "defaultArmorId": "eq_robe_02",
     "skillIds": [
-      "skill_lightMastery",
-      "skill_prayer"
+      "skill_lightMastery_lv2",
+      "skill_prayer_lv2"
     ],
     "rarity": "Common"
   },
@@ -844,9 +844,9 @@
     "defaultWeaponId": "eq_bow_02",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_bowSpear",
-      "skill_eagleEye",
-      "skill_swiftStep"
+      "skill_bowMastery_lv2",
+      "skill_eagleEye_lv2",
+      "skill_swiftStep_lv2"
     ],
     "rarity": "Common"
   },
@@ -869,10 +869,10 @@
     "defaultWeaponId": "eq_axe_02",
     "defaultArmorId": "eq_plate_02",
     "skillIds": [
-      "skill_axeMastery",
-      "skill_axeMastery2",
-      "skill_battleCry",
-      "skill_berserk"
+      "skill_axeMastery_lv2",
+      "skill_axeMastery_lv5",
+      "skill_battleCry_lv1",
+      "skill_berserk_lv2"
     ],
     "rarity": "Common"
   },
@@ -895,8 +895,8 @@
     "defaultWeaponId": "eq_dark_01",
     "defaultArmorId": "eq_robe_02",
     "skillIds": [
-      "skill_darkMastery",
-      "skill_manaFlow",
+      "skill_darkMastery_lv2",
+      "skill_manaFlow_lv2",
       "skill_deathAura"
     ],
     "rarity": "Common"
@@ -920,10 +920,10 @@
     "defaultWeaponId": "eq_sword_02",
     "defaultArmorId": "eq_plate_02",
     "skillIds": [
-      "skill_swordMastery",
-      "skill_swordMastery2",
-      "skill_swiftStep",
-      "skill_toughBody"
+      "skill_swordMastery_lv2",
+      "skill_swordMastery_lv5",
+      "skill_swiftStep_lv2",
+      "skill_toughBody_lv3"
     ],
     "rarity": "Common"
   }

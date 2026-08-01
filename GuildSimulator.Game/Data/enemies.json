@@ -121,7 +121,7 @@
     "defaultWeaponId": "eq_sling_01",
     "defaultArmorId": "",
     "skillIds": [
-      "skill_bowSpear"
+      "skill_bowMastery_lv2"
     ],
     "naturalPv": 4,
     "threat": 2
@@ -139,7 +139,7 @@
     "defaultWeaponId": "eq_dagger_01",
     "defaultArmorId": "",
     "skillIds": [
-      "skill_swordMastery"
+      "skill_swordMastery_lv2"
     ],
     "naturalPv": 4,
     "threat": 3
@@ -157,7 +157,7 @@
     "defaultWeaponId": "eq_sword_02",
     "defaultArmorId": "eq_plate_01",
     "skillIds": [
-      "skill_swordMastery",
+      "skill_swordMastery_lv2",
       "skill_ironWall"
     ],
     "naturalPv": 4,
@@ -176,8 +176,8 @@
     "defaultWeaponId": "eq_axe_02",
     "defaultArmorId": "eq_chain_01",
     "skillIds": [
-      "skill_axeMastery",
-      "skill_battleCry"
+      "skill_axeMastery_lv2",
+      "skill_battleCry_lv1"
     ],
     "dropTable": [
       {
@@ -204,7 +204,7 @@
     "defaultWeaponId": "eq_bow_01",
     "defaultArmorId": "",
     "skillIds": [
-      "skill_bowSpear"
+      "skill_bowMastery_lv2"
     ],
     "naturalPv": 4,
     "threat": 2
@@ -222,7 +222,7 @@
     "defaultWeaponId": "eq_fire_01",
     "defaultArmorId": "eq_cloth_01",
     "skillIds": [
-      "skill_fireMastery"
+      "skill_fireMastery_lv2"
     ],
     "naturalPv": 4,
     "threat": 2
@@ -240,8 +240,8 @@
     "defaultWeaponId": "eq_axe_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_axeMastery",
-      "skill_battleCry"
+      "skill_axeMastery_lv2",
+      "skill_battleCry_lv1"
     ],
     "naturalPv": 4,
     "threat": 4
@@ -307,7 +307,7 @@
     "defaultArmorId": "",
     "naturalDamageDice": "1d8",
     "skillIds": [
-      "skill_toughBody"
+      "skill_toughBody_lv3"
     ],
     "naturalPv": 5,
     "naturalAv": 5,
@@ -327,8 +327,8 @@
     "defaultWeaponId": "eq_axe_01",
     "defaultArmorId": "",
     "skillIds": [
-      "skill_axeMastery",
-      "skill_battleCry"
+      "skill_axeMastery_lv2",
+      "skill_battleCry_lv1"
     ],
     "naturalPv": 6,
     "naturalAv": 2,
@@ -348,8 +348,8 @@
     "defaultArmorId": "",
     "naturalDamageDice": "2d8",
     "skillIds": [
-      "skill_berserk",
-      "skill_toughBody"
+      "skill_berserk_lv2",
+      "skill_toughBody_lv3"
     ],
     "naturalPv": 8,
     "naturalAv": 4,
@@ -368,7 +368,7 @@
     "defaultWeaponId": "eq_sword_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_swordMastery"
+      "skill_swordMastery_lv2"
     ],
     "naturalPv": 4,
     "threat": 2
@@ -386,8 +386,8 @@
     "defaultWeaponId": "eq_bow_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_bowSpear",
-      "skill_eagleEye"
+      "skill_bowMastery_lv2",
+      "skill_eagleEye_lv2"
     ],
     "naturalPv": 4,
     "threat": 3
@@ -405,9 +405,9 @@
     "defaultWeaponId": "eq_sword_02",
     "defaultArmorId": "eq_chain_01",
     "skillIds": [
-      "skill_swordMastery",
-      "skill_battleCry",
-      "skill_berserk"
+      "skill_swordMastery_lv2",
+      "skill_battleCry_lv1",
+      "skill_berserk_lv2"
     ],
     "naturalPv": 4,
     "threat": 6
@@ -463,7 +463,7 @@
     "defaultWeaponId": "eq_spear_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_swordSpear"
+      "skill_spearMastery_lv2"
     ],
     "naturalPv": 4,
     "threat": 2
@@ -481,7 +481,7 @@
     "defaultWeaponId": "eq_axe_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_axeMastery"
+      "skill_axeMastery_lv2"
     ],
     "naturalPv": 4,
     "threat": 3
@@ -499,7 +499,7 @@
     "defaultWeaponId": "eq_earth_01",
     "defaultArmorId": "eq_cloth_01",
     "skillIds": [
-      "skill_earthMastery"
+      "skill_earthMastery_lv2"
     ],
     "naturalPv": 4,
     "threat": 3
@@ -517,7 +517,7 @@
     "defaultWeaponId": "eq_water_01",
     "defaultArmorId": "",
     "skillIds": [
-      "skill_waterMastery",
+      "skill_waterMastery_lv2",
       "skill_flight"
     ],
     "naturalPv": 3,
@@ -539,7 +539,7 @@
     "naturalDamageDice": "2d6",
     "skillIds": [
       "skill_stoneSkin",
-      "skill_toughBody"
+      "skill_toughBody_lv3"
     ],
     "naturalPv": 7,
     "naturalAv": 8,
@@ -559,7 +559,7 @@
     "defaultWeaponId": "eq_sword_01",
     "defaultArmorId": "",
     "skillIds": [
-      "skill_swordMastery"
+      "skill_swordMastery_lv2"
     ],
     "naturalPv": 3,
     "naturalAv": 2,
@@ -579,7 +579,7 @@
     "defaultWeaponId": "eq_bow_01",
     "defaultArmorId": "",
     "skillIds": [
-      "skill_bowSpear"
+      "skill_bowMastery_lv2"
     ],
     "naturalPv": 3,
     "naturalAv": 2,
@@ -641,7 +641,7 @@
     "naturalDamageDice": "2d4",
     "skillIds": [
       "skill_beastFang",
-      "skill_swiftStep"
+      "skill_swiftStep_lv2"
     ],
     "dropTable": [
       {
@@ -677,7 +677,7 @@
     "defaultWeaponId": "eq_dark_01",
     "defaultArmorId": "eq_robe_02",
     "skillIds": [
-      "skill_darkMastery",
+      "skill_darkMastery_lv2",
       "skill_deathAura"
     ],
     "naturalPv": 3,
@@ -697,10 +697,10 @@
     "defaultWeaponId": "eq_drop_bone",
     "defaultArmorId": "eq_plate_02",
     "skillIds": [
-      "skill_swordMastery",
+      "skill_swordMastery_lv2",
       "skill_undeadTough",
       "skill_deathAura",
-      "skill_guardian"
+      "skill_guardian_lv2"
     ],
     "dropTable": [
       {

@@ -29,6 +29,15 @@ public static class BattleResolver
     const float HEAL_TARGET_HP_RATE = 0.7f; // 味方のHP率がこれを下回っていたら回復を選ぶ
     const int MAX_ACTIONS = 300;            // 長期戦の安全弁（個別行動の総数）
 
+    /// <summary>
+    /// 狙われにくさの下限。どれだけ気配を消しても完全に的から外れることはない
+    /// （全員が隠形を積んだ編成で抽選が成り立たなくなるのを防ぐ）。
+    /// </summary>
+    public const float MIN_THREAT_WEIGHT_SCALE = 0.1f;
+
+    /// <summary>応急処置が発動するHP率。これを下回った瞬間に1戦闘1度だけ効く。</summary>
+    public const float EMERGENCY_HEAL_HP_RATE = 0.5f;
+
     public static Result Resolve(
         IUnitMember?[] advSide,
         IUnitMember?[] enemySide,
@@ -45,6 +54,9 @@ public static class BattleResolver
         // 斧に削られた装甲は戦闘が終わるまで戻らない。ラウンドをまたいで積み上がるので、
         // 毎ラウンド作り直される statsByMember ではなくここで持つ。
         var armorShredded = new Dictionary<IUnitMember, int>();
+
+        // 応急処置は1回の戦闘につき1度きり。ラウンドをまたいで覚えておく。
+        var emergencyHealUsed = new HashSet<IUnitMember>();
 
         logs.Add($"[Turn {turn}] Phase {phase}: 戦闘開始 冒険者 vs {DescribeComposition(enemySide)}");
 
@@ -135,7 +147,7 @@ public static class BattleResolver
                     // 1振りぶんの解決。右手の連撃も左手の追撃も、得物の数値を差し替えて同じ経路を通る。
                     void Swing(int pv, string? dice, WeaponTraits w, bool magic, string swingTag)
                     {
-                        var target = PickTarget(enemySideArr);
+                        var target = PickTarget(enemySideArr, statsByMember);
                         if (target == null) return;
                         var targetStats = statsByMember[target];
 
@@ -164,11 +176,19 @@ public static class BattleResolver
                         if (shield != null && !magic
                             && QudCombat.RollBlock(shield.blockChance + targetStats.blockChance))
                         {
+                            // 高位の盾術は「受けたうえで完全に殺す」。相手のPVがいくつでも通らない。
+                            if (QudCombat.RollBlockNegate(targetStats.blockNegate))
+                            {
+                                logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {swingTag}{target.Name}は{shield.displayName}で完全に受けきった ダメージなし");
+                                return;
+                            }
                             av += shield.blockAv;
                             blockTag = $"（{shield.displayName}で受け AV+{shield.blockAv}）";
                         }
 
-                        var dealt = QudCombat.ResolveAttack(pv, av, dice, check.critical, w.armorPierce);
+                        var dealt = QudCombat.ResolveAttack(
+                            pv, av, dice, check.critical,
+                            w.armorPierce, actorStats.critPv, actorStats.autoPenetrate);
 
                         target.CombatHp -= dealt.damage;
                         string tag = check.critical ? "会心！" : "命中！";
@@ -184,7 +204,8 @@ public static class BattleResolver
                         else
                         {
                             string shown = string.IsNullOrWhiteSpace(dice) ? QudCombat.DEFAULT_DAMAGE_DICE : dice;
-                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {swingTag}{tag}（{roll}、{judge}） {dealt.penetrations}回貫通 {shown}×{dealt.penetrations} ダメージ={dealt.damage} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
+                            string forced = dealt.autoPenetrated ? "急所を突いた！ " : "";
+                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {swingTag}{tag}（{roll}、{judge}） {forced}{dealt.penetrations}回貫通 {shown}×{dealt.penetrations} ダメージ={dealt.damage} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
 
                             // 装甲破壊は「貫通した攻撃」にだけ乗る。削れた装甲は味方全員の攻撃にも効く。
                             int shred = ApplyArmorShred(armorShredded, target, w.armorShred, magic);
@@ -198,6 +219,11 @@ public static class BattleResolver
                             target.IsAlive = false;
                             logs.Add($"  Phase {phase}: {target.Name} 撃破！");
                             if (!entry.isAdvSide) partyDowned++;
+                        }
+                        else if (dealt.damage > 0)
+                        {
+                            // 深手を負った瞬間に手が動く。倒れてしまってからでは間に合わない。
+                            TryEmergencyHeal(target, targetStats, emergencyHealUsed, logs, phase);
                         }
                     }
 
@@ -343,6 +369,26 @@ public static class BattleResolver
         return hp;
     }
 
+    /// <summary>
+    /// 応急処置。HPが半分を切った瞬間に、最大HPの emergencyHeal% を自分で取り返す。
+    /// 1回の戦闘につき1度きりなので、粘りを生むが立て直しの手にはならない。
+    /// </summary>
+    static void TryEmergencyHeal(
+        IUnitMember target, StatBlock stats, HashSet<IUnitMember> used, List<string> logs, int phase)
+    {
+        if (stats.emergencyHeal <= 0 || !target.IsAlive) return;
+        if (target.CombatHpMax <= 0) return;
+        if (HpRate(target) >= EMERGENCY_HEAL_HP_RATE) return;
+        if (!used.Add(target)) return;
+
+        int amount = (int)Math.Ceiling(target.CombatHpMax * stats.emergencyHeal / 100f);
+        amount = Math.Min(amount, target.CombatHpMax - target.CombatHp);
+        if (amount <= 0) return;
+
+        target.CombatHp += amount;
+        logs.Add($"  Phase {phase}: {target.Name} 応急処置 +{amount}（{target.CombatHp}/{target.CombatHpMax}）");
+    }
+
     static IUnitMember? PickHealTarget(IUnitMember?[] side)
     {
         IUnitMember? lowest = null;
@@ -358,7 +404,7 @@ public static class BattleResolver
 
     // 前衛優先（前衛がいれば80%の確率で前衛から）で対象の列を選び、列内では硬さ・回避のしにくさに
     // 反比例する重み付け抽選で1体選ぶ。
-    static IUnitMember? PickTarget(IUnitMember?[] side)
+    static IUnitMember? PickTarget(IUnitMember?[] side, IReadOnlyDictionary<IUnitMember, StatBlock> statsByMember)
     {
         var front = new List<IUnitMember>();
         var back = new List<IUnitMember>();
@@ -373,7 +419,7 @@ public static class BattleResolver
         bool pickFront = front.Count > 0 && (back.Count == 0 || GameRandom.NextFloat() < FRONT_TARGET_CHANCE);
         var pool = pickFront ? front : back;
         if (pool.Count == 0) pool = pickFront ? back : front;
-        return PickWeightedBySquishiness(pool);
+        return PickWeightedBySquishiness(pool, statsByMember);
     }
 
     static int SlotOf(IUnitMember?[] side, IUnitMember member)
@@ -400,16 +446,23 @@ public static class BattleResolver
 
     // 硬い相手・避ける相手ほど狙われにくい。AV/DVは1桁の整数なので、旧来の200分率ではなく
     // 「装甲と回避の合計1点につき狙われにくさが効く」スケールで重みを取る。
-    static IUnitMember? PickWeightedBySquishiness(List<IUnitMember> pool)
+    // そのうえで threatWeight（挑発・隠形）を掛ける。囮は硬くても引きつけられ、
+    // 気配を消した者は柔らかくても後回しにされる。
+    static IUnitMember? PickWeightedBySquishiness(
+        List<IUnitMember> pool, IReadOnlyDictionary<IUnitMember, StatBlock> statsByMember)
     {
         if (pool.Count == 0) return null;
         float sum = 0;
         var weights = new float[pool.Count];
         for (int i = 0; i < pool.Count; i++)
         {
-            var s = pool[i].GetFinalCombatStats();
+            // 隊列を織り込んだ最終値があればそれを使う。無ければ素の値で近似する。
+            var s = statsByMember.TryGetValue(pool[i], out var known)
+                ? known
+                : pool[i].GetFinalCombatStats();
             int toughness = Math.Max(0, s.av) + Math.Max(0, s.mav) + Math.Max(0, s.dv);
             float w = 1f / (1f + toughness / 10f);
+            w *= Math.Max(MIN_THREAT_WEIGHT_SCALE, 1f + s.threatWeight / 100f);
             weights[i] = w; sum += w;
         }
         if (sum <= 0) return pool[GameRandom.Range(0, pool.Count)];

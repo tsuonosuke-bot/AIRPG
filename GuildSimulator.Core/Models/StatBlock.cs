@@ -47,6 +47,36 @@ public struct StatBlock
     /// <summary>盾で受け止められる確率への加算（%）。盾術スキルがここを伸ばす。</summary>
     public int blockChance;
 
+    /// <summary>
+    /// 盾で受け止めたとき、相手のPVに関わらずダメージを丸ごと無効化する確率（%）。
+    /// blockChance が「受けられるか」なら、こちらは「受けきれるか」。高位の盾術だけが持つ。
+    /// </summary>
+    public int blockNegate;
+
+    /// <summary>
+    /// 積載上限への加算。装備の重さを担ぐ余裕そのものを増やすので、
+    /// 重い鎧を着ても過積載のDV・命中ペナルティを受けずに済むようになる。
+    /// </summary>
+    public int carry;
+
+    /// <summary>
+    /// 狙われやすさへの加算（%）。+なら囮として敵を引きつけ、-なら的にされにくくなる。
+    /// 硬さ・回避による狙われにくさに掛け合わせる形で効く。
+    /// </summary>
+    public int threatWeight;
+
+    /// <summary>装甲判定を無条件で1回通す確率（%）。硬い相手に手も足も出ない事故を減らす。</summary>
+    public int autoPenetrate;
+
+    /// <summary>会心したときに上乗せするPV。会心の「効き」そのものを重くする。</summary>
+    public int critPv;
+
+    /// <summary>
+    /// 応急処置。HPが半分を切った瞬間に最大HPのこの割合（%）を回復する。
+    /// 1回の戦闘につき1度しか発動しない。
+    /// </summary>
+    public int emergencyHeal;
+
     public static StatBlock operator +(StatBlock a, StatBlock b) => new()
     {
         hp = a.hp + b.hp,
@@ -64,5 +94,11 @@ public struct StatBlock
         extraAttacks = a.extraAttacks + b.extraAttacks,
         offHandChance = a.offHandChance + b.offHandChance,
         blockChance = a.blockChance + b.blockChance,
+        blockNegate = a.blockNegate + b.blockNegate,
+        carry = a.carry + b.carry,
+        threatWeight = a.threatWeight + b.threatWeight,
+        autoPenetrate = a.autoPenetrate + b.autoPenetrate,
+        critPv = a.critPv + b.critPv,
+        emergencyHeal = a.emergencyHeal + b.emergencyHeal,
     };
 }

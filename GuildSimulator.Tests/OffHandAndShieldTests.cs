@@ -95,7 +95,7 @@ public class OffHandAndShieldTests
     public void TheDualWieldSkillRaisesTheOffHandRateSubstantially()
     {
         var db = Load();
-        var skill = db.skills["skill_dualWield"];
+        var skill = db.skills["skill_dualWield_lv2"];
         Assert.True(skill.add.offHandChance > 0, "二刀流スキルが offHandChance を持っていない");
 
         double plain = OffHandRate(db, "eq_sword_03");

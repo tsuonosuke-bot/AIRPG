@@ -390,10 +390,26 @@ public static class HelpScreen
         Ui.BeginScreen();
         Ui.Header("職業とマスタリー");
         Ui.WriteLine("  ■ マスタリーとは");
-        Ui.WriteLine("     職業スキルのうち「○○マスタリー」は、その武器種を握っているときだけ効く。");
+        Ui.WriteLine("     職業スキルのうち「○○マスタリー」は、その武器種・防具種を身に着けているときだけ効く。");
         Ui.WriteLine("     持ち替えると効果は消えるので、職業と得物は揃えたほうがよい。");
-        Ui.WriteLine("     基礎はどれもPV+2で横並びだが、「・極」まで育つと得物ごとの持ち味が伸びる。");
-        Ui.WriteLine("     基礎と「・極」は入れ替わりではなく両方が乗る（重ねがけになる）。");
+        Ui.WriteLine("     武器マスタリーはLv1〜Lv5、防具マスタリーもLv1〜Lv5まである。");
+        Ui.WriteLine("     低いLvほど横並びで、Lv3・Lv5でその得物にしかできないことが顔を出す。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ Lv表記のスキルは重ねがけにならない");
+        Ui.WriteLine("     同じ系統（○○ Lv1〜Lv5）は、覚えているうち「いちばん上のLv」だけが効く。");
+        Ui.WriteLine("     Lv3を覚えるとLv1・Lv2は押しのけられるので、一覧の数値はそのまま最終値として読める。");
+        Ui.WriteLine("     下位のLvが消えるわけではないので、系統が違えば何本でも並行して伸ばせる。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 装備の条件");
+        Ui.WriteLine("     武器種・防具種のほかに、次の構えを条件にするスキルもある。");
+        Ui.WriteLine("       ・[素手]     右手に何も握っていないとき（格闘術）");
+        Ui.WriteLine("       ・[両手武器] 両手で構える物理武器のとき（両手武器術。杖は含まない）");
+        Ui.WriteLine("       ・[盾]       左手に盾を構えているとき（盾術）");
+        Ui.WriteLine("       ・[左手武器] 左手に武器を握っているとき（二刀流）");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 戦闘の外に効くスキル");
+        Ui.WriteLine("     報酬G・経験値・宝箱率・罠率を動かすスキルは、連れて行った全員ぶんが合算される。");
+        Ui.WriteLine("     隊列も生死も関係なく、その遠征に誰を出したかだけで決まる。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 習得条件 ── クラス習熟度");
         Ui.WriteLine("     職業スキルは経験値やレベルではなく「その職業での正規クリア回数（クラス習熟度）」で開く。");
@@ -440,17 +456,32 @@ public static class HelpScreen
                 var skill = entry.Skill!;
                 var parts = EquipmentText.BonusParts(skill.add);
                 parts.AddRange(MultiplierParts(skill.mul));
+                parts.AddRange(EquipmentText.ExpeditionParts(skill.expedition));
+                if (!string.IsNullOrWhiteSpace(skill.unarmedDamageDice))
+                    parts.Add($"素手{skill.unarmedDamageDice}");
                 string effect = parts.Count > 0 ? string.Join(" ", parts) : "効果なし";
-                string need = skill.requireWeaponType
-                    ? $"[{EquipmentText.WeaponClassName(skill.requiredWeaponType)}装備時]"
-                    : skill.requireArmorType ? $"[{ArmorName(skill.requiredArmorType)}装備時]" : "";
                 string where = skill.frontOnly ? "[前衛]" : skill.backOnly ? "[後衛]" : "";
                 string scope = skill.scope == SkillScope.UnitAura ? "[隊全体]" : "";
                 Ui.WriteLine($"        習熟度{entry.requiredClearCount,2} "
                     + Ui.PadWide(skill.skillName, 22)
-                    + Ui.PadWide(effect, 29) + $"{need}{where}{scope}");
+                    + Ui.PadWide(effect, 29) + $"{GearRequirementText(skill)}{where}{scope}");
             }
         }
+    }
+
+    /// <summary>そのスキルが効くための「構え」。条件がなければ空文字。</summary>
+    static string GearRequirementText(SkillMasterData skill)
+    {
+        var parts = new List<string>();
+        if (skill.requireWeaponType)
+            parts.Add($"{EquipmentText.WeaponClassName(skill.requiredWeaponType)}装備時");
+        if (skill.requireArmorType) parts.Add($"{ArmorName(skill.requiredArmorType)}装備時");
+        if (skill.requireUnarmed) parts.Add("素手");
+        if (skill.requireTwoHanded) parts.Add(skill.requirePhysicalWeapon ? "両手近接武器" : "両手武器");
+        else if (skill.requirePhysicalWeapon) parts.Add("物理武器");
+        if (skill.requireShield) parts.Add("盾");
+        if (skill.requireOffHandWeapon) parts.Add("左手に武器");
+        return parts.Count == 0 ? "" : $"[{string.Join("・", parts)}]";
     }
 
     static List<string> MultiplierParts(StatMultiplier m)

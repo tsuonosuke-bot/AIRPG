@@ -107,6 +107,18 @@
         "relicId": "relic_clover",
         "weight": 1,
         "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_porter_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_firstAid_lv1",
+        "weight": 1,
+        "unique": true
       }
     ],
     "turnEndEventIds": [
@@ -278,6 +290,24 @@
         "relicId": "relic_barkshield",
         "weight": 1,
         "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_haggle_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_trapSense_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_martialArts_lv1",
+        "weight": 1,
+        "unique": true
       }
     ],
     "turnEndEventIds": [
@@ -400,6 +430,24 @@
       {
         "type": 0,
         "relicId": "relic_signet",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_mentor_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_willpower_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_treasureHunter_lv1",
         "weight": 1,
         "unique": true
       }
@@ -547,6 +595,24 @@
       {
         "type": 0,
         "relicId": "relic_emberstone",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_earthMastery_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_sureStrike_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_porter_lv2",
         "weight": 1,
         "unique": true
       }
@@ -697,6 +763,36 @@
         "relicId": "relic_reliquary",
         "weight": 1,
         "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_willpower_lv2",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_wardEnchant_lv2",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_sureStrike_lv2",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_martialArts_lv3",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_firstAid_lv2",
+        "weight": 1,
+        "unique": true
       }
     ],
     "turnEndEventIds": [
@@ -804,6 +900,24 @@
         "relicId": "relic_eggs",
         "weight": 1,
         "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_windMastery_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_wardEnchant_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_martialArts_lv2",
+        "weight": 1,
+        "unique": true
       }
     ],
     "turnEndEventIds": [
@@ -892,6 +1006,30 @@
       {
         "type": 0,
         "relicId": "relic_contract",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_haggle_lv2",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_mentor_lv2",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_windMastery_lv2",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_deepCut_lv1",
         "weight": 1,
         "unique": true
       }

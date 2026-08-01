@@ -146,7 +146,7 @@ public class EquipmentSlotTests
         Assert.Equal(WeaponType.Axe, db.equipment["eq_greataxe_03"].weaponType);
         Assert.Equal(WeaponType.Spear, db.equipment["eq_longspear_03"].weaponType);
 
-        var swordMastery = db.skills["skill_swordMastery"];
+        var swordMastery = db.skills["skill_swordMastery_lv2"];
         Assert.True(swordMastery.requireWeaponType);
         Assert.Equal(WeaponType.Sword, swordMastery.requiredWeaponType);
 

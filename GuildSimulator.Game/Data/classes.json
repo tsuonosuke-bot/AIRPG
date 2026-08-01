@@ -1,51 +1,415 @@
 [
-  { "id": "class_warrior",   "className": "戦士",     "vitGrowth": 0.30, "mentGrowth": 0.10, "strGrowth": 0.50, "intGrowth": 0.10, "agiGrowth": 0.10,
+  {
+    "id": "class_warrior",
+    "className": "戦士",
+    "vitGrowth": 0.3,
+    "mentGrowth": 0.1,
+    "strGrowth": 0.5,
+    "intGrowth": 0.1,
+    "agiGrowth": 0.1,
     "classSkills": [
-      { "skillId": "skill_axeMastery",   "requiredClearCount": 0 },
-      { "skillId": "skill_battleCry",    "requiredClearCount": 3 },
-      { "skillId": "skill_berserk",      "requiredClearCount": 6 },
-      { "skillId": "skill_axeMastery2",  "requiredClearCount": 10 }
-    ] },
-  { "id": "class_Steelcoat", "className": "甲冑兵",   "vitGrowth": 0.50, "mentGrowth": 0.30, "strGrowth": 0.50, "intGrowth": 0.00, "agiGrowth": -0.20,
+      {
+        "skillId": "skill_axeMastery_lv1",
+        "requiredClearCount": 0
+      },
+      {
+        "skillId": "skill_lightArmorMastery_lv1",
+        "requiredClearCount": 2
+      },
+      {
+        "skillId": "skill_axeMastery_lv2",
+        "requiredClearCount": 4
+      },
+      {
+        "skillId": "skill_twoHandedMastery_lv1",
+        "requiredClearCount": 6
+      },
+      {
+        "skillId": "skill_axeMastery_lv3",
+        "requiredClearCount": 8
+      },
+      {
+        "skillId": "skill_toughBody_lv1",
+        "requiredClearCount": 10
+      },
+      {
+        "skillId": "skill_berserk_lv1",
+        "requiredClearCount": 13
+      },
+      {
+        "skillId": "skill_twoHandedMastery_lv2",
+        "requiredClearCount": 16
+      },
+      {
+        "skillId": "skill_axeMastery_lv4",
+        "requiredClearCount": 19
+      },
+      {
+        "skillId": "skill_lightArmorMastery_lv2",
+        "requiredClearCount": 22
+      },
+      {
+        "skillId": "skill_twoHandedMastery_lv3",
+        "requiredClearCount": 26
+      },
+      {
+        "skillId": "skill_axeMastery_lv5",
+        "requiredClearCount": 30
+      }
+    ]
+  },
+  {
+    "id": "class_Steelcoat",
+    "className": "甲冑兵",
+    "vitGrowth": 0.5,
+    "mentGrowth": 0.3,
+    "strGrowth": 0.5,
+    "intGrowth": 0.0,
+    "agiGrowth": -0.2,
     "classSkills": [
-      { "skillId": "skill_swordSpear",     "requiredClearCount": 0 },
-      { "skillId": "skill_shieldMastery",  "requiredClearCount": 3 },
-      { "skillId": "skill_guardian",       "requiredClearCount": 6 },
-      { "skillId": "skill_spearMastery2",  "requiredClearCount": 10 }
-    ] },
-  { "id": "class_Swordman",  "className": "剣士",     "vitGrowth": 0.15, "mentGrowth": 0.10, "strGrowth": 0.35, "intGrowth": 0.00, "agiGrowth": 0.50,
+      {
+        "skillId": "skill_spearMastery_lv1",
+        "requiredClearCount": 0
+      },
+      {
+        "skillId": "skill_plateMastery_lv1",
+        "requiredClearCount": 2
+      },
+      {
+        "skillId": "skill_shieldMastery_lv1",
+        "requiredClearCount": 4
+      },
+      {
+        "skillId": "skill_spearMastery_lv2",
+        "requiredClearCount": 6
+      },
+      {
+        "skillId": "skill_plateMastery_lv2",
+        "requiredClearCount": 8
+      },
+      {
+        "skillId": "skill_shieldMastery_lv2",
+        "requiredClearCount": 10
+      },
+      {
+        "skillId": "skill_guardian_lv1",
+        "requiredClearCount": 13
+      },
+      {
+        "skillId": "skill_spearMastery_lv3",
+        "requiredClearCount": 16
+      },
+      {
+        "skillId": "skill_taunt_lv1",
+        "requiredClearCount": 19
+      },
+      {
+        "skillId": "skill_shieldMastery_lv3",
+        "requiredClearCount": 22
+      },
+      {
+        "skillId": "skill_spearMastery_lv4",
+        "requiredClearCount": 26
+      },
+      {
+        "skillId": "skill_spearMastery_lv5",
+        "requiredClearCount": 30
+      }
+    ]
+  },
+  {
+    "id": "class_Swordman",
+    "className": "剣士",
+    "vitGrowth": 0.15,
+    "mentGrowth": 0.1,
+    "strGrowth": 0.35,
+    "intGrowth": 0.0,
+    "agiGrowth": 0.5,
     "classSkills": [
-      { "skillId": "skill_swordMastery",  "requiredClearCount": 0 },
-      { "skillId": "skill_swiftStep",     "requiredClearCount": 3 },
-      { "skillId": "skill_toughBody",     "requiredClearCount": 6 },
-      { "skillId": "skill_swordMastery2", "requiredClearCount": 10 }
-    ] },
-  { "id": "class_Rogue",     "className": "盗賊",     "vitGrowth": 0.10, "mentGrowth": 0.15, "strGrowth": 0.20, "intGrowth": 0.15, "agiGrowth": 0.55,
+      {
+        "skillId": "skill_swordMastery_lv1",
+        "requiredClearCount": 0
+      },
+      {
+        "skillId": "skill_lightArmorMastery_lv1",
+        "requiredClearCount": 2
+      },
+      {
+        "skillId": "skill_swordMastery_lv2",
+        "requiredClearCount": 4
+      },
+      {
+        "skillId": "skill_swiftStep_lv1",
+        "requiredClearCount": 6
+      },
+      {
+        "skillId": "skill_swordMastery_lv3",
+        "requiredClearCount": 8
+      },
+      {
+        "skillId": "skill_lightArmorMastery_lv2",
+        "requiredClearCount": 10
+      },
+      {
+        "skillId": "skill_precision_lv1",
+        "requiredClearCount": 13
+      },
+      {
+        "skillId": "skill_dualWield_lv1",
+        "requiredClearCount": 16
+      },
+      {
+        "skillId": "skill_swordMastery_lv4",
+        "requiredClearCount": 19
+      },
+      {
+        "skillId": "skill_lightArmorMastery_lv3",
+        "requiredClearCount": 22
+      },
+      {
+        "skillId": "skill_swiftStep_lv2",
+        "requiredClearCount": 26
+      },
+      {
+        "skillId": "skill_swordMastery_lv5",
+        "requiredClearCount": 30
+      }
+    ]
+  },
+  {
+    "id": "class_Rogue",
+    "className": "盗賊",
+    "vitGrowth": 0.1,
+    "mentGrowth": 0.15,
+    "strGrowth": 0.2,
+    "intGrowth": 0.15,
+    "agiGrowth": 0.55,
     "classSkills": [
-      { "skillId": "skill_daggerMastery",  "requiredClearCount": 0 },
-      { "skillId": "skill_swiftStep",      "requiredClearCount": 3 },
-      { "skillId": "skill_dualWield",      "requiredClearCount": 6 },
-      { "skillId": "skill_daggerMastery2", "requiredClearCount": 10 }
-    ] },
-  { "id": "class_Archer",    "className": "アーチャー","vitGrowth": 0.25, "mentGrowth": 0.15, "strGrowth": 0.30, "intGrowth": 0.10, "agiGrowth": 0.30,
+      {
+        "skillId": "skill_daggerMastery_lv1",
+        "requiredClearCount": 0
+      },
+      {
+        "skillId": "skill_lightArmorMastery_lv1",
+        "requiredClearCount": 2
+      },
+      {
+        "skillId": "skill_daggerMastery_lv2",
+        "requiredClearCount": 4
+      },
+      {
+        "skillId": "skill_stealth_lv1",
+        "requiredClearCount": 6
+      },
+      {
+        "skillId": "skill_daggerMastery_lv3",
+        "requiredClearCount": 8
+      },
+      {
+        "skillId": "skill_treasureHunter_lv1",
+        "requiredClearCount": 10
+      },
+      {
+        "skillId": "skill_dualWield_lv1",
+        "requiredClearCount": 13
+      },
+      {
+        "skillId": "skill_trapSense_lv1",
+        "requiredClearCount": 16
+      },
+      {
+        "skillId": "skill_daggerMastery_lv4",
+        "requiredClearCount": 19
+      },
+      {
+        "skillId": "skill_precision_lv1",
+        "requiredClearCount": 22
+      },
+      {
+        "skillId": "skill_stealth_lv2",
+        "requiredClearCount": 26
+      },
+      {
+        "skillId": "skill_daggerMastery_lv5",
+        "requiredClearCount": 30
+      }
+    ]
+  },
+  {
+    "id": "class_Archer",
+    "className": "アーチャー",
+    "vitGrowth": 0.25,
+    "mentGrowth": 0.15,
+    "strGrowth": 0.3,
+    "intGrowth": 0.1,
+    "agiGrowth": 0.3,
     "classSkills": [
-      { "skillId": "skill_bowSpear",    "requiredClearCount": 0 },
-      { "skillId": "skill_eagleEye",    "requiredClearCount": 3 },
-      { "skillId": "skill_swiftStep",   "requiredClearCount": 6 },
-      { "skillId": "skill_bowMastery2", "requiredClearCount": 10 }
-    ] },
-  { "id": "class_Healer",    "className": "治療師",   "vitGrowth": 0.10, "mentGrowth": 0.50, "strGrowth": 0.00, "intGrowth": 0.30, "agiGrowth": 0.20,
+      {
+        "skillId": "skill_bowMastery_lv1",
+        "requiredClearCount": 0
+      },
+      {
+        "skillId": "skill_lightArmorMastery_lv1",
+        "requiredClearCount": 2
+      },
+      {
+        "skillId": "skill_bowMastery_lv2",
+        "requiredClearCount": 4
+      },
+      {
+        "skillId": "skill_eagleEye_lv1",
+        "requiredClearCount": 6
+      },
+      {
+        "skillId": "skill_bowMastery_lv3",
+        "requiredClearCount": 8
+      },
+      {
+        "skillId": "skill_swiftStep_lv1",
+        "requiredClearCount": 10
+      },
+      {
+        "skillId": "skill_stealth_lv1",
+        "requiredClearCount": 13
+      },
+      {
+        "skillId": "skill_eagleEye_lv2",
+        "requiredClearCount": 16
+      },
+      {
+        "skillId": "skill_bowMastery_lv4",
+        "requiredClearCount": 19
+      },
+      {
+        "skillId": "skill_precision_lv1",
+        "requiredClearCount": 22
+      },
+      {
+        "skillId": "skill_lightArmorMastery_lv2",
+        "requiredClearCount": 26
+      },
+      {
+        "skillId": "skill_bowMastery_lv5",
+        "requiredClearCount": 30
+      }
+    ]
+  },
+  {
+    "id": "class_Healer",
+    "className": "治療師",
+    "vitGrowth": 0.1,
+    "mentGrowth": 0.5,
+    "strGrowth": 0.0,
+    "intGrowth": 0.3,
+    "agiGrowth": 0.2,
     "classSkills": [
-      { "skillId": "skill_lightMastery",  "requiredClearCount": 0 },
-      { "skillId": "skill_prayer",        "requiredClearCount": 3 },
-      { "skillId": "skill_guardian",      "requiredClearCount": 6 },
-      { "skillId": "skill_lightMastery2", "requiredClearCount": 10 }
-    ] },
-  { "id": "class_Sorcerer",  "className": "ソーサラー","vitGrowth": 0.15, "mentGrowth": 0.35, "strGrowth": 0.00, "intGrowth": 0.50, "agiGrowth": 0.10,
+      {
+        "skillId": "skill_lightMastery_lv1",
+        "requiredClearCount": 0
+      },
+      {
+        "skillId": "skill_clothMastery_lv1",
+        "requiredClearCount": 2
+      },
+      {
+        "skillId": "skill_lightMastery_lv2",
+        "requiredClearCount": 4
+      },
+      {
+        "skillId": "skill_prayer_lv1",
+        "requiredClearCount": 6
+      },
+      {
+        "skillId": "skill_lightMastery_lv3",
+        "requiredClearCount": 8
+      },
+      {
+        "skillId": "skill_clothMastery_lv2",
+        "requiredClearCount": 10
+      },
+      {
+        "skillId": "skill_firstAid_lv1",
+        "requiredClearCount": 13
+      },
+      {
+        "skillId": "skill_waterMastery_lv1",
+        "requiredClearCount": 16
+      },
+      {
+        "skillId": "skill_lightMastery_lv4",
+        "requiredClearCount": 19
+      },
+      {
+        "skillId": "skill_prayer_lv2",
+        "requiredClearCount": 22
+      },
+      {
+        "skillId": "skill_waterMastery_lv2",
+        "requiredClearCount": 26
+      },
+      {
+        "skillId": "skill_lightMastery_lv5",
+        "requiredClearCount": 30
+      }
+    ]
+  },
+  {
+    "id": "class_Sorcerer",
+    "className": "ソーサラー",
+    "vitGrowth": 0.15,
+    "mentGrowth": 0.35,
+    "strGrowth": 0.0,
+    "intGrowth": 0.5,
+    "agiGrowth": 0.1,
     "classSkills": [
-      { "skillId": "skill_fireMastery",  "requiredClearCount": 0 },
-      { "skillId": "skill_manaFlow",     "requiredClearCount": 3 },
-      { "skillId": "skill_deathAura",    "requiredClearCount": 6 },
-      { "skillId": "skill_fireMastery2", "requiredClearCount": 10 }
-    ] }
+      {
+        "skillId": "skill_fireMastery_lv1",
+        "requiredClearCount": 0
+      },
+      {
+        "skillId": "skill_clothMastery_lv1",
+        "requiredClearCount": 2
+      },
+      {
+        "skillId": "skill_fireMastery_lv2",
+        "requiredClearCount": 4
+      },
+      {
+        "skillId": "skill_manaFlow_lv1",
+        "requiredClearCount": 6
+      },
+      {
+        "skillId": "skill_fireMastery_lv3",
+        "requiredClearCount": 8
+      },
+      {
+        "skillId": "skill_clothMastery_lv2",
+        "requiredClearCount": 10
+      },
+      {
+        "skillId": "skill_darkMastery_lv1",
+        "requiredClearCount": 13
+      },
+      {
+        "skillId": "skill_deepCut_lv1",
+        "requiredClearCount": 16
+      },
+      {
+        "skillId": "skill_fireMastery_lv4",
+        "requiredClearCount": 19
+      },
+      {
+        "skillId": "skill_manaFlow_lv2",
+        "requiredClearCount": 22
+      },
+      {
+        "skillId": "skill_darkMastery_lv2",
+        "requiredClearCount": 26
+      },
+      {
+        "skillId": "skill_fireMastery_lv5",
+        "requiredClearCount": 30
+      }
+    ]
+  }
 ]
