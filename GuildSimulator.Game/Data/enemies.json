@@ -15,7 +15,8 @@
     "skillIds": [],
     "naturalPv": 3,
     "naturalAv": 2,
-    "naturalMav": 3
+    "naturalMav": 3,
+    "threat": 1
   },
   {
     "id": "enemy_raven",
@@ -33,7 +34,8 @@
     "skillIds": [
       "skill_flight"
     ],
-    "naturalPv": 2
+    "naturalPv": 2,
+    "threat": 1
   },
   {
     "id": "enemy_horned_rabbit",
@@ -49,7 +51,8 @@
     "defaultArmorId": "",
     "naturalDamageDice": "1d4+1",
     "skillIds": [],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 1
   },
   {
     "id": "enemy_killer_bee",
@@ -68,7 +71,8 @@
       "skill_flight",
       "skill_swarm"
     ],
-    "naturalPv": 5
+    "naturalPv": 5,
+    "threat": 1
   },
   {
     "id": "enemy_goblin",
@@ -84,7 +88,8 @@
     "defaultArmorId": "",
     "naturalDamageDice": "1d4",
     "skillIds": [],
-    "naturalPv": 3
+    "naturalPv": 3,
+    "threat": 1
   },
   {
     "id": "enemy_goblin_stray",
@@ -100,7 +105,8 @@
     "defaultArmorId": "",
     "naturalDamageDice": "1d3",
     "skillIds": [],
-    "naturalPv": 2
+    "naturalPv": 2,
+    "threat": 1
   },
   {
     "id": "enemy_goblin_thrower",
@@ -117,7 +123,8 @@
     "skillIds": [
       "skill_bowSpear"
     ],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 2
   },
   {
     "id": "enemy_goblin_soldier",
@@ -134,7 +141,8 @@
     "skillIds": [
       "skill_swordMastery"
     ],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 3
   },
   {
     "id": "enemy_goblin_heavy",
@@ -152,7 +160,8 @@
       "skill_swordMastery",
       "skill_ironWall"
     ],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 4
   },
   {
     "id": "enemy_goblin_captain",
@@ -179,7 +188,8 @@
         "unique": false
       }
     ],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 4
   },
   {
     "id": "enemy_goblin_archer",
@@ -196,7 +206,8 @@
     "skillIds": [
       "skill_bowSpear"
     ],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 2
   },
   {
     "id": "enemy_goblin_shaman",
@@ -213,7 +224,8 @@
     "skillIds": [
       "skill_fireMastery"
     ],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 2
   },
   {
     "id": "enemy_goblin_chief",
@@ -231,7 +243,8 @@
       "skill_axeMastery",
       "skill_battleCry"
     ],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 4
   },
   {
     "id": "enemy_forest_wolf",
@@ -259,7 +272,8 @@
       }
     ],
     "naturalPv": 4,
-    "naturalAv": 1
+    "naturalAv": 1,
+    "threat": 2
   },
   {
     "id": "enemy_giant_spider",
@@ -276,7 +290,8 @@
     "naturalDamageDice": "1d6",
     "skillIds": [],
     "naturalPv": 5,
-    "naturalAv": 1
+    "naturalAv": 1,
+    "threat": 2
   },
   {
     "id": "enemy_treant",
@@ -296,7 +311,8 @@
     ],
     "naturalPv": 5,
     "naturalAv": 5,
-    "naturalMav": 2
+    "naturalMav": 2,
+    "threat": 4
   },
   {
     "id": "enemy_kernos",
@@ -315,7 +331,8 @@
       "skill_battleCry"
     ],
     "naturalPv": 6,
-    "naturalAv": 2
+    "naturalAv": 2,
+    "threat": 5
   },
   {
     "id": "enemy_kernos_beast",
@@ -335,7 +352,8 @@
       "skill_toughBody"
     ],
     "naturalPv": 8,
-    "naturalAv": 4
+    "naturalAv": 4,
+    "threat": 7
   },
   {
     "id": "enemy_bandit",
@@ -352,7 +370,8 @@
     "skillIds": [
       "skill_swordMastery"
     ],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 2
   },
   {
     "id": "enemy_bandit_archer",
@@ -370,7 +389,8 @@
       "skill_bowSpear",
       "skill_eagleEye"
     ],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 3
   },
   {
     "id": "enemy_bandit_boss",
@@ -389,7 +409,8 @@
       "skill_battleCry",
       "skill_berserk"
     ],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 6
   },
   {
     "id": "enemy_bat",
@@ -407,7 +428,8 @@
     "skillIds": [
       "skill_flight"
     ],
-    "naturalPv": 2
+    "naturalPv": 2,
+    "threat": 1
   },
   {
     "id": "enemy_giant_rat",
@@ -425,7 +447,8 @@
     "skillIds": [
       "skill_swarm"
     ],
-    "naturalPv": 3
+    "naturalPv": 3,
+    "threat": 1
   },
   {
     "id": "enemy_kobold",
@@ -442,7 +465,8 @@
     "skillIds": [
       "skill_swordSpear"
     ],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 2
   },
   {
     "id": "enemy_kobold_digger",
@@ -459,7 +483,8 @@
     "skillIds": [
       "skill_axeMastery"
     ],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 3
   },
   {
     "id": "enemy_kobold_shaman",
@@ -476,7 +501,8 @@
     "skillIds": [
       "skill_earthMastery"
     ],
-    "naturalPv": 4
+    "naturalPv": 4,
+    "threat": 3
   },
   {
     "id": "enemy_mine_wraith",
@@ -495,7 +521,8 @@
       "skill_flight"
     ],
     "naturalPv": 3,
-    "naturalMav": 4
+    "naturalMav": 4,
+    "threat": 4
   },
   {
     "id": "enemy_stone_golem",
@@ -516,7 +543,8 @@
     ],
     "naturalPv": 7,
     "naturalAv": 8,
-    "naturalMav": 4
+    "naturalMav": 4,
+    "threat": 6
   },
   {
     "id": "enemy_skeleton",
@@ -535,7 +563,8 @@
     ],
     "naturalPv": 3,
     "naturalAv": 2,
-    "naturalMav": 2
+    "naturalMav": 2,
+    "threat": 2
   },
   {
     "id": "enemy_skeleton_archer",
@@ -554,7 +583,8 @@
     ],
     "naturalPv": 3,
     "naturalAv": 2,
-    "naturalMav": 2
+    "naturalMav": 2,
+    "threat": 3
   },
   {
     "id": "enemy_zombie",
@@ -573,7 +603,8 @@
       "skill_undeadTough"
     ],
     "naturalPv": 3,
-    "naturalAv": 1
+    "naturalAv": 1,
+    "threat": 3
   },
   {
     "id": "enemy_ghoul",
@@ -592,7 +623,8 @@
       "skill_beastFang"
     ],
     "naturalPv": 5,
-    "naturalAv": 1
+    "naturalAv": 1,
+    "threat": 3
   },
   {
     "id": "enemy_shadow_beast",
@@ -629,7 +661,8 @@
     ],
     "naturalPv": 6,
     "naturalAv": 2,
-    "naturalMav": 3
+    "naturalMav": 3,
+    "threat": 4
   },
   {
     "id": "enemy_necromancer",
@@ -648,7 +681,8 @@
       "skill_deathAura"
     ],
     "naturalPv": 3,
-    "naturalMav": 2
+    "naturalMav": 2,
+    "threat": 5
   },
   {
     "id": "enemy_bone_lord",
@@ -686,6 +720,7 @@
     ],
     "naturalPv": 6,
     "naturalAv": 3,
-    "naturalMav": 4
+    "naturalMav": 4,
+    "threat": 7
   }
 ]

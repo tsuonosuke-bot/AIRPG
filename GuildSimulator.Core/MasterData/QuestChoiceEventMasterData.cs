@@ -20,4 +20,50 @@ public class QuestChoiceOptionData
     public string targetId = "";
     public EquipmentMasterData? Equipment { get; set; }
     public ConsumableMasterData? Consumable { get; set; }
+
+    /// <summary>
+    /// 実行前にプレイヤーがパーティから1人選ぶ。
+    /// 「誰に賭けるか」を決めさせてから結果を振るのが、この手のイベントの肝。
+    /// </summary>
+    public bool targetsOneMember;
+
+    /// <summary>
+    /// 結果の抽選表。空なら <see cref="effectType"/> がそのまま起きる（従来の挙動）。
+    /// ここに複数入れると、選んだ後で何が起きるかが運になる。
+    /// </summary>
+    public List<QuestChoiceOutcome> outcomes = new();
+
+    /// <summary>この選択肢で実際に起きうる結果。抽選表が空なら選択肢自身を1件として返す。</summary>
+    public IReadOnlyList<QuestChoiceOutcome> Outcomes => outcomes.Count > 0
+        ? outcomes
+        : new[]
+        {
+            new QuestChoiceOutcome
+            {
+                weight = 1, effectType = effectType, value = value,
+                targetId = targetId, resultText = "",
+                Equipment = Equipment, Consumable = Consumable,
+            },
+        };
+
+    /// <summary>結果が1通りに決まっているか。ギャンブル性のある選択肢かどうかの目印。</summary>
+    public bool IsGamble => outcomes.Count > 1;
+}
+
+/// <summary>選択肢を選んだあとに抽選される結果の1件。</summary>
+public class QuestChoiceOutcome
+{
+    public int weight = 1;
+    public QuestChoiceEffectType effectType;
+    public int value;
+
+    /// <summary>効果ごとの対象指定。能力名（Strength など）やスキルIDが入る。</summary>
+    public string targetId = "";
+
+    /// <summary>この結果になったときに見せる文。空なら選択肢のresultTextだけが出る。</summary>
+    public string resultText = "";
+
+    public EquipmentMasterData? Equipment { get; set; }
+    public ConsumableMasterData? Consumable { get; set; }
+    public SkillMasterData? Skill { get; set; }
 }

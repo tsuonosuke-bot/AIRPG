@@ -17,9 +17,13 @@ public class MoraleState
     /// <summary>味方が1人倒れるごとに失う士気（固定値）。san が高い編成ほど動揺しにくい。</summary>
     public const int AllyDownFlat = 40;
 
-    /// <summary>敵とのレベル差1につき遭遇時に失う士気（固定値）。</summary>
-    public const int LevelGapFlat = 12;
-    public const int LevelGapFlatCap = 60;
+    /// <summary>
+    /// 敵の脅威度と味方の認定ランクの差1段につき、遭遇時に失う士気（固定値）。
+    /// 差はF〜Sの7段階なので最大でも6。かつてのレベル差（10以上開きうる）より
+    /// 尺度が粗いぶん、1段あたりを重くしてある。
+    /// </summary>
+    public const int ThreatGapFlat = 20;
+    public const int ThreatGapFlatCap = 60;
 
     /// <summary>戦闘に勝利したときに回復する割合。</summary>
     public const float VictoryRecoverRate = 0.2f;
@@ -86,6 +90,6 @@ public class MoraleState
 
     public int DrainAllyDown(int count = 1) => Drain(AllyDownFlat * Math.Max(0, count));
 
-    public int DrainLevelGap(int gap)
-        => gap <= 0 ? 0 : Drain(Math.Min(LevelGapFlatCap, gap * LevelGapFlat));
+    public int DrainThreatGap(int gap)
+        => gap <= 0 ? 0 : Drain(Math.Min(ThreatGapFlatCap, gap * ThreatGapFlat));
 }

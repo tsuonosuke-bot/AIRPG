@@ -49,8 +49,8 @@ public static class QuestBoardScreen
                 detail.Add(estimatedNet < 0 ? $"⚠ {netText}" : netText);
                 if (q.IsGatherQuest)
                     detail.Add($"採取: {q.gatherItemName} x{q.gatherTargetCount}（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還）");
-                string bossInfo = diff.hasBoss ? $"  ボス:Lv{diff.bossLevel}" : "";
-                detail.Add($"場所: {q.Dungeon?.dungeonName ?? "？"}  敵{diff.EnemyLevelRange}"
+                string bossInfo = diff.hasBoss ? $"  ボス:脅威度{diff.BossThreatLabel}" : "";
+                detail.Add($"場所: {q.Dungeon?.dungeonName ?? "？"}  敵の脅威度{diff.EnemyThreatRange}"
                     + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
                 // 習熟度は適正ランクのクエストでしか増えない。誰を出せば伸びるのかを受注前に見せる。
                 int suitableCount = availableAdvs.Count(a => a.IsSuitableQuestRank(q.rank));
@@ -227,10 +227,13 @@ public static class QuestBoardScreen
         Ui.WriteLine();
         Ui.Header("パーティ戦力");
         Ui.WriteLine($"  平均レベル: {avgLevel}   合計HP: {totalHp}   推定士気: {totalMorale}");
-        Ui.WriteLine($"  クエスト難易度: {diff.label}（スコア{diff.score:0}）  敵レベル帯: {diff.EnemyLevelRange}");
+        Ui.WriteLine($"  クエスト難易度: {diff.label}（スコア{diff.score:0}）  敵の脅威度: {diff.EnemyThreatRange}");
         if (diff.hasBoss)
-            Ui.WriteLine($"  ボス: Lv{diff.bossLevel}");
-        if (avgLevel < diff.enemyLevelMin)
-            Ui.Warn($"  ⚠ パーティの平均レベル({avgLevel})が敵の最低レベル({diff.enemyLevelMin})を下回っています");
+            Ui.WriteLine($"  ボス: 脅威度{diff.BossThreatLabel}");
+        // 士気の格上ショックは「敵の脅威度 － 味方の認定ランク」で決まる。編成前に気づけるようにする。
+        int avgRank = (int)Math.Round(members.Average(a => (double)a.rank));
+        if (avgRank < diff.enemyThreatMax)
+            Ui.Warn($"  ⚠ 敵の脅威度({Rank.Label(diff.enemyThreatMax)})がパーティの平均ランク({Rank.Label(avgRank)})を上回っています"
+                + "（遭遇時に士気を削られます）");
     }
 }

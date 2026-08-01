@@ -256,10 +256,17 @@ public class WeaponIdentityTests
         var errors = MasterValidator.Validate(db);
         Assert.DoesNotContain(errors, e => e.Contains("武器クラスの個性") || e.Contains("maxStatBonus"));
 
-        Assert.Equal(new WeaponTraits(0, 0, 2, 1), db.equipment["eq_dagger_01"].Traits);
+        // 短剣だけ offHandBonus を持つ（左手で扱いやすい＝二刀流のアドバンテージ）。
+        Assert.Equal(new WeaponTraits(0, 0, 2, 1, 20), db.equipment["eq_dagger_01"].Traits);
         Assert.Equal(new WeaponTraits(2, 0, 0, 0), db.equipment["eq_spear_01"].Traits);
         Assert.Equal(new WeaponTraits(0, 2, 0, 0), db.equipment["eq_axe_01"].Traits);
         Assert.Equal(WeaponTraits.None, db.equipment["eq_sword_01"].Traits);
+
+        // 両手版は同じ武器種の個性を引き継ぐ（剣マスタリーがそのまま効く前提）。
+        Assert.Equal(db.equipment["eq_spear_01"].Traits.armorPierce,
+            db.equipment["eq_longspear_01"].Traits.armorPierce);
+        Assert.Equal(db.equipment["eq_axe_01"].Traits.armorShred,
+            db.equipment["eq_greataxe_01"].Traits.armorShred);
     }
 
     [Fact]

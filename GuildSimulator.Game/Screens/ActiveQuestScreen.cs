@@ -275,19 +275,61 @@ public static class ActiveQuestScreen
         Ui.WriteLine();
 
         var options = pending.Event.options
-            .Select((option, i) => new MenuOption((i + 1).ToString(), option.text))
+            .Select((option, i) => new MenuOption(
+                (i + 1).ToString(),
+                option.text,
+                // 結果が複数あるなら、賭けだと分かるようにしておく。何が起きるかは伏せる。
+                option.IsGamble ? "何が起きるかは分からない" : null))
             .ToList();
         foreach (var option in options)
-            Ui.WriteLine($"  {option.Key}. {option.Label}");
+            Ui.WriteLine($"  {option.Key}. {option.Label}"
+                + (string.IsNullOrEmpty(option.Detail) ? "" : $"（{option.Detail}）"));
 
         int? selected = await Ui.SelectIndexAsync("選択", options, "あとで決める");
         if (selected == null) return;
-        if (qm.ResolveChoice(q, selected.Value - 1, out var result))
+
+        var chosen = pending.Event.options[selected.Value - 1];
+        AdventurerData? target = null;
+        if (chosen.targetsOneMember)
+        {
+            target = await SelectMemberAsync(q);
+            if (target == null) return;   // 対象選びをやめたら選択自体を保留に戻す
+        }
+
+        if (qm.ResolveChoice(q, selected.Value - 1, target, out var result))
         {
             Ui.Info(result);
             await Ui.PauseAsync();
         }
         else
             Ui.Error(result);
+    }
+
+    /// <summary>
+    /// 効果を受ける隊員を1人選ばせる。結果の抽選は選んだ後に行われるので、
+    /// プレイヤーは「誰に賭けるか」だけを決めることになる。
+    /// </summary>
+    static async Task<AdventurerData?> SelectMemberAsync(QuestRun q)
+    {
+        var members = q.EnumerateMembers().Where(a => a.isAlive).ToList();
+        if (members.Count == 0)
+        {
+            Ui.Error("対象にできる隊員がいません");
+            await Ui.PauseAsync();
+            return null;
+        }
+
+        Ui.WriteLine();
+        var entries = members
+            .Select((a, i) => new MenuOption(
+                (i + 1).ToString(),
+                $"{a.name} Lv{a.level} ランク{a.RankLabel}",
+                $"{a.ClassAndRace}  HP {a.CombatHp}/{a.CombatHpMax}  "
+                    + $"VIT{a.vitality} MEN{a.mental} STR{a.strength} AGI{a.agility} INT{a.intelligence}",
+                Ui.RarityStyle(a.master.rarity)))
+            .ToList();
+
+        int? pick = await Ui.SelectIndexAsync("誰に任せる？", entries, "やめる");
+        return pick == null ? null : members[pick.Value - 1];
     }
 }

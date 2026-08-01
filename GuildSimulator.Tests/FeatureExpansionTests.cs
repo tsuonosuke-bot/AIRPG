@@ -9,6 +9,7 @@ using Xunit;
 
 namespace GuildSimulator.Tests;
 
+[Collection("Guild static state")]
 public class FeatureExpansionTests
 {
     [Fact]
@@ -170,8 +171,22 @@ public class FeatureExpansionTests
 
         var caps = attackWeapons.Select(w => w.maxStatBonus).Distinct().OrderBy(x => x).ToList();
         Assert.True(caps.Count > 1, "武器クラスによる上限の差が無い");
-        Assert.True(caps.Max() - caps.Min() <= 3,
+
+        // 上限差は4点以内に収める。開きすぎると「斧なら常に貫通、短剣は常に弾かれる」という壊れ方をする。
+        // 近接の片手武器だけなら5〜8の3点刻みで、両手武器（大剣・長槍・大斧）が
+        // 左手を丸ごと失う代償として1段だけ上に乗るため、全体では4点になる。
+        Assert.True(caps.Max() - caps.Min() <= 4,
             $"クラス間の上限差が開きすぎている（{caps.Min()}〜{caps.Max()}）");
+
+        // 両手武器は必ず同じ武器種の片手版より上限が高い。そうでないと持ち替える理由がない。
+        foreach (var twoHanded in attackWeapons.Where(w => w.isTwoHanded))
+        {
+            var oneHanded = attackWeapons.FirstOrDefault(
+                w => !w.isTwoHanded && w.weaponType == twoHanded.weaponType);
+            if (oneHanded != null)
+                Assert.True(twoHanded.maxStatBonus > oneHanded.maxStatBonus,
+                    $"{twoHanded.id} の上限が片手版{oneHanded.id}を上回っていない");
+        }
 
         // 武器を持たない敵は自然攻撃ダイスで殴り、牙・爪そのもののPVを持つ。
         var unarmed = db.enemies.Values.Where(e => e.DefaultWeapon == null).ToList();

@@ -5,6 +5,7 @@ using Xunit;
 
 namespace GuildSimulator.Tests;
 
+[Collection("Guild static state")]
 public class FacilitySystemTests
 {
     static FacilityMasterData BoardFacility() => new()

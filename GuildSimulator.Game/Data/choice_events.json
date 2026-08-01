@@ -5,9 +5,24 @@
     "description": "火の消えた野営地に、まだ使えそうな物資が残っている。",
     "weight": 4,
     "options": [
-      { "text": "慎重に休息する", "resultText": "交代で見張りながら体を休めた。", "effectType": "HealPercent", "value": 15 },
-      { "text": "物資を探す", "resultText": "売れそうな物資を見つけた。", "effectType": "Gold", "value": 20 },
-      { "text": "不吉なので先を急ぐ", "resultText": "一行は警戒を保ったまま進んだ。", "effectType": "Morale", "value": 5 }
+      {
+        "text": "慎重に休息する",
+        "resultText": "交代で見張りながら体を休めた。",
+        "effectType": "HealPercent",
+        "value": 15
+      },
+      {
+        "text": "物資を探す",
+        "resultText": "売れそうな物資を見つけた。",
+        "effectType": "Gold",
+        "value": 20
+      },
+      {
+        "text": "不吉なので先を急ぐ",
+        "resultText": "一行は警戒を保ったまま進んだ。",
+        "effectType": "Morale",
+        "value": 5
+      }
     ]
   },
   {
@@ -16,9 +31,24 @@
     "description": "安全そうな迂回路と、危険だが近い獣道に分かれている。",
     "weight": 3,
     "options": [
-      { "text": "迂回路を進む", "resultText": "堅実な判断が仲間を安心させた。", "effectType": "Morale", "value": 8 },
-      { "text": "獣道を突破する", "resultText": "険しい道で傷ついたが、多くを学んだ。", "effectType": "Experience", "value": 20 },
-      { "text": "地形を調べてから決める", "resultText": "調査中に古い貨幣を見つけた。", "effectType": "Gold", "value": 15 }
+      {
+        "text": "迂回路を進む",
+        "resultText": "堅実な判断が仲間を安心させた。",
+        "effectType": "Morale",
+        "value": 8
+      },
+      {
+        "text": "獣道を突破する",
+        "resultText": "険しい道で傷ついたが、多くを学んだ。",
+        "effectType": "Experience",
+        "value": 20
+      },
+      {
+        "text": "地形を調べてから決める",
+        "resultText": "調査中に古い貨幣を見つけた。",
+        "effectType": "Gold",
+        "value": 15
+      }
     ]
   },
   {
@@ -27,9 +57,25 @@
     "description": "古い祠から、かすかな温もりが漂っている。",
     "weight": 2,
     "options": [
-      { "text": "祈りを捧げる", "resultText": "穏やかな光が一行の傷を癒した。", "effectType": "HealPercent", "value": 25 },
-      { "text": "供物を探す", "resultText": "祠の裏で薬品を見つけた。", "effectType": "Consumable", "targetId": "item_vital_tonic", "value": 1 },
-      { "text": "触れずに立ち去る", "resultText": "畏敬の念が一行の心を引き締めた。", "effectType": "Morale", "value": 10 }
+      {
+        "text": "祈りを捧げる",
+        "resultText": "穏やかな光が一行の傷を癒した。",
+        "effectType": "HealPercent",
+        "value": 25
+      },
+      {
+        "text": "供物を探す",
+        "resultText": "祠の裏で薬品を見つけた。",
+        "effectType": "Consumable",
+        "targetId": "item_vital_tonic",
+        "value": 1
+      },
+      {
+        "text": "触れずに立ち去る",
+        "resultText": "畏敬の念が一行の心を引き締めた。",
+        "effectType": "Morale",
+        "value": 10
+      }
     ]
   },
   {
@@ -38,9 +84,24 @@
     "description": "横倒しの荷車に、まだ手つかずの積み荷が残っている。",
     "weight": 4,
     "options": [
-      { "text": "積み荷を解いて改める", "resultText": "泥をかぶった荷箱を引きずり出した。", "effectType": "Treasure", "value": 1 },
-      { "text": "使えそうな食料を分ける", "resultText": "干し肉を分け合い、英気を養った。", "effectType": "HealPercent", "value": 12 },
-      { "text": "襲撃を警戒して離れる", "resultText": "深追いを避けた判断が一行を落ち着かせた。", "effectType": "Morale", "value": 5 }
+      {
+        "text": "積み荷を解いて改める",
+        "resultText": "泥をかぶった荷箱を引きずり出した。",
+        "effectType": "Treasure",
+        "value": 1
+      },
+      {
+        "text": "使えそうな食料を分ける",
+        "resultText": "干し肉を分け合い、英気を養った。",
+        "effectType": "HealPercent",
+        "value": 12
+      },
+      {
+        "text": "襲撃を警戒して離れる",
+        "resultText": "深追いを避けた判断が一行を落ち着かせた。",
+        "effectType": "Morale",
+        "value": 5
+      }
     ]
   },
   {
@@ -49,9 +110,24 @@
     "description": "崩落した石室の奥に、埋もれた収蔵品が見え隠れしている。",
     "weight": 4,
     "options": [
-      { "text": "瓦礫をどけて奥を漁る", "resultText": "埃まみれの箱を掘り出した。", "effectType": "Treasure", "value": 1 },
-      { "text": "手前の金目の物だけ拾う", "resultText": "崩れかけた棚から装飾品をかき集めた。", "effectType": "Gold", "value": 40 },
-      { "text": "崩落を恐れて引き返す", "resultText": "無理を避けた判断に仲間が頷いた。", "effectType": "Morale", "value": 6 }
+      {
+        "text": "瓦礫をどけて奥を漁る",
+        "resultText": "埃まみれの箱を掘り出した。",
+        "effectType": "Treasure",
+        "value": 1
+      },
+      {
+        "text": "手前の金目の物だけ拾う",
+        "resultText": "崩れかけた棚から装飾品をかき集めた。",
+        "effectType": "Gold",
+        "value": 40
+      },
+      {
+        "text": "崩落を恐れて引き返す",
+        "resultText": "無理を避けた判断に仲間が頷いた。",
+        "effectType": "Morale",
+        "value": 6
+      }
     ]
   },
   {
@@ -60,9 +136,185 @@
     "description": "壁の奥に隠し扉。誰かが蓄えを隠していたらしい。",
     "weight": 3,
     "options": [
-      { "text": "封を破って隠し棚まで探る", "resultText": "奥の棚まで漁り、抱えきれないほど運び出した。", "effectType": "Treasure", "value": 2 },
-      { "text": "表の棚だけ頂く", "resultText": "手前に置かれていた薬品を持ち出した。", "effectType": "Consumable", "targetId": "item_vital_tonic", "value": 1 },
-      { "text": "罠の気配、諦めて去る", "resultText": "欲を出さなかったことで一行は気を引き締めた。", "effectType": "Morale", "value": 10 }
+      {
+        "text": "封を破って隠し棚まで探る",
+        "resultText": "奥の棚まで漁り、抱えきれないほど運び出した。",
+        "effectType": "Treasure",
+        "value": 2
+      },
+      {
+        "text": "表の棚だけ頂く",
+        "resultText": "手前に置かれていた薬品を持ち出した。",
+        "effectType": "Consumable",
+        "targetId": "item_vital_tonic",
+        "value": 1
+      },
+      {
+        "text": "罠の気配、諦めて去る",
+        "resultText": "欲を出さなかったことで一行は気を引き締めた。",
+        "effectType": "Morale",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": "ev_ancient_altar",
+    "title": "苔むした祭壇",
+    "weight": 8,
+    "description": "崩れかけた祭壇が道を塞いでいる。窪みに手を差し入れれば何かが起きそうだが、何が起きるかは分からない。",
+    "options": [
+      {
+        "text": "隊員の一人に手を触れさせる",
+        "resultText": "窪みに手を差し入れた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 30,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "",
+            "resultText": "温かい光が腕を這い上がった。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerStatUp",
+            "value": 2,
+            "targetId": "",
+            "resultText": "祭壇が眩く応え、体の芯が作り変わっていく。"
+          },
+          {
+            "weight": 25,
+            "effectType": "AdventurerStatDown",
+            "value": 1,
+            "targetId": "",
+            "resultText": "何かを吸い取られた気がする。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerDamage",
+            "value": 25,
+            "targetId": "",
+            "resultText": "窪みから針のような衝撃が走った。"
+          },
+          {
+            "weight": 10,
+            "effectType": "Morale",
+            "value": -20,
+            "targetId": "",
+            "resultText": "祭壇は沈黙したまま、ただ寒気だけが残った。"
+          }
+        ]
+      },
+      {
+        "text": "触れずに迂回する",
+        "resultText": "祭壇には手を出さず、道を回り込んだ。",
+        "effectType": "None",
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": "ev_old_swordsman",
+    "title": "隠棲の老兵",
+    "weight": 6,
+    "description": "洞の入口に、片腕を失った老兵が座っている。「一人だけなら、稽古をつけてやろう」",
+    "options": [
+      {
+        "text": "隊員を一人、稽古に出す",
+        "resultText": "老兵が木の枝を構えた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 35,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "Strength",
+            "resultText": "打ち込みの型を叩き込まれた。"
+          },
+          {
+            "weight": 35,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "Agility",
+            "resultText": "足の運びを徹底的に直された。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_backstab",
+            "resultText": "老兵は間合いの外し方だけを、繰り返し教えた。"
+          },
+          {
+            "weight": 10,
+            "effectType": "AdventurerDamage",
+            "value": 20,
+            "targetId": "",
+            "resultText": "手加減はなかった。"
+          }
+        ]
+      },
+      {
+        "text": "礼を言って先を急ぐ",
+        "resultText": "老兵は笑って手を振った。",
+        "effectType": "Morale",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": "ev_cursed_spring",
+    "title": "黒い泉",
+    "weight": 5,
+    "description": "油のように黒い水が湧いている。飲めば力が湧くという言い伝えがあるが、言い伝えの続きは誰も知らない。",
+    "options": [
+      {
+        "text": "隊員に一口飲ませる",
+        "resultText": "黒い水を掬って飲ませた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 25,
+            "effectType": "AdventurerStatUp",
+            "value": 2,
+            "targetId": "Vitality",
+            "resultText": "血が沸き立つように熱くなった。"
+          },
+          {
+            "weight": 30,
+            "effectType": "AdventurerStatDown",
+            "value": 1,
+            "targetId": "Mental",
+            "resultText": "喉を焼く。何かが記憶から抜け落ちた気がする。"
+          },
+          {
+            "weight": 25,
+            "effectType": "AdventurerDamage",
+            "value": 35,
+            "targetId": "",
+            "resultText": "激しく咳き込み、黒い水を吐き戻した。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_toughBody",
+            "resultText": "泉の毒に耐えきった体が、以前より頑丈になっている。"
+          }
+        ]
+      },
+      {
+        "text": "水筒を満たすだけにする",
+        "resultText": "誰も口はつけなかった。",
+        "effectType": "None",
+        "value": 0
+      }
     ]
   }
 ]

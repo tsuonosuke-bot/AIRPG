@@ -17,8 +17,8 @@ public class DungeonMasterData
     // このダンジョンで手に入るアイテムはすべてここから出る。
     public List<RewardEntryData> treasureTable = new();
 
-    // 敵レベルのフェーズスケーリング（実効Lv = baseLevel + floor((phase-1) * これ)）
-    public float enemyLevelPerPhase = 0f;
+    // 深部ほど強い敵を出したいときは、encounterTable の minPhase / maxPhase で
+    // 強い敵ユニットを深いフェーズだけに置く。倍率でのスケーリングは行わない。
 
     // ターン内の最終フェーズ処理後、まだ進行中なら最大1件抽選する選択イベント。
     public List<QuestChoiceEventMasterData> turnEndEvents = new();

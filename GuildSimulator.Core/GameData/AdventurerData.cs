@@ -28,7 +28,10 @@ public class AdventurerData : IUnitMember
     public int vitality, mental, strength, agility, intelligence, constitution, appearance;
 
     bool IUnitMember.IsAlive { get => isAlive; set => isAlive = value; }
-    public int Level => level;
+
+    /// <summary>脅威度は認定ランクそのもの。敵の threat と同じ物差しで比べる。</summary>
+    public int Threat => rank;
+
     public string Name => name;
     public int CombatHp { get; set; }
     public int CombatHpMax { get; set; }
@@ -36,6 +39,14 @@ public class AdventurerData : IUnitMember
 
     public EquipmentMasterData? Weapon => GetEquipped(EquipSlot.RightHand);
     public EquipmentMasterData? Armor => GetEquipped(EquipSlot.Body);
+
+    /// <summary>左手に構えた盾。両手武器を持っていれば常にnull。</summary>
+    public EquipmentMasterData? Shield =>
+        GetEquipped(EquipSlot.LeftHand) is { } left && left.IsShield ? left : null;
+
+    /// <summary>左手に握った武器（二刀流の対象）。盾でも両手武器でもないときだけ返す。</summary>
+    public EquipmentMasterData? OffHandWeapon =>
+        GetEquipped(EquipSlot.LeftHand) is { type: EquipmentType.Weapon } left ? left : null;
     public string DamageDice => Weapon?.damageDice ?? UNARMED_DAMAGE_DICE;
     public bool IsMagicAttack => Weapon != null && Weapon.IsMagicWeapon;
 
@@ -235,14 +246,105 @@ public class AdventurerData : IUnitMember
         return true;
     }
 
+    /// <summary>
+    /// レベルアップで伸びる能力の候補。体格(CON)は含まない。
+    /// 素の装甲値(AV)と積載上限は雇用時の素質で決まる、というのがこのゲームの取り決め。
+    /// </summary>
+    public static readonly IReadOnlyList<StatType> GrowableStats = new[]
+    {
+        StatType.Vitality, StatType.Mental, StatType.Strength,
+        StatType.Agility, StatType.Intelligence,
+    };
+
+    /// <summary>
+    /// 1レベルにつき伸びる能力の数。
+    /// レベルを重ねるだけでキャラクターが置き換え可能になるのを避けるため、成長は1点に絞ってある。
+    /// 育ちの差は「どの能力に振られたか」の運と、クエスト中の出来事が作る。
+    /// </summary>
+    public const int StatPointsPerLevel = 1;
+
     void LevelUp()
     {
         level++;
-        TryGrow(StatType.Vitality, ref vitality);
-        TryGrow(StatType.Mental, ref mental);
-        TryGrow(StatType.Strength, ref strength);
-        TryGrow(StatType.Agility, ref agility);
-        TryGrow(StatType.Intelligence, ref intelligence);
+        for (int i = 0; i < StatPointsPerLevel; i++) GrowOneStat();
+
+        // 施設の成長支援は「たまにもう1点」という形で効かせる。
+        // 全能力に薄く配ると、1レベル1点という枠組みそのものが崩れてしまう。
+        float bonus = FacilitySystem.GetGrowthRateBonus();
+        if (bonus > 0f && GameRandom.NextFloat() < bonus) GrowOneStat();
+    }
+
+    /// <summary>
+    /// 種族とクラスの重みで1能力だけ選んで+1する。
+    /// どこが伸びるかはプレイヤーには選べない。特定の能力だけを狙って伸ばせてしまうと、
+    /// 過積載や命中のような釣り合いを一方向に崩せてしまうため。
+    /// </summary>
+    void GrowOneStat()
+    {
+        Span<float> weights = stackalloc float[GrowableStats.Count];
+        float total = 0f;
+        for (int i = 0; i < GrowableStats.Count; i++)
+        {
+            var t = GrowableStats[i];
+            // 下駄を履かせたうえで種族・クラスの得手不得手を足す。不得手でも0未満にはしない。
+            weights[i] = Math.Max(0f, BaseGrowthWeight + GetRaceGrowth(t) + GetClassGrowth(t));
+            total += weights[i];
+        }
+
+        int picked = GrowableStats.Count - 1;
+        if (total <= 0f)
+        {
+            picked = GameRandom.Range(0, GrowableStats.Count);
+        }
+        else
+        {
+            float roll = GameRandom.NextFloat() * total;
+            for (int i = 0; i < GrowableStats.Count; i++)
+            {
+                roll -= weights[i];
+                if (roll < 0f) { picked = i; break; }
+            }
+        }
+
+        switch (GrowableStats[picked])
+        {
+            case StatType.Vitality: vitality++; break;
+            case StatType.Mental: mental++; break;
+            case StatType.Strength: strength++; break;
+            case StatType.Agility: agility++; break;
+            case StatType.Intelligence: intelligence++; break;
+        }
+    }
+
+    /// <summary>全能力に共通の下駄。得意でない能力もときどき伸びるようにするための底上げ。</summary>
+    public const float BaseGrowthWeight = 0.2f;
+
+    /// <summary>能力値の下限。0以下になると modifier が壊れるので、削られても1では止める。</summary>
+    public const int MinStatValue = 1;
+
+    /// <summary>
+    /// 能力を恒久的に増減させる。クエスト中の出来事（祭壇・呪い・鍛錬など）から呼ぶ。
+    /// レベルアップの成長を絞ったぶん、ここで生まれる差がキャラクターの個性になる。
+    /// 実際に動いた量を返す（下限で止まったときは0や部分適用になる）。
+    /// </summary>
+    public int AdjustStatPermanently(StatType type, int amount)
+    {
+        if (amount == 0) return 0;
+        ref int stat = ref vitality;
+        switch (type)
+        {
+            case StatType.Vitality: stat = ref vitality; break;
+            case StatType.Mental: stat = ref mental; break;
+            case StatType.Strength: stat = ref strength; break;
+            case StatType.Agility: stat = ref agility; break;
+            case StatType.Intelligence: stat = ref intelligence; break;
+            case StatType.Constitution: stat = ref constitution; break;
+            default: return 0;
+        }
+
+        int before = stat;
+        stat = Math.Max(MinStatValue, stat + amount);
+        return stat - before;
     }
 
     float GetRaceGrowth(StatType t) => race == null ? 0f : t switch
@@ -264,18 +366,6 @@ public class AdventurerData : IUnitMember
         StatType.Intelligence => currentClass.intGrowth,
         _ => 0f,
     };
-
-    void TryGrow(StatType type, ref int stat)
-    {
-        float chance = 0.2f + GetRaceGrowth(type) + GetClassGrowth(type) + FacilitySystem.GetGrowthRateBonus();
-        if (chance <= 0f) return;
-        int loops = (int)Math.Ceiling(chance);
-        for (int i = 0; i < loops; i++)
-        {
-            if (chance >= 1.0f) { stat++; chance -= 1.0f; }
-            else if (GameRandom.NextFloat() < chance) stat++;
-        }
-    }
 
     // ---- Combat ----
     int TotalWeight => equippedSlots.Values.Sum(e => e.weight);
@@ -307,11 +397,22 @@ public class AdventurerData : IUnitMember
         };
     }
 
+    /// <summary>
+    /// 装備の補正合計。
+    /// ただし<b>左手に握った武器の補正は乗せない</b>。乗せてしまうと短剣を2本持つだけで
+    /// 命中+6になり、二刀流の発動率を待たずに得をしてしまう。左手の武器は攻撃にだけ使い、
+    /// 数値の恩恵は右手の得物から受ける、という取り決めにしてある。
+    /// 盾は防具なので通常どおり補正を供給する（装甲だけは受けに成功したときのみ）。
+    /// 重さは装備している以上かかるので、積載の計算からは除外しない。
+    /// </summary>
     public StatBlock GetEquipmentBonus()
     {
         StatBlock b = default;
-        foreach (var item in equippedSlots.Values)
+        foreach (var (slot, item) in equippedSlots)
+        {
+            if (slot == EquipSlot.LeftHand && item.type == EquipmentType.Weapon) continue;
             b += item.bonus;
+        }
         return b;
     }
 

@@ -5,6 +5,14 @@ public class EnemyMasterData
     public string id = "";
     public string baseName = "";
     public int exp;
+
+    /// <summary>
+    /// 脅威度。冒険者ランクと同じ F〜S の物差し（1〜7）に乗せる。
+    /// レベル倍率で強さを表すのをやめたので、強弱は個体を別々に用意して表す
+    /// （はぐれゴブリン→ゴブリン→ゴブリン兵士→ゴブリン隊長）。
+    /// この値は能力値には一切影響せず、士気の格上ショックと難易度表示にだけ使う。
+    /// </summary>
+    public int threat = Models.Rank.Min;
     public int vitality;
     public int mental;
     public int strength;
@@ -13,6 +21,12 @@ public class EnemyMasterData
     public int constitution;
     public string defaultWeaponId = "";
     public string defaultArmorId = "";
+
+    /// <summary>左手に握らせる武器。二刀流の敵を作れる。両手武器を持たせているときは無視される。</summary>
+    public string defaultOffHandId = "";
+
+    /// <summary>左手に構えさせる盾。重装兵のように受けてくる敵を作れる。</summary>
+    public string defaultShieldId = "";
 
     /// <summary>
     /// 武器を持たない敵の牙・爪・体当たりのダメージダイス。未設定なら既定値。
@@ -33,5 +47,7 @@ public class EnemyMasterData
 
     public EquipmentMasterData? DefaultWeapon { get; set; }
     public EquipmentMasterData? DefaultArmor { get; set; }
+    public EquipmentMasterData? DefaultOffHand { get; set; }
+    public EquipmentMasterData? DefaultShield { get; set; }
     public List<SkillMasterData> Skills { get; set; } = new();
 }

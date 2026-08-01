@@ -99,11 +99,12 @@ public static class UnitCalculator
     public static int CountAlive(IUnitMember?[] members)
         => members?.Count(m => m != null && m.IsAlive) ?? 0;
 
-    public static int AvgLevel(IUnitMember?[] members)
+    /// <summary>生存者の平均脅威度（F〜S）。士気の格上ショックの判定に使う。</summary>
+    public static int AvgThreat(IUnitMember?[] members)
     {
         var alive = members?.Where(m => m != null && m.IsAlive).ToArray();
-        if (alive == null || alive.Length == 0) return 1;
-        return (int)Math.Round(alive.Average(m => (double)m!.Level));
+        if (alive == null || alive.Length == 0) return Models.Rank.Min;
+        return (int)Math.Round(alive.Average(m => (double)m!.Threat));
     }
 
     static void ApplySkills(IUnitMember m, bool isFront, ref StatBlock s,

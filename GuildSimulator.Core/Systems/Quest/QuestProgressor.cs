@@ -40,19 +40,13 @@ public class QuestProgressor
                         evTitle = "敵遭遇"; evResult = "敵テーブルが空（スキップ）"; break;
                     }
 
-                    // ボスも通常エンカと同じ深部スケーリングを受ける。ボスは常に bossPhase の深さで固定し、
-                    // 通常エンカだけが遭遇したフェーズ相応にスケールする。
-                    int enemyLevel = enemyTpl.baseLevel;
-                    if (q.def.Dungeon != null)
-                    {
-                        int scalePhase = isBoss ? q.def.bossPhase : phase;
-                        enemyLevel += (int)Math.Floor((scalePhase - 1) * q.def.Dungeon.enemyLevelPerPhase);
-                    }
-                    enemyLevel = Math.Max(1, enemyLevel);
+                    // 敵の強さは倍率ではなくマスタの個体そのもの。深部で強い敵を出したいときは
+                    // encounterTable の minPhase / maxPhase で置き場所を分ける。
+                    evTitle = isBoss
+                        ? $"ボス遭遇：{enemyTpl.unitName}"
+                        : $"敵遭遇：{enemyTpl.unitName}(脅威度{Rank.Label(enemyTpl.Threat)})";
 
-                    evTitle = isBoss ? $"ボス遭遇：{enemyTpl.unitName}" : $"敵遭遇：{enemyTpl.unitName}(Lv{enemyLevel})";
-
-                    var enemyMembers = CreateEnemyMembers(enemyTpl, enemyLevel);
+                    var enemyMembers = CreateEnemyMembers(enemyTpl);
                     var advI = q.formation.Cast<IUnitMember?>().ToArray();
                     var enemyI = enemyMembers.Cast<IUnitMember?>().ToArray();
 
@@ -311,14 +305,13 @@ public class QuestProgressor
         }
     }
 
-    static EnemyData?[] CreateEnemyMembers(EnemyUnitTemplate tpl, int level)
+    static EnemyData?[] CreateEnemyMembers(EnemyUnitTemplate tpl)
     {
         var arr = new EnemyData?[6];
-        int lv = Math.Max(1, level);
         for (int i = 0; i < 6 && i < tpl.Formation.Count; i++)
         {
             var m = tpl.Formation[i];
-            arr[i] = m != null ? new EnemyData(m, lv) : null;
+            arr[i] = m != null ? new EnemyData(m) : null;
         }
         return arr;
     }

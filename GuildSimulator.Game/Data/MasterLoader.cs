@@ -115,6 +115,10 @@ public static class MasterLoader
                 armorShred = Math.Max(0, e.armorShred),
                 critRange = Math.Clamp(e.critRange, 0, QudCombat.MAX_CRIT_RANGE),
                 extraAttacks = Math.Max(0, e.extraAttacks),
+                offHandBonus = Math.Max(0, e.offHandBonus),
+                isTwoHanded = e.isTwoHanded,
+                blockChance = Math.Clamp(e.blockChance, 0, 100),
+                blockAv = Math.Max(0, e.blockAv),
                 allowedSlots = e.allowedSlots ?? new(),
             };
         }
@@ -157,13 +161,17 @@ public static class MasterLoader
             var ed = new EnemyMasterData
             {
                 id = e.id, baseName = e.baseName, exp = e.exp,
+                threat = Rank.Clamp(e.threat),
                 vitality = e.vitality, mental = e.mental, strength = e.strength,
                 agility = e.agility, intelligence = e.intelligence, constitution = e.constitution,
                 naturalDamageDice = e.naturalDamageDice ?? "",
                 naturalPv = e.naturalPv, naturalAv = e.naturalAv, naturalMav = e.naturalMav,
+                defaultOffHandId = e.defaultOffHandId ?? "", defaultShieldId = e.defaultShieldId ?? "",
             };
             if (!string.IsNullOrEmpty(e.defaultWeaponId) && db.equipment.TryGetValue(e.defaultWeaponId, out var w)) ed.DefaultWeapon = w;
             if (!string.IsNullOrEmpty(e.defaultArmorId) && db.equipment.TryGetValue(e.defaultArmorId, out var a)) ed.DefaultArmor = a;
+            if (!string.IsNullOrEmpty(e.defaultOffHandId) && db.equipment.TryGetValue(e.defaultOffHandId, out var oh)) ed.DefaultOffHand = oh;
+            if (!string.IsNullOrEmpty(e.defaultShieldId) && db.equipment.TryGetValue(e.defaultShieldId, out var sh)) ed.DefaultShield = sh;
             foreach (var sid in e.skillIds ?? new())
                 if (db.skills.TryGetValue(sid, out var sk)) ed.Skills.Add(sk);
             foreach (var drop in e.dropTable ?? new())
@@ -184,13 +192,28 @@ public static class MasterLoader
                 {
                     text = option.text, resultText = option.resultText ?? "",
                     effectType = option.effectType, value = option.value, targetId = option.targetId ?? "",
+                    targetsOneMember = option.targetsOneMember,
                 };
-                if (resolvedOption.effectType == QuestChoiceEffectType.Equipment
-                    && db.equipment.TryGetValue(resolvedOption.targetId, out var choiceEquipment))
-                    resolvedOption.Equipment = choiceEquipment;
-                if (resolvedOption.effectType == QuestChoiceEffectType.Consumable
-                    && db.consumables.TryGetValue(resolvedOption.targetId, out var choiceConsumable))
-                    resolvedOption.Consumable = choiceConsumable;
+                ResolveChoiceRefs(resolvedOption.effectType, resolvedOption.targetId, db,
+                    out var optEquip, out var optItem, out var optSkill);
+                resolvedOption.Equipment = optEquip;
+                resolvedOption.Consumable = optItem;
+
+                foreach (var oc in option.outcomes ?? new())
+                {
+                    var outcome = new QuestChoiceOutcome
+                    {
+                        weight = Math.Max(0, oc.weight), effectType = oc.effectType,
+                        value = oc.value, targetId = oc.targetId ?? "",
+                        resultText = oc.resultText ?? "",
+                    };
+                    ResolveChoiceRefs(outcome.effectType, outcome.targetId, db,
+                        out var e2, out var c2, out var s2);
+                    outcome.Equipment = e2;
+                    outcome.Consumable = c2;
+                    outcome.Skill = s2;
+                    resolvedOption.outcomes.Add(outcome);
+                }
                 master.options.Add(resolvedOption);
             }
             db.choiceEvents[master.id] = master;
@@ -199,7 +222,7 @@ public static class MasterLoader
         var units = Load<List<EnemyUnitJson>>(readJson, "enemy_units.json");
         foreach (var u in units)
         {
-            var tpl = new EnemyUnitTemplate { id = u.id, unitName = u.unitName, baseLevel = u.baseLevel };
+            var tpl = new EnemyUnitTemplate { id = u.id, unitName = u.unitName };
             foreach (var fid in u.formationIds ?? new())
             {
                 EnemyMasterData? m = null;
@@ -216,7 +239,6 @@ public static class MasterLoader
             var dd = new DungeonMasterData
             {
                 id = d.id, dungeonName = d.dungeonName,
-                enemyLevelPerPhase = d.enemyLevelPerPhase,
                 turnEndEventChance = d.turnEndEventChance ?? 0.35f,
             };
             foreach (var kv in d.eventTable ?? new())
@@ -317,6 +339,30 @@ public static class MasterLoader
         return db;
     }
 
+    /// <summary>選択肢・結果の targetId が指す先を効果種別に応じて引き当てる。</summary>
+    static void ResolveChoiceRefs(
+        QuestChoiceEffectType type, string targetId, GameMasterData db,
+        out EquipmentMasterData? equipment, out ConsumableMasterData? consumable, out SkillMasterData? skill)
+    {
+        equipment = null;
+        consumable = null;
+        skill = null;
+        if (string.IsNullOrEmpty(targetId)) return;
+
+        switch (type)
+        {
+            case QuestChoiceEffectType.Equipment:
+                db.equipment.TryGetValue(targetId, out equipment);
+                break;
+            case QuestChoiceEffectType.Consumable:
+                db.consumables.TryGetValue(targetId, out consumable);
+                break;
+            case QuestChoiceEffectType.AdventurerSkill:
+                db.skills.TryGetValue(targetId, out skill);
+                break;
+        }
+    }
+
     static RewardEntryData ResolveRewardEntry(RewardEntryJson re, GameMasterData db)
     {
         var entry = new RewardEntryData
@@ -346,6 +392,8 @@ public static class MasterLoader
         d.TryGetValue("armorShred", out b.armorShred);
         d.TryGetValue("critRange", out b.critRange);
         d.TryGetValue("extraAttacks", out b.extraAttacks);
+        d.TryGetValue("offHandChance", out b.offHandChance);
+        d.TryGetValue("blockChance", out b.blockChance);
         return b;
     }
 
@@ -388,6 +436,7 @@ public static class MasterLoader
         int basePv = QudCombatDefaults.WeaponPv,
         int maxStatBonus = QudCombatDefaults.UnlimitedStatBonus,
         int armorPierce = 0, int armorShred = 0, int critRange = 0, int extraAttacks = 0,
+        int offHandBonus = 0, bool isTwoHanded = false, int blockChance = 0, int blockAv = 0,
         List<EquipSlot>? allowedSlots = null);
 
     record ConsumableJson(string id, string displayName, string? description, Rarity rarity,
@@ -399,23 +448,27 @@ public static class MasterLoader
     record FacilityJson(string id, string displayName, string? description, int buildCostGold, int upkeepGoldPerTurn,
         int requiredGuildRank, int questBoardBonus, int shopLevelBonus, int restHealBonusPercent, int growthRateBonusPercent);
 
-    record EnemyJson(string id, string baseName, int exp, int vitality, int mental, int strength,
+    record EnemyJson(string id, string baseName, int exp, int threat, int vitality, int mental, int strength,
         int agility, int intelligence, int constitution, string? defaultWeaponId, string? defaultArmorId,
         List<string>? skillIds, List<RewardEntryJson>? dropTable, string? naturalDamageDice = null,
+        string? defaultOffHandId = null, string? defaultShieldId = null,
         int naturalPv = QudCombatDefaults.WeaponPv, int naturalAv = 0, int naturalMav = 0);
 
-    record EnemyUnitJson(string id, string unitName, int baseLevel, List<string?>? formationIds);
+    record EnemyUnitJson(string id, string unitName, List<string?>? formationIds);
 
     record RewardEntryJson(int type, string? relicId, string? equipmentId, string? skillId,
         string? consumableId, int gold, int weight, float chance, int quantity, bool unique);
 
-    record ChoiceOptionJson(string text, string? resultText, QuestChoiceEffectType effectType, int value, string? targetId);
+    record ChoiceOutcomeJson(int weight, QuestChoiceEffectType effectType, int value,
+        string? targetId, string? resultText);
+    record ChoiceOptionJson(string text, string? resultText, QuestChoiceEffectType effectType, int value,
+        string? targetId, bool targetsOneMember = false, List<ChoiceOutcomeJson>? outcomes = null);
     record ChoiceEventJson(string id, string title, string? description, int weight, List<ChoiceOptionJson>? options);
 
     record EncounterEntryJson(string unitId, int weight, int minPhase, int maxPhase);
     record DungeonJson(string id, string dungeonName,
         Dictionary<string, int>? eventTable, List<EncounterEntryJson>? encounterTable,
-        float enemyLevelPerPhase, List<RewardEntryJson>? treasureTable,
+        List<RewardEntryJson>? treasureTable,
         List<string>? turnEndEventIds, float? turnEndEventChance);
 
     record StoryClueJson(string id, string title, string? description);

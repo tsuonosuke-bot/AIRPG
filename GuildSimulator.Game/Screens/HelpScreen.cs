@@ -130,7 +130,8 @@ public static class HelpScreen
         Ui.WriteLine("  ・士気            : パーティ全体の粘り強さ。出発時の最大値は編成の精神力(SAN)合計。");
         Ui.WriteLine("                      0になるとその場で撤退する（全滅の手前で止まる安全弁）。");
         Ui.WriteLine("  ・士気の減りかた  : ①そのラウンドで実際に減ったHPの割合に応じて（回復で押し返した分は減らない）");
-        Ui.WriteLine($"                      ②仲間が1人倒れるごとに{MoraleState.AllyDownFlat} ③格上との遭遇時にレベル差1につき{MoraleState.LevelGapFlat}（最大{MoraleState.LevelGapFlatCap}）。");
+        Ui.WriteLine($"                      ②仲間が1人倒れるごとに{MoraleState.AllyDownFlat}");
+        Ui.WriteLine($"                      ③格上との遭遇時に、敵の脅威度と味方の平均ランクの差1段につき{MoraleState.ThreatGapFlat}（最大{MoraleState.ThreatGapFlatCap}）。");
         Ui.WriteLine($"                      戦闘に勝つと最大値の{MoraleState.VictoryRecoverRate * 100:0}%、休息では{MoraleState.RestRecoverRate * 100:0}%回復する。");
         await Ui.PauseAsync();
     }
@@ -212,7 +213,11 @@ public static class HelpScreen
         Ui.WriteLine("     STR 筋力 : 物理PV＝STRのmodifier（武器の上限まで）/ 積載上限");
         Ui.WriteLine("     INT 知力 : 魔法PV＝INTのmodifier（武器の上限まで）/ 回復力");
         Ui.WriteLine("     ・敏捷は命中とDVの両方に効くので、1点の価値がもっとも広い。");
-        Ui.WriteLine("     ・レベルアップで伸びるのはVIT・MEN・STR・AGI・INTの5つ。CONは伸びない。");
+        Ui.WriteLine($"     ・レベルアップで伸びるのは1レベルにつき{AdventurerData.StatPointsPerLevel}能力だけ。");
+        Ui.WriteLine("       VIT・MEN・STR・AGI・INTのどれが伸びるかは種族と職業の重みで抽選され、選べない。");
+        Ui.WriteLine("       得意な能力ほど当たりやすいが、不得手な能力も稀に伸びる。");
+        Ui.WriteLine("       同じ職業・同じレベルでも育ち方が食い違うので、代わりの利かない一人になっていく。");
+        Ui.WriteLine("     ・CONは伸びない。素の装甲AVと積載上限は雇用したときの素質で決まる。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 命中補正の内訳");
         Ui.WriteLine("     命中補正 ＝ AGIのmodifier");
@@ -255,7 +260,11 @@ public static class HelpScreen
         Ui.WriteLine();
         Ui.WriteLine("  ■ 敵の数値");
         Ui.WriteLine("     敵もまったく同じ式で命中・DV・PV・AVを組み立てる。");
-        Ui.WriteLine($"     ・敵の能力値はレベル1を基準に、レベルが1上がるごとに+{EnemyData.GROWTH_PER_LEVEL * 100:0}%（線形）。");
+        Ui.WriteLine("     ・敵にレベルはない。能力値はマスタに書かれた値がそのまま使われる。");
+        Ui.WriteLine("       強さの段階は倍率ではなく別々の個体で表す");
+        Ui.WriteLine("       （はぐれゴブリン → ゴブリン → ゴブリン兵士 → ゴブリン隊長）。");
+        Ui.WriteLine($"     ・敵の脅威度は冒険者と同じ{Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。能力値には影響せず、");
+        Ui.WriteLine("       遭遇時の士気の削られ方と、クエストボードの難易度表示に使われる。");
         Ui.WriteLine("     ・獣は防具を着ていなくても、甲殻や毛皮のぶんのAV・mAVを持つ。");
         await Ui.PauseAsync();
     }
@@ -306,6 +315,29 @@ public static class HelpScreen
         Ui.WriteLine("  ■ 近接4種の数値（同じ商店Tierで比べたもの）");
         ShowMeleeComparisonTable(db);
         Ui.WriteLine();
+        Ui.WriteLine("  ■ 両手武器（大剣・大斧・長槍）");
+        Ui.WriteLine("     左手が塞がるので、盾も二刀流も使えない。その代わり同じ武器種の片手版より");
+        Ui.WriteLine("     基礎PV・ダメージダイス・能力値上限がどれも1段上で、マスタリーはそのまま効く。");
+        Ui.WriteLine("     重量も倍近いので、担げるだけの筋力と体格が要る。");
+        Ui.WriteLine("     弓と魔法は最初から両手武器。射手と魔道士は盾を構えられない。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 二刀流（左手に武器を持つ）");
+        Ui.WriteLine($"     左手の武器は毎手番かならず振れるわけではなく、確率で追撃が入る（基本{QudCombat.OFF_HAND_BASE_CHANCE}%）。");
+        Ui.WriteLine("     短剣は取り回しがよく、左手に持つと発動率が上がる。「二刀流」スキルでさらに伸びる。");
+        Ui.WriteLine("     ・左手の武器は命中やPVといった数値補正を供給しない。攻撃にだけ使う。");
+        Ui.WriteLine("       同じ武器を2本持って補正を二重取りすることはできない。");
+        Ui.WriteLine("     ・重さは両方ぶんかかるので、手数と引き換えに積載を圧迫する。");
+        Ui.WriteLine("     ・左手の追撃は右手の連撃とは別枠で、PVの減衰を受けない。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 盾（左手に構える）");
+        Ui.WriteLine("     盾の装甲は常時は効かない。攻撃を受けるたびに受け判定を行い、");
+        Ui.WriteLine("     成功した攻撃にかぎってその一撃だけAVが上乗せされる。");
+        Ui.WriteLine("     ・小盾は受け率が低く軽い。大盾は受け率も装甲も高いが、重くDVを削る。");
+        Ui.WriteLine("     ・受けで得た装甲は斧の装甲破壊では剥がせない（着ている鎧とは別物のため）。");
+        Ui.WriteLine("     ・魔法攻撃はmAVと突き合わせるので、盾では受けられない。");
+        Ui.WriteLine("     ・「盾術」スキルで受け率が上がる。");
+        ShowShieldTable(db);
+        Ui.WriteLine();
         Ui.WriteLine("  マスタリーの効果と習得条件はヘルプの「職業とマスタリー」を参照。");
         await Ui.PauseAsync();
     }
@@ -332,6 +364,25 @@ public static class HelpScreen
                 + (traits.Count > 0 ? string.Join(" ", traits) : "なし"));
         }
         Ui.Dim("     基礎PVとダメージダイスはTierで上がる。商店や持ち物の画面で個別に確認できる。");
+    }
+
+    /// <summary>取り扱いのある盾を実データから並べる。</summary>
+    static void ShowShieldTable(GameMasterData db)
+    {
+        var shields = db.equipment.Values
+            .Where(e => e.IsShield)
+            .OrderBy(e => e.shopTier).ThenBy(e => e.blockChance)
+            .ToList();
+        if (shields.Count == 0) return;
+
+        Ui.WriteLine();
+        Ui.Dim($"     {Ui.PadWide("盾", 18)}{Ui.PadWide("受け率", 10)}{Ui.PadWide("受け成功時AV", 16)}{Ui.PadWide("重量", 8)}回避");
+        foreach (var s in shields)
+            Ui.WriteLine($"     {Ui.PadWide(s.displayName, 18)}"
+                + Ui.PadWide($"{s.blockChance}%", 10)
+                + Ui.PadWide($"+{s.blockAv}", 16)
+                + Ui.PadWide($"{s.weight}", 8)
+                + (s.bonus.dv != 0 ? $"{s.bonus.dv:+#;-#;0}" : "±0"));
     }
 
     static async Task ShowMasteryAsync(GameMasterData db)

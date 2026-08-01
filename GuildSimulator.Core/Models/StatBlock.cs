@@ -41,6 +41,12 @@ public struct StatBlock
     /// <summary>1手番あたりの追撃回数（短剣の連続攻撃）。追撃はPVが下がっていく。</summary>
     public int extraAttacks;
 
+    /// <summary>左手の武器が攻撃に加わる確率への加算（%）。二刀流スキルがここを伸ばす。</summary>
+    public int offHandChance;
+
+    /// <summary>盾で受け止められる確率への加算（%）。盾術スキルがここを伸ばす。</summary>
+    public int blockChance;
+
     public static StatBlock operator +(StatBlock a, StatBlock b) => new()
     {
         hp = a.hp + b.hp,
@@ -56,5 +62,7 @@ public struct StatBlock
         armorShred = a.armorShred + b.armorShred,
         critRange = a.critRange + b.critRange,
         extraAttacks = a.extraAttacks + b.extraAttacks,
+        offHandChance = a.offHandChance + b.offHandChance,
+        blockChance = a.blockChance + b.blockChance,
     };
 }
