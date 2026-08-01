@@ -9,6 +9,10 @@ public static class MasterValidator
     {
         var errors = new List<string>();
 
+        // MasterLoader は解決できないIDを黙って読み飛ばすので、そのままだと
+        // 「エラーは出ないがゲーム内に一生出てこない」データができる。ここで必ず落とす。
+        errors.AddRange(db.unresolvedRefs);
+
         foreach (var a in db.allAdventurers)
         {
             if (string.IsNullOrWhiteSpace(a.id)) errors.Add("adventurers.json: idが空の項目があります");

@@ -56,7 +56,7 @@ public static class AdventurerScreen
             Ui.WriteLine($"  レベル      : {a.level}  (経験値 {a.experience}/{a.RequiredExpForNextLevel})");
             string rankProgress = a.IsMaxRank
                 ? "最高ランク"
-                : $"RP {a.rankPoint}/{a.RequiredRankPointForNextRank} → {Rank.Label(a.rank + 1)}";
+                : $"格上クリア {a.higherRankClears}/{a.RequiredClearsForNextRank} → {Rank.Label(a.rank + 1)}";
             Ui.WriteLine($"  冒険者ランク: {a.RankLabel}  ({rankProgress})");
             Ui.WriteLine($"  維持費      : {GuildManager.CalculateAdventurerUpkeep(a.level)}G/T（Lv×{GuildManager.UpkeepGoldPerLevel}G）");
             Ui.WriteLine($"  状態        : {(a.isAlive ? "生存" : "死亡")}");

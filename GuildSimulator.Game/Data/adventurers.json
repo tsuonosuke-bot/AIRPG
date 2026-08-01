@@ -2,7 +2,6 @@
   {
     "id": "adv_0001",
     "baseName": "サトル",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -25,7 +24,6 @@
   {
     "id": "adv_0002",
     "baseName": "ドルカス",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,

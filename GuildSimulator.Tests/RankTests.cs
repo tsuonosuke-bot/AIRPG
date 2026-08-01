@@ -98,14 +98,60 @@ public class RankTests
             id = "adv", baseName = "測定用", defaultRank = Rank.Min,
         });
 
-        // ランクポイントを注ぎ込んでも S より上には行かない。
-        for (int i = 0; i < 100; i++) adventurer.AddRankPoints(1000, out _);
+        // 格上クエストをいくら重ねても S より上には行かない。
+        for (int i = 0; i < 100; i++) adventurer.RecordQuestClearForRank(Rank.Max, out _);
 
         Assert.Equal(Rank.Max, adventurer.rank);
         Assert.True(adventurer.IsMaxRank);
         Assert.Equal("S", adventurer.RankLabel);
-        // 上限に達したらRPも溜めない。溜まり続けると昇格できるように見えてしまう。
-        Assert.Equal(0, adventurer.rankPoint);
+        // 上限に達したら回数も数えない。溜まり続けると昇格できるように見えてしまう。
+        Assert.Equal(0, adventurer.higherRankClears);
+    }
+
+    [Fact]
+    public void AdventurerRanksUpAfterThreeHigherRankClears()
+    {
+        var adventurer = new AdventurerData(new AdventurerMasterData
+        {
+            id = "adv", baseName = "測定用", defaultRank = Rank.Min,
+        });
+
+        // 同ランク以下は何本こなしても昇格に数えない。
+        for (int i = 0; i < 10; i++) adventurer.RecordQuestClearForRank(Rank.Min, out _);
+        Assert.Equal(Rank.Min, adventurer.rank);
+        Assert.Equal(0, adventurer.higherRankClears);
+
+        // 格上を規定回数クリアすると1つ上がり、カウントは戻る。
+        for (int i = 0; i < AdventurerData.ClearsForNextRank - 1; i++)
+        {
+            adventurer.RecordQuestClearForRank(Rank.Min + 1, out int noRankUp);
+            Assert.Equal(0, noRankUp);
+        }
+        Assert.Equal(Rank.Min, adventurer.rank);
+
+        adventurer.RecordQuestClearForRank(Rank.Min + 1, out int rankUps);
+        Assert.Equal(1, rankUps);
+        Assert.Equal(Rank.Min + 1, adventurer.rank);
+        Assert.Equal(0, adventurer.higherRankClears);
+
+        // 昇格したので、さっきまで格上だったランクはもう数えられない。
+        adventurer.RecordQuestClearForRank(Rank.Min + 1, out _);
+        Assert.Equal(0, adventurer.higherRankClears);
+    }
+
+    [Fact]
+    public void DeadAdventurersDoNotRankUp()
+    {
+        var adventurer = new AdventurerData(new AdventurerMasterData
+        {
+            id = "adv", baseName = "測定用", defaultRank = Rank.Min,
+        });
+        adventurer.isAlive = false;
+
+        for (int i = 0; i < 10; i++) adventurer.RecordQuestClearForRank(Rank.Max, out _);
+
+        Assert.Equal(Rank.Min, adventurer.rank);
+        Assert.Equal(0, adventurer.higherRankClears);
     }
 
     [Fact]

@@ -475,8 +475,9 @@ public static class HelpScreen
         Ui.BeginScreen();
         Ui.Header("冒険者・装備・遺物");
         Ui.WriteLine("  ・冒険者          : 雇用して編成に加える。クエストで経験値を得てレベルアップする。");
-        Ui.WriteLine($"  ・冒険者ランク    : {Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。自分のランク以上のクエストを正規クリアするとランクポイントが貯まり、");
-        Ui.WriteLine($"                      一定量で1つ上がる。{Rank.Label(Rank.Max)}が上限。レベルとは別の物差し。");
+        Ui.WriteLine($"  ・冒険者ランク    : {Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。自分より上のランクのクエストを正規クリアした回数で上がる。");
+        Ui.WriteLine($"                      {AdventurerData.ClearsForNextRank}回で1つ上がる。{Rank.Label(Rank.Max)}が上限。レベルとは別の物差し。");
+        Ui.WriteLine("                      同ランク以下のクエストは何本こなしても昇格には数えない。");
         Ui.WriteLine("                      死亡した冒険者は蘇生できない。");
         Ui.WriteLine("                      人物詳細では経歴・性格・動機・得意分野と、直近の遠征履歴を確認できる。");
         Ui.WriteLine("  ・装備            : 商店で購入・売却し、冒険者一覧画面で着せ替えできる。");

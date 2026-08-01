@@ -116,7 +116,7 @@ public static class SaveManager
         experience = a.experience,
         isAlive = a.isAlive,
         rank = a.rank,
-        rankPoint = a.rankPoint,
+        higherRankClears = a.higherRankClears,
         raceId = a.race?.id ?? "",
         classId = a.currentClass?.id ?? "",
         weaponId = a.Weapon?.id ?? "",
@@ -301,7 +301,7 @@ public static class SaveManager
             isAlive = saved.isAlive,
             // 冒険者ランクに上限がなかった頃のセーブは7(S)を超えていることがある。
             rank = Rank.Clamp(saved.rank),
-            rankPoint = saved.rankPoint,
+            higherRankClears = saved.higherRankClears,
             race = db.races.GetValueOrDefault(saved.raceId),
             currentClass = db.classes.GetValueOrDefault(saved.classId),
             vitality = saved.vitality,

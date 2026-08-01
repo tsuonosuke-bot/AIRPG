@@ -69,7 +69,7 @@ const sheetDefinitions = {
     capacity: 120,
     unique: true,
     keys: [
-      "id", "baseName", "upkeepGold", "defaultLevel", "defaultRank",
+      "id", "baseName", "defaultLevel", "defaultRank",
       "recruitGuildRank", "recruitWeight", "rarity",
       "vitality", "mental", "strength", "agility", "intelligence", "constitution", "appearance",
       "defaultClassId", "raceId", "defaultWeaponId", "defaultArmorId",
@@ -233,7 +233,7 @@ const sheetDefinitions = {
 
 const makeRows = (data) => {
   const adventurers = data.adventurers.map((a) => [
-    a.id, a.baseName, a.upkeepGold, a.defaultLevel, a.defaultRank,
+    a.id, a.baseName, a.defaultLevel, a.defaultRank,
     clean(a.recruitGuildRank), clean(a.recruitWeight), clean(a.rarity),
     a.vitality, a.mental, a.strength, a.agility, a.intelligence, a.constitution, a.appearance,
     clean(a.defaultClassId), clean(a.raceId), clean(a.defaultWeaponId), clean(a.defaultArmorId),
@@ -987,7 +987,6 @@ const importWorkbook = async (writeMode) => {
     const item = {
       id: text(x.id),
       baseName: text(x.baseName),
-      upkeepGold: numberValue(x.upkeepGold, "upkeepGold", row, true),
       defaultLevel: numberValue(x.defaultLevel, "defaultLevel", row, true),
       defaultRank: numberValue(x.defaultRank, "defaultRank", row, true),
     };
