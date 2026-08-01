@@ -25,6 +25,17 @@ public static class EquipService
         if (!guild.Has(item)) { reason = $"在庫がありません: {item.displayName}"; return false; }
         if (!item.CanEquipTo(slot)) { reason = $"{item.displayName}は{SlotDisplayName(slot)}に装備できません"; return false; }
 
+        // 両手武器を構えているあいだ左手は塞がっている。盾も二刀流も併用できない。
+        if (slot == EquipSlot.LeftHand && adv.GetEquipped(EquipSlot.RightHand) is { isTwoHanded: true } twoHanded)
+        {
+            reason = $"{twoHanded.displayName}は両手で構えるため、左手には何も装備できません";
+            return false;
+        }
+
+        // 逆向き。両手武器へ持ち替えるときは、左手のものを倉庫へ戻して場所を空ける。
+        if (slot == EquipSlot.RightHand && item.isTwoHanded)
+            Unequip(adv, EquipSlot.LeftHand, guild);
+
         var current = adv.GetEquipped(slot);
         if (current != null) guild.AddEquipment(current, 1);
         if (!guild.TryConsumeEquipment(item)) { reason = "在庫消費失敗"; return false; }

@@ -1,7 +1,8 @@
 namespace GuildSimulator.Core.Models;
 
 public enum StatType { Vitality, Mental, Strength, Agility, Intelligence, Constitution, Appearance }
-public enum EquipmentType { Weapon, Armor, Accessory }
+// 列挙順はマスタJSONの数値そのままなので、並べ替えず末尾に足すこと（Shield=3 はその追加分）。
+public enum EquipmentType { Weapon, Armor, Accessory, Shield }
 public enum EquipSlot { RightHand, LeftHand, Head, Body, Accessory }
 // 列挙順はマスタJSONの数値そのままなので、並べ替えず末尾に足すこと（Dagger=11 はその追加分）。
 public enum WeaponType { Sword, Axe, Spear, Bow, Fire, Wind, Water, Earth, Dark, Light, Null, Dagger }

@@ -23,19 +23,21 @@ public static class MasterValidator
                 errors.Add($"{a.id}: 不明なdefaultArmorId '{a.defaultArmorId}'");
         }
 
-        // 武器クラスの個性は「同じ武器種なら同じ値」で揃える。Tier差は basePv とダメージダイスが表す。
+        // 武器クラスの個性は「同じ武器種・同じ持ち手なら同じ値」で揃える。
+        // Tier差は basePv とダメージダイスが表し、片手/両手の差は maxStatBonus などで表す。
         foreach (var group in db.equipment.Values
                      .Where(e => e.type == EquipmentType.Weapon && e.weaponType != WeaponType.Null)
-                     .GroupBy(e => e.weaponType))
+                     .GroupBy(e => (e.weaponType, e.isTwoHanded)))
         {
             var head = group.First();
+            string hands = head.isTwoHanded ? "両手" : "片手";
             foreach (var e in group.Skip(1))
             {
                 if (e.maxStatBonus != head.maxStatBonus)
-                    errors.Add($"{e.id}: maxStatBonusが同じ武器種の{head.id}({head.maxStatBonus})と違います({e.maxStatBonus})");
+                    errors.Add($"{e.id}: maxStatBonusが同じ武器種({hands})の{head.id}({head.maxStatBonus})と違います({e.maxStatBonus})");
                 if (e.Traits != head.Traits)
-                    errors.Add($"{e.id}: 武器クラスの個性(armorPierce/armorShred/critRange/extraAttacks)が"
-                        + $"同じ武器種の{head.id}と違います");
+                    errors.Add($"{e.id}: 武器クラスの個性(armorPierce/armorShred/critRange/extraAttacks/offHandBonus)が"
+                        + $"同じ武器種({hands})の{head.id}と違います");
             }
         }
 
@@ -43,10 +45,38 @@ public static class MasterValidator
         {
             if (e.critRange < 0 || e.critRange > QudCombat.MAX_CRIT_RANGE)
                 errors.Add($"{e.id}: critRangeは0〜{QudCombat.MAX_CRIT_RANGE}にしてください");
-            if (e.armorPierce < 0 || e.armorShred < 0 || e.extraAttacks < 0)
-                errors.Add($"{e.id}: armorPierce/armorShred/extraAttacksは0以上にしてください");
+            if (e.armorPierce < 0 || e.armorShred < 0 || e.extraAttacks < 0 || e.offHandBonus < 0)
+                errors.Add($"{e.id}: armorPierce/armorShred/extraAttacks/offHandBonusは0以上にしてください");
             if (e.type != EquipmentType.Weapon && !e.Traits.Equals(WeaponTraits.None))
                 errors.Add($"{e.id}: 武器以外に武器クラスの個性は設定できません");
+
+            if (e.type == EquipmentType.Weapon)
+            {
+                // 弓と魔法は両手で構える。盾も二刀流も物理の近接武器だけの特権にする。
+                bool mustBeTwoHanded = e.IsMagicWeapon || e.attackKind == AttackKind.Heal
+                    || e.weaponType == WeaponType.Bow;
+                if (mustBeTwoHanded && !e.isTwoHanded)
+                    errors.Add($"{e.id}: 弓と魔法は両手武器にしてください（isTwoHanded: true）");
+                if (e.isTwoHanded && e.offHandBonus > 0)
+                    errors.Add($"{e.id}: 両手武器は左手に持てないのでoffHandBonusは設定できません");
+            }
+
+            if (e.IsShield)
+            {
+                if (e.blockChance <= 0)
+                    errors.Add($"{e.id}: 盾にはblockChance（受け率%）が必要です");
+                if (e.blockAv <= 0)
+                    errors.Add($"{e.id}: 盾にはblockAv（受け成功時に乗る装甲）が必要です");
+                // 盾の装甲は受けに成功したときだけ乗る。bonus.av に書くと常時加算になってしまう。
+                if (e.bonus.av != 0)
+                    errors.Add($"{e.id}: 盾の装甲はbonus.avではなくblockAvに書いてください（bonus.avは常時加算されます）");
+                if (!e.GetAllowedSlots().Contains(EquipSlot.LeftHand) || e.GetAllowedSlots().Count != 1)
+                    errors.Add($"{e.id}: 盾のallowedSlotsは[\"LeftHand\"]にしてください");
+            }
+            else if (e.blockChance > 0 || e.blockAv > 0)
+            {
+                errors.Add($"{e.id}: 盾(type:3)以外にblockChance/blockAvは設定できません");
+            }
         }
 
         foreach (var enemy in db.enemies.Values)

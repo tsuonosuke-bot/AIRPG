@@ -115,6 +115,10 @@ public static class MasterLoader
                 armorShred = Math.Max(0, e.armorShred),
                 critRange = Math.Clamp(e.critRange, 0, QudCombat.MAX_CRIT_RANGE),
                 extraAttacks = Math.Max(0, e.extraAttacks),
+                offHandBonus = Math.Max(0, e.offHandBonus),
+                isTwoHanded = e.isTwoHanded,
+                blockChance = Math.Clamp(e.blockChance, 0, 100),
+                blockAv = Math.Max(0, e.blockAv),
                 allowedSlots = e.allowedSlots ?? new(),
             };
         }
@@ -346,6 +350,8 @@ public static class MasterLoader
         d.TryGetValue("armorShred", out b.armorShred);
         d.TryGetValue("critRange", out b.critRange);
         d.TryGetValue("extraAttacks", out b.extraAttacks);
+        d.TryGetValue("offHandChance", out b.offHandChance);
+        d.TryGetValue("blockChance", out b.blockChance);
         return b;
     }
 
@@ -388,6 +394,7 @@ public static class MasterLoader
         int basePv = QudCombatDefaults.WeaponPv,
         int maxStatBonus = QudCombatDefaults.UnlimitedStatBonus,
         int armorPierce = 0, int armorShred = 0, int critRange = 0, int extraAttacks = 0,
+        int offHandBonus = 0, bool isTwoHanded = false, int blockChance = 0, int blockAv = 0,
         List<EquipSlot>? allowedSlots = null);
 
     record ConsumableJson(string id, string displayName, string? description, Rarity rarity,

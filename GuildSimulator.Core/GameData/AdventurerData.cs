@@ -36,6 +36,14 @@ public class AdventurerData : IUnitMember
 
     public EquipmentMasterData? Weapon => GetEquipped(EquipSlot.RightHand);
     public EquipmentMasterData? Armor => GetEquipped(EquipSlot.Body);
+
+    /// <summary>左手に構えた盾。両手武器を持っていれば常にnull。</summary>
+    public EquipmentMasterData? Shield =>
+        GetEquipped(EquipSlot.LeftHand) is { } left && left.IsShield ? left : null;
+
+    /// <summary>左手に握った武器（二刀流の対象）。盾でも両手武器でもないときだけ返す。</summary>
+    public EquipmentMasterData? OffHandWeapon =>
+        GetEquipped(EquipSlot.LeftHand) is { type: EquipmentType.Weapon } left ? left : null;
     public string DamageDice => Weapon?.damageDice ?? UNARMED_DAMAGE_DICE;
     public bool IsMagicAttack => Weapon != null && Weapon.IsMagicWeapon;
 
@@ -307,11 +315,22 @@ public class AdventurerData : IUnitMember
         };
     }
 
+    /// <summary>
+    /// 装備の補正合計。
+    /// ただし<b>左手に握った武器の補正は乗せない</b>。乗せてしまうと短剣を2本持つだけで
+    /// 命中+6になり、二刀流の発動率を待たずに得をしてしまう。左手の武器は攻撃にだけ使い、
+    /// 数値の恩恵は右手の得物から受ける、という取り決めにしてある。
+    /// 盾は防具なので通常どおり補正を供給する（装甲だけは受けに成功したときのみ）。
+    /// 重さは装備している以上かかるので、積載の計算からは除外しない。
+    /// </summary>
     public StatBlock GetEquipmentBonus()
     {
         StatBlock b = default;
-        foreach (var item in equippedSlots.Values)
+        foreach (var (slot, item) in equippedSlots)
+        {
+            if (slot == EquipSlot.LeftHand && item.type == EquipmentType.Weapon) continue;
             b += item.bonus;
+        }
         return b;
     }
 
