@@ -165,9 +165,12 @@ public static class MasterLoader
                 agility = e.agility, intelligence = e.intelligence, constitution = e.constitution,
                 naturalDamageDice = e.naturalDamageDice ?? "",
                 naturalPv = e.naturalPv, naturalAv = e.naturalAv, naturalMav = e.naturalMav,
+                defaultOffHandId = e.defaultOffHandId ?? "", defaultShieldId = e.defaultShieldId ?? "",
             };
             if (!string.IsNullOrEmpty(e.defaultWeaponId) && db.equipment.TryGetValue(e.defaultWeaponId, out var w)) ed.DefaultWeapon = w;
             if (!string.IsNullOrEmpty(e.defaultArmorId) && db.equipment.TryGetValue(e.defaultArmorId, out var a)) ed.DefaultArmor = a;
+            if (!string.IsNullOrEmpty(e.defaultOffHandId) && db.equipment.TryGetValue(e.defaultOffHandId, out var oh)) ed.DefaultOffHand = oh;
+            if (!string.IsNullOrEmpty(e.defaultShieldId) && db.equipment.TryGetValue(e.defaultShieldId, out var sh)) ed.DefaultShield = sh;
             foreach (var sid in e.skillIds ?? new())
                 if (db.skills.TryGetValue(sid, out var sk)) ed.Skills.Add(sk);
             foreach (var drop in e.dropTable ?? new())
@@ -409,6 +412,7 @@ public static class MasterLoader
     record EnemyJson(string id, string baseName, int exp, int vitality, int mental, int strength,
         int agility, int intelligence, int constitution, string? defaultWeaponId, string? defaultArmorId,
         List<string>? skillIds, List<RewardEntryJson>? dropTable, string? naturalDamageDice = null,
+        string? defaultOffHandId = null, string? defaultShieldId = null,
         int naturalPv = QudCombatDefaults.WeaponPv, int naturalAv = 0, int naturalMav = 0);
 
     record EnemyUnitJson(string id, string unitName, int baseLevel, List<string?>? formationIds);

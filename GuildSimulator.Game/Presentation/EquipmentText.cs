@@ -32,17 +32,31 @@ public static class EquipmentText
         if (traits.critRange > 0) parts.Add($"会心{QudCombatDefaults.CriticalRollFloor - traits.critRange}〜");
         if (traits.armorPierce > 0) parts.Add($"装甲貫通{traits.armorPierce}");
         if (traits.armorShred > 0) parts.Add($"装甲破壊{traits.armorShred}");
+        if (traits.offHandBonus > 0) parts.Add($"左手+{traits.offHandBonus}%");
         return parts;
     }
 
-    /// <summary>武器の攻撃性能。防具・装飾品では空になる。</summary>
+    /// <summary>盾の受け性能。装甲は受けに成功した攻撃にだけ乗るので、そう読めるように書く。</summary>
+    public static List<string> ShieldParts(EquipmentMasterData item)
+    {
+        var parts = new List<string>();
+        if (!item.IsShield) return parts;
+        parts.Add("[盾]");
+        parts.Add($"受け{item.blockChance}%");
+        parts.Add($"受け成功時AV+{item.blockAv}");
+        return parts;
+    }
+
+    /// <summary>武器の攻撃性能。防具・装飾品では空になる（盾は <see cref="ShieldParts"/>）。</summary>
     public static List<string> WeaponParts(EquipmentMasterData item)
     {
+        if (item.IsShield) return ShieldParts(item);
+
         var parts = new List<string>();
         if (item.type != EquipmentType.Weapon) return parts;
 
         string cls = WeaponClassName(item.weaponType);
-        if (cls.Length > 0) parts.Add($"[{cls}]");
+        if (cls.Length > 0) parts.Add(item.isTwoHanded ? $"[両手{cls}]" : $"[{cls}]");
 
         if (item.attackKind == AttackKind.Heal)
         {
@@ -75,6 +89,8 @@ public static class EquipmentText
         Add("装甲破壊", b.armorShred);
         Add("会心域", b.critRange);
         Add("連撃", b.extraAttacks);
+        Add("左手発動%", b.offHandChance);
+        Add("受け%", b.blockChance);
         return parts;
     }
 }

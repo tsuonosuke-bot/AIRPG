@@ -49,6 +49,21 @@ public static class QudCombat
     /// <summary>1体につき1回の戦闘で削れる装甲の上限。斧の削りが青天井に走らないための蓋。</summary>
     public const int MAX_ARMOR_SHRED = 3;
 
+    // ---- 二刀流と盾 ----
+    /// <summary>
+    /// 二刀流スキルを持たない者が左手の武器を振れる確率（%）。
+    /// 誰でも持てば少しは振れるが、当てにできる頻度にはスキルが要る。
+    /// </summary>
+    public const int OFF_HAND_BASE_CHANCE = 15;
+
+    /// <summary>左手の攻撃が発動したか。</summary>
+    public static bool RollOffHand(int chance)
+        => chance > 0 && GameRandom.Range(0, 100) < Math.Min(chance, 100);
+
+    /// <summary>盾で受け止められたか。成功した攻撃にだけ盾の装甲が乗る。</summary>
+    public static bool RollBlock(int chance)
+        => chance > 0 && GameRandom.Range(0, 100) < Math.Min(chance, 100);
+
     /// <summary>命中判定の結果。ログに出目をそのまま載せられるよう内訳を持ち回る。</summary>
     public readonly record struct HitResult(int roll, int total, bool hit, bool critical);
 

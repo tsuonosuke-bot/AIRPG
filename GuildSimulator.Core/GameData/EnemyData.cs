@@ -21,6 +21,13 @@ public class EnemyData : IUnitMember
     public EquipmentMasterData? Weapon => master.DefaultWeapon;
     public EquipmentMasterData? Armor => master.DefaultArmor;
 
+    // 両手武器を構えている敵の左手は塞がっている。冒険者側と同じ制約をかける。
+    bool HasFreeOffHand => master.DefaultWeapon is not { isTwoHanded: true };
+    public EquipmentMasterData? OffHandWeapon =>
+        HasFreeOffHand && master.DefaultOffHand is { type: EquipmentType.Weapon } w ? w : null;
+    public EquipmentMasterData? Shield =>
+        HasFreeOffHand && master.DefaultShield is { } s && s.IsShield ? s : null;
+
     // 武器を持つ敵は武器ダイス、素手の敵は種族固有の自然攻撃ダイスで殴る。
     public string DamageDice
     {
@@ -76,11 +83,14 @@ public class EnemyData : IUnitMember
         };
     }
 
+    // 左手の武器の補正は乗せない（冒険者側と同じ取り決め）。盾は防具なので乗せるが、
+    // 装甲だけは受けに成功したときにしか効かないので blockAv 側に置いてある。
     public StatBlock GetEquipmentBonus()
     {
         StatBlock b = default;
         if (Weapon != null) b += Weapon.bonus;
         if (Armor != null) b += Armor.bonus;
+        if (Shield != null) b += Shield.bonus;
         return b;
     }
 

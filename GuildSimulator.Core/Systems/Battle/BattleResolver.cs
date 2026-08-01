@@ -132,46 +132,50 @@ public static class BattleResolver
                         actor.WeaponBasePv, actor.AttackStatModifier, actor.MaxStatBonus,
                         isMagic ? actorStats.mpv : actorStats.pv);
 
-                    // 連撃は同じ手番のうちに続けて振るう。狙いは1振りごとに選び直す。
-                    int swings = 1 + traits.extraAttacks;
-                    for (int swing = 0; swing < swings; swing++)
+                    // 1振りぶんの解決。右手の連撃も左手の追撃も、得物の数値を差し替えて同じ経路を通る。
+                    void Swing(int pv, string? dice, WeaponTraits w, bool magic, string swingTag)
                     {
-                        if (!AnyAlive(enemySideArr) || !actor.IsAlive) break;
-
                         var target = PickTarget(enemySideArr);
-                        if (target == null) break;
+                        if (target == null) return;
                         var targetStats = statsByMember[target];
 
                         int dv = targetStats.dv;
                         if (SlotOf(enemySideArr, target) >= 3 && HasAliveFront(enemySideArr))
                             dv += REAR_COVER_DV_BONUS;
 
-                        var check = QudCombat.RollToHit(toHit, dv, traits.critRange);
-                        string swingTag = swing == 0 ? "" : "追撃 ";
+                        var check = QudCombat.RollToHit(toHit, dv, w.critRange);
 
                         if (!check.hit)
                         {
                             logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {swingTag}回避！（1d20={check.roll}{toHit:+#;-#;+0}={check.total} ≦ DV{dv}） ダメージなし");
-                            continue;
+                            return;
                         }
 
                         // AVは装甲そのもの。どちらも小さな整数で、1点が貫通回数に効く。
                         // 斧に削られたぶんは物理AVからのみ引く（魔法装甲は割れない）。
-                        int av = isMagic
+                        int av = magic
                             ? Math.Max(0, targetStats.mav)
                             : Math.Max(0, targetStats.av - ShredOf(armorShredded, target));
 
-                        var dealt = QudCombat.ResolveAttack(
-                            QudCombat.FollowUpPv(basePv, swing), av, actor.DamageDice,
-                            check.critical, traits.armorPierce);
+                        // 盾は常時硬くするのではなく、受けに成功した一撃だけを重くする。
+                        // 削られた素の装甲とは別枠で足すので、装甲破壊では剥がせない。
+                        string blockTag = "";
+                        var shield = target.Shield;
+                        if (shield != null && !magic
+                            && QudCombat.RollBlock(shield.blockChance + targetStats.blockChance))
+                        {
+                            av += shield.blockAv;
+                            blockTag = $"（{shield.displayName}で受け AV+{shield.blockAv}）";
+                        }
+
+                        var dealt = QudCombat.ResolveAttack(pv, av, dice, check.critical, w.armorPierce);
 
                         target.CombatHp -= dealt.damage;
                         string tag = check.critical ? "会心！" : "命中！";
-                        string atkKind = isMagic ? "魔法" : "物理";
+                        string atkKind = magic ? "魔法" : "物理";
                         string roll = $"1d20={check.roll}{toHit:+#;-#;+0}={check.total} > DV{dv}";
-                        string pierce = traits.armorPierce > 0 && !isMagic
-                            ? $"（装甲貫通-{traits.armorPierce}）" : "";
-                        string judge = $"{atkKind} PV{dealt.pv} vs AV{dealt.av}{pierce}";
+                        string pierce = w.armorPierce > 0 && !magic ? $"（装甲貫通-{w.armorPierce}）" : "";
+                        string judge = $"{atkKind} PV{dealt.pv} vs AV{dealt.av}{pierce}{blockTag}";
 
                         if (dealt.penetrations == 0)
                         {
@@ -179,12 +183,11 @@ public static class BattleResolver
                         }
                         else
                         {
-                            string dice = string.IsNullOrWhiteSpace(actor.DamageDice)
-                                ? QudCombat.DEFAULT_DAMAGE_DICE : actor.DamageDice;
-                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {swingTag}{tag}（{roll}、{judge}） {dealt.penetrations}回貫通 {dice}×{dealt.penetrations} ダメージ={dealt.damage} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
+                            string shown = string.IsNullOrWhiteSpace(dice) ? QudCombat.DEFAULT_DAMAGE_DICE : dice;
+                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {swingTag}{tag}（{roll}、{judge}） {dealt.penetrations}回貫通 {shown}×{dealt.penetrations} ダメージ={dealt.damage} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
 
                             // 装甲破壊は「貫通した攻撃」にだけ乗る。削れた装甲は味方全員の攻撃にも効く。
-                            int shred = ApplyArmorShred(armorShredded, target, traits.armorShred, isMagic);
+                            int shred = ApplyArmorShred(armorShredded, target, w.armorShred, magic);
                             if (shred > 0)
                                 logs.Add($"  Phase {phase}: {target.Name} の装甲が砕けた（AV-{shred} 累計-{ShredOf(armorShredded, target)}）");
                         }
@@ -195,6 +198,32 @@ public static class BattleResolver
                             target.IsAlive = false;
                             logs.Add($"  Phase {phase}: {target.Name} 撃破！");
                             if (!entry.isAdvSide) partyDowned++;
+                        }
+                    }
+
+                    // 連撃は同じ手番のうちに続けて振るう。狙いは1振りごとに選び直す。
+                    int swings = 1 + traits.extraAttacks;
+                    for (int swing = 0; swing < swings; swing++)
+                    {
+                        if (!AnyAlive(enemySideArr) || !actor.IsAlive) break;
+                        Swing(QudCombat.FollowUpPv(basePv, swing), actor.DamageDice, traits, isMagic,
+                            swing == 0 ? "" : "追撃 ");
+                    }
+
+                    // 左手の武器は確率でしか振れない。連撃の減衰とは別枠で、常に本来のPVで入る
+                    // （連撃は右手の性質、二刀流は装備構成の話なので、混ぜると二重取りになる）。
+                    var offHand = actor.OffHandWeapon;
+                    if (offHand != null && AnyAlive(enemySideArr) && actor.IsAlive)
+                    {
+                        var offTraits = offHand.Traits.Combine(actorStats);
+                        int chance = QudCombat.OFF_HAND_BASE_CHANCE
+                            + offHand.offHandBonus + actorStats.offHandChance;
+                        if (QudCombat.RollOffHand(chance))
+                        {
+                            // 左手に魔法は持てない（魔法は両手武器）ので、常に物理として解決する。
+                            int offPv = QudCombat.EffectivePv(
+                                offHand.basePv, actor.AttackStatModifier, offHand.maxStatBonus, actorStats.pv);
+                            Swing(offPv, offHand.damageDice, offTraits, magic: false, "左手 ");
                         }
                     }
                 }

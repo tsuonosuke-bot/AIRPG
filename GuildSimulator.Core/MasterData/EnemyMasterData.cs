@@ -14,6 +14,12 @@ public class EnemyMasterData
     public string defaultWeaponId = "";
     public string defaultArmorId = "";
 
+    /// <summary>左手に握らせる武器。二刀流の敵を作れる。両手武器を持たせているときは無視される。</summary>
+    public string defaultOffHandId = "";
+
+    /// <summary>左手に構えさせる盾。重装兵のように受けてくる敵を作れる。</summary>
+    public string defaultShieldId = "";
+
     /// <summary>
     /// 武器を持たない敵の牙・爪・体当たりのダメージダイス。未設定なら既定値。
     /// ダメージの基礎値は武器ダイスなので、素手の敵はここで打撃力を表現する。
@@ -33,5 +39,7 @@ public class EnemyMasterData
 
     public EquipmentMasterData? DefaultWeapon { get; set; }
     public EquipmentMasterData? DefaultArmor { get; set; }
+    public EquipmentMasterData? DefaultOffHand { get; set; }
+    public EquipmentMasterData? DefaultShield { get; set; }
     public List<SkillMasterData> Skills { get; set; } = new();
 }

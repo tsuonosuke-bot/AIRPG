@@ -21,6 +21,12 @@ public interface IUnitMember
     EquipmentMasterData? Weapon { get; }
     EquipmentMasterData? Armor { get; }
 
+    /// <summary>左手に握った武器。二刀流の対象。両手武器を構えていればnull。</summary>
+    EquipmentMasterData? OffHandWeapon { get; }
+
+    /// <summary>左手に構えた盾。受けに成功した攻撃にだけ装甲が乗る。</summary>
+    EquipmentMasterData? Shield { get; }
+
     /// <summary>攻撃時に振るダメージダイス。貫通1回につき1度振る。</summary>
     string DamageDice { get; }
 

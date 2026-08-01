@@ -306,6 +306,29 @@ public static class HelpScreen
         Ui.WriteLine("  ■ 近接4種の数値（同じ商店Tierで比べたもの）");
         ShowMeleeComparisonTable(db);
         Ui.WriteLine();
+        Ui.WriteLine("  ■ 両手武器（大剣・大斧・長槍）");
+        Ui.WriteLine("     左手が塞がるので、盾も二刀流も使えない。その代わり同じ武器種の片手版より");
+        Ui.WriteLine("     基礎PV・ダメージダイス・能力値上限がどれも1段上で、マスタリーはそのまま効く。");
+        Ui.WriteLine("     重量も倍近いので、担げるだけの筋力と体格が要る。");
+        Ui.WriteLine("     弓と魔法は最初から両手武器。射手と魔道士は盾を構えられない。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 二刀流（左手に武器を持つ）");
+        Ui.WriteLine($"     左手の武器は毎手番かならず振れるわけではなく、確率で追撃が入る（基本{QudCombat.OFF_HAND_BASE_CHANCE}%）。");
+        Ui.WriteLine("     短剣は取り回しがよく、左手に持つと発動率が上がる。「二刀流」スキルでさらに伸びる。");
+        Ui.WriteLine("     ・左手の武器は命中やPVといった数値補正を供給しない。攻撃にだけ使う。");
+        Ui.WriteLine("       同じ武器を2本持って補正を二重取りすることはできない。");
+        Ui.WriteLine("     ・重さは両方ぶんかかるので、手数と引き換えに積載を圧迫する。");
+        Ui.WriteLine("     ・左手の追撃は右手の連撃とは別枠で、PVの減衰を受けない。");
+        Ui.WriteLine();
+        Ui.WriteLine("  ■ 盾（左手に構える）");
+        Ui.WriteLine("     盾の装甲は常時は効かない。攻撃を受けるたびに受け判定を行い、");
+        Ui.WriteLine("     成功した攻撃にかぎってその一撃だけAVが上乗せされる。");
+        Ui.WriteLine("     ・小盾は受け率が低く軽い。大盾は受け率も装甲も高いが、重くDVを削る。");
+        Ui.WriteLine("     ・受けで得た装甲は斧の装甲破壊では剥がせない（着ている鎧とは別物のため）。");
+        Ui.WriteLine("     ・魔法攻撃はmAVと突き合わせるので、盾では受けられない。");
+        Ui.WriteLine("     ・「盾術」スキルで受け率が上がる。");
+        ShowShieldTable(db);
+        Ui.WriteLine();
         Ui.WriteLine("  マスタリーの効果と習得条件はヘルプの「職業とマスタリー」を参照。");
         await Ui.PauseAsync();
     }
@@ -332,6 +355,25 @@ public static class HelpScreen
                 + (traits.Count > 0 ? string.Join(" ", traits) : "なし"));
         }
         Ui.Dim("     基礎PVとダメージダイスはTierで上がる。商店や持ち物の画面で個別に確認できる。");
+    }
+
+    /// <summary>取り扱いのある盾を実データから並べる。</summary>
+    static void ShowShieldTable(GameMasterData db)
+    {
+        var shields = db.equipment.Values
+            .Where(e => e.IsShield)
+            .OrderBy(e => e.shopTier).ThenBy(e => e.blockChance)
+            .ToList();
+        if (shields.Count == 0) return;
+
+        Ui.WriteLine();
+        Ui.Dim($"     {Ui.PadWide("盾", 18)}{Ui.PadWide("受け率", 10)}{Ui.PadWide("受け成功時AV", 16)}{Ui.PadWide("重量", 8)}回避");
+        foreach (var s in shields)
+            Ui.WriteLine($"     {Ui.PadWide(s.displayName, 18)}"
+                + Ui.PadWide($"{s.blockChance}%", 10)
+                + Ui.PadWide($"+{s.blockAv}", 16)
+                + Ui.PadWide($"{s.weight}", 8)
+                + (s.bonus.dv != 0 ? $"{s.bonus.dv:+#;-#;0}" : "±0"));
     }
 
     static async Task ShowMasteryAsync(GameMasterData db)
