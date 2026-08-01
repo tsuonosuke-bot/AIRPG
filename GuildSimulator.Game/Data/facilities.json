@@ -57,7 +57,7 @@
   {
     "id": "fac_training_hall_01",
     "displayName": "訓練所",
-    "description": "冒険者のレベルアップ時の能力成長率を高める。建設するとクラスチェンジも解禁される。",
+    "description": "冒険者のレベルアップ時の能力成長率を高める。",
     "buildCostGold": 500,
     "upkeepGoldPerTurn": 18,
     "requiredGuildRank": 2,
@@ -65,6 +65,19 @@
     "shopLevelBonus": 0,
     "restHealBonusPercent": 0,
     "growthRateBonusPercent": 5,
+    "recruitMinBonus": 0
+  },
+  {
+    "id": "fac_class_change_01",
+    "displayName": "転職指南所",
+    "description": "他の職業を修めた指南役を招き、冒険者のクラスチェンジを受け付けられるようにする。",
+    "buildCostGold": 450,
+    "upkeepGoldPerTurn": 15,
+    "requiredGuildRank": 1,
+    "questBoardBonus": 0,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
     "recruitMinBonus": 0
   },
   {

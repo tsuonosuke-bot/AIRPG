@@ -14,7 +14,7 @@ public static class AdventurerScreen
     public const int ClassChangeCostPerLevel = 10;
 
     /// <summary>クラスチェンジの解禁に必要な施設。建設するまでは職業を選び直せない。</summary>
-    public const string ClassChangeFacilityId = "fac_training_hall_01";
+    public const string ClassChangeFacilityId = "fac_class_change_01";
 
     public static int CalculateClassChangeCost(int level) => Math.Max(1, level) * ClassChangeCostPerLevel;
 

@@ -84,7 +84,7 @@ public static class HelpScreen
         Ui.WriteLine($"                      掲示されるのは「クエストランク ≦ ギルドランク」のものだけ。");
         Ui.WriteLine("  ・施設            : ゴールドで建設するギルドの恒常強化。建設後は維持費が増える代わりに、");
         Ui.WriteLine("                      クエスト掲示枠・商店品揃え・休息回復量・成長率のいずれかを高め続ける。");
-        Ui.WriteLine("                      訓練所は冒険者のクラスチェンジも解禁する（詳細は「職業とマスタリー」）。");
+        Ui.WriteLine("                      転職指南所は冒険者のクラスチェンジを解禁する（詳細は「職業とマスタリー」）。");
         await Ui.PauseAsync();
     }
 

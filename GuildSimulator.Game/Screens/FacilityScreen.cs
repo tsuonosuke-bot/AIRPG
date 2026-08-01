@@ -104,6 +104,7 @@ public static class FacilityScreen
         if (f.injuryRecoveryBonus != 0) parts.Add($"休養時の負傷回復+{f.injuryRecoveryBonus}/T");
         if (f.fatalityReductionPercent != 0) parts.Add($"帰還時死亡率-{f.fatalityReductionPercent}%");
         if (f.scarPreventionPercent != 0) parts.Add($"傷痕発生率-{f.scarPreventionPercent}%");
+        if (f.id == AdventurerScreen.ClassChangeFacilityId) parts.Add("クラスチェンジを解禁");
         return parts.Count > 0 ? string.Join(" ", parts) : "効果なし";
     }
 }
