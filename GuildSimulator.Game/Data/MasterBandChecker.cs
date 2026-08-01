@@ -91,6 +91,44 @@ public static class MasterBandChecker
             Report(warnings, where, "rewardGuildPoints", q.rewardGuildPoints, band.GuildPoints);
             Report(warnings, where, "totalPhases", q.totalPhases, band.TotalPhases);
         }
+
+        CheckGatherQuests(db, warnings);
+    }
+
+    /// <summary>
+    /// 採取クエストが目標数に届くか。届かないまま最終フェーズを迎えると報酬ゼロの撤退になり、
+    /// 途中まで集めたぶんの救済もない。「戦闘で負けた」ではなく「抽選が渋かった」で落ちるのは
+    /// プレイヤーに手の打ちようがないので、数値の側で余裕を確保しておく。
+    /// </summary>
+    static void CheckGatherQuests(GameMasterData db, List<string> warnings)
+    {
+        foreach (var q in db.allQuests)
+        {
+            if (!q.IsGatherQuest) continue;
+            string where = $"{q.id}（採取）";
+
+            if (q.gatherMinPerEvent < 0 || q.gatherMaxPerEvent < q.gatherMinPerEvent)
+            {
+                warnings.Add($"{where}: gatherMinPerEvent({q.gatherMinPerEvent}) と "
+                    + $"gatherMaxPerEvent({q.gatherMaxPerEvent}) が逆転しています");
+                continue;
+            }
+
+            if (q.gatherChance < RankBandTable.MinGatherChance)
+                warnings.Add($"{where}: gatherChance が {q.gatherChance} で、"
+                    + $"下限 {RankBandTable.MinGatherChance} を下回っています"
+                    + "（採取判定の回数が少なすぎて、期待量に余裕があってもブレで未達になります）");
+
+            float expected = RankBandTable.ExpectedGatherYield(
+                q.totalPhases, q.bossPhase, q.BossEnemy != null,
+                q.gatherChance, q.gatherMinPerEvent, q.gatherMaxPerEvent);
+            float needed = q.gatherTargetCount * RankBandTable.GatherSurplusFactor;
+            if (expected < needed)
+                warnings.Add($"{where}: 採取の期待量が {expected:0.#} しかなく、"
+                    + $"gatherTargetCount {q.gatherTargetCount} の"
+                    + $"{RankBandTable.GatherSurplusFactor:0.#}倍（{needed:0.#}）に届きません"
+                    + "（目標未達で撤退になりやすい設定です）");
+        }
     }
 
     /// <summary>ランク帯そのものが開通しているか。ここが欠けると、その帯の冒険者は伸びなくなる。</summary>

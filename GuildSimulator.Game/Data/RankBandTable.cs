@@ -25,6 +25,29 @@ public static class RankBandTable
     /// <summary>装備Tierの上限。</summary>
     public const int MaxEquipmentTier = 5;
 
+    /// <summary>
+    /// 採取クエストの <c>gatherChance</c> の下限。採取判定の当たり回数が少ないほど
+    /// 抽選のブレが大きくなり、期待量に余裕を持たせても目標未達（＝撤退）が起きる。
+    /// 下の <see cref="GatherSurplusFactor"/> と組で使って初めて成功率が担保される。
+    /// </summary>
+    public const float MinGatherChance = 0.65f;
+
+    /// <summary>
+    /// 採取の期待量が目標数の何倍あればよいか。採取クエストは目標数に届かないと
+    /// 報酬ゼロの撤退になる全部か無かの判定なので、<see cref="MinGatherChance"/> と
+    /// この倍率を満たすと、採取抽選だけを理由にした失敗は5%未満に収まる。
+    /// </summary>
+    public const float GatherSurplusFactor = 2f;
+
+    /// <summary>そのクエストで見込める採取量。ボスのフェーズでは採取判定が起きない。</summary>
+    public static float ExpectedGatherYield(int totalPhases, int bossPhase, bool hasBoss,
+        float gatherChance, int minPerEvent, int maxPerEvent)
+    {
+        int phases = totalPhases;
+        if (hasBoss && bossPhase >= 1 && bossPhase <= totalPhases) phases--;
+        return phases * gatherChance * (minPerEvent + maxPerEvent) / 2f;
+    }
+
     public sealed record EnemyBand(Band Hp, Band Av, Band Dv, Band Pv, Band Exp);
 
     public sealed record QuestBand(Band RewardGold, Band RewardExp, Band GuildPoints, Band TotalPhases);
