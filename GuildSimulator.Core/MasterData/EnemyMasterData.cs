@@ -5,6 +5,14 @@ public class EnemyMasterData
     public string id = "";
     public string baseName = "";
     public int exp;
+
+    /// <summary>
+    /// 脅威度。冒険者ランクと同じ F〜S の物差し（1〜7）に乗せる。
+    /// レベル倍率で強さを表すのをやめたので、強弱は個体を別々に用意して表す
+    /// （はぐれゴブリン→ゴブリン→ゴブリン兵士→ゴブリン隊長）。
+    /// この値は能力値には一切影響せず、士気の格上ショックと難易度表示にだけ使う。
+    /// </summary>
+    public int threat = Models.Rank.Min;
     public int vitality;
     public int mental;
     public int strength;

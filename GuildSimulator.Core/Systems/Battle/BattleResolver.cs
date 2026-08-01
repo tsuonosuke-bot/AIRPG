@@ -48,9 +48,9 @@ public static class BattleResolver
 
         logs.Add($"[Turn {turn}] Phase {phase}: 戦闘開始 冒険者 vs {DescribeComposition(enemySide)}");
 
-        // 格上との遭遇はそれ自体が士気を削る。
-        int levelGap = UnitCalculator.AvgLevel(enemySide) - UnitCalculator.AvgLevel(advSide);
-        int shock = morale.DrainLevelGap(levelGap);
+        // 格上との遭遇はそれ自体が士気を削る。物差しは冒険者ランクと敵の脅威度（F〜S）。
+        int rankGap = UnitCalculator.AvgThreat(enemySide) - UnitCalculator.AvgThreat(advSide);
+        int shock = morale.DrainThreatGap(rankGap);
         if (shock > 0)
             logs.Add($"  Phase {phase}: 格上の相手に気圧された（士気 -{shock} → {morale.Current}/{morale.Max}）");
 
@@ -294,10 +294,10 @@ public static class BattleResolver
     static string DescribeComposition(IUnitMember?[] side)
     {
         var groups = side.Where(a => a != null && a.IsAlive)
-            .GroupBy(a => (a!.Name, a.Level))
+            .GroupBy(a => (a!.Name, a.Threat))
             .Select(g => g.Count() > 1
-                ? $"{g.Key.Name}(Lv{g.Key.Level})×{g.Count()}"
-                : $"{g.Key.Name}(Lv{g.Key.Level})");
+                ? $"{g.Key.Name}({Models.Rank.Label(g.Key.Threat)})×{g.Count()}"
+                : $"{g.Key.Name}({Models.Rank.Label(g.Key.Threat)})");
         var desc = string.Join("、", groups);
         return desc.Length > 0 ? desc : "敵";
     }

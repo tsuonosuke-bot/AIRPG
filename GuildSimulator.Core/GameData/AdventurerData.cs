@@ -28,7 +28,10 @@ public class AdventurerData : IUnitMember
     public int vitality, mental, strength, agility, intelligence, constitution, appearance;
 
     bool IUnitMember.IsAlive { get => isAlive; set => isAlive = value; }
-    public int Level => level;
+
+    /// <summary>脅威度は認定ランクそのもの。敵の threat と同じ物差しで比べる。</summary>
+    public int Threat => rank;
+
     public string Name => name;
     public int CombatHp { get; set; }
     public int CombatHpMax { get; set; }

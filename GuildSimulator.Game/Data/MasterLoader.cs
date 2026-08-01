@@ -161,6 +161,7 @@ public static class MasterLoader
             var ed = new EnemyMasterData
             {
                 id = e.id, baseName = e.baseName, exp = e.exp,
+                threat = Rank.Clamp(e.threat),
                 vitality = e.vitality, mental = e.mental, strength = e.strength,
                 agility = e.agility, intelligence = e.intelligence, constitution = e.constitution,
                 naturalDamageDice = e.naturalDamageDice ?? "",
@@ -206,7 +207,7 @@ public static class MasterLoader
         var units = Load<List<EnemyUnitJson>>(readJson, "enemy_units.json");
         foreach (var u in units)
         {
-            var tpl = new EnemyUnitTemplate { id = u.id, unitName = u.unitName, baseLevel = u.baseLevel };
+            var tpl = new EnemyUnitTemplate { id = u.id, unitName = u.unitName };
             foreach (var fid in u.formationIds ?? new())
             {
                 EnemyMasterData? m = null;
@@ -223,7 +224,6 @@ public static class MasterLoader
             var dd = new DungeonMasterData
             {
                 id = d.id, dungeonName = d.dungeonName,
-                enemyLevelPerPhase = d.enemyLevelPerPhase,
                 turnEndEventChance = d.turnEndEventChance ?? 0.35f,
             };
             foreach (var kv in d.eventTable ?? new())
@@ -409,13 +409,13 @@ public static class MasterLoader
     record FacilityJson(string id, string displayName, string? description, int buildCostGold, int upkeepGoldPerTurn,
         int requiredGuildRank, int questBoardBonus, int shopLevelBonus, int restHealBonusPercent, int growthRateBonusPercent);
 
-    record EnemyJson(string id, string baseName, int exp, int vitality, int mental, int strength,
+    record EnemyJson(string id, string baseName, int exp, int threat, int vitality, int mental, int strength,
         int agility, int intelligence, int constitution, string? defaultWeaponId, string? defaultArmorId,
         List<string>? skillIds, List<RewardEntryJson>? dropTable, string? naturalDamageDice = null,
         string? defaultOffHandId = null, string? defaultShieldId = null,
         int naturalPv = QudCombatDefaults.WeaponPv, int naturalAv = 0, int naturalMav = 0);
 
-    record EnemyUnitJson(string id, string unitName, int baseLevel, List<string?>? formationIds);
+    record EnemyUnitJson(string id, string unitName, List<string?>? formationIds);
 
     record RewardEntryJson(int type, string? relicId, string? equipmentId, string? skillId,
         string? consumableId, int gold, int weight, float chance, int quantity, bool unique);
@@ -426,7 +426,7 @@ public static class MasterLoader
     record EncounterEntryJson(string unitId, int weight, int minPhase, int maxPhase);
     record DungeonJson(string id, string dungeonName,
         Dictionary<string, int>? eventTable, List<EncounterEntryJson>? encounterTable,
-        float enemyLevelPerPhase, List<RewardEntryJson>? treasureTable,
+        List<RewardEntryJson>? treasureTable,
         List<string>? turnEndEventIds, float? turnEndEventChance);
 
     record StoryClueJson(string id, string title, string? description);

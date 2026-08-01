@@ -1,6 +1,7 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
 using Xunit;
 
@@ -133,5 +134,51 @@ public class RankTests
         }
         foreach (var facility in db.facilities.Values)
             Assert.InRange(facility.requiredGuildRank, Rank.Min, Rank.Max);
+
+        // 敵の脅威度も同じ物差しに乗る。
+        foreach (var enemy in db.enemies.Values)
+            Assert.InRange(enemy.threat, Rank.Min, Rank.Max);
+    }
+
+    [Fact]
+    public void EnemyStrengthComesFromTheMasterDataNotFromAnyLevelMultiplier()
+    {
+        // レベル倍率をやめたので、マスタに書いた能力値がそのまま戦闘値になる。
+        // 強弱は別々の個体で表す（はぐれゴブリン→ゴブリン兵士→ゴブリン重装歩兵）。
+        var db = Game.Data.MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
+        var master = db.enemies.Values.First(e => e.DefaultWeapon == null);
+        var enemy = new EnemyData(master);
+
+        var stats = enemy.GetBaseCombatStats();
+        Assert.Equal((master.vitality * 10 + master.constitution * 5) / 2, stats.hp);
+        Assert.Equal(master.mental * 10, stats.san);
+        Assert.Equal(Rank.Clamp(master.threat), enemy.Threat);
+    }
+
+    [Fact]
+    public void TheSameFamilyOfEnemiesClimbsTheThreatLadder()
+    {
+        // 「同系統で強さの違う個体を並べる」がレベル倍率の代わりになっていること。
+        var db = Game.Data.MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
+        var goblins = db.enemies.Values
+            .Where(e => e.baseName.Contains("ゴブリン"))
+            .ToList();
+        Assert.True(goblins.Count >= 3, "同系統の敵が揃っていない");
+        Assert.True(goblins.Select(e => e.threat).Distinct().Count() > 1,
+            "同系統の敵に脅威度の段階差がない");
+    }
+
+    [Fact]
+    public void MoraleShockIsMeasuredInRankStepsNotLevels()
+    {
+        // 尺度がレベル差（10以上開きうる）からランク差（最大6）に変わったので、
+        // 1段あたりの重みを上げてある。上限に達するのは3段差から。
+        var morale = new MoraleState(1000);
+        Assert.Equal(0, morale.DrainThreatGap(0));
+        Assert.Equal(0, morale.DrainThreatGap(-2));
+        Assert.Equal(MoraleState.ThreatGapFlat, morale.DrainThreatGap(1));
+
+        var capped = new MoraleState(1000);
+        Assert.Equal(MoraleState.ThreatGapFlatCap, capped.DrainThreatGap(Rank.Max - Rank.Min));
     }
 }

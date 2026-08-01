@@ -6,7 +6,13 @@ namespace GuildSimulator.Core.GameData;
 public interface IUnitMember
 {
     bool IsAlive { get; set; }
-    int Level { get; }
+
+    /// <summary>
+    /// 脅威度（F〜S の1〜7）。冒険者は認定ランク、敵はマスタの threat。
+    /// 士気の格上ショックはこの値の差で決まる。
+    /// </summary>
+    int Threat { get; }
+
     string Name { get; }
     int CombatHp { get; set; }
     int CombatHpMax { get; set; }

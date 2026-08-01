@@ -1,108 +1,602 @@
 [
-  { "id": "unit_slime_single", "unitName": "スライム", "baseLevel": 1,
-    "formationIds": ["enemy_slime", null, null, null, null, null] },
-  { "id": "unit_slime_pair", "unitName": "スライム2匹", "baseLevel": 1,
-    "formationIds": ["enemy_slime", "enemy_slime", null, null, null, null] },
-  { "id": "unit_slime_cluster", "unitName": "スライムの群体", "baseLevel": 2,
-    "formationIds": ["enemy_slime", "enemy_slime", "enemy_slime", "enemy_slime", null, null] },
-  { "id": "unit_raven_pair", "unitName": "大鴉のつがい", "baseLevel": 1,
-    "formationIds": ["enemy_raven", null, null, "enemy_raven", null, null] },
-  { "id": "unit_raven_flock", "unitName": "大鴉の群れ", "baseLevel": 2,
-    "formationIds": ["enemy_raven", "enemy_raven", null, "enemy_raven", "enemy_raven", null] },
-  { "id": "unit_rabbit_pack", "unitName": "角兎の群れ", "baseLevel": 1,
-    "formationIds": ["enemy_horned_rabbit", "enemy_horned_rabbit", "enemy_horned_rabbit", null, null, null] },
-  { "id": "unit_bee_swarm", "unitName": "殺人蜂の群れ", "baseLevel": 2,
-    "formationIds": ["enemy_killer_bee", "enemy_killer_bee", "enemy_killer_bee", "enemy_killer_bee", null, null] },
-  { "id": "unit_goblin_single", "unitName": "はぐれゴブリン", "baseLevel": 1,
-    "formationIds": ["enemy_goblin_stray", null, null, null, null, null] },
-  { "id": "unit_goblin_group", "unitName": "ゴブリンの群れ", "baseLevel": 1,
-    "formationIds": ["enemy_goblin", "enemy_goblin", "enemy_goblin", null, null, null] },
-  { "id": "unit_meadow_wanderers", "unitName": "草原の徘徊者", "baseLevel": 1,
-    "formationIds": ["enemy_slime", "enemy_goblin_stray", null, "enemy_raven", null, null] },
-  { "id": "unit_goblin_thrower_ambush", "unitName": "ゴブリン投擲兵の伏兵", "baseLevel": 2,
-    "formationIds": [null, null, null, "enemy_goblin_thrower", null, null] },
-
-  { "id": "unit_goblin_scouts", "unitName": "ゴブリンの斥候隊", "baseLevel": 2,
-    "formationIds": ["enemy_goblin", "enemy_goblin", null, "enemy_goblin_archer", null, null] },
-  { "id": "unit_goblin_warband", "unitName": "ゴブリンの一団", "baseLevel": 3,
-    "formationIds": ["enemy_goblin", "enemy_goblin", "enemy_goblin", "enemy_goblin_archer", "enemy_goblin_shaman", null] },
-  { "id": "unit_wolf_pair", "unitName": "森狼のつがい", "baseLevel": 2,
-    "formationIds": ["enemy_forest_wolf", "enemy_forest_wolf", null, null, null, null] },
-  { "id": "unit_wolf_pack", "unitName": "森狼の群れ", "baseLevel": 3,
-    "formationIds": ["enemy_forest_wolf", "enemy_forest_wolf", "enemy_forest_wolf", null, null, null] },
-  { "id": "unit_spider_single", "unitName": "大蜘蛛", "baseLevel": 2,
-    "formationIds": ["enemy_giant_spider", null, null, null, null, null] },
-  { "id": "unit_spider_nest", "unitName": "蜘蛛の巣穴", "baseLevel": 3,
-    "formationIds": ["enemy_giant_spider", "enemy_giant_spider", null, "enemy_killer_bee", "enemy_killer_bee", null] },
-  { "id": "unit_treant_single", "unitName": "老樹人", "baseLevel": 3,
-    "formationIds": ["enemy_treant", null, null, null, null, null] },
-  { "id": "unit_treant_grove", "unitName": "怒れる木立", "baseLevel": 4,
-    "formationIds": ["enemy_treant", "enemy_treant", null, null, null, null] },
-  { "id": "unit_goblin_chief", "unitName": "ゴブリン頭目とその一党", "baseLevel": 3,
-    "formationIds": ["enemy_goblin_chief", "enemy_goblin", "enemy_goblin", "enemy_goblin_archer", "enemy_goblin_shaman", "enemy_goblin_archer"] },
-  { "id": "unit_goblin_soldier_patrol", "unitName": "ゴブリン兵士の哨戒隊", "baseLevel": 3,
-    "formationIds": ["enemy_goblin_soldier", "enemy_goblin_soldier", null, null, null, null] },
-  { "id": "unit_goblin_soldier_boss", "unitName": "ゴブリン兵士とその手下", "baseLevel": 2,
-    "formationIds": ["enemy_goblin_soldier", "enemy_goblin", "enemy_goblin", null, null, null] },
-
-  { "id": "unit_kernos_lone", "unitName": "ケルノス", "baseLevel": 5,
-    "formationIds": ["enemy_kernos", null, null, null, null, null] },
-  { "id": "unit_kernos_thralls", "unitName": "ケルノスと隷属ゴブリン", "baseLevel": 5,
-    "formationIds": ["enemy_kernos", "enemy_goblin", "enemy_goblin", null, null, null] },
-  { "id": "unit_kernos_beast", "unitName": "ケルノスビースト", "baseLevel": 7,
-    "formationIds": ["enemy_kernos_beast", null, null, null, null, null] },
-
-  { "id": "unit_goblin_ironclad_patrol", "unitName": "ゴブリン重装歩兵の哨戒", "baseLevel": 4,
-    "formationIds": ["enemy_goblin_heavy", null, null, null, null, null] },
-  { "id": "unit_goblin_heavy_squad", "unitName": "ゴブリン守備隊", "baseLevel": 5,
-    "formationIds": ["enemy_goblin_heavy", "enemy_goblin_heavy", null, "enemy_goblin_captain", null, null] },
-  { "id": "unit_goblin_garrison", "unitName": "旧市街守備隊本隊", "baseLevel": 6,
-    "formationIds": ["enemy_goblin_heavy", "enemy_goblin_heavy", "enemy_goblin_heavy", "enemy_goblin_captain", null, null] },
-
-  { "id": "unit_bandit_lookout", "unitName": "野盗の見張り", "baseLevel": 3,
-    "formationIds": ["enemy_bandit", null, null, "enemy_bandit_archer", null, null] },
-  { "id": "unit_bandit_ambush", "unitName": "野盗の待ち伏せ", "baseLevel": 4,
-    "formationIds": ["enemy_bandit", "enemy_bandit", null, "enemy_bandit_archer", "enemy_bandit_archer", null] },
-  { "id": "unit_bandit_gang", "unitName": "野盗団", "baseLevel": 4,
-    "formationIds": ["enemy_bandit", "enemy_bandit", "enemy_bandit", "enemy_bandit_archer", "enemy_goblin_shaman", null] },
-  { "id": "unit_bandit_boss", "unitName": "野盗頭とその一味", "baseLevel": 5,
-    "formationIds": ["enemy_bandit_boss", "enemy_bandit", "enemy_bandit", "enemy_bandit_archer", "enemy_bandit_archer", null] },
-
-  { "id": "unit_bat_flock", "unitName": "コウモリの群れ", "baseLevel": 3,
-    "formationIds": ["enemy_bat", "enemy_bat", "enemy_bat", "enemy_bat", null, null] },
-  { "id": "unit_rat_pack", "unitName": "大鼠の群れ", "baseLevel": 3,
-    "formationIds": ["enemy_giant_rat", "enemy_giant_rat", "enemy_giant_rat", null, null, null] },
-  { "id": "unit_mine_vermin", "unitName": "坑道の害獣", "baseLevel": 3,
-    "formationIds": ["enemy_giant_rat", "enemy_giant_rat", null, "enemy_bat", "enemy_bat", null] },
-  { "id": "unit_kobold_patrol", "unitName": "コボルトの巡回", "baseLevel": 3,
-    "formationIds": ["enemy_kobold", "enemy_kobold", null, null, null, null] },
-  { "id": "unit_kobold_crew", "unitName": "コボルトの採掘班", "baseLevel": 4,
-    "formationIds": ["enemy_kobold_digger", "enemy_kobold", "enemy_kobold", "enemy_kobold_shaman", null, null] },
-  { "id": "unit_kobold_warband", "unitName": "コボルトの戦列", "baseLevel": 5,
-    "formationIds": ["enemy_kobold_digger", "enemy_kobold_digger", "enemy_kobold", "enemy_kobold_shaman", "enemy_kobold_shaman", null] },
-  { "id": "unit_wraith_single", "unitName": "坑道の亡霊", "baseLevel": 4,
-    "formationIds": [null, null, null, "enemy_mine_wraith", null, null] },
-  { "id": "unit_wraith_haunt", "unitName": "亡霊の徘徊", "baseLevel": 5,
-    "formationIds": ["enemy_bat", "enemy_bat", null, "enemy_mine_wraith", "enemy_mine_wraith", null] },
-  { "id": "unit_golem_single", "unitName": "石のゴーレム", "baseLevel": 5,
-    "formationIds": ["enemy_stone_golem", null, null, null, null, null] },
-  { "id": "unit_mine_guardian", "unitName": "坑道の守り手", "baseLevel": 6,
-    "formationIds": ["enemy_stone_golem", "enemy_kobold_digger", "enemy_kobold_digger", "enemy_kobold_shaman", "enemy_mine_wraith", null] },
-
-  { "id": "unit_skeleton_pair", "unitName": "スケルトン2体", "baseLevel": 5,
-    "formationIds": ["enemy_skeleton", "enemy_skeleton", null, null, null, null] },
-  { "id": "unit_skeleton_squad", "unitName": "骸骨兵団", "baseLevel": 6,
-    "formationIds": ["enemy_skeleton", "enemy_skeleton", "enemy_skeleton", "enemy_skeleton_archer", "enemy_skeleton_archer", null] },
-  { "id": "unit_zombie_horde", "unitName": "腐肉喰らいの群れ", "baseLevel": 5,
-    "formationIds": ["enemy_zombie", "enemy_zombie", "enemy_zombie", null, null, null] },
-  { "id": "unit_ghoul_pack", "unitName": "グールの一団", "baseLevel": 6,
-    "formationIds": ["enemy_ghoul", "enemy_ghoul", null, null, null, null] },
-  { "id": "unit_shadow_single", "unitName": "影の獣", "baseLevel": 6,
-    "formationIds": ["enemy_shadow_beast", null, null, null, null, null] },
-  { "id": "unit_shadow_pair", "unitName": "影の獣2体", "baseLevel": 7,
-    "formationIds": ["enemy_shadow_beast", "enemy_shadow_beast", null, null, null, null] },
-  { "id": "unit_necro_ritual", "unitName": "死霊術師の儀式", "baseLevel": 7,
-    "formationIds": ["enemy_skeleton", "enemy_zombie", "enemy_skeleton", "enemy_necromancer", "enemy_skeleton_archer", null] },
-  { "id": "unit_bone_lord", "unitName": "骸の王とその廷臣", "baseLevel": 8,
-    "formationIds": ["enemy_bone_lord", "enemy_ghoul", "enemy_ghoul", "enemy_necromancer", "enemy_skeleton_archer", "enemy_skeleton_archer"] }
+  {
+    "id": "unit_slime_single",
+    "unitName": "スライム",
+    "formationIds": [
+      "enemy_slime",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_slime_pair",
+    "unitName": "スライム2匹",
+    "formationIds": [
+      "enemy_slime",
+      "enemy_slime",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_slime_cluster",
+    "unitName": "スライムの群体",
+    "formationIds": [
+      "enemy_slime",
+      "enemy_slime",
+      "enemy_slime",
+      "enemy_slime",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_raven_pair",
+    "unitName": "大鴉のつがい",
+    "formationIds": [
+      "enemy_raven",
+      null,
+      null,
+      "enemy_raven",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_raven_flock",
+    "unitName": "大鴉の群れ",
+    "formationIds": [
+      "enemy_raven",
+      "enemy_raven",
+      null,
+      "enemy_raven",
+      "enemy_raven",
+      null
+    ]
+  },
+  {
+    "id": "unit_rabbit_pack",
+    "unitName": "角兎の群れ",
+    "formationIds": [
+      "enemy_horned_rabbit",
+      "enemy_horned_rabbit",
+      "enemy_horned_rabbit",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_bee_swarm",
+    "unitName": "殺人蜂の群れ",
+    "formationIds": [
+      "enemy_killer_bee",
+      "enemy_killer_bee",
+      "enemy_killer_bee",
+      "enemy_killer_bee",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_goblin_single",
+    "unitName": "はぐれゴブリン",
+    "formationIds": [
+      "enemy_goblin_stray",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_goblin_group",
+    "unitName": "ゴブリンの群れ",
+    "formationIds": [
+      "enemy_goblin",
+      "enemy_goblin",
+      "enemy_goblin",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_meadow_wanderers",
+    "unitName": "草原の徘徊者",
+    "formationIds": [
+      "enemy_slime",
+      "enemy_goblin_stray",
+      null,
+      "enemy_raven",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_goblin_thrower_ambush",
+    "unitName": "ゴブリン投擲兵の伏兵",
+    "formationIds": [
+      null,
+      null,
+      null,
+      "enemy_goblin_thrower",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_goblin_scouts",
+    "unitName": "ゴブリンの斥候隊",
+    "formationIds": [
+      "enemy_goblin",
+      "enemy_goblin",
+      null,
+      "enemy_goblin_archer",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_goblin_warband",
+    "unitName": "ゴブリンの一団",
+    "formationIds": [
+      "enemy_goblin",
+      "enemy_goblin",
+      "enemy_goblin",
+      "enemy_goblin_archer",
+      "enemy_goblin_shaman",
+      null
+    ]
+  },
+  {
+    "id": "unit_wolf_pair",
+    "unitName": "森狼のつがい",
+    "formationIds": [
+      "enemy_forest_wolf",
+      "enemy_forest_wolf",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_wolf_pack",
+    "unitName": "森狼の群れ",
+    "formationIds": [
+      "enemy_forest_wolf",
+      "enemy_forest_wolf",
+      "enemy_forest_wolf",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_spider_single",
+    "unitName": "大蜘蛛",
+    "formationIds": [
+      "enemy_giant_spider",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_spider_nest",
+    "unitName": "蜘蛛の巣穴",
+    "formationIds": [
+      "enemy_giant_spider",
+      "enemy_giant_spider",
+      null,
+      "enemy_killer_bee",
+      "enemy_killer_bee",
+      null
+    ]
+  },
+  {
+    "id": "unit_treant_single",
+    "unitName": "老樹人",
+    "formationIds": [
+      "enemy_treant",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_treant_grove",
+    "unitName": "怒れる木立",
+    "formationIds": [
+      "enemy_treant",
+      "enemy_treant",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_goblin_chief",
+    "unitName": "ゴブリン頭目とその一党",
+    "formationIds": [
+      "enemy_goblin_chief",
+      "enemy_goblin",
+      "enemy_goblin",
+      "enemy_goblin_archer",
+      "enemy_goblin_shaman",
+      "enemy_goblin_archer"
+    ]
+  },
+  {
+    "id": "unit_goblin_soldier_patrol",
+    "unitName": "ゴブリン兵士の哨戒隊",
+    "formationIds": [
+      "enemy_goblin_soldier",
+      "enemy_goblin_soldier",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_goblin_soldier_boss",
+    "unitName": "ゴブリン兵士とその手下",
+    "formationIds": [
+      "enemy_goblin_soldier",
+      "enemy_goblin",
+      "enemy_goblin",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_kernos_lone",
+    "unitName": "ケルノス",
+    "formationIds": [
+      "enemy_kernos",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_kernos_thralls",
+    "unitName": "ケルノスと隷属ゴブリン",
+    "formationIds": [
+      "enemy_kernos",
+      "enemy_goblin",
+      "enemy_goblin",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_kernos_beast",
+    "unitName": "ケルノスビースト",
+    "formationIds": [
+      "enemy_kernos_beast",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_goblin_ironclad_patrol",
+    "unitName": "ゴブリン重装歩兵の哨戒",
+    "formationIds": [
+      "enemy_goblin_heavy",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_goblin_heavy_squad",
+    "unitName": "ゴブリン守備隊",
+    "formationIds": [
+      "enemy_goblin_heavy",
+      "enemy_goblin_heavy",
+      null,
+      "enemy_goblin_captain",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_goblin_garrison",
+    "unitName": "旧市街守備隊本隊",
+    "formationIds": [
+      "enemy_goblin_heavy",
+      "enemy_goblin_heavy",
+      "enemy_goblin_heavy",
+      "enemy_goblin_captain",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_bandit_lookout",
+    "unitName": "野盗の見張り",
+    "formationIds": [
+      "enemy_bandit",
+      null,
+      null,
+      "enemy_bandit_archer",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_bandit_ambush",
+    "unitName": "野盗の待ち伏せ",
+    "formationIds": [
+      "enemy_bandit",
+      "enemy_bandit",
+      null,
+      "enemy_bandit_archer",
+      "enemy_bandit_archer",
+      null
+    ]
+  },
+  {
+    "id": "unit_bandit_gang",
+    "unitName": "野盗団",
+    "formationIds": [
+      "enemy_bandit",
+      "enemy_bandit",
+      "enemy_bandit",
+      "enemy_bandit_archer",
+      "enemy_goblin_shaman",
+      null
+    ]
+  },
+  {
+    "id": "unit_bandit_boss",
+    "unitName": "野盗頭とその一味",
+    "formationIds": [
+      "enemy_bandit_boss",
+      "enemy_bandit",
+      "enemy_bandit",
+      "enemy_bandit_archer",
+      "enemy_bandit_archer",
+      null
+    ]
+  },
+  {
+    "id": "unit_bat_flock",
+    "unitName": "コウモリの群れ",
+    "formationIds": [
+      "enemy_bat",
+      "enemy_bat",
+      "enemy_bat",
+      "enemy_bat",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_rat_pack",
+    "unitName": "大鼠の群れ",
+    "formationIds": [
+      "enemy_giant_rat",
+      "enemy_giant_rat",
+      "enemy_giant_rat",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_mine_vermin",
+    "unitName": "坑道の害獣",
+    "formationIds": [
+      "enemy_giant_rat",
+      "enemy_giant_rat",
+      null,
+      "enemy_bat",
+      "enemy_bat",
+      null
+    ]
+  },
+  {
+    "id": "unit_kobold_patrol",
+    "unitName": "コボルトの巡回",
+    "formationIds": [
+      "enemy_kobold",
+      "enemy_kobold",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_kobold_crew",
+    "unitName": "コボルトの採掘班",
+    "formationIds": [
+      "enemy_kobold_digger",
+      "enemy_kobold",
+      "enemy_kobold",
+      "enemy_kobold_shaman",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_kobold_warband",
+    "unitName": "コボルトの戦列",
+    "formationIds": [
+      "enemy_kobold_digger",
+      "enemy_kobold_digger",
+      "enemy_kobold",
+      "enemy_kobold_shaman",
+      "enemy_kobold_shaman",
+      null
+    ]
+  },
+  {
+    "id": "unit_wraith_single",
+    "unitName": "坑道の亡霊",
+    "formationIds": [
+      null,
+      null,
+      null,
+      "enemy_mine_wraith",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_wraith_haunt",
+    "unitName": "亡霊の徘徊",
+    "formationIds": [
+      "enemy_bat",
+      "enemy_bat",
+      null,
+      "enemy_mine_wraith",
+      "enemy_mine_wraith",
+      null
+    ]
+  },
+  {
+    "id": "unit_golem_single",
+    "unitName": "石のゴーレム",
+    "formationIds": [
+      "enemy_stone_golem",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_mine_guardian",
+    "unitName": "坑道の守り手",
+    "formationIds": [
+      "enemy_stone_golem",
+      "enemy_kobold_digger",
+      "enemy_kobold_digger",
+      "enemy_kobold_shaman",
+      "enemy_mine_wraith",
+      null
+    ]
+  },
+  {
+    "id": "unit_skeleton_pair",
+    "unitName": "スケルトン2体",
+    "formationIds": [
+      "enemy_skeleton",
+      "enemy_skeleton",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_skeleton_squad",
+    "unitName": "骸骨兵団",
+    "formationIds": [
+      "enemy_skeleton",
+      "enemy_skeleton",
+      "enemy_skeleton",
+      "enemy_skeleton_archer",
+      "enemy_skeleton_archer",
+      null
+    ]
+  },
+  {
+    "id": "unit_zombie_horde",
+    "unitName": "腐肉喰らいの群れ",
+    "formationIds": [
+      "enemy_zombie",
+      "enemy_zombie",
+      "enemy_zombie",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_ghoul_pack",
+    "unitName": "グールの一団",
+    "formationIds": [
+      "enemy_ghoul",
+      "enemy_ghoul",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_shadow_single",
+    "unitName": "影の獣",
+    "formationIds": [
+      "enemy_shadow_beast",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_shadow_pair",
+    "unitName": "影の獣2体",
+    "formationIds": [
+      "enemy_shadow_beast",
+      "enemy_shadow_beast",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_necro_ritual",
+    "unitName": "死霊術師の儀式",
+    "formationIds": [
+      "enemy_skeleton",
+      "enemy_zombie",
+      "enemy_skeleton",
+      "enemy_necromancer",
+      "enemy_skeleton_archer",
+      null
+    ]
+  },
+  {
+    "id": "unit_bone_lord",
+    "unitName": "骸の王とその廷臣",
+    "formationIds": [
+      "enemy_bone_lord",
+      "enemy_ghoul",
+      "enemy_ghoul",
+      "enemy_necromancer",
+      "enemy_skeleton_archer",
+      "enemy_skeleton_archer"
+    ]
+  }
 ]

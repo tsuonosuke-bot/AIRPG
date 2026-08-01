@@ -130,7 +130,8 @@ public static class HelpScreen
         Ui.WriteLine("  ・士気            : パーティ全体の粘り強さ。出発時の最大値は編成の精神力(SAN)合計。");
         Ui.WriteLine("                      0になるとその場で撤退する（全滅の手前で止まる安全弁）。");
         Ui.WriteLine("  ・士気の減りかた  : ①そのラウンドで実際に減ったHPの割合に応じて（回復で押し返した分は減らない）");
-        Ui.WriteLine($"                      ②仲間が1人倒れるごとに{MoraleState.AllyDownFlat} ③格上との遭遇時にレベル差1につき{MoraleState.LevelGapFlat}（最大{MoraleState.LevelGapFlatCap}）。");
+        Ui.WriteLine($"                      ②仲間が1人倒れるごとに{MoraleState.AllyDownFlat}");
+        Ui.WriteLine($"                      ③格上との遭遇時に、敵の脅威度と味方の平均ランクの差1段につき{MoraleState.ThreatGapFlat}（最大{MoraleState.ThreatGapFlatCap}）。");
         Ui.WriteLine($"                      戦闘に勝つと最大値の{MoraleState.VictoryRecoverRate * 100:0}%、休息では{MoraleState.RestRecoverRate * 100:0}%回復する。");
         await Ui.PauseAsync();
     }
@@ -259,7 +260,11 @@ public static class HelpScreen
         Ui.WriteLine();
         Ui.WriteLine("  ■ 敵の数値");
         Ui.WriteLine("     敵もまったく同じ式で命中・DV・PV・AVを組み立てる。");
-        Ui.WriteLine($"     ・敵の能力値はレベル1を基準に、レベルが1上がるごとに+{EnemyData.GROWTH_PER_LEVEL * 100:0}%（線形）。");
+        Ui.WriteLine("     ・敵にレベルはない。能力値はマスタに書かれた値がそのまま使われる。");
+        Ui.WriteLine("       強さの段階は倍率ではなく別々の個体で表す");
+        Ui.WriteLine("       （はぐれゴブリン → ゴブリン → ゴブリン兵士 → ゴブリン隊長）。");
+        Ui.WriteLine($"     ・敵の脅威度は冒険者と同じ{Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。能力値には影響せず、");
+        Ui.WriteLine("       遭遇時の士気の削られ方と、クエストボードの難易度表示に使われる。");
         Ui.WriteLine("     ・獣は防具を着ていなくても、甲殻や毛皮のぶんのAV・mAVを持つ。");
         await Ui.PauseAsync();
     }

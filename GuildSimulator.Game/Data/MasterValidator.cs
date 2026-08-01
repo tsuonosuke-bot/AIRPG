@@ -80,6 +80,21 @@ public static class MasterValidator
         }
 
         foreach (var enemy in db.enemies.Values)
+        {
+            // 脅威度は冒険者ランクと同じ物差し。範囲外だと士気の格上ショックが意図とずれる。
+            if (enemy.threat < Rank.Min || enemy.threat > Rank.Max)
+                errors.Add($"{enemy.id}: threatは{Rank.Min}〜{Rank.Max}"
+                    + $"（{Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}）にしてください（現在{enemy.threat}）");
+            if (enemy.DefaultShield != null && !enemy.DefaultShield.IsShield)
+                errors.Add($"{enemy.id}: defaultShieldIdに盾でない装備が指定されています");
+            if (enemy.DefaultOffHand != null && enemy.DefaultOffHand.type != EquipmentType.Weapon)
+                errors.Add($"{enemy.id}: defaultOffHandIdに武器でない装備が指定されています");
+            if (enemy.DefaultWeapon is { isTwoHanded: true }
+                && (enemy.DefaultOffHand != null || enemy.DefaultShield != null))
+                errors.Add($"{enemy.id}: 両手武器を持たせているので左手（defaultOffHandId/defaultShieldId）は使えません");
+        }
+
+        foreach (var enemy in db.enemies.Values)
         foreach (var drop in enemy.dropTable)
         {
             bool resolved = drop.type switch

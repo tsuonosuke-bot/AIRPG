@@ -2,7 +2,6 @@
   {
     "id": "dungeon_meadow",
     "dungeonName": "静寂の草原",
-    "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 3,
       "Nothing": 7,
@@ -120,7 +119,6 @@
   {
     "id": "dungeon_woods",
     "dungeonName": "森林外縁",
-    "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 6,
       "Nothing": 6,
@@ -292,7 +290,6 @@
   {
     "id": "dungeon_highway",
     "dungeonName": "隊商街道",
-    "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 5,
       "Nothing": 6,
@@ -416,7 +413,6 @@
   {
     "id": "dungeon_mine",
     "dungeonName": "打ち捨てられた廃坑",
-    "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 6,
       "Nothing": 5,
@@ -564,7 +560,6 @@
   {
     "id": "dungeon_crypt",
     "dungeonName": "古の墓所",
-    "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 8,
       "Nothing": 4,
@@ -712,7 +707,6 @@
   {
     "id": "dungeon_deep_woods",
     "dungeonName": "森林深部",
-    "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 7,
       "Nothing": 5,
@@ -819,7 +813,6 @@
   {
     "id": "dungeon_old_city",
     "dungeonName": "旧市街",
-    "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 7,
       "Nothing": 4,

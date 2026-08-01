@@ -29,9 +29,8 @@ public static class BattleSimScreen
         var enemyMaster = await PickEnemyAsync(db);
         if (enemyMaster == null) return;
 
-        int enemyLevel = await Ui.SelectIntAsync("敵のレベル", 1, MaxEnemyLevel);
 
-        await RunBattleAsync(adventurer, enemyMaster, enemyLevel);
+        await RunBattleAsync(adventurer, enemyMaster);
     }
 
     static async Task<AdventurerData?> PickAdventurerAsync(GuildManager guild)
@@ -83,7 +82,7 @@ public static class BattleSimScreen
         return sel == null ? null : enemies[sel.Value - 1];
     }
 
-    static async Task RunBattleAsync(AdventurerData adventurer, EnemyMasterData enemyMaster, int enemyLevel)
+    static async Task RunBattleAsync(AdventurerData adventurer, EnemyMasterData enemyMaster)
     {
         // 実データのHP/生死を退避し、シミュレーション後に必ず元へ戻す。
         int savedHp = adventurer.CombatHp;
@@ -92,7 +91,7 @@ public static class BattleSimScreen
 
         try
         {
-            var enemy = new EnemyData(enemyMaster, enemyLevel);
+            var enemy = new EnemyData(enemyMaster);
             var advSide = new IUnitMember?[6];
             var enemySide = new IUnitMember?[6];
             advSide[0] = adventurer;
@@ -118,7 +117,7 @@ public static class BattleSimScreen
                 advSide, enemySide, logs, turn: 0, phase: 1, morale, ExpeditionPolicy.ObjectiveFirst);
 
             Ui.BeginScreen();
-            Ui.Header($"戦闘シミュレーター: {adventurer.name} vs {enemy.name}(Lv{enemyLevel})");
+            Ui.Header($"戦闘シミュレーター: {adventurer.name} vs {enemy.name}（脅威度{Rank.Label(enemy.Threat)}）");
             foreach (var line in logs)
                 Ui.WriteQuestLog(line);
 
