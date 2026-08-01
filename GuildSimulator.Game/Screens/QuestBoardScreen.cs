@@ -85,7 +85,7 @@ public static class QuestBoardScreen
             + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
         // 習熟度は適正ランクのクエストでしか増えない。誰を出せば伸びるのかを受注前に見せる。
         int suitableCount = availableAdvs.Count(a => a.IsSuitableQuestRank(q.rank));
-        Ui.WriteLine($"  習熟度: ランク{Rank.SuitableAdventurerRangeLabel(q.rank)}の冒険者に入る"
+        Ui.WriteLine($"  適正ランク: {Rank.SuitableAdventurerRangeLabel(q.rank)}（このランク帯の冒険者が正規クリアすると習熟度が入る）"
             + $"（待機中 {suitableCount}/{availableAdvs.Count}人が該当）");
         Ui.WriteLine($"  掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
         Ui.WriteLine();

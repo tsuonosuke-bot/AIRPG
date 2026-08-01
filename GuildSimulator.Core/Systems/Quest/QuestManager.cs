@@ -3,6 +3,7 @@ using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
+using System.Linq;
 
 namespace GuildSimulator.Core.Systems.Quest;
 
@@ -373,9 +374,11 @@ public class QuestManager
                 foreach (var a in q.EnumerateMembers().Where(a => a.isAlive))
                 {
                     int levelBefore = a.level;
-                    a.AddExperience(outcome.value, out int levelUps);
+                    a.AddExperience(outcome.value, out int levelUps, out var grownStats);
                     changes.Add($"{a.name} 経験値+{outcome.value}"
-                        + (levelUps > 0 ? $"（レベルアップ {levelBefore}lv→{a.level}lv）" : ""));
+                        + (levelUps > 0
+                            ? $"（レベルアップ {levelBefore}lv→{a.level}lv、{FormatGrownStats(grownStats)}）"
+                            : ""));
                 }
                 detail = string.Join("、", changes);
                 break;
@@ -513,6 +516,12 @@ public class QuestManager
         GuildSimulator.Core.Models.StatType.Constitution => "体格",
         _ => t.ToString(),
     };
+
+    /// <summary>レベルアップで伸びた能力の一覧を「体力+1、敏捷+1」のように表示用にまとめる。</summary>
+    public static string FormatGrownStats(IEnumerable<GuildSimulator.Core.Models.StatType> grownStats)
+        => string.Join("、", grownStats
+            .GroupBy(t => t)
+            .Select(g => $"{StatDisplayName(g.Key)}+{g.Count()}"));
 
     public void FinalizeQuest(QuestRun q)
     {

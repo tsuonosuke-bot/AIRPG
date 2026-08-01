@@ -10,10 +10,10 @@ namespace GuildSimulator.Tests;
 public class EconomyAndRecruitmentTests
 {
     [Theory]
-    [InlineData(1, 5)]
-    [InlineData(3, 15)]
-    [InlineData(10, 50)]
-    public void UpkeepIsFiveGoldPerCurrentLevel(int level, int expected)
+    [InlineData(1, 3)]
+    [InlineData(3, 9)]
+    [InlineData(10, 30)]
+    public void UpkeepIsThreeGoldPerCurrentLevel(int level, int expected)
     {
         Assert.Equal(expected, GuildManager.CalculateAdventurerUpkeep(level));
     }
@@ -25,13 +25,13 @@ public class EconomyAndRecruitmentTests
         var guild = new GuildManager();
         guild.AddAdventurer(adventurer);
 
-        Assert.Equal(5, guild.AdventurerUpkeepPerTurn);
-        Assert.Equal(15, guild.BaseUpkeepPerTurn);
+        Assert.Equal(3, guild.AdventurerUpkeepPerTurn);
+        Assert.Equal(13, guild.BaseUpkeepPerTurn);
 
         adventurer.level = 2;
 
-        Assert.Equal(10, guild.AdventurerUpkeepPerTurn);
-        Assert.Equal(20, guild.BaseUpkeepPerTurn);
+        Assert.Equal(6, guild.AdventurerUpkeepPerTurn);
+        Assert.Equal(16, guild.BaseUpkeepPerTurn);
     }
 
     [Fact]

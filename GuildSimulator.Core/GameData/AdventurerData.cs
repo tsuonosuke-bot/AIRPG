@@ -281,15 +281,18 @@ public class AdventurerData : IUnitMember
     // ---- Exp / Level ----
     public int RequiredExpForNextLevel => 10 + (level - 1) * 5;
 
-    public bool AddExperience(int amount, out int levelUps)
+    public bool AddExperience(int amount, out int levelUps) => AddExperience(amount, out levelUps, out _);
+
+    public bool AddExperience(int amount, out int levelUps, out List<StatType> grownStats)
     {
         levelUps = 0;
+        grownStats = new List<StatType>();
         if (!isAlive || amount <= 0) return false;
         experience += amount;
         while (experience >= RequiredExpForNextLevel)
         {
             experience -= RequiredExpForNextLevel;
-            LevelUp();
+            grownStats.AddRange(LevelUp());
             levelUps++;
         }
         return true;
@@ -312,15 +315,18 @@ public class AdventurerData : IUnitMember
     /// </summary>
     public const int StatPointsPerLevel = 1;
 
-    void LevelUp()
+    List<StatType> LevelUp()
     {
         level++;
-        for (int i = 0; i < StatPointsPerLevel; i++) GrowOneStat();
+        var grown = new List<StatType>();
+        for (int i = 0; i < StatPointsPerLevel; i++) grown.Add(GrowOneStat());
 
         // 施設の成長支援は「たまにもう1点」という形で効かせる。
         // 全能力に薄く配ると、1レベル1点という枠組みそのものが崩れてしまう。
         float bonus = FacilitySystem.GetGrowthRateBonus();
-        if (bonus > 0f && GameRandom.NextFloat() < bonus) GrowOneStat();
+        if (bonus > 0f && GameRandom.NextFloat() < bonus) grown.Add(GrowOneStat());
+
+        return grown;
     }
 
     /// <summary>
@@ -328,7 +334,7 @@ public class AdventurerData : IUnitMember
     /// どこが伸びるかはプレイヤーには選べない。特定の能力だけを狙って伸ばせてしまうと、
     /// 過積載や命中のような釣り合いを一方向に崩せてしまうため。
     /// </summary>
-    void GrowOneStat()
+    StatType GrowOneStat()
     {
         Span<float> weights = stackalloc float[GrowableStats.Count];
         float total = 0f;
@@ -355,7 +361,8 @@ public class AdventurerData : IUnitMember
             }
         }
 
-        switch (GrowableStats[picked])
+        var chosen = GrowableStats[picked];
+        switch (chosen)
         {
             case StatType.Vitality: vitality++; break;
             case StatType.Mental: mental++; break;
@@ -363,6 +370,7 @@ public class AdventurerData : IUnitMember
             case StatType.Agility: agility++; break;
             case StatType.Intelligence: intelligence++; break;
         }
+        return chosen;
     }
 
     /// <summary>全能力に共通の下駄。得意でない能力もときどき伸びるようにするための底上げ。</summary>
