@@ -358,6 +358,7 @@ public static class MasterLoader
                 vitality = a.vitality, mental = a.mental, strength = a.strength,
                 agility = a.agility, intelligence = a.intelligence,
                 constitution = a.constitution, appearance = a.appearance,
+                gender = a.gender ?? Gender.Unspecified,
                 defaultClassId = a.defaultClassId ?? "", raceId = a.raceId ?? "",
                 defaultWeaponId = a.defaultWeaponId ?? "", defaultArmorId = a.defaultArmorId ?? "",
                 skillIds = a.skillIds ?? new(),
@@ -574,5 +575,5 @@ public static class MasterLoader
         int vitality, int mental, int strength, int agility, int intelligence, int constitution, int appearance,
         string? defaultClassId, string? raceId, string? defaultWeaponId, string? defaultArmorId,
         List<string>? skillIds, Rarity? rarity,
-        string? background);
+        string? background, Gender? gender);
 }

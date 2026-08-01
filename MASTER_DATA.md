@@ -16,6 +16,8 @@
 冒険者には戦闘能力に加えて、`background`、`personality`、`motivation`、
 `specialty`、`fear`、`creed`、`selfIntroduction` を設定できます。
 
+`gender` は `Unspecified` / `Male` / `Female` のいずれかです（既定は `Unspecified`）。
+
 物語クエストでは `isStoryQuest` を `true` にし、次のIDリストで進行順を定義します。
 
 - `requiredQuestIds`: 掲示に必要な完了済みクエスト

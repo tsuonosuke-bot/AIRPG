@@ -18,6 +18,7 @@ public class AdventurerMasterData
     public int intelligence;
     public int constitution;
     public int appearance;
+    public Gender gender = Gender.Unspecified;
     public string defaultClassId = "";
     public string raceId = "";
     public string defaultWeaponId = "";

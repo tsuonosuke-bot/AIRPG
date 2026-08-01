@@ -154,6 +154,8 @@ public static class AdventurerScreen
     {
         var m = a.master;
         Ui.WriteLine("  人物記録:");
+        if (m.gender != Gender.Unspecified)
+            Ui.WriteLine($"    性別: {GenderLabel(m.gender)}");
         ShowProfileLine("経歴", m.background);
         if (string.IsNullOrWhiteSpace(m.background))
             Ui.Dim("    詳しい人物記録はまだない");
@@ -164,6 +166,13 @@ public static class AdventurerScreen
         if (!string.IsNullOrWhiteSpace(value))
             Ui.WriteLine($"    {label}: {value}");
     }
+
+    static string GenderLabel(Gender gender) => gender switch
+    {
+        Gender.Male => "男性",
+        Gender.Female => "女性",
+        _ => "不明",
+    };
 
     static string DescribeItem(EquipmentMasterData? item)
     {

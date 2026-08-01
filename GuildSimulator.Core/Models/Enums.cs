@@ -21,6 +21,9 @@ public enum RewardType { Relic, Equipment, Gold, Skill, Consumable }
 /// <summary>宝箱の種別。ボスの宝箱だけは空っぽ抽選を受けない。</summary>
 public enum TreasureChestKind { Dungeon, Boss }
 public enum Rarity { Common, Uncommon, Rare, Unique, Legend }
+
+/// <summary>冒険者の性別。未指定を既定(0)にして、既存マスタ・セーブデータとの互換を保つ。</summary>
+public enum Gender { Unspecified, Male, Female }
 public enum ConsumableEffectType
 {
     MaxHpPercent,
