@@ -112,7 +112,7 @@ public static class UnitCalculator
     {
         foreach (var sk in m.Skills)
         {
-            if (!IsActive(sk, m, isFront)) continue;
+            if (!IsSkillActive(sk, m, isFront)) continue;
             var mul = FixMul(sk.mul);
             if (sk.scope == SkillScope.UnitAura)
             {
@@ -127,7 +127,7 @@ public static class UnitCalculator
         }
     }
 
-    static bool IsActive(SkillMasterData sk, IUnitMember m, bool isFront)
+    public static bool IsSkillActive(SkillMasterData sk, IUnitMember m, bool isFront)
     {
         if (sk.frontOnly && !isFront) return false;
         if (sk.backOnly && isFront) return false;

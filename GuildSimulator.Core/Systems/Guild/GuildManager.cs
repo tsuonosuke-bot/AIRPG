@@ -138,6 +138,29 @@ public class GuildManager
         return effectiveTotal;
     }
 
+    /// <summary>
+    /// クエストへ出ていない冒険者を1ターン休養させる。負傷中でも出発はできるため、
+    /// 休ませるか戦力として使うかは編成によってプレイヤーが選ぶ。
+    /// </summary>
+    public IReadOnlyList<string> AdvanceRecovery(
+        int currentTurn,
+        Func<AdventurerData, bool> canRest)
+    {
+        var messages = new List<string>();
+        int recovery = 1 + Math.Max(0, FacilitySystem.GetInjuryRecoveryBonus());
+        int scarPrevention = FacilitySystem.GetScarPreventionPercent();
+
+        foreach (var adventurer in adventurers.Where(a => a.isAlive && a.injuries.Count > 0 && canRest(a)))
+        {
+            var result = adventurer.AdvanceRecovery(recovery, scarPrevention);
+            foreach (var injury in result.Healed)
+                messages.Add($"[Turn {currentTurn}] {adventurer.name}: {injury.DisplayName}が回復");
+            foreach (var scar in result.NewScars)
+                messages.Add($"[Turn {currentTurn}] {adventurer.name}: {scar.DisplayName}が残り、称号「{scar.Title}」を獲得");
+        }
+        return messages;
+    }
+
     public void AddRelic(RelicMasterData relic, string reason = "")
     {
         if (relics.Contains(relic)) return;

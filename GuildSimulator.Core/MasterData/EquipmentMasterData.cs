@@ -86,6 +86,12 @@ public class EquipmentMasterData
     /// <summary>この装備を着けられるスロット一覧。空ならtypeから自動推定する。</summary>
     public List<EquipSlot> allowedSlots = new();
 
+    /// <summary>戦闘開始時に装備者へ付与する状態効果。</summary>
+    public List<CombatStatusApplicationData> battleStartStatuses = new();
+
+    /// <summary>この武器による命中時に付与を試みる状態効果。</summary>
+    public List<CombatStatusApplicationData> onHitStatuses = new();
+
     public bool IsHealWeapon => attackKind == AttackKind.Heal && healPower > 0f;
     public bool IsMagicWeapon => attackKind == AttackKind.Magic;
     public bool IsShield => type == EquipmentType.Shield;

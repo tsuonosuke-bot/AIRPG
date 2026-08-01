@@ -55,6 +55,12 @@ public class SkillMasterData
 
     /// <summary>戦闘の外――遠征そのものに効く補正。</summary>
     public SkillExpeditionEffect expedition;
+
+    /// <summary>戦闘開始時に付与するバフ・状態効果。</summary>
+    public List<CombatStatusApplicationData> battleStartStatuses = new();
+
+    /// <summary>攻撃が命中してダメージを与えたときに付与を試みる状態効果。</summary>
+    public List<CombatStatusApplicationData> onHitStatuses = new();
 }
 
 /// <summary>

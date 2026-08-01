@@ -52,9 +52,15 @@ public static class GameLoop
             Ui.BeginScreen();
             Ui.Header($"ギルドシミュレーター  Turn {currentTurn}");
             int upkeepPerTurn = guild.EffectiveUpkeepPerTurn;
-            Ui.WriteLine($"  所持金: {guild.Gold}G（維持費 {upkeepPerTurn}G/T）   ギルドランク: {guild.GuildRankLabel}   ギルドポイント: {guild.GuildPoints}");
-            Ui.WriteLine($"  冒険者: {guild.adventurers.Count}人   進行中クエスト: {questManager.activeQuests.Count}件   遺物: {guild.relics.Count}個   施設: {guild.facilities.Count}件");
-            Ui.WriteLine($"  雇入れ候補: {recruitCandidates.Count}人");
+            int injuredCount = guild.adventurers.Count(a => a.isAlive && a.IsInjured);
+            // スマホ幅で1行に情報を詰め込むと項目名の途中で折り返されるため、
+            // 経済・進行・資産を短い行へ分ける。
+            Ui.WriteLine($"  所持金: {guild.Gold}G（維持費 {upkeepPerTurn}G/T）");
+            Ui.WriteLine($"  ギルドランク: {guild.GuildRankLabel}   ギルドポイント: {guild.GuildPoints}");
+            Ui.WriteLine($"  冒険者: {guild.adventurers.Count}人"
+                + (injuredCount > 0 ? $"（負傷 {injuredCount}人）" : "")
+                + $"   進行中クエスト: {questManager.activeQuests.Count}件");
+            Ui.WriteLine($"  遺物: {guild.relics.Count}個   施設: {guild.facilities.Count}件   雇入れ候補: {recruitCandidates.Count}人");
             ShowPromotionProgress(db.allQuests, guild, questManager);
             ShowEconomyForecast(guild, upkeepPerTurn);
             Ui.WriteLine();
@@ -213,8 +219,8 @@ public static class GameLoop
             .ToList();
         if (needAttention.Count == 0) return;
 
-        Ui.Header("結果報告");
-        Ui.WriteLine($"  {needAttention.Count}件のクエストが結果待ちです");
+        Ui.Header("クエスト確認");
+        Ui.WriteLine($"  {needAttention.Count}件のクエストに確認・指示が必要です");
         await Ui.PauseAsync();
 
         foreach (var q in needAttention)
@@ -237,8 +243,13 @@ public static class GameLoop
             q => (Phase: q.currentPhase, Hp: q.unitHpCurrent, Morale: q.morale.Current, LogCount: q.logs.Count));
 
         questManager.AdvanceAll(currentTurn);
+        var recoveryMessages = guild.AdvanceRecovery(
+            currentTurn,
+            adventurer => !questManager.IsAdventurerBusy(adventurer.id));
         guild.PayUpkeepForAll(currentTurn);
         Ui.Info($"Turn {currentTurn} が始まりました");
+        foreach (var message in recoveryMessages)
+            Ui.Info(message);
 
         if (snapshots.Count == 0) return;
 
@@ -247,7 +258,7 @@ public static class GameLoop
         {
             if (!snapshots.TryGetValue(q, out var before)) continue;
 
-            string status = q.failed ? "全滅"
+            string status = q.failed ? "全員戦闘不能"
                 : q.retreated ? "撤退"
                 : q.CanComplete ? "完了可能"
                 : "進行中";

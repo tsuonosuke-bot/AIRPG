@@ -27,16 +27,17 @@ public static class AdventurerScreen
             {
                 var a = advs[i];
                 string busy = questManager?.IsAdventurerBusy(a.id) == true ? "[出発中]" : "";
+                string condition = a.isAlive && a.IsInjured ? $"[負傷{a.injuries.Count}]" : "";
                 Ui.Write($"  {i + 1}. ");
                 Ui.WriteRarityName(a.name, a.master.rarity);
-                Ui.Write($" Lv{a.level} ランク{a.RankLabel} {a.ClassAndRace} {busy}");
+                Ui.Write($" Lv{a.level} ランク{a.RankLabel} {a.ClassAndRace} {busy}{condition}");
                 if (!a.isAlive) Ui.Write("[死亡]", TextStyle.Error);
                 Ui.WriteLine();
 
                 entries.Add(new MenuOption(
                     (i + 1).ToString(),
                     $"{a.name} Lv{a.level}{(a.isAlive ? "" : "[死亡]")}",
-                    $"ランク{a.RankLabel} {a.ClassAndRace} {busy}",
+                    $"ランク{a.RankLabel} {a.ClassAndRace} {busy}{condition}",
                     a.isAlive ? Ui.RarityStyle(a.master.rarity) : TextStyle.Error));
             }
 
@@ -59,7 +60,9 @@ public static class AdventurerScreen
                 : $"格上クリア {a.higherRankClears}/{a.RequiredClearsForNextRank} → {Rank.Label(a.rank + 1)}";
             Ui.WriteLine($"  冒険者ランク: {a.RankLabel}  ({rankProgress})");
             Ui.WriteLine($"  維持費      : {GuildManager.CalculateAdventurerUpkeep(a.level)}G/T（Lv×{GuildManager.UpkeepGoldPerLevel}G）");
-            Ui.WriteLine($"  状態        : {(a.isAlive ? "生存" : "死亡")}");
+            Ui.WriteLine($"  状態        : {a.ConditionSummary}");
+            if (a.ConditionTitle != null)
+                Ui.Info($"  称号        : {a.ConditionTitle}");
             Ui.WriteLine();
             Ui.WriteLine($"  VIT:{a.vitality} MEN:{a.mental} STR:{a.strength} AGI:{a.agility} INT:{a.intelligence} CON:{a.constitution}");
             var s = a.GetFinalCombatStats();
@@ -82,6 +85,7 @@ public static class AdventurerScreen
             var skills = a.Skills;
             Ui.WriteLine(skills.Count == 0 ? "なし" : string.Join(", ", skills.Select(x => x.skillName)));
             ShowClassMastery(a);
+            ShowConditions(a);
             Ui.WriteLine();
             ShowProfile(a);
             Ui.WriteLine();
@@ -359,25 +363,61 @@ public static class AdventurerScreen
         }
 
         var afterStats = a.GetFinalCombatStats();
+        var afterEquipment = a.GetEquipped(slot);
         Ui.WriteLine();
-        Ui.WriteLine("  ステータス変化:");
-        ShowStatDelta("装甲AV", beforeStats.av, afterStats.av);
-        ShowStatDelta("魔装甲mAV", beforeStats.mav, afterStats.mav);
-        ShowStatDelta("貫通PV", beforeStats.pv, afterStats.pv);
-        ShowStatDelta("魔貫通mPV", beforeStats.mpv, afterStats.mpv);
-        ShowStatDelta("回避DV", beforeStats.dv, afterStats.dv);
-        ShowStatDelta("命中", beforeStats.toHit, afterStats.toHit);
-        ShowStatDelta("回復力", beforeStats.heal, afterStats.heal);
+        Ui.WriteLine("  ステータス・装備変化:");
+        bool hasChange = false;
+        hasChange |= ShowStatDelta("HP", beforeStats.hp, afterStats.hp);
+        hasChange |= ShowStatDelta("士気", beforeStats.san, afterStats.san);
+        hasChange |= ShowStatDelta("装甲AV", beforeStats.av, afterStats.av);
+        hasChange |= ShowStatDelta("魔装甲mAV", beforeStats.mav, afterStats.mav);
+        hasChange |= ShowStatDelta("貫通PV", beforeStats.pv, afterStats.pv);
+        hasChange |= ShowStatDelta("魔貫通mPV", beforeStats.mpv, afterStats.mpv);
+        hasChange |= ShowStatDelta("回避DV", beforeStats.dv, afterStats.dv);
+        hasChange |= ShowStatDelta("命中", beforeStats.toHit, afterStats.toHit);
+        hasChange |= ShowStatDelta("回復力", beforeStats.heal, afterStats.heal);
+
+        string beforeEffect = DescribeEquippedEffect(current);
+        string afterEffect = DescribeEquippedEffect(afterEquipment);
+        if (!string.Equals(beforeEffect, afterEffect, StringComparison.Ordinal))
+        {
+            Ui.WriteLine($"    装備効果: {beforeEffect} → {afterEffect}");
+            hasChange = true;
+        }
+        if (!hasChange)
+            Ui.Dim("    数値と装備効果に変化はありません");
         await Ui.PauseAsync();
     }
 
-    static void ShowStatDelta(string name, int before, int after)
+    static void ShowConditions(AdventurerData adventurer)
     {
-        if (before == after) return;
+        if (adventurer.injuries.Count == 0 && adventurer.scars.Count == 0) return;
+        Ui.WriteLine();
+        if (adventurer.injuries.Count > 0)
+        {
+            Ui.WriteLine("  負傷（負傷中でも出発可能。出発させずターンを進めると休養）:");
+            foreach (var injury in adventurer.injuries)
+                Ui.Warn($"    ・{injury.DisplayName}: {injury.EffectDescription} / 休養あと{injury.remainingRestTurns}T");
+        }
+        if (adventurer.scars.Count > 0)
+        {
+            Ui.WriteLine("  傷痕・後遺症:");
+            foreach (var scar in adventurer.scars)
+                Ui.Dim($"    ・{scar.DisplayName}: {scar.EffectDescription} / 称号「{scar.Title}」");
+        }
+    }
+
+    static bool ShowStatDelta(string name, int before, int after)
+    {
+        if (before == after) return false;
         int d = after - before;
         string arrow = d > 0 ? $"▲+{d}" : $"▼{d}";
         Ui.WriteLine($"    {name,-5}: {before} → {after}  {arrow}", d > 0 ? TextStyle.Info : TextStyle.Error);
+        return true;
     }
+
+    static string DescribeEquippedEffect(EquipmentMasterData? item) =>
+        item == null ? "なし" : DescribeEquipDetail(item);
 
     static string DescribeEquipDetail(EquipmentMasterData item)
     {

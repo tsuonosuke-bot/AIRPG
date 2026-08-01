@@ -64,6 +64,14 @@ public class QuestRun
     public int goldRewardBonusPercent;
     public int expRewardBonusPercent;
     public int trapDamageReductionPercent;
+    public int restHealBonusPercent;
+    public int treasureFromNothingPercent;
+    public int enemyFromNothingPercent;
+    public int battleExpBonusPercent;
+    public int guaranteedNonEmptyChestCount;
+    public int emergencyRetreatHpPercent;
+    public Dictionary<string, int> targetPvBonusByAdventurerId = new();
+    public Dictionary<string, int> targetMpvBonusByAdventurerId = new();
 
     public bool GatherFulfilled => def.IsGatherQuest && gatheredCount >= def.gatherTargetCount;
 
@@ -128,7 +136,7 @@ public class QuestRun
     public int unitHpMax => EnumerateMembers().Sum(a => a.CombatHpMax);
     public int unitHpCurrent => EnumerateMembers().Where(a => a.isAlive).Sum(a => a.CombatHp);
 
-    public void ApplyConsumable(ConsumableMasterData item)
+    public void ApplyConsumable(ConsumableMasterData item, AdventurerData? target = null)
     {
         usedConsumableIds.Add(item.id);
         switch (item.effectType)
@@ -153,6 +161,56 @@ public class QuestRun
             case ConsumableEffectType.TrapDamageReductionPercent:
                 trapDamageReductionPercent = Math.Clamp(trapDamageReductionPercent + item.effectValue, 0, 90);
                 break;
+            case ConsumableEffectType.RestHealPercent:
+                restHealBonusPercent = Math.Clamp(restHealBonusPercent + item.effectValue, 0, 200);
+                break;
+            case ConsumableEffectType.TreasureFromNothingPercent:
+                treasureFromNothingPercent = Math.Clamp(
+                    treasureFromNothingPercent + item.effectValue, 0, 100);
+                break;
+            case ConsumableEffectType.TargetPv:
+                if (target != null)
+                    targetPvBonusByAdventurerId[target.id] =
+                        targetPvBonusByAdventurerId.GetValueOrDefault(target.id) + item.effectValue;
+                break;
+            case ConsumableEffectType.TargetMpv:
+                if (target != null)
+                    targetMpvBonusByAdventurerId[target.id] =
+                        targetMpvBonusByAdventurerId.GetValueOrDefault(target.id) + item.effectValue;
+                break;
+            case ConsumableEffectType.GuaranteedNonEmptyChest:
+                guaranteedNonEmptyChestCount += Math.Max(0, item.effectValue);
+                break;
+            case ConsumableEffectType.BattleHorn:
+                enemyFromNothingPercent = Math.Clamp(
+                    enemyFromNothingPercent + item.effectValue, 0, 100);
+                battleExpBonusPercent = Math.Clamp(
+                    battleExpBonusPercent + item.secondaryEffectValue, 0, 300);
+                break;
+            case ConsumableEffectType.EmergencyRetreatPercent:
+                emergencyRetreatHpPercent = Math.Max(
+                    emergencyRetreatHpPercent, Math.Clamp(item.effectValue, 1, 99));
+                break;
+        }
+    }
+
+    /// <summary>特定の冒険者だけに乗る、今回の遠征限定の戦闘補正。</summary>
+    public StatBlock ConsumableCombatBonusFor(IUnitMember member)
+    {
+        if (member is not AdventurerData adventurer) return default;
+        return new StatBlock
+        {
+            pv = targetPvBonusByAdventurerId.GetValueOrDefault(adventurer.id),
+            mpv = targetMpvBonusByAdventurerId.GetValueOrDefault(adventurer.id),
+        };
+    }
+
+    public bool IsEmergencyRetreatThresholdReached
+    {
+        get
+        {
+            if (emergencyRetreatHpPercent <= 0 || unitHpMax <= 0) return false;
+            return unitHpCurrent * 100 <= unitHpMax * emergencyRetreatHpPercent;
         }
     }
 }

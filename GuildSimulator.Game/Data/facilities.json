@@ -41,7 +41,7 @@
   {
     "id": "fac_infirmary_01",
     "displayName": "医療院",
-    "description": "遠征中の休息時の回復量を高める。",
+    "description": "遠征中の休息回復を高め、ギルドで休養する負傷者の治療と救命を助ける。",
     "buildCostGold": 350,
     "upkeepGoldPerTurn": 12,
     "requiredGuildRank": 1,
@@ -49,7 +49,10 @@
     "shopLevelBonus": 0,
     "restHealBonusPercent": 20,
     "growthRateBonusPercent": 0,
-    "recruitMinBonus": 0
+    "recruitMinBonus": 0,
+    "injuryRecoveryBonus": 1,
+    "fatalityReductionPercent": 10,
+    "scarPreventionPercent": 20
   },
   {
     "id": "fac_training_hall_01",

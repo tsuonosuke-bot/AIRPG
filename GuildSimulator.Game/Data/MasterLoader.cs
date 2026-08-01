@@ -76,6 +76,8 @@ public static class MasterLoader
                 unarmedDamageDice = s.unarmedDamageDice ?? "",
                 add = ParseStatBlock(s.add), mul = ParseMul(s.mul),
                 expedition = ParseExpedition(s.expedition),
+                battleStartStatuses = ParseCombatStatuses(s.battleStartStatuses),
+                onHitStatuses = ParseCombatStatuses(s.onHitStatuses),
             };
             db.skills[s.id] = sd;
         }
@@ -134,6 +136,8 @@ public static class MasterLoader
                 blockChance = Math.Clamp(e.blockChance, 0, 100),
                 blockAv = Math.Max(0, e.blockAv),
                 allowedSlots = e.allowedSlots ?? new(),
+                battleStartStatuses = ParseCombatStatuses(e.battleStartStatuses),
+                onHitStatuses = ParseCombatStatuses(e.onHitStatuses),
             };
         }
 
@@ -143,6 +147,7 @@ public static class MasterLoader
             {
                 id = c.id, displayName = c.displayName, description = c.description ?? "",
                 rarity = c.rarity, price = c.price, effectType = c.effectType, effectValue = c.effectValue,
+                secondaryEffectValue = c.secondaryEffectValue,
             };
 
         var relics = Load<List<RelicJson>>(readJson, "relics.json");
@@ -166,6 +171,10 @@ public static class MasterLoader
                 requiredGuildRank = Math.Max(1, f.requiredGuildRank),
                 questBoardBonus = f.questBoardBonus, shopLevelBonus = f.shopLevelBonus,
                 restHealBonusPercent = f.restHealBonusPercent, growthRateBonusPercent = f.growthRateBonusPercent,
+                recruitMinBonus = f.recruitMinBonus,
+                injuryRecoveryBonus = f.injuryRecoveryBonus,
+                fatalityReductionPercent = Math.Clamp(f.fatalityReductionPercent, 0, 100),
+                scarPreventionPercent = Math.Clamp(f.scarPreventionPercent, 0, 100),
             };
         }
 
@@ -446,6 +455,18 @@ public static class MasterLoader
         return e;
     }
 
+    static List<CombatStatusApplicationData> ParseCombatStatuses(List<CombatStatusJson>? values) =>
+        (values ?? new())
+        .Select(value => new CombatStatusApplicationData
+        {
+            type = value.type,
+            target = value.target,
+            chancePercent = Math.Clamp(value.chancePercent, 0, 100),
+            durationRounds = Math.Max(1, value.durationRounds),
+            potency = Math.Max(0, value.potency),
+        })
+        .ToList();
+
     static StatMultiplier ParseMul(Dictionary<string, float>? d)
     {
         var m = StatMultiplier.One;
@@ -469,6 +490,9 @@ public static class MasterLoader
     };
 
     // ---- DTO records ----
+    record CombatStatusJson(CombatStatusType type, CombatStatusTarget target,
+        int chancePercent = 100, int durationRounds = 2, int potency = 1);
+
     record SkillJson(string id, string skillName, SkillScope scope,
         bool frontOnly, bool backOnly, bool requireWeaponType, WeaponType requiredWeaponType,
         bool requireArmorType, ArmorType requiredArmorType,
@@ -478,7 +502,9 @@ public static class MasterLoader
         bool requireShield = false, bool requireOffHandWeapon = false,
         bool requirePhysicalWeapon = false,
         string? unarmedDamageDice = null,
-        Dictionary<string, int>? expedition = null);
+        Dictionary<string, int>? expedition = null,
+        List<CombatStatusJson>? battleStartStatuses = null,
+        List<CombatStatusJson>? onHitStatuses = null);
 
     record ClassSkillEntryJson(string skillId, int requiredClearCount);
     record ClassJson(string id, string className, float vitGrowth, float mentGrowth, float strGrowth, float intGrowth, float agiGrowth, List<ClassSkillEntryJson>? classSkills);
@@ -492,16 +518,20 @@ public static class MasterLoader
         int maxStatBonus = QudCombatDefaults.UnlimitedStatBonus,
         int armorPierce = 0, int armorShred = 0, int critRange = 0, int extraAttacks = 0,
         int offHandBonus = 0, bool isTwoHanded = false, int blockChance = 0, int blockAv = 0,
-        List<EquipSlot>? allowedSlots = null);
+        List<EquipSlot>? allowedSlots = null,
+        List<CombatStatusJson>? battleStartStatuses = null,
+        List<CombatStatusJson>? onHitStatuses = null);
 
     record ConsumableJson(string id, string displayName, string? description, Rarity rarity,
-        int price, ConsumableEffectType effectType, int effectValue);
+        int price, ConsumableEffectType effectType, int effectValue, int secondaryEffectValue = 0);
 
     record RelicJson(string id, string relicName, string? description, RelicEffectType effectType, float rate,
         Dictionary<string, int>? add, Dictionary<string, float>? mul);
 
     record FacilityJson(string id, string displayName, string? description, int buildCostGold, int upkeepGoldPerTurn,
-        int requiredGuildRank, int questBoardBonus, int shopLevelBonus, int restHealBonusPercent, int growthRateBonusPercent);
+        int requiredGuildRank, int questBoardBonus, int shopLevelBonus, int restHealBonusPercent,
+        int growthRateBonusPercent, int recruitMinBonus,
+        int injuryRecoveryBonus = 0, int fatalityReductionPercent = 0, int scarPreventionPercent = 0);
 
     record EnemyJson(string id, string baseName, int exp, int threat, int vitality, int mental, int strength,
         int agility, int intelligence, int constitution, string? defaultWeaponId, string? defaultArmorId,

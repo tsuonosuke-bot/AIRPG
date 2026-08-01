@@ -28,6 +28,14 @@ public enum ConsumableEffectType
     GoldRewardPercent,
     ExpRewardPercent,
     TrapDamageReductionPercent,
+    // セーブ済みマスタとの互換性を保つため、新しい値は必ず末尾へ追加する。
+    RestHealPercent,
+    TreasureFromNothingPercent,
+    TargetPv,
+    TargetMpv,
+    GuaranteedNonEmptyChest,
+    BattleHorn,
+    EmergencyRetreatPercent,
 }
 public enum QuestChoiceEffectType
 {
@@ -72,6 +80,7 @@ public enum ExpeditionRetreatReason
     SurvivalPolicy,
     BattleStalemate,
     GatherTargetMissed,
+    SmokeBomb,
 }
 
 /// <summary>数値戦闘ログとは別に、帰還報告へ載せる出来事の分類。</summary>
@@ -88,4 +97,43 @@ public enum ExpeditionEventKind
     Discovery,
     Completion,
     Retreat,
+    Injury,
+}
+
+/// <summary>1回の戦闘の中だけ持続する状態効果。</summary>
+public enum CombatStatusType
+{
+    Poisoned,
+    Bleeding,
+    Burning,
+    Stunned,
+    Regenerating,
+    Empowered,
+    Guarded,
+}
+
+/// <summary>スキル・装備から発生する状態効果の対象。</summary>
+public enum CombatStatusTarget
+{
+    Self,
+    Allies,
+    Enemy,
+}
+
+/// <summary>遠征から帰還した後も残る治療可能な負傷。</summary>
+public enum InjuryType
+{
+    CutsAndBruises,
+    Fracture,
+    DeepWound,
+    Trauma,
+}
+
+/// <summary>重傷を乗り越えた際に残る恒久的な傷痕・後遺症。</summary>
+public enum ScarType
+{
+    BattleScar,
+    StiffJoint,
+    Nightmares,
+    Survivor,
 }

@@ -11,4 +11,8 @@ public class ConsumableMasterData
     public int price;
     public ConsumableEffectType effectType;
     public int effectValue;
+    public int secondaryEffectValue;
+
+    public bool RequiresTarget => effectType is
+        ConsumableEffectType.TargetPv or ConsumableEffectType.TargetMpv;
 }

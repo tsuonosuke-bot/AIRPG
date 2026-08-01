@@ -104,7 +104,8 @@ public static class HelpScreen
         Ui.WriteLine("                      発見した内容はメインメニューの「J. 調査記録」で確認できる。");
         Ui.WriteLine("  ・撤退            : 士気が尽きるとパーティは自動的に撤退する。基本報酬は無しになるが、");
         Ui.WriteLine("                      道中で得た戦利品（宝箱など）はそのまま持ち帰れる。");
-        Ui.WriteLine("  ・全滅            : 全員が戦闘不能になった場合。報酬・戦利品はすべて失われる。");
+        Ui.WriteLine("  ・壊滅            : 全員が戦闘不能になった場合。報酬・戦利品はすべて失われる。");
+        Ui.WriteLine("                      帰還処理で各自の死亡または負傷が確定し、医療院は死亡率を下げる。");
         Ui.WriteLine("  ・選択イベント    : ターン内の最終フェーズ後に発生することがある。");
         Ui.WriteLine("                      未解決の選択がある間は次のターンへ進めない。");
         await Ui.PauseAsync();
@@ -127,6 +128,10 @@ public static class HelpScreen
         Ui.WriteLine("                      硬い前衛を立てるほど、後ろの柔らかい仲間を守れる。");
         Ui.WriteLine("  ・回復            : 治療用の武器を持つ者は、味方のHPが7割を切ると攻撃の代わりに手当てをする。");
         Ui.WriteLine($"                      回復量は回復値×{BattleResolver.HEAL_SCALE:0.#}（1d20の出目20ならさらに×{BattleResolver.HEAL_CRIT_SCALE:0.#}、出目1は失敗）。");
+        Ui.WriteLine("  ・状態異常        : 毒・出血・火傷はラウンド冒頭に継続ダメージ、凍結は次の行動を失う。");
+        Ui.WriteLine("                      獣の牙=出血、炎=火傷、闇=毒、水=凍結の付与機会を持つ。戦闘終了時に解除される。");
+        Ui.WriteLine("  ・一時バフ        : 土の武器は守勢（AV/mAV/DV）、風は攻勢（PV/mPV/命中）、光の治療は再生を与える。");
+        Ui.WriteLine("                      バフも戦闘終了時に解除され、同じ効果は重複せず強い値と長い残り時間で更新される。");
         Ui.WriteLine("  ・士気            : パーティ全体の粘り強さ。出発時の最大値は編成の精神力(SAN)合計。");
         Ui.WriteLine("                      0になるとその場で撤退する（全滅の手前で止まる安全弁）。");
         Ui.WriteLine("  ・士気の減りかた  : ①そのラウンドで実際に減ったHPの割合に応じて（回復で押し返した分は減らない）");
@@ -510,6 +515,10 @@ public static class HelpScreen
         Ui.WriteLine($"                      {AdventurerData.ClearsForNextRank}回で1つ上がる。{Rank.Label(Rank.Max)}が上限。レベルとは別の物差し。");
         Ui.WriteLine("                      同ランク以下のクエストは何本こなしても昇格には数えない。");
         Ui.WriteLine("                      死亡した冒険者は蘇生できない。");
+        Ui.WriteLine("  ・負傷            : 戦闘不能から生還すると裂傷・骨折・深い傷・心的外傷などが残ることがある。");
+        Ui.WriteLine("                      負傷中でも出発できるが能力が下がる。出発させずターンを進めると1Tぶん休養する。");
+        Ui.WriteLine("  ・医療院          : 休養時の回復を早め、帰還時死亡率と完治時に後遺症が残る確率を下げる。");
+        Ui.WriteLine("  ・傷痕・後遺症    : 重傷の完治時に残る恒久効果。能力補正と固有称号を持ち、セーブにも記録される。");
         Ui.WriteLine("                      人物詳細では経歴・性格・動機・得意分野と、直近の遠征履歴を確認できる。");
         Ui.WriteLine("  ・装備            : 商店で購入・売却し、冒険者一覧画面で着せ替えできる。");
         Ui.WriteLine("  ・レアリティ      : コモン、アンコモン、レア、ユニーク、レジェンドの順に希少。");

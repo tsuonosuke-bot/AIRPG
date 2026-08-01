@@ -22,6 +22,15 @@ public class AdventurerData : IUnitMember
     public int retreatCount;
     public List<string> adventureHistory = new();
 
+    /// <summary>戦闘中に倒れて行動不能だが、死亡判定はまだ行われていない状態。</summary>
+    public bool isIncapacitated;
+
+    /// <summary>帰還時に負傷・死亡を決めるための暫定重症度（1〜3）。</summary>
+    public int pendingInjurySeverity;
+
+    public List<AdventurerInjury> injuries = new();
+    public List<AdventurerScar> scars = new();
+
     public RaceMasterData? race;
     public ClassMasterData? currentClass;
 
@@ -29,7 +38,17 @@ public class AdventurerData : IUnitMember
 
     public int vitality, mental, strength, agility, intelligence, constitution, appearance;
 
-    bool IUnitMember.IsAlive { get => isAlive; set => isAlive = value; }
+    bool IUnitMember.IsAlive
+    {
+        get => isAlive && !isIncapacitated;
+        set
+        {
+            if (value)
+                isIncapacitated = false;
+            else if (isAlive)
+                RegisterKnockout(1);
+        }
+    }
 
     /// <summary>脅威度は認定ランクそのもの。敵の threat と同じ物差しで比べる。</summary>
     public int Threat => rank;
@@ -479,6 +498,7 @@ public class AdventurerData : IUnitMember
             s.dv -= (int)Math.Ceiling(OVERWEIGHT_DV_PENALTY * r);
             s.toHit -= (int)Math.Ceiling(OVERWEIGHT_TO_HIT_PENALTY * r);
         }
+        AdventurerConditionRules.ApplyModifiers(injuries, scars, ref s);
         return s;
     }
 
@@ -488,6 +508,137 @@ public class AdventurerData : IUnitMember
 
     /// <summary>積載上限を1超えるごとに増える過積載率。</summary>
     public const float OVERWEIGHT_RATE_PER_POINT = 0.1f;
+
+    // ---- 負傷・傷痕 ----
+
+    public bool IsInjured => injuries.Count > 0;
+    public string? ConditionTitle => scars.LastOrDefault()?.Title;
+
+    public string ConditionSummary
+    {
+        get
+        {
+            if (!isAlive) return "死亡";
+            if (isIncapacitated) return "戦闘不能（帰還判定待ち）";
+            var parts = new List<string>();
+            if (injuries.Count > 0)
+                parts.Add($"負傷{injuries.Count}件・休養あと最大{injuries.Max(i => i.remainingRestTurns)}T");
+            if (scars.Count > 0) parts.Add($"傷痕{scars.Count}件");
+            return parts.Count == 0 ? "健康" : string.Join(" / ", parts);
+        }
+    }
+
+    public void RegisterKnockout(int severity)
+    {
+        if (!isAlive) return;
+        isIncapacitated = true;
+        pendingInjurySeverity = Math.Max(pendingInjurySeverity, Math.Clamp(severity, 1, 3));
+    }
+
+    /// <summary>帰還時に戦闘不能の結果を確定する。医療院の生存補正は死亡率から直接差し引く。</summary>
+    public TraumaResolution ResolvePendingTrauma(bool partyWiped, int fatalityReductionPercent)
+    {
+        if (!isAlive || (!isIncapacitated && pendingInjurySeverity <= 0))
+            return new TraumaResolution(false, null, null, "負傷判定なし");
+
+        int severity = Math.Clamp(Math.Max(1, pendingInjurySeverity), 1, 3);
+        int fatality = severity switch { 1 => 5, 2 => 15, _ => 30 };
+        if (partyWiped) fatality += 20;
+        fatality = Math.Clamp(fatality - Math.Max(0, fatalityReductionPercent), 0, 95);
+
+        isIncapacitated = false;
+        pendingInjurySeverity = 0;
+        if (fatality > 0 && GameRandom.Range(1, 101) <= fatality)
+        {
+            isAlive = false;
+            CombatHp = 0;
+            CombatHpMax = 0;
+            string death = $"{name} は負傷が致命傷となり死亡した（死亡率{fatality}%）";
+            AddHistory(death);
+            return new TraumaResolution(true, null, null, death);
+        }
+
+        InjuryType type = severity switch
+        {
+            1 => InjuryType.CutsAndBruises,
+            2 => GameRandom.Range(0, 2) == 0 ? InjuryType.Fracture : InjuryType.Trauma,
+            _ => InjuryType.DeepWound,
+        };
+        int restTurns = type switch
+        {
+            InjuryType.CutsAndBruises => 1,
+            InjuryType.Fracture => 3,
+            InjuryType.Trauma => 3,
+            _ => 4,
+        };
+        int scarChance = type switch
+        {
+            InjuryType.CutsAndBruises => 5,
+            InjuryType.Fracture => 35,
+            InjuryType.Trauma => 45,
+            _ => 70,
+        };
+
+        var injury = injuries.FirstOrDefault(i => i.type == type);
+        if (injury == null)
+        {
+            injury = new AdventurerInjury
+            {
+                type = type,
+                remainingRestTurns = restTurns,
+                scarChancePercent = scarChance,
+            };
+            injuries.Add(injury);
+        }
+        else
+        {
+            injury.remainingRestTurns = Math.Max(injury.remainingRestTurns, restTurns);
+            injury.scarChancePercent = Math.Max(injury.scarChancePercent, scarChance);
+        }
+
+        CombatHp = 0;
+        CombatHpMax = 0;
+        string survived = $"{name} は{injury.DisplayName}を負った（休養{injury.remainingRestTurns}T、{injury.EffectDescription}）";
+        AddHistory(survived);
+        return new TraumaResolution(false, injury, null, survived);
+    }
+
+    public RecoveryResolution AdvanceRecovery(int recoveryPoints, int scarPreventionPercent)
+    {
+        var healed = new List<AdventurerInjury>();
+        var newScars = new List<AdventurerScar>();
+        if (!isAlive || recoveryPoints <= 0) return new RecoveryResolution(healed, newScars);
+
+        foreach (var injury in injuries.ToList())
+        {
+            injury.remainingRestTurns -= recoveryPoints;
+            if (injury.remainingRestTurns > 0) continue;
+
+            injuries.Remove(injury);
+            healed.Add(injury);
+            int scarChance = Math.Clamp(
+                injury.scarChancePercent - Math.Max(0, scarPreventionPercent), 0, 100);
+            if (scarChance <= 0 || GameRandom.Range(1, 101) > scarChance) continue;
+
+            ScarType scarType = injury.type switch
+            {
+                InjuryType.Fracture => ScarType.StiffJoint,
+                InjuryType.Trauma => GameRandom.Range(0, 2) == 0 ? ScarType.Nightmares : ScarType.Survivor,
+                InjuryType.DeepWound => GameRandom.Range(0, 2) == 0 ? ScarType.BattleScar : ScarType.Survivor,
+                _ => ScarType.BattleScar,
+            };
+            if (scars.Any(s => s.type == scarType)) continue;
+            var scar = new AdventurerScar { type = scarType };
+            scars.Add(scar);
+            newScars.Add(scar);
+        }
+
+        foreach (var injury in healed)
+            AddHistory($"{injury.DisplayName}が回復した");
+        foreach (var scar in newScars)
+            AddHistory($"傷痕「{scar.DisplayName}」が残り、称号「{scar.Title}」を得た");
+        return new RecoveryResolution(healed, newScars);
+    }
 
     // ---- セーブ/ロード ----
     public IReadOnlyList<(SkillMasterData skill, ClassMasterData? ownerClass)> ExportLearnedSkills()
@@ -516,7 +667,12 @@ public class AdventurerData : IUnitMember
         expeditionCount++;
         if (result == "成功") successfulExpeditionCount++;
         if (result == "撤退") retreatCount++;
-        adventureHistory.Add($"{questName}: {result}");
+        AddHistory($"{questName}: {result}");
+    }
+
+    void AddHistory(string entry)
+    {
+        adventureHistory.Add(entry);
         const int MaxHistoryEntries = 20;
         if (adventureHistory.Count > MaxHistoryEntries)
             adventureHistory.RemoveRange(0, adventureHistory.Count - MaxHistoryEntries);

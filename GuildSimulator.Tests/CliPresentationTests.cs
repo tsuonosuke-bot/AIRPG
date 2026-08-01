@@ -1,4 +1,5 @@
 using GuildSimulator.Cli;
+using GuildSimulator.Game.Data;
 using GuildSimulator.Game.Presentation;
 using GuildSimulator.Game.Screens;
 using GuildSimulator.Core.GameData;
@@ -116,6 +117,89 @@ public class CliPresentationTests
         Assert.Equal(1, CountOccurrences(text, quest.questName));
         Assert.Contains("1. 【F】", text);
         Assert.DoesNotContain("1. 1. 【F】", text);
+        Assert.Contains("基本報酬", text);
+        Assert.Contains("宝箱・敵ドロップ・選択イベントは上の概算に含みません", text);
+    }
+
+    [Fact]
+    public async Task QuestDetailsKeepVerboseLogsCollapsedByDefault()
+    {
+        var guild = new GuildManager(startGold: 100);
+        var manager = new QuestManager(guild);
+        var quest = new QuestMasterData
+        {
+            id = "active",
+            questName = "ログ折り畳みテスト",
+            totalPhases = 10,
+        };
+        var run = new QuestRun(quest, startedTurn: 1)
+        {
+            currentPhase = 1,
+        };
+        run.logs.Add("既定では隠れる戦闘計算ログ");
+        manager.RestoreState(new(), new() { run }, Array.Empty<string>());
+
+        string text = await CaptureConsoleAsync(
+            "\n",
+            () => ActiveQuestScreen.HandleQuestAsync(run, manager, guild));
+
+        Assert.Contains("詳細ログを見る（全1件）", text);
+        Assert.DoesNotContain("詳細ログ (", text);
+        Assert.DoesNotContain("既定では隠れる戦闘計算ログ", text);
+    }
+
+    [Fact]
+    public async Task RecruitMinimumFacilityShowsItsActualEffect()
+    {
+        var db = MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
+        var facility = db.facilities["fac_recruitment_office_01"];
+        var guild = new GuildManager(startGold: 200);
+
+        string text = await CaptureConsoleAsync(
+            "0\n",
+            () => FacilityScreen.ShowAsync(db, guild));
+
+        Assert.Equal(1, facility.recruitMinBonus);
+        Assert.Contains("雇入れ候補の最低人数+1", text);
+        Assert.DoesNotContain("効果なし", text);
+    }
+
+    [Fact]
+    public async Task EquippingShieldShowsItsIntrinsicEffectInChangeSummary()
+    {
+        var adventurer = new AdventurerData(new AdventurerMasterData
+        {
+            id = "shield_user",
+            baseName = "盾役",
+            defaultLevel = 1,
+            defaultRank = 1,
+            vitality = 10,
+            mental = 8,
+            strength = 10,
+            agility = 8,
+            intelligence = 6,
+            constitution = 10,
+        });
+        var shield = new EquipmentMasterData
+        {
+            id = "test_shield",
+            displayName = "テスト小盾",
+            type = EquipmentType.Shield,
+            blockChance = 25,
+            blockAv = 4,
+            weight = 3,
+        };
+        var guild = new GuildManager(startGold: 100);
+        guild.AddAdventurer(adventurer);
+        guild.AddEquipment(shield, 1);
+
+        string text = await CaptureConsoleAsync(
+            "1\ne\n2\n1\n\n0\n0\n0\n",
+            () => AdventurerScreen.ShowAsync(new GameMasterData(), guild));
+
+        Assert.Contains("ステータス・装備変化", text);
+        Assert.Contains("装備効果: なし → [盾] 受け25% 受け成功時AV+4 重量3", text);
+        Assert.DoesNotContain("ステータス・装備変化:\r\n── Enterで続ける", text);
     }
 
     static async Task<string> CaptureConsoleAsync(string inputText, Func<Task> action)

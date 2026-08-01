@@ -21,20 +21,23 @@ public class QuestRewardService
     {
         foreach (var chest in q.chests)
         {
+            bool usesKey = !chest.IsBossChest && q.guaranteedNonEmptyChestCount > 0;
+            if (usesKey) q.guaranteedNonEmptyChestCount--;
             var contents = chest.IsBossChest
                 ? RollBossChest(q)
-                : RollDungeonChest(q, guild);
+                : RollDungeonChest(q, guild, skipEmptyRoll: usesKey);
+            string keyTag = usesKey ? "（盗掘者の合鍵を使用）" : "";
 
             if (contents.Count == 0)
             {
-                q.logs.Add($"{prefix} {chest.Label}を開けた → 空っぽだった");
+                q.logs.Add($"{prefix} {chest.Label}を開けた{keyTag} → 空っぽだった");
                 continue;
             }
 
             q.pendingLoot.AddRange(contents);
             string found = string.Join("、", contents.Select(
                 e => RewardDescription.DescribeLoot(e) + RewardDescription.DescribeQuantity(e)));
-            q.logs.Add($"{prefix} {chest.Label}を開けた → {found}");
+            q.logs.Add($"{prefix} {chest.Label}を開けた{keyTag} → {found}");
         }
         q.chests.Clear();
     }
@@ -55,9 +58,10 @@ public class QuestRewardService
 
     // 道中の宝箱はダンジョンの宝箱テーブルから1件。一定確率で空っぽ。
     // 所持済みの遺物は開けても捨てるだけなので抽選から外す。
-    static List<RewardEntryData> RollDungeonChest(QuestRun q, GuildManager guild)
+    static List<RewardEntryData> RollDungeonChest(
+        QuestRun q, GuildManager guild, bool skipEmptyRoll = false)
     {
-        if (GameRandom.NextFloat() < EmptyChestRate) return new();
+        if (!skipEmptyRoll && GameRandom.NextFloat() < EmptyChestRate) return new();
 
         var table = q.def.Dungeon?.treasureTable;
         if (table == null) return new();

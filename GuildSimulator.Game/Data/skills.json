@@ -246,7 +246,16 @@
       "pv": 1,
       "toHit": 1
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Bleeding",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
   },
   {
     "id": "skill_bowMastery_lv2",
@@ -2110,7 +2119,16 @@
       "pv": 1,
       "toHit": 1
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Bleeding",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
   },
   {
     "id": "skill_flight",

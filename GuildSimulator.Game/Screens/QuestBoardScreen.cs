@@ -42,11 +42,12 @@ public static class QuestBoardScreen
                     detail.Add($"依頼人: {q.clientName}");
                 if (!string.IsNullOrWhiteSpace(q.description))
                     detail.Add(q.description);
-                detail.Add($"難易度 {diff.label}（スコア{diff.score:0}）  報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
+                detail.Add($"難易度 {diff.label}（スコア{diff.score:0}）  基本報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
                 int estimatedUpkeep = guild.EffectiveUpkeepPerTurn * estTurns;
                 int estimatedNet = guild.EstimateNetAfterUpkeep(q.rewardGold, estTurns);
-                string netText = $"予想収支: {q.rewardGold}G - 維持費{estimatedUpkeep}G = {estimatedNet:+#;-#;0}G（概算）";
+                string netText = $"予想収支: 基本報酬{q.rewardGold}G - 維持費{estimatedUpkeep}G = {estimatedNet:+#;-#;0}G（概算）";
                 detail.Add(estimatedNet < 0 ? $"⚠ {netText}" : netText);
+                detail.Add("追加収入: 宝箱・敵ドロップ・選択イベントは上の概算に含みません（結果により大きく変動）");
                 if (q.IsGatherQuest)
                     detail.Add($"採取: {q.gatherItemName} x{q.gatherTargetCount}"
                         + $"（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還"
@@ -76,15 +77,19 @@ public static class QuestBoardScreen
     static async Task SelectAndStartAsync(
         QuestMasterData def, QuestManager qm, GuildManager guild, int currentTurn)
     {
-        Ui.BeginScreen();
-        Ui.Header($"編成: {def.questName}");
-        Ui.WriteLine("冒険者を選び、次に配置先を指定してください");
-
         var formation = new AdventurerData?[6];
         var advs = guild.adventurers;
 
         while (formation.Any(x => x == null))
         {
+            // 配置を1人確定するたびに画面を描き直す。Web版で変更前と変更後の
+            // 「現在の編成」が同じ画面に積み重ならないようにする。
+            Ui.BeginScreen();
+            Ui.Header($"編成: {def.questName}");
+            Ui.WriteLine("冒険者を選び、次に配置先を指定してください");
+            Ui.WriteLine();
+            ShowFormation(formation);
+
             var available = advs.Where((a, i) =>
                 a.isAlive &&
                 !qm.IsAdventurerBusy(a.id) &&
@@ -96,8 +101,6 @@ public static class QuestBoardScreen
             }
 
             Ui.WriteLine();
-            ShowFormation(formation);
-            Ui.WriteLine();
 
             var memberOptions = new List<MenuOption>();
             for (int i = 0; i < available.Count; i++)
@@ -105,8 +108,8 @@ public static class QuestBoardScreen
                 var a = available[i];
                 memberOptions.Add(new MenuOption(
                     (i + 1).ToString(),
-                    $"{a.name} Lv{a.level}",
-                    a.ClassAndRace,
+                    $"{a.name} Lv{a.level}" + (a.IsInjured ? $" [負傷{a.injuries.Count}]" : ""),
+                    a.ClassAndRace + (a.IsInjured ? $" / {a.ConditionSummary}" : ""),
                     Ui.RarityStyle(a.master.rarity)));
             }
 
@@ -139,13 +142,13 @@ public static class QuestBoardScreen
         ShowPartyPreview(formation, def);
         var policy = await SelectPolicyAsync();
         if (policy == null) return;
-        var carriedConsumables = await SelectConsumablesAsync(guild);
+        var carriedConsumables = await SelectConsumablesAsync(guild, formation);
         Ui.WriteLine($"  遠征方針: {QuestManager.PolicyName(policy.Value)}");
         if (carriedConsumables.Count > 0)
-            Ui.WriteLine($"  持ち込み（出発時消費）: {string.Join(", ", carriedConsumables.Select(x => x.displayName))}");
+            Ui.WriteLine($"  持ち込み（出発時消費）: {string.Join(", ", carriedConsumables.Select(x => x.DisplayName))}");
         if (!await Ui.ConfirmAsync("このメンバーで受注しますか？")) return;
 
-        if (qm.TryStartQuest(
+        if (qm.TryStartQuestWithConsumables(
             def, formation, currentTurn, out var error, carriedConsumables, policy.Value))
             Ui.Info($"クエスト「{def.questName}」を受注しました！ （Turn {currentTurn} 開始）");
         else
@@ -171,13 +174,14 @@ public static class QuestBoardScreen
         };
     }
 
-    static async Task<List<ConsumableMasterData>> SelectConsumablesAsync(GuildManager guild)
+    static async Task<List<ConsumableUse>> SelectConsumablesAsync(
+        GuildManager guild, AdventurerData?[] formation)
     {
-        var selected = new List<ConsumableMasterData>();
+        var selected = new List<ConsumableUse>();
         for (int slot = 1; slot <= 2; slot++)
         {
             var stock = guild.GetConsumablesView()
-                .Where(s => s.count > selected.Count(x => x == s.item))
+                .Where(s => s.count > selected.Count(x => x.item == s.item))
                 .ToList();
             if (stock.Count == 0) break;
 
@@ -192,7 +196,26 @@ public static class QuestBoardScreen
             int? pick = await Ui.SelectIndexAsync(
                 $"持ち込みスロット{slot}（出発時に消費）", options, "選択を終了");
             if (pick == null) break;
-            selected.Add(stock[pick.Value - 1].item);
+            var item = stock[pick.Value - 1].item;
+            AdventurerData? target = null;
+            if (item.RequiresTarget)
+            {
+                var members = formation.Where(a => a != null).Select(a => a!).ToList();
+                var targetOptions = members.Select((a, i) => new MenuOption(
+                    (i + 1).ToString(),
+                    $"{a.name} Lv{a.level}",
+                    a.ClassAndRace,
+                    Ui.RarityStyle(a.master.rarity))).ToList();
+                int? targetPick = await Ui.SelectIndexAsync(
+                    $"{item.displayName}を使う冒険者", targetOptions, "道具選択へ戻る");
+                if (targetPick == null)
+                {
+                    slot--;
+                    continue;
+                }
+                target = members[targetPick.Value - 1];
+            }
+            selected.Add(new ConsumableUse(item, target));
         }
         return selected;
     }
@@ -237,5 +260,8 @@ public static class QuestBoardScreen
         if (avgRank < diff.enemyThreatMax)
             Ui.Warn($"  ⚠ 敵の脅威度({Rank.Label(diff.enemyThreatMax)})がパーティの平均ランク({Rank.Label(avgRank)})を上回っています"
                 + "（遭遇時に士気を削られます）");
+        var injured = members.Where(a => a.IsInjured).ToList();
+        if (injured.Count > 0)
+            Ui.Warn($"  ⚠ 負傷者を編成中: {string.Join("、", injured.Select(a => a.name))}（負傷補正を含む戦力です）");
     }
 }

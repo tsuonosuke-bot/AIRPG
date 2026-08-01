@@ -115,6 +115,8 @@ public static class SaveManager
         level = a.level,
         experience = a.experience,
         isAlive = a.isAlive,
+        isIncapacitated = a.isIncapacitated,
+        pendingInjurySeverity = a.pendingInjurySeverity,
         rank = a.rank,
         higherRankClears = a.higherRankClears,
         raceId = a.race?.id ?? "",
@@ -135,6 +137,13 @@ public static class SaveManager
         successfulExpeditionCount = a.successfulExpeditionCount,
         retreatCount = a.retreatCount,
         adventureHistory = new List<string>(a.adventureHistory),
+        injuries = a.injuries.Select(injury => new InjurySaveData
+        {
+            type = injury.type,
+            remainingRestTurns = injury.remainingRestTurns,
+            scarChancePercent = injury.scarChancePercent,
+        }).ToList(),
+        scars = a.scars.Select(scar => new ScarSaveData { type = scar.type }).ToList(),
         learnedSkills = a.ExportLearnedSkills()
             .Select(x => new LearnedSkillSave { skillId = x.skill.id, ownerClassId = x.ownerClass?.id })
             .ToList(),
@@ -209,6 +218,14 @@ public static class SaveManager
         goldRewardBonusPercent = q.goldRewardBonusPercent,
         expRewardBonusPercent = q.expRewardBonusPercent,
         trapDamageReductionPercent = q.trapDamageReductionPercent,
+        restHealBonusPercent = q.restHealBonusPercent,
+        treasureFromNothingPercent = q.treasureFromNothingPercent,
+        enemyFromNothingPercent = q.enemyFromNothingPercent,
+        battleExpBonusPercent = q.battleExpBonusPercent,
+        guaranteedNonEmptyChestCount = q.guaranteedNonEmptyChestCount,
+        emergencyRetreatHpPercent = q.emergencyRetreatHpPercent,
+        targetPvBonusByAdventurerId = new(q.targetPvBonusByAdventurerId),
+        targetMpvBonusByAdventurerId = new(q.targetMpvBonusByAdventurerId),
         pendingChoiceEventId = q.pendingChoice?.Event.id ?? "",
         pendingChoiceCreatedTurn = q.pendingChoice?.createdTurn ?? 0,
     };
@@ -303,6 +320,8 @@ public static class SaveManager
             level = saved.level,
             experience = saved.experience,
             isAlive = saved.isAlive,
+            isIncapacitated = saved.isIncapacitated,
+            pendingInjurySeverity = saved.pendingInjurySeverity,
             // 冒険者ランクに上限がなかった頃のセーブは7(S)を超えていることがある。
             rank = Rank.Clamp(saved.rank),
             higherRankClears = saved.higherRankClears,
@@ -321,6 +340,13 @@ public static class SaveManager
             successfulExpeditionCount = saved.successfulExpeditionCount,
             retreatCount = saved.retreatCount,
             adventureHistory = new List<string>(saved.adventureHistory ?? new()),
+            injuries = (saved.injuries ?? new()).Select(injury => new AdventurerInjury
+            {
+                type = injury.type,
+                remainingRestTurns = Math.Max(1, injury.remainingRestTurns),
+                scarChancePercent = Math.Clamp(injury.scarChancePercent, 0, 100),
+            }).ToList(),
+            scars = (saved.scars ?? new()).Select(scar => new AdventurerScar { type = scar.type }).ToList(),
         };
 
         // スロットベース装備の復元（v4以降）。無ければ旧形式からマイグレーション。
@@ -381,6 +407,14 @@ public static class SaveManager
             goldRewardBonusPercent = saved.goldRewardBonusPercent,
             expRewardBonusPercent = saved.expRewardBonusPercent,
             trapDamageReductionPercent = saved.trapDamageReductionPercent,
+            restHealBonusPercent = saved.restHealBonusPercent,
+            treasureFromNothingPercent = saved.treasureFromNothingPercent,
+            enemyFromNothingPercent = saved.enemyFromNothingPercent,
+            battleExpBonusPercent = saved.battleExpBonusPercent,
+            guaranteedNonEmptyChestCount = saved.guaranteedNonEmptyChestCount,
+            emergencyRetreatHpPercent = saved.emergencyRetreatHpPercent,
+            targetPvBonusByAdventurerId = new(saved.targetPvBonusByAdventurerId ?? new()),
+            targetMpvBonusByAdventurerId = new(saved.targetMpvBonusByAdventurerId ?? new()),
         };
         run.logs.AddRange(saved.logs);
         foreach (var e in saved.reportEvents ?? new())

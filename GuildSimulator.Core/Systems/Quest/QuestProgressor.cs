@@ -15,7 +15,12 @@ public class QuestProgressor
         bool isBoss = (q.def.BossEnemy != null && phase == q.def.bossPhase)
                    || qe == QuestEventType.ForceBossEncounter;
 
-        DungeonEventType ev = RollDungeonEvent(q.def.Dungeon, phase, PartySkillEffects.Of(q.formation));
+        DungeonEventType ev = RollDungeonEvent(
+            q.def.Dungeon,
+            phase,
+            PartySkillEffects.Of(q.formation),
+            q.treasureFromNothingPercent,
+            q.enemyFromNothingPercent);
 
         if (qe == QuestEventType.ForceEnemyEncounter) ev = DungeonEventType.EnemyEncounter;
         else if (qe == QuestEventType.ForceHeal) ev = DungeonEventType.Heal;
@@ -59,9 +64,17 @@ public class QuestProgressor
                     }
 
                     var result = BattleResolver.Resolve(
-                        advI, enemyI, q.logs, currentTurn, phase, q.morale, q.policy);
+                        advI,
+                        enemyI,
+                        q.logs,
+                        currentTurn,
+                        phase,
+                        q.morale,
+                        q.policy,
+                        q.ConsumableCombatBonusFor,
+                        q.emergencyRetreatHpPercent);
 
-                    bool advWiped = !q.formation.Any(a => a != null && a.isAlive);
+                    bool advWiped = !q.formation.Any(a => a != null && a.isAlive && !a.isIncapacitated);
                     bool enemyWiped = !enemyMembers.Any(e => e != null && e.isAlive);
 
                     if (result.adventurersRetreated)
@@ -69,6 +82,11 @@ public class QuestProgressor
                         q.retreated = true;
                         q.retreatReason = result.retreatReason;
                         evResult = $"{RetreatReasonText(result.retreatReason)}（HP {q.unitHpCurrent}/{q.unitHpMax} 士気 {q.morale.Current}/{q.morale.Max}）→ 引き上げ";
+                    }
+                    else if (advWiped)
+                    {
+                        q.failed = true;
+                        evResult = "全員戦闘不能 → 失敗";
                     }
                     else if (enemyWiped)
                     {
@@ -78,6 +96,7 @@ public class QuestProgressor
                         int totalExp = (int)Math.Floor(
                             enemyMembers.Sum(e => e?.master.exp ?? 0)
                             * (1f + q.expRewardBonusPercent / 100f)
+                            * (1f + q.battleExpBonusPercent / 100f)
                             * PartySkillEffects.Of(q.formation).ExpMultiplier);
                         if (isBoss)
                         {
@@ -87,7 +106,7 @@ public class QuestProgressor
                         }
                         foreach (var a in q.formation)
                         {
-                            if (a == null || !a.isAlive) continue;
+                            if (a == null || !a.isAlive || a.isIncapacitated) continue;
                             int levelBefore = a.level;
                             if (a.AddExperience(totalExp, out var ups))
                             {
@@ -97,11 +116,6 @@ public class QuestProgressor
                         }
                         RollEnemyDrops(q, enemyMembers, phase);
                     }
-                    else if (advWiped)
-                    {
-                        q.failed = true;
-                        evResult = "全滅 → 失敗";
-                    }
                     break;
                 }
 
@@ -109,7 +123,9 @@ public class QuestProgressor
                 {
                     evTitle = "休息";
                     int before = q.unitHpCurrent;
-                    float restMul = RelicSystem.GetRestHealMultiplier() * FacilitySystem.GetRestHealMultiplier();
+                    float restMul = RelicSystem.GetRestHealMultiplier()
+                        * FacilitySystem.GetRestHealMultiplier()
+                        * (1f + q.restHealBonusPercent / 100f);
                     var perMember = UnitCalculator.CalcPerMember(q.formation.Cast<IUnitMember?>().ToArray(), isAllySide: true);
                     foreach (var (m, s) in perMember)
                     {
@@ -128,7 +144,9 @@ public class QuestProgressor
             case DungeonEventType.Trap:
                 {
                     evTitle = "罠";
-                    var alive = q.formation.Where(a => a != null && a.isAlive).Select(a => a!).ToList();
+                    var alive = q.formation
+                        .Where(a => a != null && a.isAlive && !a.isIncapacitated)
+                        .Select(a => a!).ToList();
                     var victim = alive.Count > 0 ? alive[GameRandom.Range(0, alive.Count)] : null;
                     if (victim == null)
                     {
@@ -145,20 +163,26 @@ public class QuestProgressor
                         evResult = $"{victim.name} がダメージ -{dmg}（{q.unitHpCurrent}/{q.unitHpMax}）";
                         if (victim.CombatHp <= 0)
                         {
-                            victim.isAlive = false;
+                            victim.RegisterKnockout(severity: 2);
                             q.morale.DrainAllyDown();
-                            evResult += $" → {victim.name} 戦闘不能";
+                            evResult += $" → {victim.name} 戦闘不能（帰還時に負傷判定）";
                         }
-                        if (!q.formation.Any(a => a != null && a.isAlive))
+                        if (!q.formation.Any(a => a != null && a.isAlive && !a.isIncapacitated))
                         {
                             q.failed = true;
-                            evResult += " → 全滅失敗";
+                            evResult += " → 全員戦闘不能で失敗";
                         }
                         else if (q.morale.IsBroken)
                         {
                             q.retreated = true;
                             q.retreatReason = ExpeditionRetreatReason.MoraleBroken;
                             evResult += " → 士気崩壊で撤退";
+                        }
+                        else if (q.IsEmergencyRetreatThresholdReached)
+                        {
+                            q.retreated = true;
+                            q.retreatReason = ExpeditionRetreatReason.SmokeBomb;
+                            evResult += " → 機関の煙玉を展開して撤退";
                         }
                     }
                     break;
@@ -239,6 +263,7 @@ public class QuestProgressor
         ExpeditionRetreatReason.SurvivalPolicy => "生還優先の方針により撤退",
         ExpeditionRetreatReason.BattleStalemate => "長期戦を打ち切って撤退",
         ExpeditionRetreatReason.GatherTargetMissed => "採取目標未達で撤退",
+        ExpeditionRetreatReason.SmokeBomb => "機関の煙玉で撤退",
         _ => "戦闘から撤退",
     };
 
@@ -246,23 +271,69 @@ public class QuestProgressor
     // 宝探しや罠の勘といったスキルは、この重みそのものを歪める。
     // 重みが0のイベント（そのダンジョンには存在しないもの）はスキルでも生やせない。
     static DungeonEventType RollDungeonEvent(
-        DungeonMasterData? d, int phase, PartySkillEffects partySkills)
+        DungeonMasterData? d,
+        int phase,
+        PartySkillEffects partySkills,
+        int treasureFromNothingPercent,
+        int enemyFromNothingPercent)
     {
-        if (d == null || d.eventTable.Count == 0) return DungeonEventType.Nothing;
+        var weights = CalculateEventWeights(
+            d, partySkills, treasureFromNothingPercent, enemyFromNothingPercent);
+        if (weights.Count == 0) return DungeonEventType.Nothing;
 
-        float total = 0;
-        foreach (var kv in d.eventTable)
-            if (kv.Value > 0) total += kv.Value * partySkills.ChanceMultiplierFor(kv.Key);
+        float total = weights.Values.Sum();
         if (total <= 0) return DungeonEventType.Nothing;
 
         float roll = GameRandom.NextFloat() * total;
-        foreach (var kv in d.eventTable)
+        foreach (var kv in weights)
         {
             if (kv.Value <= 0) continue;
-            roll -= kv.Value * partySkills.ChanceMultiplierFor(kv.Key);
+            roll -= kv.Value;
             if (roll < 0) return kv.Key;
         }
         return DungeonEventType.Nothing;
+    }
+
+    /// <summary>
+    /// イベント抽選に使う重み。振り子と角笛は総量を変えず、Nothingだけを移し替える。
+    /// そのため振り子を持っても敵・罠・休息の実確率は下がらない。
+    /// </summary>
+    public static IReadOnlyDictionary<DungeonEventType, float> CalculateEventWeights(
+        DungeonMasterData? d,
+        PartySkillEffects partySkills,
+        int treasureFromNothingPercent,
+        int enemyFromNothingPercent)
+    {
+        var weights = new Dictionary<DungeonEventType, float>();
+        if (d == null) return weights;
+
+        foreach (var kv in d.eventTable)
+        {
+            if (kv.Value <= 0) continue;
+            weights[kv.Key] = kv.Value * partySkills.ChanceMultiplierFor(kv.Key);
+        }
+
+        float nothing = weights.GetValueOrDefault(DungeonEventType.Nothing);
+        if (nothing <= 0) return weights;
+
+        float treasureRequested = weights.ContainsKey(DungeonEventType.Treasure)
+            ? nothing * Math.Clamp(treasureFromNothingPercent, 0, 100) / 100f
+            : 0f;
+        float enemyRequested = weights.ContainsKey(DungeonEventType.EnemyEncounter)
+            ? nothing * Math.Clamp(enemyFromNothingPercent, 0, 100) / 100f
+            : 0f;
+        float requested = treasureRequested + enemyRequested;
+        if (requested <= 0) return weights;
+
+        float scale = requested > nothing ? nothing / requested : 1f;
+        float treasureShift = treasureRequested * scale;
+        float enemyShift = enemyRequested * scale;
+        weights[DungeonEventType.Nothing] = Math.Max(0f, nothing - treasureShift - enemyShift);
+        if (treasureShift > 0)
+            weights[DungeonEventType.Treasure] += treasureShift;
+        if (enemyShift > 0)
+            weights[DungeonEventType.EnemyEncounter] += enemyShift;
+        return weights;
     }
 
     static QuestEventType ResolveQuestEvent(QuestMasterData q, int phase)

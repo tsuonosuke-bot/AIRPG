@@ -9,13 +9,18 @@ const dataDir = path.join(repoRoot, "GuildSimulator.Game", "Data");
 const outputDir = path.join(repoRoot, "outputs", "master-data-editor");
 const workbookPath = path.join(outputDir, "マスタデータ統合_編集用.xlsx");
 const previewDir = path.join(outputDir, "previews");
-const masterFiles = ["adventurers", "equipment", "skills", "consumables", "clues", "quests", "dungeons"];
+const masterFiles = [
+  "skills", "classes", "races", "equipment", "consumables", "relics", "facilities",
+  "enemies", "choice_events", "enemy_units", "dungeons", "clues", "quests", "adventurers",
+];
 const statKeys = [
   "hp", "san", "av", "mav", "pv", "mpv", "dv", "toHit", "heal",
   // 武器クラスの個性。スキル・遺物・装備の補正として足せる。
   "armorPierce", "armorShred", "critRange", "extraAttacks",
   // 二刀流の発動率と盾の受け率。スキルから伸ばせる。
   "offHandChance", "blockChance",
+  // 最新版で追加された戦闘・積載・ヘイト系の補正。
+  "blockNegate", "carry", "threatWeight", "autoPenetrate", "critPv", "emergencyHeal",
 ];
 // 武器そのものが持つ個性の列。武器クラスごとに固定で、Tierでは変えない。
 const weaponTraitKeys = ["armorPierce", "armorShred", "critRange", "extraAttacks", "offHandBonus"];
@@ -23,6 +28,7 @@ const weaponTraitKeys = ["armorPierce", "armorShred", "critRange", "extraAttacks
 const handKeys = ["isTwoHanded", "blockChance", "blockAv"];
 // AV/DV/PVは1点が重いので倍率では触らない。mul列はこの3つだけを扱う。
 const mulKeys = ["hp", "san", "heal"];
+const expeditionKeys = ["goldPercent", "expPercent", "treasureChancePercent", "trapChancePercent"];
 const rewardKeys = [
   "type", "relicId", "equipmentId", "skillId", "consumableId",
   "gold", "weight", "chance", "quantity", "unique",
@@ -41,6 +47,8 @@ const columnName = (number) => {
   }
   return result;
 };
+const columnNumber = (name) =>
+  [...name].reduce((result, character) => result * 26 + character.charCodeAt(0) - 64, 0);
 
 const clean = (value) => (value === undefined || value === null ? null : value);
 const mapValue = (object, key) => clean(object?.[key]);
@@ -77,13 +85,37 @@ const sheetDefinitions = {
       "background", "personality", "motivation", "specialty", "fear", "creed", "selfIntroduction",
     ],
     labels: [
-      "ID", "名前", "維持費", "初期Lv", "初期ランク(1=F〜7=S)",
+      "ID", "名前", "初期Lv", "初期ランク(1=F〜7=S)",
       "採用ギルドランク(1=F〜7=S)", "採用重み", "レアリティ",
       "生命力", "精神力", "筋力", "敏捷", "知力", "体格", "容姿",
       "初期職業", "種族", "初期武器", "初期防具",
       "スキル1", "スキル2", "スキル3", "スキル4", "スキル5", "スキル6",
       "経歴", "性格", "動機", "得意分野", "苦手・恐怖", "信条", "自己紹介",
     ],
+  },
+  classes: {
+    name: "職業",
+    title: "職業マスタ",
+    capacity: 60,
+    unique: true,
+    keys: ["id", "className", "vitGrowth", "mentGrowth", "strGrowth", "intGrowth", "agiGrowth"],
+    labels: ["ID", "職業名", "生命成長", "精神成長", "筋力成長", "知力成長", "敏捷成長"],
+  },
+  classSkills: {
+    name: "職業スキル",
+    title: "職業 スキル解禁明細",
+    capacity: 300,
+    unique: false,
+    keys: ["classId", "order", "skillId", "requiredClearCount"],
+    labels: ["職業ID", "順序", "スキルID", "必要適正クエストクリア数"],
+  },
+  races: {
+    name: "種族",
+    title: "種族マスタ",
+    capacity: 60,
+    unique: true,
+    keys: ["id", "raceName", "vitGrowth", "mentGrowth", "strGrowth", "intGrowth", "agiGrowth", "allowedClassIds"],
+    labels: ["ID", "種族名", "生命成長", "精神成長", "筋力成長", "知力成長", "敏捷成長", "就業可能職業ID（カンマ区切り）"],
   },
   equipment: {
     name: "装備",
@@ -110,19 +142,24 @@ const sheetDefinitions = {
   skills: {
     name: "スキル",
     title: "スキルマスタ",
-    capacity: 140,
+    capacity: 240,
     unique: true,
     keys: [
-      "id", "skillName", "scope", "frontOnly", "backOnly",
+      "id", "skillName", "family", "level", "scope", "frontOnly", "backOnly",
       "requireWeaponType", "requiredWeaponType", "requireArmorType", "requiredArmorType",
+      "requireUnarmed", "requireTwoHanded", "requireShield", "requireOffHandWeapon",
+      "requirePhysicalWeapon", "unarmedDamageDice",
       ...statKeys.map((key) => `add_${key}`),
       ...mulKeys.map((key) => `mul_${key}`),
+      ...expeditionKeys.map((key) => `expedition_${key}`),
     ],
     labels: [
-      "ID", "スキル名", "範囲", "前衛限定", "後衛限定",
+      "ID", "スキル名", "系統", "段階", "範囲", "前衛限定", "後衛限定",
       "武器条件あり", "必要武器種", "防具条件あり", "必要防具種",
+      "素手必須", "両手武器必須", "盾必須", "左手武器必須", "物理武器必須", "素手ダメージ",
       ...statKeys.map((key) => `加算 ${key}`),
       ...mulKeys.map((key) => `倍率 ${key}`),
+      ...expeditionKeys.map((key) => `遠征 ${key}`),
     ],
   },
   consumables: {
@@ -130,8 +167,11 @@ const sheetDefinitions = {
     title: "消費アイテムマスタ",
     capacity: 100,
     unique: true,
-    keys: ["id", "displayName", "description", "rarity", "price", "effectType", "effectValue"],
-    labels: ["ID", "表示名", "説明", "レアリティ", "価格", "効果種別", "効果値"],
+    keys: [
+      "id", "displayName", "description", "rarity", "price", "effectType",
+      "effectValue", "secondaryEffectValue",
+    ],
+    labels: ["ID", "表示名", "説明", "レアリティ", "価格", "効果種別", "効果値", "副効果値"],
   },
   clues: {
     name: "手掛かり",
@@ -140,6 +180,96 @@ const sheetDefinitions = {
     unique: true,
     keys: ["id", "title", "description"],
     labels: ["ID", "名称", "説明"],
+  },
+  relics: {
+    name: "レリック",
+    title: "レリックマスタ",
+    capacity: 120,
+    unique: true,
+    keys: [
+      "id", "relicName", "description", "effectType", "rate",
+      ...statKeys.map((key) => `add_${key}`),
+      ...mulKeys.map((key) => `mul_${key}`),
+    ],
+    labels: [
+      "ID", "名称", "説明", "効果種別", "倍率",
+      ...statKeys.map((key) => `加算 ${key}`),
+      ...mulKeys.map((key) => `倍率 ${key}`),
+    ],
+  },
+  facilities: {
+    name: "施設",
+    title: "ギルド施設マスタ",
+    capacity: 80,
+    unique: true,
+    keys: [
+      "id", "displayName", "description", "buildCostGold", "upkeepGoldPerTurn",
+      "requiredGuildRank", "questBoardBonus", "shopLevelBonus", "restHealBonusPercent",
+      "growthRateBonusPercent", "recruitMinBonus",
+    ],
+    labels: [
+      "ID", "施設名", "説明", "建設費", "毎ターン維持費", "必要ギルドランク",
+      "掲示板枠加算", "商店Lv加算", "休息回復%", "成長率%", "最低採用候補加算",
+    ],
+  },
+  enemies: {
+    name: "敵",
+    title: "敵マスタ",
+    capacity: 180,
+    unique: true,
+    keys: [
+      "id", "baseName", "exp", "threat", "vitality", "mental", "strength", "agility",
+      "intelligence", "constitution", "defaultWeaponId", "defaultArmorId", "defaultOffHandId",
+      "defaultShieldId", "naturalDamageDice", "naturalPv", "naturalAv", "naturalMav", "skillIds",
+    ],
+    labels: [
+      "ID", "名称", "経験値", "脅威ランク", "生命力", "精神力", "筋力", "敏捷", "知力", "体格",
+      "右手装備", "防具", "左手武器", "盾", "素のダメージ", "素のPV", "素のAV", "素のMAV",
+      "スキルID（カンマ区切り）",
+    ],
+  },
+  enemyDrops: {
+    name: "敵ドロップ",
+    title: "敵 ドロップ明細",
+    capacity: 400,
+    unique: false,
+    keys: ["enemyId", "order", ...rewardKeys],
+    labels: [
+      "敵ID", "順序", "報酬種別", "レリックID", "装備ID", "スキルID", "道具ID",
+      "Gold", "重み", "確率", "数量", "ユニーク",
+    ],
+  },
+  choiceEvents: {
+    name: "選択イベント",
+    title: "選択イベントマスタ",
+    capacity: 120,
+    unique: true,
+    keys: ["id", "title", "description", "weight"],
+    labels: ["ID", "名称", "説明", "重み"],
+  },
+  choiceOptions: {
+    name: "選択肢",
+    title: "選択イベント 選択肢明細",
+    capacity: 360,
+    unique: false,
+    keys: ["eventId", "order", "text", "resultText", "effectType", "value", "targetId", "targetsOneMember"],
+    labels: ["イベントID", "順序", "選択肢", "結果文", "効果種別", "値", "対象ID", "対象を1人選ぶ"],
+  },
+  choiceOutcomes: {
+    name: "選択結果",
+    title: "選択肢 重み付き結果明細",
+    capacity: 600,
+    unique: false,
+    keys: ["eventId", "optionOrder", "order", "weight", "effectType", "value", "targetId", "resultText"],
+    labels: ["イベントID", "選択肢順序", "結果順序", "重み", "効果種別", "値", "対象ID", "結果文"],
+  },
+  enemyUnits: {
+    name: "敵ユニット",
+    title: "敵ユニットマスタ",
+    capacity: 180,
+    unique: true,
+    keys: ["id", "unitName", "formationId1", "formationId2", "formationId3", "formationId4", "formationId5", "formationId6"],
+    labels: ["ID", "名称", "配置1", "配置2", "配置3", "配置4", "配置5", "配置6"],
   },
   quests: {
     name: "クエスト",
@@ -245,6 +375,19 @@ const makeRows = (data) => {
     if ((a.skillIds?.length ?? 0) > 6) throw new Error(`${a.id}: スキル数が6件を超えています。`);
   }
 
+  const classes = data.classes.map((c) => [
+    c.id, c.className, c.vitGrowth, c.mentGrowth, c.strGrowth, c.intGrowth, c.agiGrowth,
+  ]);
+  const classSkills = data.classes.flatMap((c) =>
+    (c.classSkills ?? []).map((entry, index) => [
+      c.id, index + 1, entry.skillId, entry.requiredClearCount,
+    ]));
+
+  const races = data.races.map((r) => [
+    r.id, r.raceName, r.vitGrowth, r.mentGrowth, r.strGrowth, r.intGrowth, r.agiGrowth,
+    clean(r.allowedClassIds?.join(", ")),
+  ]);
+
   const equipment = data.equipment.map((e) => [
     e.id, e.displayName, clean(e.rarity), e.type, e.weaponType, e.armorType,
     clean(e.allowedSlots?.length ? e.allowedSlots.join(",") : null),
@@ -257,20 +400,64 @@ const makeRows = (data) => {
   ]);
 
   const skills = data.skills.map((s) => [
-    s.id, s.skillName, s.scope, s.frontOnly, s.backOnly,
-    s.requireWeaponType, clean(s.requiredWeaponType),
-    s.requireArmorType, clean(s.requiredArmorType),
+    s.id, s.skillName, clean(s.family), clean(s.level), s.scope, Boolean(s.frontOnly), Boolean(s.backOnly),
+    Boolean(s.requireWeaponType), clean(s.requiredWeaponType),
+    Boolean(s.requireArmorType), clean(s.requiredArmorType),
+    Boolean(s.requireUnarmed), Boolean(s.requireTwoHanded), Boolean(s.requireShield),
+    Boolean(s.requireOffHandWeapon), Boolean(s.requirePhysicalWeapon), clean(s.unarmedDamageDice),
     ...statKeys.map((key) => mapValue(s.add, key)),
     ...mulKeys.map((key) => mapValue(s.mul, key)),
+    ...expeditionKeys.map((key) => mapValue(s.expedition, key)),
   ]);
 
   const consumables = data.consumables.map((c) => [
     c.id, c.displayName, clean(c.description), clean(c.rarity),
-    c.price, c.effectType, c.effectValue,
+    c.price, c.effectType, c.effectValue, clean(c.secondaryEffectValue),
   ]);
 
   const clues = data.clues.map((clue) => [
     clue.id, clue.title, clean(clue.description),
+  ]);
+
+  const relics = data.relics.map((r) => [
+    r.id, r.relicName, clean(r.description), r.effectType, r.rate,
+    ...statKeys.map((key) => mapValue(r.add, key)),
+    ...mulKeys.map((key) => mapValue(r.mul, key)),
+  ]);
+
+  const facilities = data.facilities.map((f) => [
+    f.id, f.displayName, clean(f.description), f.buildCostGold, f.upkeepGoldPerTurn,
+    f.requiredGuildRank, f.questBoardBonus, f.shopLevelBonus, f.restHealBonusPercent,
+    f.growthRateBonusPercent, clean(f.recruitMinBonus),
+  ]);
+
+  const enemies = data.enemies.map((e) => [
+    e.id, e.baseName, e.exp, e.threat, e.vitality, e.mental, e.strength, e.agility,
+    e.intelligence, e.constitution, clean(e.defaultWeaponId), clean(e.defaultArmorId),
+    clean(e.defaultOffHandId), clean(e.defaultShieldId), clean(e.naturalDamageDice),
+    clean(e.naturalPv), clean(e.naturalAv), clean(e.naturalMav), clean(e.skillIds?.join(", ")),
+  ]);
+  const enemyDrops = data.enemies.flatMap((e) =>
+    (e.dropTable ?? []).map((reward, index) => flattenReward(e.id, index + 1, reward)));
+
+  const choiceEvents = data.choice_events.map((event) => [
+    event.id, event.title, clean(event.description), event.weight,
+  ]);
+  const choiceOptions = data.choice_events.flatMap((event) =>
+    (event.options ?? []).map((option, index) => [
+      event.id, index + 1, option.text, clean(option.resultText), option.effectType,
+      option.value, clean(option.targetId), Boolean(option.targetsOneMember),
+    ]));
+  const choiceOutcomes = data.choice_events.flatMap((event) =>
+    (event.options ?? []).flatMap((option, optionIndex) =>
+      (option.outcomes ?? []).map((outcome, outcomeIndex) => [
+        event.id, optionIndex + 1, outcomeIndex + 1, outcome.weight, outcome.effectType,
+        outcome.value, clean(outcome.targetId), clean(outcome.resultText),
+      ])));
+
+  const enemyUnits = data.enemy_units.map((unit) => [
+    unit.id, unit.unitName,
+    ...Array.from({ length: 6 }, (_, index) => clean(unit.formationIds?.[index])),
   ]);
 
   const quests = data.quests.map((q) => [
@@ -280,9 +467,9 @@ const makeRows = (data) => {
     q.rank, q.totalPhases, q.phasesPerTurn,
     q.rewardGold, q.rewardGuildPoints, q.rewardExp,
     clean(q.isEmergencyQuest), clean(q.rankUpOnClear), clean(q.requiredGuildPoints),
-    clean(q.dungeonId), clean(q.bossEnemyId), q.bossPhase, clean(q.bossDropsAreGuaranteed),
-    clean(q.gatherItemName), q.gatherTargetCount, q.gatherMinPerEvent, q.gatherMaxPerEvent,
-    q.gatherChance, q.gatherGoldPerItem,
+    clean(q.dungeonId), clean(q.bossEnemyId), clean(q.bossPhase), clean(q.bossDropsAreGuaranteed),
+    clean(q.gatherItemName), clean(q.gatherTargetCount), clean(q.gatherMinPerEvent), clean(q.gatherMaxPerEvent),
+    clean(q.gatherChance), clean(q.gatherGoldPerItem),
   ]);
   const questRewards = data.quests.flatMap((q) =>
     (q.bossDrops ?? []).map((reward, index) => [q.id, index + 1, ...rewardKeys.map((key) => mapValue(reward, key))]));
@@ -305,10 +492,21 @@ const makeRows = (data) => {
 
   return {
     adventurers,
+    classes,
+    classSkills,
+    races,
     equipment,
     skills,
     consumables,
     clues,
+    relics,
+    facilities,
+    enemies,
+    enemyDrops,
+    choiceEvents,
+    choiceOptions,
+    choiceOutcomes,
+    enemyUnits,
     quests,
     questRewards,
     questEvents,
@@ -403,9 +601,32 @@ const writeDataSheet = (workbook, definition, rows, tableName) => {
     const column = columnName(i);
     let width = Math.max(9, Math.min(21, Math.max(key.length + 2, labels[i - 1].length + 2)));
     if (key === "description") width = 42;
-    if (key.endsWith("Id") || key === "id" || key.startsWith("skillId")) width = 20;
+    if (["background", "personality", "motivation", "specialty", "fear", "creed", "selfIntroduction"].includes(key)) {
+      width = 38;
+    }
+    if (["text", "resultText"].includes(key)) width = 34;
+    if (key.endsWith("Id") || key === "id" || key.startsWith("skillId")) width = 22;
+    if (key.startsWith("formationId")) width = 24;
+    if (["allowedClassIds", "skillIds", "requiredQuestIds", "requiredClueIds", "grantedClueIds"].includes(key)) {
+      width = 40;
+    }
     if (key === "入力チェック") width = 14;
     sheet.getRange(`${column}:${column}`).format.columnWidth = width;
+  }
+  const wrappedKeys = new Set([
+    "description", "background", "personality", "motivation", "specialty", "fear", "creed",
+    "selfIntroduction", "text", "resultText", "allowedClassIds", "skillIds", "requiredQuestIds",
+    "requiredClueIds", "grantedClueIds",
+  ]);
+  const populatedLastRow = rows.length + 4;
+  const wrappedColumns = definition.keys
+    .map((key, index) => (wrappedKeys.has(key) ? columnName(index + 1) : null))
+    .filter(Boolean);
+  if (rows.length > 0 && wrappedColumns.length > 0) {
+    for (const column of wrappedColumns) {
+      sheet.getRange(`${column}5:${column}${populatedLastRow}`).format.wrapText = true;
+    }
+    sheet.getRange(`A5:${lastColumn}${populatedLastRow}`).format.rowHeight = 42;
   }
   sheet.freezePanes.freezeRows(4);
   sheet.freezePanes.freezeColumns(Math.min(2, keys.length));
@@ -431,12 +652,23 @@ const addGuide = (workbook) => {
     font: { bold: true, color: colors.white, size: 16, name: bodyFont },
     rowHeight: 30,
   };
-  sheet.getRange("A3:C18").values = [
+  const guideRows = [
     ["区分", "編集シート", "説明"],
     ["主要", "冒険者", "基本値、職業・種族・装備、初期スキル、人物プロフィール"],
+    ["主要", "職業", "職業名と能力成長率"],
+    ["明細", "職業スキル", "classIdとorderで職業ごとのスキル解禁順を構成"],
+    ["主要", "種族", "能力成長率と就業可能な職業ID"],
     ["主要", "装備", "武器・防具、係数、価格、重量、bonus各種"],
-    ["主要", "スキル", "装備条件、対象範囲、add/mul各種"],
+    ["主要", "スキル", "段階、装備条件、add/mul、遠征効果"],
     ["主要", "道具", "消費アイテムの説明、価格、効果"],
+    ["主要", "レリック", "効果種別、倍率、add/mul各種"],
+    ["主要", "施設", "建設費、維持費、ギルド機能への加算"],
+    ["主要", "敵", "能力値、装備、自然攻撃、スキル"],
+    ["明細", "敵ドロップ", "enemyIdとorderで敵のdropTableを構成"],
+    ["主要", "敵ユニット", "最大6枠の敵編成"],
+    ["主要", "選択イベント", "イベント名、説明、重み"],
+    ["明細", "選択肢", "eventIdとorderで選択肢を構成"],
+    ["明細", "選択結果", "eventId・optionOrder・orderで重み付き結果を構成"],
     ["主要", "手掛かり", "物語クエストで発見し、後続クエストの解禁に使う調査情報"],
     ["主要", "クエスト", "依頼文、物語条件、報酬など。ボス報酬と固定イベントは下記明細シート"],
     ["明細", "クエスト報酬", "questIdとorderでボス報酬配列を構成"],
@@ -446,28 +678,31 @@ const addGuide = (workbook) => {
     ["明細", "ダンジョン遭遇", "encounterTableの敵ユニットと出現範囲"],
     ["明細", "ダンジョン報酬", "treasureTable（宝箱）の中身と重み"],
     ["明細", "ダンジョン終了イベント", "turnEndEventIdsの順序付き一覧"],
-    ["参照", "参照マスター", "職業・種族・敵・レリックなど、編集対象外IDの参照用"],
+    ["参照", "参照マスター", "各編集シートのIDと名称を横断確認する一覧"],
     ["共通", "入力チェック", "ID重複の簡易表示。JSON保存時にはツールが全参照を再検証"],
   ];
+  const lastGuideRow = guideRows.length + 2;
+  sheet.getRange(`A3:C${lastGuideRow}`).values = guideRows;
   sheet.getRange("A3:C3").format = {
     fill: colors.blue,
     font: { bold: true, color: colors.white, name: bodyFont },
   };
-  sheet.getRange("A4:A18").format = {
+  sheet.getRange(`A4:A${lastGuideRow}`).format = {
     fill: colors.paleBlue,
     font: { bold: true, color: colors.navy, name: bodyFont },
   };
-  sheet.getRange("A3:C18").format.borders = {
+  sheet.getRange(`A3:C${lastGuideRow}`).format.borders = {
     insideHorizontal: { style: "thin", color: colors.lightGray },
     outside: { style: "thin", color: "#9FB4C3" },
   };
   sheet.getRange("A:A").format.columnWidth = 12;
   sheet.getRange("B:B").format.columnWidth = 28;
   sheet.getRange("C:C").format.columnWidth = 68;
-  sheet.getRange("C3:C18").format.wrapText = true;
-  sheet.getRange("A3:C18").format.font = { name: bodyFont, size: 10 };
-  sheet.getRange("A3:C18").format.autofitRows();
+  sheet.getRange(`C3:C${lastGuideRow}`).format.wrapText = true;
+  sheet.getRange(`A3:C${lastGuideRow}`).format.font = { name: bodyFont, size: 10 };
+  sheet.getRange(`A3:C${lastGuideRow}`).format.autofitRows();
   sheet.freezePanes.freezeRows(3);
+  return lastGuideRow;
 };
 
 const addReferences = (workbook, refs) => {
@@ -480,15 +715,21 @@ const addReferences = (workbook, refs) => {
     ["J", "敵ユニット", ["ID", "名称"], refs.enemyUnits.map((x) => [x.id, x.unitName])],
     ["M", "レリック", ["ID", "名称"], refs.relics.map((x) => [x.id, x.relicName])],
     ["P", "選択イベント", ["ID", "名称"], refs.choiceEvents.map((x) => [x.id, x.title])],
+    ["S", "スキル", ["ID", "名称"], refs.skills.map((x) => [x.id, x.skillName])],
+    ["V", "装備", ["ID", "名称"], refs.equipment.map((x) => [x.id, x.displayName])],
+    ["Y", "道具", ["ID", "名称"], refs.consumables.map((x) => [x.id, x.displayName])],
+    ["AB", "施設", ["ID", "名称"], refs.facilities.map((x) => [x.id, x.displayName])],
+    ["AE", "ダンジョン", ["ID", "名称"], refs.dungeons.map((x) => [x.id, x.dungeonName])],
+    ["AH", "手掛かり", ["ID", "名称"], refs.clues.map((x) => [x.id, x.title])],
   ];
-  sheet.getRange("A1:R1").merge();
-  sheet.getRange("A1").values = [["参照専用マスタ（このExcelからはJSONへ書き戻しません）"]];
-  sheet.getRange("A1:R1").format = {
+  sheet.getRange("A1:AJ1").merge();
+  sheet.getRange("A1").values = [["ID参照一覧（編集は各マスタシートで行います）"]];
+  sheet.getRange("A1:AJ1").format = {
     fill: colors.navy,
     font: { bold: true, color: colors.white, size: 14, name: bodyFont },
   };
   for (const [start, title, headers, rows] of blocks) {
-    const startIndex = start.charCodeAt(0) - 64;
+    const startIndex = columnNumber(start);
     const end = columnName(startIndex + headers.length - 1);
     sheet.getRange(`${start}2:${end}2`).merge();
     sheet.getRange(`${start}2`).values = [[title]];
@@ -511,17 +752,23 @@ const exportWorkbook = async () => {
   const entries = await Promise.all(masterFiles.map(async (name) => [name, await readJson(name)]));
   const data = Object.fromEntries(entries);
   const refs = {
-    classes: await readJson("classes"),
-    races: await readJson("races"),
-    enemies: await readJson("enemies"),
-    enemyUnits: await readJson("enemy_units"),
-    relics: await readJson("relics"),
-    choiceEvents: await readJson("choice_events"),
+    classes: data.classes,
+    races: data.races,
+    enemies: data.enemies,
+    enemyUnits: data.enemy_units,
+    relics: data.relics,
+    choiceEvents: data.choice_events,
+    skills: data.skills,
+    equipment: data.equipment,
+    consumables: data.consumables,
+    facilities: data.facilities,
+    dungeons: data.dungeons,
+    clues: data.clues,
   };
   const rowsBySheet = makeRows(data);
   const workbook = Workbook.create();
   workbook.comments.setSelf({ displayName: "User" });
-  addGuide(workbook);
+  const guideLastRow = addGuide(workbook);
   const sheets = {};
   let tableIndex = 1;
   for (const [key, definition] of Object.entries(sheetDefinitions)) {
@@ -531,9 +778,14 @@ const exportWorkbook = async () => {
   addReferences(workbook, refs);
 
   const boolFields = {
-    skills: ["frontOnly", "backOnly", "requireWeaponType", "requireArmorType"],
+    skills: [
+      "frontOnly", "backOnly", "requireWeaponType", "requireArmorType", "requireUnarmed",
+      "requireTwoHanded", "requireShield", "requireOffHandWeapon", "requirePhysicalWeapon",
+    ],
     equipment: ["isTwoHanded"],
     quests: ["isStoryQuest", "isEmergencyQuest", "bossDropsAreGuaranteed"],
+    choiceOptions: ["targetsOneMember"],
+    enemyDrops: ["unique"],
     questRewards: ["unique"],
     dungeonRewards: ["unique"],
   };
@@ -547,31 +799,45 @@ const exportWorkbook = async () => {
   addValidation(sheets.equipment, sheetDefinitions.equipment, "type", [0, 1, 2, 3]);
   addValidation(sheets.equipment, sheetDefinitions.equipment, "weaponType", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   addValidation(sheets.equipment, sheetDefinitions.equipment, "armorType", [0, 1, 2, 3]);
+  addValidation(sheets.equipment, sheetDefinitions.equipment, "attackKind", ["Physical", "Magic", "Heal"]);
   // 認定ランクは F(1) 〜 S(7) の7段階。3種のランクすべてが同じ物差しに乗っている。
   const ranks = [1, 2, 3, 4, 5, 6, 7];
   addValidation(sheets.quests, sheetDefinitions.quests, "rank", ranks);
   addValidation(sheets.adventurers, sheetDefinitions.adventurers, "defaultRank", ranks);
   addValidation(sheets.adventurers, sheetDefinitions.adventurers, "recruitGuildRank", ranks);
+  addValidation(sheets.facilities, sheetDefinitions.facilities, "requiredGuildRank", ranks);
+  addValidation(sheets.enemies, sheetDefinitions.enemies, "threat", ranks);
   addValidation(sheets.skills, sheetDefinitions.skills, "scope", [0, 1]);
   addValidation(sheets.skills, sheetDefinitions.skills, "requiredWeaponType", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   addValidation(sheets.skills, sheetDefinitions.skills, "requiredArmorType", [0, 1, 2, 3]);
   addValidation(sheets.consumables, sheetDefinitions.consumables, "effectType", [
     "MaxHpPercent", "MoralePercent", "GoldRewardPercent", "ExpRewardPercent", "TrapDamageReductionPercent",
+    "RestHealPercent", "TreasureFromNothingPercent", "TargetPv", "TargetMpv",
+    "GuaranteedNonEmptyChest", "BattleHorn", "EmergencyRetreatPercent",
   ]);
+  addValidation(sheets.relics, sheetDefinitions.relics, "effectType", [0, 1, 2, 3, 4]);
+  addValidation(sheets.enemyDrops, sheetDefinitions.enemyDrops, "type", [0, 1, 2, 3, 4]);
   addValidation(sheets.questRewards, sheetDefinitions.questRewards, "type", [0, 1, 2, 3, 4]);
   addValidation(sheets.questEvents, sheetDefinitions.questEvents, "type", [0, 1, 2, 3, 4, 5, 6]);
   addValidation(sheets.dungeonEvents, sheetDefinitions.dungeonEvents, "eventType", [
     "EnemyEncounter", "Heal", "Trap", "Treasure", "Nothing",
   ]);
   addValidation(sheets.dungeonRewards, sheetDefinitions.dungeonRewards, "type", [0, 1, 2, 3, 4]);
+  const choiceEffectTypes = [
+    "None", "Morale", "HealPercent", "DamagePercent", "Experience", "Gold", "Equipment",
+    "Consumable", "Treasure", "AdventurerStatUp", "AdventurerStatDown", "AdventurerSkill",
+    "AdventurerDamage",
+  ];
+  addValidation(sheets.choiceOptions, sheetDefinitions.choiceOptions, "effectType", choiceEffectTypes);
+  addValidation(sheets.choiceOutcomes, sheetDefinitions.choiceOutcomes, "effectType", choiceEffectTypes);
 
   await fs.mkdir(outputDir, { recursive: true });
   await fs.mkdir(previewDir, { recursive: true });
   const overview = await workbook.inspect({
     kind: "workbook,sheet,table",
-    maxChars: 9000,
-    tableMaxRows: 5,
-    tableMaxCols: 8,
+    maxChars: 2500,
+    tableMaxRows: 2,
+    tableMaxCols: 6,
   });
   console.log(overview.ndjson);
   const errors = await workbook.inspect({
@@ -583,13 +849,13 @@ const exportWorkbook = async () => {
   console.log(errors.ndjson);
 
   const previewRanges = [
-    ["入力ガイド", "A1:H17"],
+    ["入力ガイド", `A1:H${guideLastRow}`],
     ...Object.entries(sheetDefinitions).map(([key, definition]) => {
       const lastColumn = columnName(definition.keys.length + 1);
       const lastRow = Math.min(19, Math.max(8, rowsBySheet[key].length + 4));
       return [definition.name, `A1:${lastColumn}${lastRow}`];
     }),
-    ["参照マスター", "A1:R19"],
+    ["参照マスター", "A1:AJ30"],
   ];
   for (const [sheetName, range] of previewRanges) {
     const preview = await workbook.render({
@@ -674,6 +940,14 @@ const buildStatObject = (source, prefix, row, multiplier = false) => {
   }
   return result;
 };
+const buildNumberObject = (source, prefix, keys, row, integer = true) => {
+  const result = {};
+  for (const key of keys) {
+    const value = optionalNumber(source[`${prefix}_${key}`], `${prefix}_${key}`, row, integer);
+    if (value !== null) result[key] = value;
+  }
+  return result;
+};
 const buildReward = (source, row) => {
   const reward = { type: numberValue(source.type, "type", row, true) };
   for (const key of ["relicId", "equipmentId", "skillId", "consumableId"]) {
@@ -723,14 +997,7 @@ const importWorkbook = async (writeMode) => {
   const rows = Object.fromEntries(
     Object.entries(sheetDefinitions).map(([key, definition]) => [key, readSheetRows(workbook, definition)]),
   );
-  const refs = {
-    classes: new Set((await readJson("classes")).map((x) => x.id)),
-    races: new Set((await readJson("races")).map((x) => x.id)),
-    enemies: new Set((await readJson("enemies")).map((x) => x.id)),
-    enemyUnits: new Set((await readJson("enemy_units")).map((x) => x.id)),
-    relics: new Set((await readJson("relics")).map((x) => x.id)),
-    choiceEvents: new Set((await readJson("choice_events")).map((x) => x.id)),
-  };
+  let refs = {};
   const errors = [];
   const guarded = (callback) => {
     try {
@@ -781,7 +1048,8 @@ const importWorkbook = async (writeMode) => {
     item.price = numberValue(x.price, "price", row, true);
     item.weight = numberValue(x.weight, "weight", row, true);
     optionalAssign(item, "shopTier", optionalNumber(x.shopTier, "shopTier", row, true));
-    item.bonus = buildStatObject(x, "bonus", row);
+    const bonus = buildStatObject(x, "bonus", row);
+    if (Object.keys(bonus).length > 0) item.bonus = bonus;
     return item;
   })).filter(Boolean);
   ensureUnique(equipment, "装備");
@@ -794,15 +1062,25 @@ const importWorkbook = async (writeMode) => {
       id: text(x.id),
       skillName: text(x.skillName),
       scope: numberValue(x.scope, "scope", row, true),
-      frontOnly: boolValue(x.frontOnly, "frontOnly", row),
-      backOnly: boolValue(x.backOnly, "backOnly", row),
-      requireWeaponType: boolValue(x.requireWeaponType, "requireWeaponType", row),
     };
+    for (const key of ["frontOnly", "backOnly", "requireWeaponType", "requireArmorType"]) {
+      if (boolValue(x[key], key, row)) item[key] = true;
+    }
+    optionalAssign(item, "family", optionalText(x.family));
+    optionalAssign(item, "level", optionalNumber(x.level, "level", row, true));
     optionalAssign(item, "requiredWeaponType", optionalNumber(x.requiredWeaponType, "requiredWeaponType", row, true));
-    item.requireArmorType = boolValue(x.requireArmorType, "requireArmorType", row);
     optionalAssign(item, "requiredArmorType", optionalNumber(x.requiredArmorType, "requiredArmorType", row, true));
+    for (const key of [
+      "requireUnarmed", "requireTwoHanded", "requireShield", "requireOffHandWeapon", "requirePhysicalWeapon",
+    ]) {
+      const value = boolValue(x[key], key, row);
+      if (value) item[key] = true;
+    }
+    optionalAssign(item, "unarmedDamageDice", optionalText(x.unarmedDamageDice));
     item.add = buildStatObject(x, "add", row);
     item.mul = buildStatObject(x, "mul", row, true);
+    const expedition = buildNumberObject(x, "expedition", expeditionKeys, row, true);
+    if (Object.keys(expedition).length > 0) item.expedition = expedition;
     return item;
   })).filter(Boolean);
   ensureUnique(skills, "スキル");
@@ -815,10 +1093,244 @@ const importWorkbook = async (writeMode) => {
     item.price = numberValue(x.price, "price", row, true);
     item.effectType = text(x.effectType);
     item.effectValue = numberValue(x.effectValue, "effectValue", row, true);
+    optionalAssign(item, "secondaryEffectValue",
+      optionalNumber(x.secondaryEffectValue, "secondaryEffectValue", row, true));
     return item;
   })).filter(Boolean);
   ensureUnique(consumables, "道具");
   const consumableIds = new Set(consumables.map((x) => x.id));
+
+  const relics = rows.relics.map(({ object: x, row }) => guarded(() => {
+    const item = {
+      id: text(x.id),
+      relicName: text(x.relicName),
+      effectType: numberValue(x.effectType, "effectType", row, true),
+    };
+    optionalAssign(item, "description", optionalText(x.description));
+    optionalAssign(item, "rate", optionalNumber(x.rate, "rate", row));
+    const add = buildStatObject(x, "add", row);
+    const mul = buildStatObject(x, "mul", row, true);
+    if (Object.keys(add).length > 0) item.add = add;
+    if (Object.keys(mul).length > 0) item.mul = mul;
+    return item;
+  })).filter(Boolean);
+  ensureUnique(relics, "レリック");
+  const relicIds = new Set(relics.map((x) => x.id));
+
+  const classSkillGroups = new Map();
+  for (const entry of orderRows(rows.classSkills, "classId")) {
+    guarded(() => {
+      const classId = text(entry.object.classId);
+      const skillId = text(entry.object.skillId);
+      assertRef(skillIds, skillId, "職業スキル.skillId", entry.row);
+      if (!classSkillGroups.has(classId)) classSkillGroups.set(classId, []);
+      classSkillGroups.get(classId).push({
+        skillId,
+        requiredClearCount: numberValue(
+          entry.object.requiredClearCount,
+          "requiredClearCount",
+          entry.row,
+          true,
+        ),
+      });
+    });
+  }
+  const classes = rows.classes.map(({ object: x, row }) => guarded(() => {
+    const id = text(x.id);
+    return {
+      id,
+      className: text(x.className),
+      vitGrowth: numberValue(x.vitGrowth, "vitGrowth", row),
+      mentGrowth: numberValue(x.mentGrowth, "mentGrowth", row),
+      strGrowth: numberValue(x.strGrowth, "strGrowth", row),
+      intGrowth: numberValue(x.intGrowth, "intGrowth", row),
+      agiGrowth: numberValue(x.agiGrowth, "agiGrowth", row),
+      classSkills: classSkillGroups.get(id) ?? [],
+    };
+  })).filter(Boolean);
+  ensureUnique(classes, "職業");
+  const classIds = new Set(classes.map((x) => x.id));
+  for (const entry of rows.classSkills) {
+    assertRef(classIds, entry.object.classId, "職業スキル.classId", entry.row);
+  }
+
+  const races = rows.races.map(({ object: x, row }) => guarded(() => {
+    const allowedClassIds = idList(x.allowedClassIds);
+    for (const classId of allowedClassIds) {
+      assertRef(classIds, classId, "種族.allowedClassIds", row);
+    }
+    return {
+      id: text(x.id),
+      raceName: text(x.raceName),
+      vitGrowth: numberValue(x.vitGrowth, "vitGrowth", row),
+      mentGrowth: numberValue(x.mentGrowth, "mentGrowth", row),
+      strGrowth: numberValue(x.strGrowth, "strGrowth", row),
+      intGrowth: numberValue(x.intGrowth, "intGrowth", row),
+      agiGrowth: numberValue(x.agiGrowth, "agiGrowth", row),
+      allowedClassIds,
+    };
+  })).filter(Boolean);
+  ensureUnique(races, "種族");
+  const raceIds = new Set(races.map((x) => x.id));
+
+  const facilities = rows.facilities.map(({ object: x, row }) => guarded(() => {
+    const item = {
+      id: text(x.id),
+      displayName: text(x.displayName),
+      buildCostGold: numberValue(x.buildCostGold, "buildCostGold", row, true),
+      upkeepGoldPerTurn: numberValue(x.upkeepGoldPerTurn, "upkeepGoldPerTurn", row, true),
+      requiredGuildRank: numberValue(x.requiredGuildRank, "requiredGuildRank", row, true),
+      questBoardBonus: numberValue(x.questBoardBonus, "questBoardBonus", row, true),
+      shopLevelBonus: numberValue(x.shopLevelBonus, "shopLevelBonus", row, true),
+      restHealBonusPercent: numberValue(x.restHealBonusPercent, "restHealBonusPercent", row, true),
+      growthRateBonusPercent: numberValue(x.growthRateBonusPercent, "growthRateBonusPercent", row, true),
+    };
+    optionalAssign(item, "description", optionalText(x.description));
+    optionalAssign(item, "recruitMinBonus", optionalNumber(x.recruitMinBonus, "recruitMinBonus", row, true));
+    return item;
+  })).filter(Boolean);
+  ensureUnique(facilities, "施設");
+
+  const shieldIds = new Set(equipment.filter((x) => x.type === 3).map((x) => x.id));
+  const enemies = rows.enemies.map(({ object: x, row }) => guarded(() => {
+    const item = {
+      id: text(x.id),
+      baseName: text(x.baseName),
+      exp: numberValue(x.exp, "exp", row, true),
+      threat: numberValue(x.threat, "threat", row, true),
+      vitality: numberValue(x.vitality, "vitality", row, true),
+      mental: numberValue(x.mental, "mental", row, true),
+      strength: numberValue(x.strength, "strength", row, true),
+      agility: numberValue(x.agility, "agility", row, true),
+      intelligence: numberValue(x.intelligence, "intelligence", row, true),
+      constitution: numberValue(x.constitution, "constitution", row, true),
+    };
+    item.defaultWeaponId = text(x.defaultWeaponId);
+    item.defaultArmorId = text(x.defaultArmorId);
+    for (const key of ["defaultOffHandId", "defaultShieldId"]) optionalAssign(item, key, optionalText(x[key]));
+    optionalAssign(item, "naturalDamageDice", optionalText(x.naturalDamageDice));
+    for (const key of ["naturalPv", "naturalAv", "naturalMav"]) {
+      optionalAssign(item, key, optionalNumber(x[key], key, row, true));
+    }
+    item.skillIds = idList(x.skillIds);
+    if (item.defaultWeaponId) assertRef(weaponIds, item.defaultWeaponId, "敵.defaultWeaponId", row);
+    if (item.defaultArmorId) assertRef(armorIds, item.defaultArmorId, "敵.defaultArmorId", row);
+    if (item.defaultOffHandId) assertRef(weaponIds, item.defaultOffHandId, "敵.defaultOffHandId", row);
+    if (item.defaultShieldId) assertRef(shieldIds, item.defaultShieldId, "敵.defaultShieldId", row);
+    for (const skillId of item.skillIds) assertRef(skillIds, skillId, "敵.skillIds", row);
+    return item;
+  })).filter(Boolean);
+  ensureUnique(enemies, "敵");
+  const enemyIds = new Set(enemies.map((x) => x.id));
+
+  const outcomeGroups = new Map();
+  const sortedOutcomes = [...rows.choiceOutcomes].sort((a, b) =>
+    text(a.object.eventId).localeCompare(text(b.object.eventId)) ||
+    numberValue(a.object.optionOrder, "optionOrder", a.row, true) -
+      numberValue(b.object.optionOrder, "optionOrder", b.row, true) ||
+    numberValue(a.object.order, "order", a.row, true) - numberValue(b.object.order, "order", b.row, true));
+  for (const entry of sortedOutcomes) {
+    guarded(() => {
+      const eventId = text(entry.object.eventId);
+      const optionOrder = numberValue(entry.object.optionOrder, "optionOrder", entry.row, true);
+      const key = `${eventId}\u0000${optionOrder}`;
+      const effectType = typeof entry.object.effectType === "number"
+        ? numberValue(entry.object.effectType, "effectType", entry.row, true)
+        : text(entry.object.effectType);
+      const outcome = {
+        weight: numberValue(entry.object.weight, "weight", entry.row, true),
+        effectType,
+        value: numberValue(entry.object.value, "value", entry.row, true),
+      };
+      const resultText = optionalText(entry.object.resultText);
+      if (resultText !== null) outcome.resultText = resultText;
+      if (!isBlank(entry.object.targetId) || resultText !== null) outcome.targetId = text(entry.object.targetId);
+      if (!outcomeGroups.has(key)) outcomeGroups.set(key, []);
+      outcomeGroups.get(key).push(outcome);
+    });
+  }
+  const optionGroups = new Map();
+  for (const entry of orderRows(rows.choiceOptions, "eventId")) {
+    guarded(() => {
+      const eventId = text(entry.object.eventId);
+      const optionOrder = numberValue(entry.object.order, "order", entry.row, true);
+      const effectType = typeof entry.object.effectType === "number"
+        ? numberValue(entry.object.effectType, "effectType", entry.row, true)
+        : text(entry.object.effectType);
+      const option = {
+        text: text(entry.object.text),
+        resultText: text(entry.object.resultText),
+        effectType,
+        value: numberValue(entry.object.value, "value", entry.row, true),
+      };
+      optionalAssign(option, "targetId", optionalText(entry.object.targetId));
+      if (boolValue(entry.object.targetsOneMember, "targetsOneMember", entry.row)) {
+        option.targetsOneMember = true;
+      }
+      const outcomes = outcomeGroups.get(`${eventId}\u0000${optionOrder}`) ?? [];
+      if (outcomes.length > 0) option.outcomes = outcomes;
+      if (!optionGroups.has(eventId)) optionGroups.set(eventId, []);
+      optionGroups.get(eventId).push(option);
+    });
+  }
+  const choiceEvents = rows.choiceEvents.map(({ object: x, row }) => guarded(() => {
+    const id = text(x.id);
+    const item = {
+      id,
+      title: text(x.title),
+      weight: numberValue(x.weight, "weight", row, true),
+      options: optionGroups.get(id) ?? [],
+    };
+    optionalAssign(item, "description", optionalText(x.description));
+    return item;
+  })).filter(Boolean);
+  ensureUnique(choiceEvents, "選択イベント");
+  const choiceEventIds = new Set(choiceEvents.map((x) => x.id));
+  for (const entry of rows.choiceOptions) {
+    assertRef(choiceEventIds, entry.object.eventId, "選択肢.eventId", entry.row);
+  }
+  for (const entry of rows.choiceOutcomes) {
+    assertRef(choiceEventIds, entry.object.eventId, "選択結果.eventId", entry.row);
+  }
+
+  const enemyUnits = rows.enemyUnits.map(({ object: x, row }) => guarded(() => {
+    const formationIds = [
+      x.formationId1, x.formationId2, x.formationId3, x.formationId4, x.formationId5, x.formationId6,
+    ].map(optionalText);
+    for (const enemyId of formationIds.filter(Boolean)) {
+      assertRef(enemyIds, enemyId, "敵ユニット.formationId", row);
+    }
+    return { id: text(x.id), unitName: text(x.unitName), formationIds };
+  })).filter(Boolean);
+  ensureUnique(enemyUnits, "敵ユニット");
+  const enemyUnitIds = new Set(enemyUnits.map((x) => x.id));
+
+  refs = {
+    classes: classIds,
+    races: raceIds,
+    enemies: enemyIds,
+    enemyUnits: enemyUnitIds,
+    relics: relicIds,
+    choiceEvents: choiceEventIds,
+  };
+
+  const validateChoiceTarget = (effectType, targetId, row, label) => {
+    if (isBlank(targetId)) return;
+    const normalized = text(effectType);
+    if (normalized === "Equipment" || normalized === "6") {
+      assertRef(equipmentIds, targetId, `${label}.targetId`, row);
+    } else if (normalized === "Consumable" || normalized === "7") {
+      assertRef(consumableIds, targetId, `${label}.targetId`, row);
+    } else if (normalized === "AdventurerSkill" || normalized === "11") {
+      assertRef(skillIds, targetId, `${label}.targetId`, row);
+    }
+  };
+  for (const entry of rows.choiceOptions) {
+    validateChoiceTarget(entry.object.effectType, entry.object.targetId, entry.row, "選択肢");
+  }
+  for (const entry of rows.choiceOutcomes) {
+    validateChoiceTarget(entry.object.effectType, entry.object.targetId, entry.row, "選択結果");
+  }
 
   const dungeons = rows.dungeons.map(({ object: x, row }) => guarded(() => {
     const item = {
@@ -837,6 +1349,24 @@ const importWorkbook = async (writeMode) => {
     if (reward.skillId) assertRef(skillIds, reward.skillId, `${label}.skillId`, row);
     if (reward.consumableId) assertRef(consumableIds, reward.consumableId, `${label}.consumableId`, row);
   };
+
+  const enemyDropGroups = new Map();
+  for (const entry of orderRows(rows.enemyDrops, "enemyId")) {
+    guarded(() => {
+      const enemyId = text(entry.object.enemyId);
+      const reward = buildReward(entry.object, entry.row);
+      rewardRefCheck(reward, entry.row, "敵ドロップ");
+      if (!enemyDropGroups.has(enemyId)) enemyDropGroups.set(enemyId, []);
+      enemyDropGroups.get(enemyId).push(reward);
+    });
+  }
+  for (const entry of rows.enemyDrops) {
+    assertRef(enemyIds, entry.object.enemyId, "敵ドロップ.enemyId", entry.row);
+  }
+  for (const enemy of enemies) {
+    const dropTable = enemyDropGroups.get(enemy.id) ?? [];
+    if (dropTable.length > 0) enemy.dropTable = dropTable;
+  }
 
   const questRewardGroups = new Map();
   for (const entry of orderRows(rows.questRewards, "questId")) {
@@ -1021,7 +1551,22 @@ const importWorkbook = async (writeMode) => {
   })).filter(Boolean);
   ensureUnique(adventurers, "冒険者");
 
-  const reconstructed = { adventurers, equipment, skills, consumables, clues, quests, dungeons };
+  const reconstructed = {
+    skills,
+    classes,
+    races,
+    equipment,
+    consumables,
+    relics,
+    facilities,
+    enemies,
+    choice_events: choiceEvents,
+    enemy_units: enemyUnits,
+    dungeons,
+    clues,
+    quests,
+    adventurers,
+  };
   if (errors.length > 0) {
     console.error(`VALIDATION_ERRORS=${errors.length}`);
     errors.forEach((error) => console.error(`- ${error}`));

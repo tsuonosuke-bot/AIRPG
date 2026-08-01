@@ -26,7 +26,7 @@ public static class ActiveQuestScreen
             for (int i = 0; i < actives.Count; i++)
             {
                 var q = actives[i];
-                string status = q.failed ? "[全滅]"
+                string status = q.failed ? "[全員戦闘不能]"
                     : q.retreated ? "[撤退]"
                     : q.HasPendingChoice ? "[選択待ち]"
                     : q.HasGatherDecision ? "[採取の指示待ち]"
@@ -45,7 +45,10 @@ public static class ActiveQuestScreen
                     if (memberIndex > 0) Ui.Write(", ");
                     var member = members[memberIndex];
                     Ui.WriteRarityName(member.name, member.master.rarity);
-                    Ui.Write($"({(member.isAlive ? "生" : "死")})");
+                    string memberState = !member.isAlive ? "死"
+                        : member.isIncapacitated ? "戦闘不能"
+                        : member.IsInjured ? "負傷" : "生";
+                    Ui.Write($"({memberState})");
                 }
                 Ui.WriteLine();
 
@@ -86,9 +89,10 @@ public static class ActiveQuestScreen
             return;
         }
         int offset = 0; // 0 = 最新ページ。増えるほど過去へ遡る
+        bool showDetailedLogs = false;
         while (true)
         {
-            string state = q.failed ? "全滅" : q.retreated ? "撤退" : q.CanComplete ? "完了可能" : "進行中";
+            string state = q.failed ? "全員戦闘不能" : q.retreated ? "撤退" : q.CanComplete ? "完了可能" : "進行中";
             Ui.BeginScreen();
             Ui.Header($"クエスト: {q.def.questName}");
             Ui.WriteLine($"  フェーズ: {q.currentPhase}/{q.PhaseLimit}  状態: {state}"
@@ -104,23 +108,33 @@ public static class ActiveQuestScreen
             ShowExpeditionReport(q);
 
             int total = q.logs.Count;
-            int maxOffset = Math.Max(0, (total - 1) / LogPageSize * LogPageSize);
-            offset = Math.Clamp(offset, 0, maxOffset);
-            int skip = Math.Max(0, total - LogPageSize - offset);
-            int take = Math.Min(LogPageSize, total - skip);
-
-            Ui.WriteLine();
-            Ui.WriteLine($"  詳細ログ ({(total == 0 ? 0 : skip + 1)}〜{skip + take} / 全{total}件):");
-            foreach (var log in q.logs.Skip(skip).Take(take))
-                Ui.WriteQuestLog($"    {log}");
-
-            Ui.WriteLine();
             var opts = new List<MenuOption>();
-            if (skip > 0) opts.Add(new MenuOption("o", "さらに古いログ"));
-            if (offset > 0) opts.Add(new MenuOption("n", "新しいログへ戻る"));
+            if (showDetailedLogs)
+            {
+                int maxOffset = Math.Max(0, (total - 1) / LogPageSize * LogPageSize);
+                offset = Math.Clamp(offset, 0, maxOffset);
+                int skip = Math.Max(0, total - LogPageSize - offset);
+                int take = Math.Min(LogPageSize, total - skip);
+
+                Ui.WriteLine();
+                Ui.WriteLine($"  詳細ログ ({(total == 0 ? 0 : skip + 1)}〜{skip + take} / 全{total}件):");
+                foreach (var log in q.logs.Skip(skip).Take(take))
+                    Ui.WriteQuestLog($"    {log}");
+
+                if (skip > 0) opts.Add(new MenuOption("o", "さらに古いログ"));
+                if (offset > 0) opts.Add(new MenuOption("n", "新しいログへ戻る"));
+                opts.Add(new MenuOption("h", "詳細ログを閉じる", Style: TextStyle.Dim));
+            }
+            else if (total > 0)
+            {
+                opts.Add(new MenuOption("l", $"詳細ログを見る（全{total}件）", Style: TextStyle.Dim));
+            }
             opts.Add(new MenuOption("", "続ける", Style: TextStyle.Dim));
-            string nav = await Ui.SelectAsync("ログ操作", opts);
-            if (nav == "o" && skip > 0) { offset += LogPageSize; continue; }
+            Ui.WriteLine();
+            string nav = await Ui.SelectAsync("表示/進行", opts);
+            if (nav == "l" && !showDetailedLogs) { showDetailedLogs = true; continue; }
+            if (nav == "h" && showDetailedLogs) { showDetailedLogs = false; offset = 0; continue; }
+            if (nav == "o" && showDetailedLogs) { offset += LogPageSize; continue; }
             if (nav == "n" && offset > 0) { offset = Math.Max(0, offset - LogPageSize); continue; }
             break;
         }
@@ -130,12 +144,13 @@ public static class ActiveQuestScreen
         Ui.WriteLine();
         if (q.failed)
         {
-            Ui.Error("パーティは全滅しました（報酬・戦利品・宝箱はすべて失われます）");
+            Ui.Error("パーティは全員戦闘不能になりました（報酬・戦利品・宝箱はすべて失われます）");
+            Ui.Warn("帰還処理で各メンバーの死亡または負傷が確定します。医療院は死亡率を下げます");
             if (await Ui.ConfirmAsync("クエストを終了しますか？"))
             {
                 var before = CaptureSettlement(guild, q);
                 qm.FinalizeQuest(q);
-                ShowCompletionSummary(q, guild, before, "全滅");
+                ShowCompletionSummary(q, guild, before, "壊滅");
                 await Ui.PauseAsync();
             }
             return;
@@ -146,11 +161,9 @@ public static class ActiveQuestScreen
             Ui.Warn(RetreatMessage(q.retreatReason));
             Ui.Dim($"  基本報酬は{QuestRewardService.RetreatRewardRate:P0}、ギルドポイントはなし");
             Ui.Dim("  道中で拾った戦利品と宝箱は持ち帰れます");
-            var fallen = q.EnumerateMembers().Where(member => !member.isAlive).ToList();
-            if (fallen.Count == 0)
-                Ui.Dim("  死亡者はいません");
-            else
-                Ui.Error($"  死亡者: {string.Join("、", fallen.Select(member => member.name))}");
+            var downed = q.EnumerateMembers().Where(member => member.isIncapacitated).ToList();
+            if (downed.Count > 0)
+                Ui.Warn($"  戦闘不能者（帰還時に負傷判定）: {string.Join("、", downed.Select(member => member.name))}");
             if (await Ui.ConfirmAsync("引き上げを確定しますか？"))
             {
                 var before = CaptureSettlement(guild, q);
@@ -182,6 +195,7 @@ public static class ActiveQuestScreen
         ExpeditionRetreatReason.SurvivalPolicy => "生還優先の方針に従い、損耗が危険域へ達する前に撤退しました",
         ExpeditionRetreatReason.BattleStalemate => "長期戦を打ち切り、パーティは撤退しました",
         ExpeditionRetreatReason.GatherTargetMissed => "採取目標を達成できず、パーティは撤退しました",
+        ExpeditionRetreatReason.SmokeBomb => "機関の煙玉を展開し、パーティは安全に撤退しました",
         _ => "パーティは撤退しました",
     };
 
@@ -213,6 +227,15 @@ public static class ActiveQuestScreen
             Ui.WriteLine("  死亡者: なし");
         else
             Ui.Error($"  死亡者: {string.Join("、", fallen.Select(member => member.name))}");
+
+        var injured = q.EnumerateMembers().Where(member => member.isAlive && member.IsInjured).ToList();
+        Ui.WriteLine("  帰還時の負傷:");
+        if (injured.Count == 0)
+            Ui.Dim("    なし");
+        else
+            foreach (var member in injured)
+                foreach (var injury in member.injuries)
+                    Ui.Warn($"    {member.name}: {injury.DisplayName}（休養あと{injury.remainingRestTurns}T、{injury.EffectDescription}）");
 
         Ui.WriteLine("  成長:");
         bool hasGrowth = false;

@@ -109,6 +109,33 @@ public class QuestManager
         out string error,
         IReadOnlyList<ConsumableMasterData>? carriedConsumables = null,
         ExpeditionPolicy policy = ExpeditionPolicy.ObjectiveFirst)
+        => TryStartQuestCore(
+            def,
+            formation,
+            currentTurn,
+            out error,
+            (carriedConsumables ?? Array.Empty<ConsumableMasterData>())
+                .Select(item => new ConsumableUse(item))
+                .ToList(),
+            policy);
+
+    public bool TryStartQuestWithConsumables(
+        QuestMasterData def,
+        AdventurerData?[] formation,
+        int currentTurn,
+        out string error,
+        IReadOnlyList<ConsumableUse> carriedConsumables,
+        ExpeditionPolicy policy = ExpeditionPolicy.ObjectiveFirst)
+        => TryStartQuestCore(
+            def, formation, currentTurn, out error, carriedConsumables, policy);
+
+    bool TryStartQuestCore(
+        QuestMasterData def,
+        AdventurerData?[] formation,
+        int currentTurn,
+        out string error,
+        IReadOnlyList<ConsumableUse> carriedConsumables,
+        ExpeditionPolicy policy)
     {
         error = "";
         var members = formation.Where(a => a != null).ToArray();
@@ -119,12 +146,21 @@ public class QuestManager
             if (!a.isAlive) { error = $"{a.name} は死亡しています"; return false; }
             if (IsAdventurerBusy(a.id)) { error = $"{a.name} は別のクエストに出発中です"; return false; }
         }
-        foreach (var group in (carriedConsumables ?? Array.Empty<ConsumableMasterData>()).GroupBy(x => x))
+        foreach (var group in carriedConsumables.GroupBy(x => x.item))
             if (guild.GetConsumableCount(group.Key) < group.Count())
             {
                 error = $"消費アイテムが不足しています: {group.Key.displayName}";
                 return false;
             }
+        foreach (var use in carriedConsumables)
+        {
+            if (!use.item.RequiresTarget) continue;
+            if (use.target == null || !members.Contains(use.target))
+            {
+                error = $"{use.item.displayName}の対象が編成メンバーから選ばれていません";
+                return false;
+            }
+        }
 
         var run = new QuestRun(def, currentTurn);
         run.policy = policy;
@@ -143,15 +179,16 @@ public class QuestManager
 
         // 士気の上限は編成の san 合計（＝mental の高さ）。粘り強さは編成で決まる。
         run.morale = new MoraleState(perMember.Sum(x => x.stats.san));
-        foreach (var item in carriedConsumables ?? Array.Empty<ConsumableMasterData>())
+        foreach (var use in carriedConsumables)
         {
-            if (!guild.TryConsumeConsumable(item))
+            if (!guild.TryConsumeConsumable(use.item))
             {
-                error = $"消費アイテムを消費できませんでした: {item.displayName}";
+                error = $"消費アイテムを消費できませんでした: {use.item.displayName}";
                 return false;
             }
-            run.ApplyConsumable(item);
-            run.logs.Add($"[出発準備] {item.displayName}: {item.description}");
+            run.ApplyConsumable(use.item, use.target);
+            string target = use.target == null ? "" : $"（対象: {use.target.name}）";
+            run.logs.Add($"[出発準備] {use.item.displayName}{target}: {use.item.description}");
         }
         run.AddReportEvent(
             currentTurn,
@@ -533,6 +570,25 @@ public class QuestManager
                 "撤退",
                 "生存者は任務の続行を断念し、ギルドへ帰還した。",
                 important: true);
+        }
+
+        // 戦闘不能は即死ではない。帰還時に、任務の壊滅状況と医療院の効果を踏まえて
+        // 死亡または治療可能な負傷へ確定する。
+        int injuryReportTurn = q.reportEvents.LastOrDefault()?.turn ?? q.startedTurn;
+        foreach (var a in q.EnumerateMembers().Where(a => a.isAlive && a.isIncapacitated))
+        {
+            var trauma = a.ResolvePendingTrauma(
+                partyWiped: q.failed,
+                fatalityReductionPercent: FacilitySystem.GetFatalityReductionPercent());
+            q.logs.Add($"[帰還処理] {trauma.Message}");
+            q.AddReportEvent(
+                injuryReportTurn,
+                q.currentPhase,
+                ExpeditionEventKind.Injury,
+                trauma.Died ? "死亡確認" : "負傷者帰還",
+                trauma.Message,
+                important: true,
+                actorName: a.name);
         }
 
         string expeditionResult = q.completed ? "成功" : q.retreated ? "撤退" : "失敗";
