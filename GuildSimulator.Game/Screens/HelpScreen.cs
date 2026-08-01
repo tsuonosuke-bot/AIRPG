@@ -75,7 +75,8 @@ public static class HelpScreen
         Ui.BeginScreen();
         Ui.Header("ギルド運営");
         Ui.WriteLine("  ・資金（Gold）    : クエスト報酬や目標数を超えた採取物の買取で得る。毎ターン維持費が引かれる。");
-        Ui.WriteLine($"  ・維持費          : ギルド基本{GuildManager.GuildBaseUpkeepGoldPerTurn}G＋所属冒険者のレベル合計＋建設済み施設に応じた毎ターンの固定支出。");
+        Ui.WriteLine($"  ・維持費          : ギルド基本{GuildManager.GuildBaseUpkeepGoldPerTurn}G＋所属冒険者のレベル合計×{GuildManager.UpkeepGoldPerLevel}G＋建設済み施設に応じた毎ターンの固定支出。");
+        Ui.WriteLine("                      遺物の効果でこの合計にさらに倍率がかかることがある（実際に引かれる額が実効維持費）。");
         Ui.WriteLine("  ・ギルドポイント  : クエストクリアで得る昇格試験の解禁ポイント。撤退では入らない。");
         Ui.WriteLine("  ・ギルドランク    : 昇格試験（緊急クエスト）に正規クリアすると上がる。");
         Ui.WriteLine("                      ランクが上がると受注できるクエストの幅が広がる。");
@@ -83,7 +84,8 @@ public static class HelpScreen
         Ui.WriteLine("                      冒険者・クエスト・ギルドのランクはすべてこの同じ物差しで比べる。");
         Ui.WriteLine($"                      掲示されるのは「クエストランク ≦ ギルドランク」のものだけ。");
         Ui.WriteLine("  ・施設            : ゴールドで建設するギルドの恒常強化。建設後は維持費が増える代わりに、");
-        Ui.WriteLine("                      クエスト掲示枠・商店品揃え・休息回復量・成長率のいずれかを高め続ける。");
+        Ui.WriteLine("                      クエスト掲示枠・商店品揃え・休息回復量・成長率・求人候補の最低人数・");
+        Ui.WriteLine("                      負傷回復（回復量/死亡率/傷痕発生率の軽減）のいずれかを高め続ける。");
         await Ui.PauseAsync();
     }
 
@@ -95,6 +97,8 @@ public static class HelpScreen
         Ui.WriteLine($"  ・クエストランク  : {Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。ギルドランク以下のものだけが掲示される。");
         Ui.WriteLine("                      冒険者ランクと突き合わせて「適正ランク」かどうかも決まり、");
         Ui.WriteLine("                      適正ランクを正規クリアするとクラス習熟度が増える（ヘルプ8を参照）。");
+        Ui.WriteLine("  ・掲示期限        : 受注されなかったクエストは掲示から一定ターンで掲示板から消える。");
+        Ui.WriteLine("                      残りターン数はクエストボードの各クエストに表示される。");
         Ui.WriteLine("  ・緊急クエスト    : 通常枠とは別枠に掲示される特別なクエスト。昇格試験もこれに含まれる。");
         Ui.WriteLine("  ・昇格試験        : 必要ギルドポイントを満たすと出現する一度きりのクエスト。");
         Ui.WriteLine("                      クリアするとギルドランクが上がる（撤退・全滅ではランクは上がらない）。");
@@ -131,6 +135,7 @@ public static class HelpScreen
         Ui.WriteLine("  ・回復            : 治療用の武器を持つ者は、味方のHPが7割を切ると攻撃の代わりに手当てをする。");
         Ui.WriteLine($"                      回復量は回復値×{BattleResolver.HEAL_SCALE:0.#}（1d20の出目20ならさらに×{BattleResolver.HEAL_CRIT_SCALE:0.#}、出目1は失敗）。");
         Ui.WriteLine("  ・状態異常        : 毒・出血・火傷はラウンド冒頭に継続ダメージ、凍結は次の行動を失う。");
+        Ui.WriteLine("                      火傷は継続ダメージに加えてAV/mAVも下げる。");
         Ui.WriteLine("                      獣の牙=出血、炎=火傷、闇=毒、水=凍結の付与機会を持つ。戦闘終了時に解除される。");
         Ui.WriteLine("  ・一時バフ        : 土の武器は守勢（AV/mAV/DV）、風は攻勢（PV/mPV/命中）、光の治療は再生を与える。");
         Ui.WriteLine("                      バフも戦闘終了時に解除され、同じ効果は重複せず強い値と長い残り時間で更新される。");
@@ -253,7 +258,7 @@ public static class HelpScreen
         Ui.WriteLine("     AV ＝ SIZのmodifier ＋ 防具のAV補正 ＋ スキル・遺物（mAVはMENのmodifierから同様に）");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 積載と過積載");
-        Ui.WriteLine("     積載上限 ＝ SIZ ＋ (STR＋VIT)÷2。装備の重さの合計がこれを超えると過積載になる。");
+        Ui.WriteLine("     積載上限 ＝ SIZ ＋ (STR＋VIT)÷2 ＋ スキルによる積載補正。装備の重さの合計がこれを超えると過積載になる。");
         Ui.WriteLine($"     ・上限を1超えるごとに過積載率が{AdventurerData.OVERWEIGHT_RATE_PER_POINT * 100:0}%増える（最大100%）。");
         Ui.WriteLine($"     ・過積載率に比例して DV最大-{overweightDv}、命中最大-{overweightToHit}。AVは担いでいるぶんそのまま効くので削られない。");
         Ui.WriteLine("     ・重い鎧を着せるなら、SIZとSTRの高い者に。");
