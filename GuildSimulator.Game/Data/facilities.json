@@ -57,7 +57,7 @@
   {
     "id": "fac_training_hall_01",
     "displayName": "訓練所",
-    "description": "冒険者のレベルアップ時の能力成長率を高める。",
+    "description": "冒険者のレベルアップ時の能力成長率を高める。建設するとクラスチェンジも解禁される。",
     "buildCostGold": 500,
     "upkeepGoldPerTurn": 18,
     "requiredGuildRank": 2,

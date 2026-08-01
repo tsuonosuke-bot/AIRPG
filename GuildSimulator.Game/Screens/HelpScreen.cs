@@ -84,6 +84,7 @@ public static class HelpScreen
         Ui.WriteLine($"                      掲示されるのは「クエストランク ≦ ギルドランク」のものだけ。");
         Ui.WriteLine("  ・施設            : ゴールドで建設するギルドの恒常強化。建設後は維持費が増える代わりに、");
         Ui.WriteLine("                      クエスト掲示枠・商店品揃え・休息回復量・成長率のいずれかを高め続ける。");
+        Ui.WriteLine("                      訓練所は冒険者のクラスチェンジも解禁する（詳細は「職業とマスタリー」）。");
         await Ui.PauseAsync();
     }
 
@@ -441,7 +442,10 @@ public static class HelpScreen
         Ui.WriteLine("     ・現在の習熟度は冒険者一覧の人物詳細で確認できる。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ クラスチェンジ");
-        Ui.WriteLine($"     冒険者一覧から「レベル×{AdventurerScreen.ClassChangeCostPerLevel}G」で変更できる。就ける職業は種族によって決まる。");
+        string ccFacilityName = db.facilities.TryGetValue(AdventurerScreen.ClassChangeFacilityId, out var ccFacility)
+            ? ccFacility.displayName : AdventurerScreen.ClassChangeFacilityId;
+        Ui.WriteLine($"     「{ccFacilityName}」を建設すると解禁される。それまでは冒険者一覧にクラスチェンジの選択肢が出ない。");
+        Ui.WriteLine($"     解禁後は冒険者一覧から「レベル×{AdventurerScreen.ClassChangeCostPerLevel}G」で変更できる。就ける職業は種族によって決まる。");
         Ui.WriteLine("     変更した時点で、必要習熟度0のスキルと、すでに満たしている条件のスキルが手に入る。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 職業とスキル一覧（左端は解禁に必要な習熟度）");

@@ -13,7 +13,16 @@ public static class AdventurerScreen
 {
     public const int ClassChangeCostPerLevel = 10;
 
+    /// <summary>クラスチェンジの解禁に必要な施設。建設するまでは職業を選び直せない。</summary>
+    public const string ClassChangeFacilityId = "fac_training_hall_01";
+
     public static int CalculateClassChangeCost(int level) => Math.Max(1, level) * ClassChangeCostPerLevel;
+
+    public static bool IsClassChangeUnlocked(GuildManager guild) =>
+        guild.facilities.Any(f => f.id == ClassChangeFacilityId);
+
+    static string ClassChangeFacilityName(GameMasterData db) =>
+        db.facilities.TryGetValue(ClassChangeFacilityId, out var f) ? f.displayName : ClassChangeFacilityId;
 
     public static async Task ShowAsync(GameMasterData db, GuildManager guild, QuestManager? questManager = null, int currentTurn = 0)
     {
@@ -107,8 +116,16 @@ public static class AdventurerScreen
             else
             {
                 options.Add(new MenuOption("e", "装備を変更する"));
-                int ccCost = CalculateClassChangeCost(a.level);
-                options.Add(new MenuOption("c", $"クラスチェンジ（{ccCost}G）"));
+                bool classChangeUnlocked = IsClassChangeUnlocked(guild);
+                if (classChangeUnlocked)
+                {
+                    int ccCost = CalculateClassChangeCost(a.level);
+                    options.Add(new MenuOption("c", $"クラスチェンジ（{ccCost}G）"));
+                }
+                else
+                {
+                    Ui.Dim($"  （クラスチェンジは「{ClassChangeFacilityName(db)}」の建設で解禁されます）");
+                }
             }
             if (!a.isAlive && !busy)
             {
@@ -119,7 +136,7 @@ public static class AdventurerScreen
 
             string input = await Ui.SelectAsync("選択", options);
             if (input == "e" && a.isAlive && !busy) { await ManageEquipmentAsync(a, guild); continue; }
-            if (input == "c" && a.isAlive && !busy) { await ChangeClassAsync(a, guild, db); continue; }
+            if (input == "c" && a.isAlive && !busy && IsClassChangeUnlocked(guild)) { await ChangeClassAsync(a, guild, db); continue; }
             if (input == "d" && !a.isAlive && !busy)
             {
                 if (await BuryAdventurerAsync(a, guild, currentTurn)) return;
@@ -203,6 +220,13 @@ public static class AdventurerScreen
 
     static async Task ChangeClassAsync(AdventurerData a, GuildManager guild, GameMasterData db)
     {
+        if (!IsClassChangeUnlocked(guild))
+        {
+            Ui.Error($"クラスチェンジには「{ClassChangeFacilityName(db)}」の建設が必要です");
+            await Ui.PauseAsync();
+            return;
+        }
+
         Ui.BeginScreen();
         Ui.Header($"クラスチェンジ: {a.name}");
         Ui.WriteLine($"  現在のクラス: {a.currentClass?.className ?? "なし"}");
