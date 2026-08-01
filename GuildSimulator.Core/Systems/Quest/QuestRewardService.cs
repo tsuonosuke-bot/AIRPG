@@ -49,6 +49,7 @@ public class QuestRewardService
         var contents = new List<RewardEntryData>();
         foreach (var entry in q.def.bossDrops)
         {
+            if (RelicSystem.IsFrozenRelicReward(entry)) continue;
             if (!q.def.bossDropsAreGuaranteed
                 && (entry.chance <= 0f || GameRandom.NextFloat() >= entry.chance)) continue;
             contents.Add(entry.Copy());
@@ -58,6 +59,8 @@ public class QuestRewardService
 
     // 道中の宝箱はダンジョンの宝箱テーブルから1件。一定確率で空っぽ。
     // 所持済みの遺物は開けても捨てるだけなので抽選から外す。
+    // 遺物システムの凍結中は遺物エントリを丸ごと除外し、残りの中身で抽選し直す
+    // （重みの合計を取り直すので、他の中身の出やすさの比率は変わらない）。
     static List<RewardEntryData> RollDungeonChest(
         QuestRun q, GuildManager guild, bool skipEmptyRoll = false)
     {
@@ -67,7 +70,9 @@ public class QuestRewardService
         if (table == null) return new();
 
         var candidates = table
-            .Where(e => e.weight > 0 && !IsOwnedRelic(e, guild))
+            .Where(e => e.weight > 0
+                && !RelicSystem.IsFrozenRelicReward(e)
+                && !IsOwnedRelic(e, guild))
             .ToList();
 
         int total = 0;
@@ -148,7 +153,8 @@ public class QuestRewardService
                     q.logs.Add($"{prefix} 戦利品 資金 +{e.gold}G");
                     break;
                 case RewardType.Relic:
-                    if (e.Relic == null) break;
+                    // 凍結前のセーブに積まれたままの遺物は、黙って無かったことにする。
+                    if (RelicSystem.IsFrozenRelicReward(e) || e.Relic == null) break;
                     if (guild.relics.Contains(e.Relic))
                         q.logs.Add($"{prefix} 戦利品 遺物「{e.Relic.relicName}」は所持済みのため見送り");
                     else { guild.AddRelic(e.Relic, q.def.questName); q.logs.Add($"{prefix} 戦利品 遺物入手: {e.Relic.relicName}"); }

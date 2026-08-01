@@ -20,6 +20,10 @@ public class SaveLoadTests
     [Fact]
     public void SaveThenLoadRestoresGuildAdventurersAndActiveQuest()
     {
+        // 遺物は凍結中でもセーブ形式ごと残す（復活時に所持記録をそのまま使える）。
+        // 所持させるには入手経路が要るので、このテストの間だけ有効化する。
+        using var relicsEnabled = new RelicFeatureScope();
+
         var db = LoadDb();
         var guild = new GuildManager(startGold: 200, startRank: 1);
         var questManager = new QuestManager(guild);

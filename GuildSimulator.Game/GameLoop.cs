@@ -60,12 +60,15 @@ public static class GameLoop
             Ui.WriteLine($"  冒険者: {guild.adventurers.Count}人"
                 + (injuredCount > 0 ? $"（負傷 {injuredCount}人）" : "")
                 + $"   進行中クエスト: {questManager.activeQuests.Count}件");
-            Ui.WriteLine($"  遺物: {guild.relics.Count}個   施設: {guild.facilities.Count}件   雇入れ候補: {recruitCandidates.Count}人");
+            // 遺物システムの凍結中は所持数の行ごと出さない（復活すれば自動で戻る）。
+            Ui.WriteLine(
+                (GameFeatures.RelicsEnabled ? $"  遺物: {guild.relics.Count}個   施設" : "  施設")
+                + $": {guild.facilities.Count}件   雇入れ候補: {recruitCandidates.Count}人");
             ShowPromotionProgress(db.allQuests, guild, questManager);
             ShowEconomyForecast(guild, upkeepPerTurn);
             Ui.WriteLine();
 
-            string input = await Ui.SelectAsync("選択", new[]
+            var menu = new List<MenuOption>
             {
                 new MenuOption("1", "クエストボード", Group: "クエスト"),
                 new MenuOption("2", "進行中クエスト", Group: "クエスト"),
@@ -73,7 +76,12 @@ public static class GameLoop
                 new MenuOption("4", "雇う", Group: "冒険者"),
                 new MenuOption("5", "倉庫", Group: "ギルド資産"),
                 new MenuOption("6", "商店", Group: "ギルド資産"),
-                new MenuOption("7", "遺物一覧", Group: "ギルド資産"),
+            };
+            // 凍結中は遺物一覧そのものを出さない。同じグループの並びは崩さない。
+            if (GameFeatures.RelicsEnabled)
+                menu.Add(new MenuOption("7", "遺物一覧", Group: "ギルド資産"));
+            menu.AddRange(new[]
+            {
                 new MenuOption("F", "施設", Group: "ギルド資産"),
                 new MenuOption("8", "経済ログ", Group: "ギルド管理"),
                 new MenuOption("B", "埋葬記録", Group: "ギルド管理"),
@@ -87,6 +95,8 @@ public static class GameLoop
                 new MenuOption("L", "ロードする", Group: "セーブデータ"),
             });
 
+            string input = await Ui.SelectAsync("選択", menu);
+
             switch (input.Trim().ToUpperInvariant())
             {
                 case "1": await QuestBoardScreen.ShowAsync(questManager, guild, currentTurn); break;
@@ -98,7 +108,9 @@ public static class GameLoop
                     break;
                 case "5": await InventoryScreen.ShowAsync(guild); break;
                 case "6": await ShopScreen.ShowAsync(db, guild, currentTurn); break;
-                case "7": await RelicScreen.ShowAsync(guild); break;
+                case "7":
+                    if (GameFeatures.RelicsEnabled) await RelicScreen.ShowAsync(guild);
+                    break;
                 case "F": await FacilityScreen.ShowAsync(db, guild); break;
                 case "8": await ShowEconomyLogAsync(guild); break;
                 case "B": await BurialScreen.ShowAsync(guild); break;
