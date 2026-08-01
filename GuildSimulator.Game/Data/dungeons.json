@@ -284,7 +284,8 @@
       "event_abandoned_camp",
       "event_forked_path",
       "event_mysterious_shrine",
-      "event_looted_caravan"
+      "event_looted_caravan",
+      "ev_old_swordsman"
     ]
   },
   {
@@ -554,7 +555,8 @@
       "event_forked_path",
       "event_mysterious_shrine",
       "event_collapsed_vault",
-      "event_hidden_cache"
+      "event_hidden_cache",
+      "ev_ancient_altar"
     ]
   },
   {
@@ -701,7 +703,9 @@
       "event_mysterious_shrine",
       "event_forked_path",
       "event_collapsed_vault",
-      "event_hidden_cache"
+      "event_hidden_cache",
+      "ev_ancient_altar",
+      "ev_cursed_spring"
     ]
   },
   {
@@ -807,7 +811,9 @@
       "event_forked_path",
       "event_mysterious_shrine",
       "event_looted_caravan",
-      "event_hidden_cache"
+      "event_hidden_cache",
+      "ev_old_swordsman",
+      "ev_ancient_altar"
     ]
   },
   {
@@ -895,7 +901,9 @@
       "event_forked_path",
       "event_mysterious_shrine",
       "event_collapsed_vault",
-      "event_hidden_cache"
+      "event_hidden_cache",
+      "ev_ancient_altar",
+      "ev_cursed_spring"
     ]
   }
 ]

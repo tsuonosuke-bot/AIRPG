@@ -319,6 +319,34 @@ public class AdventurerData : IUnitMember
     /// <summary>全能力に共通の下駄。得意でない能力もときどき伸びるようにするための底上げ。</summary>
     public const float BaseGrowthWeight = 0.2f;
 
+    /// <summary>能力値の下限。0以下になると modifier が壊れるので、削られても1では止める。</summary>
+    public const int MinStatValue = 1;
+
+    /// <summary>
+    /// 能力を恒久的に増減させる。クエスト中の出来事（祭壇・呪い・鍛錬など）から呼ぶ。
+    /// レベルアップの成長を絞ったぶん、ここで生まれる差がキャラクターの個性になる。
+    /// 実際に動いた量を返す（下限で止まったときは0や部分適用になる）。
+    /// </summary>
+    public int AdjustStatPermanently(StatType type, int amount)
+    {
+        if (amount == 0) return 0;
+        ref int stat = ref vitality;
+        switch (type)
+        {
+            case StatType.Vitality: stat = ref vitality; break;
+            case StatType.Mental: stat = ref mental; break;
+            case StatType.Strength: stat = ref strength; break;
+            case StatType.Agility: stat = ref agility; break;
+            case StatType.Intelligence: stat = ref intelligence; break;
+            case StatType.Constitution: stat = ref constitution; break;
+            default: return 0;
+        }
+
+        int before = stat;
+        stat = Math.Max(MinStatValue, stat + amount);
+        return stat - before;
+    }
+
     float GetRaceGrowth(StatType t) => race == null ? 0f : t switch
     {
         StatType.Vitality => race.vitGrowth,

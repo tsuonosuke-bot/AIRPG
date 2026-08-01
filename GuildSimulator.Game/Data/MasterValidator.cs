@@ -111,6 +111,35 @@ public static class MasterValidator
                 errors.Add($"{enemy.id}: drop chanceは0より大きく1以下にしてください");
         }
 
+        foreach (var ev in db.choiceEvents.Values)
+        foreach (var option in ev.options)
+        {
+            // 結果テーブルの重みが全部0だと抽選できず、常に先頭の結果になってしまう。
+            if (option.outcomes.Count > 0 && option.outcomes.Sum(o => Math.Max(0, o.weight)) <= 0)
+                errors.Add($"{ev.id}: 選択肢「{option.text}」の結果テーブルの重みが全て0です");
+
+            foreach (var outcome in option.Outcomes)
+            {
+                bool needsMember = outcome.effectType is
+                    QuestChoiceEffectType.AdventurerStatUp or QuestChoiceEffectType.AdventurerStatDown
+                    or QuestChoiceEffectType.AdventurerSkill or QuestChoiceEffectType.AdventurerDamage;
+                if (needsMember && !option.targetsOneMember)
+                    errors.Add($"{ev.id}: 選択肢「{option.text}」は隊員1人に効く効果"
+                        + $"（{outcome.effectType}）を持つので targetsOneMember を true にしてください");
+
+                if (outcome.effectType == QuestChoiceEffectType.AdventurerSkill && outcome.Skill == null)
+                    errors.Add($"{ev.id}: 選択肢「{option.text}」のスキル付与で"
+                        + $"不明なskillId '{outcome.targetId}' が指定されています");
+
+                if (outcome.effectType is QuestChoiceEffectType.AdventurerStatUp
+                        or QuestChoiceEffectType.AdventurerStatDown
+                    && !string.IsNullOrEmpty(outcome.targetId)
+                    && !Enum.TryParse<StatType>(outcome.targetId, ignoreCase: true, out _))
+                    errors.Add($"{ev.id}: 選択肢「{option.text}」の能力指定 '{outcome.targetId}' が不明です"
+                        + "（空にするとランダム）");
+            }
+        }
+
         foreach (var dungeon in db.dungeons.Values)
         {
             if (dungeon.turnEndEvents.Any(e => e.options.Count < 2))

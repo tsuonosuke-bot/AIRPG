@@ -211,6 +211,13 @@ public class QuestManager
     }
 
     public bool ResolveChoice(QuestRun q, int optionIndex, out string result)
+        => ResolveChoice(q, optionIndex, null, out result);
+
+    /// <summary>
+    /// 選択肢を解決する。targetsOneMember の選択肢では target に対象を渡す。
+    /// 結果テーブルを持つ選択肢は、ここで初めて抽選される（＝対象を決めてから振る）。
+    /// </summary>
+    public bool ResolveChoice(QuestRun q, int optionIndex, AdventurerData? target, out string result)
     {
         result = "";
         var pending = q.pendingChoice;
@@ -222,11 +229,21 @@ public class QuestManager
         }
 
         var option = pending.Event.options[optionIndex];
+        if (option.targetsOneMember)
+        {
+            if (target == null || !target.isAlive || !q.EnumerateMembers().Contains(target))
+            {
+                result = "この選択には、生存している隊員を1人指定してください";
+                return false;
+            }
+        }
+
+        var outcome = PickOutcome(option);
         string detail = "";
-        switch (option.effectType)
+        switch (outcome.effectType)
         {
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Morale:
-                int moraleChange = option.value >= 0 ? q.morale.Restore(option.value) : -q.morale.Drain(-option.value);
+                int moraleChange = outcome.value >= 0 ? q.morale.Restore(outcome.value) : -q.morale.Drain(-outcome.value);
                 detail = $"パーティ士気 {(moraleChange >= 0 ? "+" : "")}{moraleChange}（{q.morale.Current}/{q.morale.Max}）";
                 break;
             case GuildSimulator.Core.Models.QuestChoiceEffectType.HealPercent:
@@ -236,7 +253,7 @@ public class QuestManager
                 {
                     int before = a.CombatHp;
                     a.CombatHp = Math.Min(a.CombatHpMax,
-                        a.CombatHp + (int)Math.Ceiling(a.CombatHpMax * option.value / 100f));
+                        a.CombatHp + (int)Math.Ceiling(a.CombatHpMax * outcome.value / 100f));
                     int healed = a.CombatHp - before;
                     if (healed > 0) changes.Add($"{a.name} HP+{healed}");
                 }
@@ -250,7 +267,7 @@ public class QuestManager
                 {
                     int before = a.CombatHp;
                     a.CombatHp = Math.Max(1,
-                        a.CombatHp - (int)Math.Ceiling(a.CombatHpMax * option.value / 100f));
+                        a.CombatHp - (int)Math.Ceiling(a.CombatHpMax * outcome.value / 100f));
                     int lost = before - a.CombatHp;
                     if (lost > 0) changes.Add($"{a.name} HP-{lost}");
                 }
@@ -263,8 +280,8 @@ public class QuestManager
                 foreach (var a in q.EnumerateMembers().Where(a => a.isAlive))
                 {
                     int levelBefore = a.level;
-                    a.AddExperience(option.value, out int levelUps);
-                    changes.Add($"{a.name} 経験値+{option.value}"
+                    a.AddExperience(outcome.value, out int levelUps);
+                    changes.Add($"{a.name} 経験値+{outcome.value}"
                         + (levelUps > 0 ? $"（レベルアップ {levelBefore}lv→{a.level}lv）" : ""));
                 }
                 detail = string.Join("、", changes);
@@ -273,39 +290,39 @@ public class QuestManager
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Gold:
                 q.pendingLoot.Add(new RewardEntryData
                 {
-                    type = GuildSimulator.Core.Models.RewardType.Gold, gold = option.value, quantity = 1,
+                    type = GuildSimulator.Core.Models.RewardType.Gold, gold = outcome.value, quantity = 1,
                 });
-                detail = $"ゴールド+{option.value}（帰還時に加算）";
+                detail = $"ゴールド+{outcome.value}（帰還時に加算）";
                 break;
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Equipment:
-                if (option.Equipment != null)
+                if (outcome.Equipment != null)
                 {
-                    int qty = Math.Max(1, option.value);
+                    int qty = Math.Max(1, outcome.value);
                     q.pendingLoot.Add(new RewardEntryData
                     {
                         type = GuildSimulator.Core.Models.RewardType.Equipment,
-                        Equipment = option.Equipment, equipmentId = option.Equipment.id,
+                        Equipment = outcome.Equipment, equipmentId = outcome.Equipment.id,
                         quantity = qty,
                     });
-                    detail = $"装備「{option.Equipment.displayName}」x{qty} 入手（帰還時に加算）";
+                    detail = $"装備「{outcome.Equipment.displayName}」x{qty} 入手（帰還時に加算）";
                 }
                 break;
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Consumable:
-                if (option.Consumable != null)
+                if (outcome.Consumable != null)
                 {
-                    int qty = Math.Max(1, option.value);
+                    int qty = Math.Max(1, outcome.value);
                     q.pendingLoot.Add(new RewardEntryData
                     {
                         type = GuildSimulator.Core.Models.RewardType.Consumable,
-                        Consumable = option.Consumable, consumableId = option.Consumable.id,
+                        Consumable = outcome.Consumable, consumableId = outcome.Consumable.id,
                         quantity = qty,
                     });
-                    detail = $"消費アイテム「{option.Consumable.displayName}」x{qty} 入手（帰還時に加算）";
+                    detail = $"消費アイテム「{outcome.Consumable.displayName}」x{qty} 入手（帰還時に加算）";
                 }
                 break;
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Treasure:
             {
-                int count = Math.Max(1, option.value);
+                int count = Math.Max(1, outcome.value);
                 for (int i = 0; i < count; i++)
                     q.chests.Add(new TreasureChest
                     {
@@ -315,7 +332,41 @@ public class QuestManager
                 detail = $"宝箱 x{count} を持ち帰った（帰還後に開封）";
                 break;
             }
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.AdventurerStatUp:
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.AdventurerStatDown:
+            {
+                bool up = outcome.effectType
+                    == GuildSimulator.Core.Models.QuestChoiceEffectType.AdventurerStatUp;
+                int amount = Math.Max(1, outcome.value) * (up ? 1 : -1);
+                var stat = ResolveStatType(outcome.targetId);
+                int applied = target!.AdjustStatPermanently(stat, amount);
+                detail = applied == 0
+                    ? $"{target.name} は何も変わらなかった"
+                    : $"{target.name} の{StatDisplayName(stat)} {applied:+#;-#;0}（恒久）";
+                break;
+            }
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.AdventurerSkill:
+            {
+                if (outcome.Skill == null) { detail = "何も起こらなかった"; break; }
+                detail = target!.LearnPermanentSkill(outcome.Skill)
+                    ? $"{target.name} がスキル「{outcome.Skill.skillName}」を習得"
+                    : $"{target.name} はすでに「{outcome.Skill.skillName}」を身につけていた";
+                break;
+            }
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.AdventurerDamage:
+            {
+                int before = target!.CombatHp;
+                target.CombatHp = Math.Max(1,
+                    target.CombatHp - (int)Math.Ceiling(target.CombatHpMax * Math.Max(0, outcome.value) / 100f));
+                int lost = before - target.CombatHp;
+                detail = lost > 0 ? $"{target.name} HP-{lost}" : $"{target.name} は無傷だった";
+                break;
+            }
         }
+
+        // 結果テーブルを引いた選択肢は、どれを引いたかの一文を先に見せる。
+        if (outcome.resultText.Length > 0)
+            detail = detail.Length > 0 ? $"{outcome.resultText}\n  → {detail}" : outcome.resultText;
         result = detail.Length > 0 ? $"{option.resultText}\n  → {detail}" : option.resultText;
         q.logs.Add($"[選択] {option.text} - {option.resultText}" + (detail.Length > 0 ? $" ({detail})" : ""));
         q.AddReportEvent(
@@ -328,6 +379,47 @@ public class QuestManager
         q.pendingChoice = null;
         return true;
     }
+
+    /// <summary>結果テーブルから1件を重み付きで引く。表が無い選択肢は選択肢自身が1件になる。</summary>
+    static QuestChoiceOutcome PickOutcome(QuestChoiceOptionData option)
+    {
+        var outcomes = option.Outcomes;
+        if (outcomes.Count == 1) return outcomes[0];
+
+        int total = outcomes.Sum(o => Math.Max(0, o.weight));
+        if (total <= 0) return outcomes[0];
+
+        int roll = GameRandom.Range(0, total);
+        foreach (var o in outcomes)
+        {
+            roll -= Math.Max(0, o.weight);
+            if (roll < 0) return o;
+        }
+        return outcomes[^1];
+    }
+
+    /// <summary>targetIdから能力を決める。空や不明ならランダムに選ぶ。</summary>
+    static GuildSimulator.Core.Models.StatType ResolveStatType(string targetId)
+    {
+        if (!string.IsNullOrWhiteSpace(targetId)
+            && Enum.TryParse<GuildSimulator.Core.Models.StatType>(targetId, ignoreCase: true, out var parsed)
+            && AdventurerData.GrowableStats.Contains(parsed))
+            return parsed;
+
+        var pool = AdventurerData.GrowableStats;
+        return pool[GameRandom.Range(0, pool.Count)];
+    }
+
+    public static string StatDisplayName(GuildSimulator.Core.Models.StatType t) => t switch
+    {
+        GuildSimulator.Core.Models.StatType.Vitality => "体力",
+        GuildSimulator.Core.Models.StatType.Mental => "精神力",
+        GuildSimulator.Core.Models.StatType.Strength => "筋力",
+        GuildSimulator.Core.Models.StatType.Agility => "敏捷",
+        GuildSimulator.Core.Models.StatType.Intelligence => "知力",
+        GuildSimulator.Core.Models.StatType.Constitution => "体格",
+        _ => t.ToString(),
+    };
 
     public void FinalizeQuest(QuestRun q)
     {

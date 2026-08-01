@@ -41,6 +41,20 @@ public enum QuestChoiceEffectType
     Consumable,
     /// <summary>ダンジョンの宝箱テーブルから value 個ぶん抽選する。</summary>
     Treasure,
+
+    // ここから下は「対象を1人選ぶ」効果。列挙順はJSONの数値そのものなので末尾に足すこと。
+
+    /// <summary>選んだ1人の能力を恒久的に上げる。targetIdで能力を指定、空ならランダム。</summary>
+    AdventurerStatUp,
+
+    /// <summary>選んだ1人の能力を恒久的に下げる。下限は1。</summary>
+    AdventurerStatDown,
+
+    /// <summary>選んだ1人に targetId のスキルを習得させる。</summary>
+    AdventurerSkill,
+
+    /// <summary>選んだ1人に最大HPの value% のダメージ。1未満にはならない。</summary>
+    AdventurerDamage,
 }
 
 /// <summary>ギルドマスターが出発前に与える遠征の優先方針。</summary>

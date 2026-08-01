@@ -192,13 +192,28 @@ public static class MasterLoader
                 {
                     text = option.text, resultText = option.resultText ?? "",
                     effectType = option.effectType, value = option.value, targetId = option.targetId ?? "",
+                    targetsOneMember = option.targetsOneMember,
                 };
-                if (resolvedOption.effectType == QuestChoiceEffectType.Equipment
-                    && db.equipment.TryGetValue(resolvedOption.targetId, out var choiceEquipment))
-                    resolvedOption.Equipment = choiceEquipment;
-                if (resolvedOption.effectType == QuestChoiceEffectType.Consumable
-                    && db.consumables.TryGetValue(resolvedOption.targetId, out var choiceConsumable))
-                    resolvedOption.Consumable = choiceConsumable;
+                ResolveChoiceRefs(resolvedOption.effectType, resolvedOption.targetId, db,
+                    out var optEquip, out var optItem, out var optSkill);
+                resolvedOption.Equipment = optEquip;
+                resolvedOption.Consumable = optItem;
+
+                foreach (var oc in option.outcomes ?? new())
+                {
+                    var outcome = new QuestChoiceOutcome
+                    {
+                        weight = Math.Max(0, oc.weight), effectType = oc.effectType,
+                        value = oc.value, targetId = oc.targetId ?? "",
+                        resultText = oc.resultText ?? "",
+                    };
+                    ResolveChoiceRefs(outcome.effectType, outcome.targetId, db,
+                        out var e2, out var c2, out var s2);
+                    outcome.Equipment = e2;
+                    outcome.Consumable = c2;
+                    outcome.Skill = s2;
+                    resolvedOption.outcomes.Add(outcome);
+                }
                 master.options.Add(resolvedOption);
             }
             db.choiceEvents[master.id] = master;
@@ -324,6 +339,30 @@ public static class MasterLoader
         return db;
     }
 
+    /// <summary>選択肢・結果の targetId が指す先を効果種別に応じて引き当てる。</summary>
+    static void ResolveChoiceRefs(
+        QuestChoiceEffectType type, string targetId, GameMasterData db,
+        out EquipmentMasterData? equipment, out ConsumableMasterData? consumable, out SkillMasterData? skill)
+    {
+        equipment = null;
+        consumable = null;
+        skill = null;
+        if (string.IsNullOrEmpty(targetId)) return;
+
+        switch (type)
+        {
+            case QuestChoiceEffectType.Equipment:
+                db.equipment.TryGetValue(targetId, out equipment);
+                break;
+            case QuestChoiceEffectType.Consumable:
+                db.consumables.TryGetValue(targetId, out consumable);
+                break;
+            case QuestChoiceEffectType.AdventurerSkill:
+                db.skills.TryGetValue(targetId, out skill);
+                break;
+        }
+    }
+
     static RewardEntryData ResolveRewardEntry(RewardEntryJson re, GameMasterData db)
     {
         var entry = new RewardEntryData
@@ -420,7 +459,10 @@ public static class MasterLoader
     record RewardEntryJson(int type, string? relicId, string? equipmentId, string? skillId,
         string? consumableId, int gold, int weight, float chance, int quantity, bool unique);
 
-    record ChoiceOptionJson(string text, string? resultText, QuestChoiceEffectType effectType, int value, string? targetId);
+    record ChoiceOutcomeJson(int weight, QuestChoiceEffectType effectType, int value,
+        string? targetId, string? resultText);
+    record ChoiceOptionJson(string text, string? resultText, QuestChoiceEffectType effectType, int value,
+        string? targetId, bool targetsOneMember = false, List<ChoiceOutcomeJson>? outcomes = null);
     record ChoiceEventJson(string id, string title, string? description, int weight, List<ChoiceOptionJson>? options);
 
     record EncounterEntryJson(string unitId, int weight, int minPhase, int maxPhase);
