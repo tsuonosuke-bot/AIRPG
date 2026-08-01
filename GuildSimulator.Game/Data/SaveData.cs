@@ -56,7 +56,7 @@ public class AdventurerSaveData
     public int experience;
     public bool isAlive = true;
     public int rank;
-    public int rankPoint;
+    public int higherRankClears;
     public string raceId = "";
     public string classId = "";
     public string weaponId = "";

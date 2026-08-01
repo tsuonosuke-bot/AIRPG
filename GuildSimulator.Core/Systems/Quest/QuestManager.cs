@@ -179,14 +179,14 @@ public class QuestManager
                 }
             }
 
-            // ランクポイント・昇格は正規クリアのみ。撤退では得られない。
+            // 習熟度・昇格は正規クリアのみ。撤退では得られない。
             if (q.IsCleared && !q.clearProgressApplied)
             {
                 q.clearProgressApplied = true;
                 foreach (var a in q.EnumerateMembers())
                 {
                     a.OnClearQuest(q.def.rank);
-                    a.AddRankPoints(a.CalcRankPointGain(q.def.rank), out _);
+                    a.RecordQuestClearForRank(q.def.rank, out _);
                 }
                 if (q.def.rankUpOnClear > 0)
                     guild.RankUp(q.def.rankUpOnClear, $"緊急クエスト完了: {q.def.questName}");

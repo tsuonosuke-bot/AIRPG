@@ -2,7 +2,6 @@
   {
     "id": "adv_0001",
     "baseName": "ナーバル",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 2,
@@ -33,7 +32,6 @@
   {
     "id": "adv_0002",
     "baseName": "ローラ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -62,7 +60,6 @@
   {
     "id": "adv_0003",
     "baseName": "リュウ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -91,7 +88,6 @@
   {
     "id": "adv_0004",
     "baseName": "エディ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -120,7 +116,6 @@
   {
     "id": "adv_0005",
     "baseName": "セラ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -149,7 +144,6 @@
   {
     "id": "adv_0006",
     "baseName": "ジェス",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -173,7 +167,6 @@
   {
     "id": "adv_0007",
     "baseName": "ケティ",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -197,7 +190,6 @@
   {
     "id": "adv_0008",
     "baseName": "カジ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -219,7 +211,6 @@
   {
     "id": "adv_0009",
     "baseName": "ヤジ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -241,7 +232,6 @@
   {
     "id": "adv_0010",
     "baseName": "ベーツ",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -265,7 +255,6 @@
   {
     "id": "adv_0011",
     "baseName": "ダイナ",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -289,7 +278,6 @@
   {
     "id": "adv_0012",
     "baseName": "マーク",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -311,7 +299,6 @@
   {
     "id": "adv_0013",
     "baseName": "ハンネス",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -333,7 +320,6 @@
   {
     "id": "adv_0014",
     "baseName": "ミラ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -355,7 +341,6 @@
   {
     "id": "adv_0015",
     "baseName": "トビ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -377,7 +362,6 @@
   {
     "id": "adv_0016",
     "baseName": "ニケ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -399,7 +383,6 @@
   {
     "id": "adv_0017",
     "baseName": "グラム",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -421,7 +404,6 @@
   {
     "id": "adv_0018",
     "baseName": "エルナ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -443,7 +425,6 @@
   {
     "id": "adv_0019",
     "baseName": "ポルカ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -465,7 +446,6 @@
   {
     "id": "adv_0020",
     "baseName": "サイラス",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -489,7 +469,6 @@
   {
     "id": "adv_0021",
     "baseName": "テオ",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -513,7 +492,6 @@
   {
     "id": "adv_0022",
     "baseName": "ボルグ",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -537,7 +515,6 @@
   {
     "id": "adv_0023",
     "baseName": "リノ",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -561,7 +538,6 @@
   {
     "id": "adv_0024",
     "baseName": "ガーランド",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -586,7 +562,6 @@
   {
     "id": "adv_0025",
     "baseName": "セリカ",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -611,7 +586,6 @@
   {
     "id": "adv_0026",
     "baseName": "ドルグ",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -636,7 +610,6 @@
   {
     "id": "adv_0027",
     "baseName": "アイナ",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -661,7 +634,6 @@
   {
     "id": "adv_0028",
     "baseName": "ヴァイス",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -686,7 +658,6 @@
   {
     "id": "adv_0029",
     "baseName": "ハスキル",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -711,7 +682,6 @@
   {
     "id": "adv_0030",
     "baseName": "モーガン",
-    "upkeepGold": 70,
     "defaultLevel": 7,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -736,7 +706,6 @@
   {
     "id": "adv_0031",
     "baseName": "ユキ",
-    "upkeepGold": 70,
     "defaultLevel": 7,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -761,7 +730,6 @@
   {
     "id": "adv_0032",
     "baseName": "バルドル",
-    "upkeepGold": 110,
     "defaultLevel": 10,
     "defaultRank": 3,
     "recruitGuildRank": 4,
@@ -787,7 +755,6 @@
   {
     "id": "adv_0033",
     "baseName": "レイフェル",
-    "upkeepGold": 110,
     "defaultLevel": 10,
     "defaultRank": 3,
     "recruitGuildRank": 4,
@@ -812,7 +779,6 @@
   {
     "id": "adv_0034",
     "baseName": "シグルド",
-    "upkeepGold": 110,
     "defaultLevel": 10,
     "defaultRank": 3,
     "recruitGuildRank": 4,
@@ -838,7 +804,6 @@
   {
     "id": "adv_0035",
     "baseName": "ノエル",
-    "upkeepGold": 110,
     "defaultLevel": 10,
     "defaultRank": 3,
     "recruitGuildRank": 4,
@@ -863,7 +828,6 @@
   {
     "id": "adv_0036",
     "baseName": "ザイド",
-    "upkeepGold": 120,
     "defaultLevel": 11,
     "defaultRank": 3,
     "recruitGuildRank": 4,
@@ -889,7 +853,6 @@
   {
     "id": "adv_0037",
     "baseName": "アルヴィス",
-    "upkeepGold": 170,
     "defaultLevel": 14,
     "defaultRank": 4,
     "recruitGuildRank": 4,
@@ -916,7 +879,6 @@
   {
     "id": "adv_0038",
     "baseName": "オルフェ",
-    "upkeepGold": 170,
     "defaultLevel": 14,
     "defaultRank": 4,
     "recruitGuildRank": 4,
@@ -942,7 +904,6 @@
   {
     "id": "adv_0039",
     "baseName": "ロランド",
-    "upkeepGold": 180,
     "defaultLevel": 15,
     "defaultRank": 4,
     "recruitGuildRank": 4,

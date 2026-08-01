@@ -23,6 +23,13 @@ public class GameMasterData
     public List<QuestMasterData> allQuests = new();
     public List<AdventurerMasterData> allAdventurers = new();
     public Dictionary<string, QuestChoiceEventMasterData> choiceEvents = new();
+
+    /// <summary>
+    /// 読み込み時に解決できなかったID参照。<see cref="MasterLoader"/> は不明なIDを黙って読み飛ばすため、
+    /// 打ち間違えると「エラーは出ないがゲーム内に一生出てこない」状態になる。
+    /// ここに溜めておき、<see cref="MasterValidator"/> がエラーとして報告する。
+    /// </summary>
+    public List<string> unresolvedRefs = new();
 }
 
 public static class MasterLoader
@@ -80,6 +87,7 @@ public static class MasterLoader
             {
                 var entry = new ClassSkillEntry { skillId = e.skillId, requiredClearCount = e.requiredClearCount };
                 if (db.skills.TryGetValue(e.skillId, out var sk)) entry.Skill = sk;
+                else Unresolved(db, "classes.json", c.id, "classSkills.skillId", e.skillId);
                 cd.classSkills.Add(entry);
             }
             db.classes[c.id] = cd;
@@ -174,6 +182,7 @@ public static class MasterLoader
             if (!string.IsNullOrEmpty(e.defaultShieldId) && db.equipment.TryGetValue(e.defaultShieldId, out var sh)) ed.DefaultShield = sh;
             foreach (var sid in e.skillIds ?? new())
                 if (db.skills.TryGetValue(sid, out var sk)) ed.Skills.Add(sk);
+                else Unresolved(db, "enemies.json", e.id, "skillIds", sid);
             foreach (var drop in e.dropTable ?? new())
                 ed.dropTable.Add(ResolveRewardEntry(drop, db));
             db.enemies[e.id] = ed;
@@ -226,7 +235,9 @@ public static class MasterLoader
             foreach (var fid in u.formationIds ?? new())
             {
                 EnemyMasterData? m = null;
-                if (fid != null) db.enemies.TryGetValue(fid, out m);
+                // 空文字は「その位置は空席」の意味なので数えない。打ち間違えたIDだけを拾う。
+                if (!string.IsNullOrEmpty(fid) && !db.enemies.TryGetValue(fid, out m))
+                    Unresolved(db, "enemy_units.json", u.id, "formationIds", fid);
                 tpl.Formation.Add(m);
             }
             while (tpl.Formation.Count < 6) tpl.Formation.Add(null);
@@ -253,6 +264,7 @@ public static class MasterLoader
                     maxPhase = ec.maxPhase,
                 };
                 if (db.enemyUnits.TryGetValue(ec.unitId, out var u)) entry.Unit = u;
+                else Unresolved(db, "dungeons.json", d.id, "encounterTable.unitId", ec.unitId);
                 dd.encounterTable.Add(entry);
             }
             foreach (var re in d.treasureTable ?? new())
@@ -260,6 +272,7 @@ public static class MasterLoader
             foreach (var eventId in d.turnEndEventIds ?? new())
                 if (db.choiceEvents.TryGetValue(eventId, out var choiceEvent))
                     dd.turnEndEvents.Add(choiceEvent);
+                else Unresolved(db, "dungeons.json", d.id, "turnEndEventIds", eventId);
             db.dungeons[d.id] = dd;
         }
 
@@ -296,8 +309,16 @@ public static class MasterLoader
                 gatherChance = q.gatherChance > 0f ? q.gatherChance : 0.5f,
                 gatherGoldPerItem = q.gatherGoldPerItem,
             };
-            if (!string.IsNullOrEmpty(q.dungeonId) && db.dungeons.TryGetValue(q.dungeonId, out var dng)) qd.Dungeon = dng;
-            if (!string.IsNullOrEmpty(q.bossEnemyId) && db.enemyUnits.TryGetValue(q.bossEnemyId, out var boss)) qd.BossEnemy = boss;
+            if (!string.IsNullOrEmpty(q.dungeonId))
+            {
+                if (db.dungeons.TryGetValue(q.dungeonId, out var dng)) qd.Dungeon = dng;
+                else Unresolved(db, "quests.json", q.id, "dungeonId", q.dungeonId);
+            }
+            if (!string.IsNullOrEmpty(q.bossEnemyId))
+            {
+                if (db.enemyUnits.TryGetValue(q.bossEnemyId, out var boss)) qd.BossEnemy = boss;
+                else Unresolved(db, "quests.json", q.id, "bossEnemyId", q.bossEnemyId);
+            }
             foreach (var re in q.bossDrops ?? new()) qd.bossDrops.Add(ResolveRewardEntry(re, db));
             foreach (var fe in q.fixedEvents ?? new())
                 qd.fixedEvents.Add(new QuestPhaseEvent { phase = fe.phase, type = (QuestEventType)fe.type });
@@ -314,7 +335,7 @@ public static class MasterLoader
             int recruitWeight = Math.Max(0, a.recruitWeight ?? RecruitmentSystem.DefaultWeightForGuildRank(recruitGuildRank));
             var ad = new AdventurerMasterData
             {
-                id = a.id, baseName = a.baseName, upkeepGold = a.upkeepGold,
+                id = a.id, baseName = a.baseName,
                 defaultLevel = a.defaultLevel, defaultRank = a.defaultRank,
                 recruitGuildRank = recruitGuildRank,
                 recruitWeight = recruitWeight,
@@ -333,11 +354,16 @@ public static class MasterLoader
             if (!string.IsNullOrEmpty(a.defaultArmorId) && db.equipment.TryGetValue(a.defaultArmorId, out var arm)) ad.DefaultArmor = arm;
             foreach (var sid in a.skillIds ?? new())
                 if (db.skills.TryGetValue(sid, out var sk)) ad.Skills.Add(sk);
+                else Unresolved(db, "adventurers.json", a.id, "skillIds", sid);
             db.allAdventurers.Add(ad);
         }
 
         return db;
     }
+
+    /// <summary>解決できなかったID参照を記録する。読み込み自体は続行し、報告は検証にまかせる。</summary>
+    static void Unresolved(GameMasterData db, string file, string ownerId, string field, string value) =>
+        db.unresolvedRefs.Add($"{file} の {ownerId}: {field} '{value}' が見つかりません");
 
     /// <summary>選択肢・結果の targetId が指す先を効果種別に応じて引き当てる。</summary>
     static void ResolveChoiceRefs(
@@ -484,7 +510,7 @@ public static class MasterLoader
         List<string>? requiredQuestIds, List<string>? requiredClueIds, List<string>? grantedClueIds,
         string? storyBranchId);
 
-    record AdvJson(string id, string baseName, int upkeepGold, int defaultLevel, int defaultRank,
+    record AdvJson(string id, string baseName, int defaultLevel, int defaultRank,
         int? recruitGuildRank, int? recruitWeight,
         int vitality, int mental, int strength, int agility, int intelligence, int constitution, int appearance,
         string? defaultClassId, string? raceId, string? defaultWeaponId, string? defaultArmorId,

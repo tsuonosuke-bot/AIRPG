@@ -7,7 +7,6 @@ public class AdventurerMasterData
     public Rarity rarity;
     public string id = "";
     public string baseName = "";
-    public int upkeepGold;
     public int defaultLevel = 1;
     public int defaultRank = 1;
     public int recruitGuildRank = 1;

@@ -14,7 +14,9 @@ public class AdventurerData : IUnitMember
     public int experience;
     public bool isAlive = true;
     public int rank;
-    public int rankPoint;
+
+    /// <summary>今のランクになってから、格上のクエストを正規クリアした回数。昇格すると0に戻る。</summary>
+    public int higherRankClears;
     public int expeditionCount;
     public int successfulExpeditionCount;
     public int retreatCount;
@@ -208,26 +210,36 @@ public class AdventurerData : IUnitMember
 
     public bool IsMaxRank => Rank.IsMax(rank);
 
-    public int RequiredRankPointForNextRank => 10 * Math.Max(1, rank);
+    /// <summary>
+    /// 昇格に必要な「格上クエスト」の正規クリア回数。
+    /// ポイントの累積ではなく回数で数えるのは、1本ずつの達成が昇格に直結するほうが
+    /// プレイヤーから見て「あと何本で上がるか」が読めるため。
+    /// </summary>
+    public const int ClearsForNextRank = 3;
 
-    public void AddRankPoints(int amount, out int rankUps)
+    public int RequiredClearsForNextRank => ClearsForNextRank;
+
+    /// <summary>
+    /// クエストの正規クリアを昇格の数に反映する。数えるのは**自分より上のランク**のクエストだけ。
+    /// 同ランク以下はこなせて当たり前なので、何本やっても昇格にはつながらない。
+    /// </summary>
+    public void RecordQuestClearForRank(int questRank, out int rankUps)
     {
         rankUps = 0;
-        if (!isAlive || amount <= 0) return;
-        // Sに達したらランクポイントも溜めない。溜めても行き場がないうえ、
-        // 上限に張り付いた冒険者のRP表示が伸び続けると昇格できるように見えてしまう。
-        if (IsMaxRank) return;
-        rankPoint += amount;
-        while (rankPoint >= RequiredRankPointForNextRank)
-        {
-            rankPoint -= RequiredRankPointForNextRank;
-            rank = Rank.Clamp(rank + 1);
-            rankUps++;
-            if (IsMaxRank) { rankPoint = 0; break; }
-        }
+        // Sに達したら数えない。溜まり続けると昇格できるように見えてしまう。
+        if (!isAlive || IsMaxRank) return;
+        if (!IsHigherRankQuest(questRank)) return;
+
+        higherRankClears++;
+        if (higherRankClears < ClearsForNextRank) return;
+
+        higherRankClears = 0;
+        rank = Rank.Clamp(rank + 1);
+        rankUps++;
     }
 
-    public int CalcRankPointGain(int questRank) => questRank < rank ? 0 : Math.Max(1, questRank);
+    /// <summary>昇格に数えられるクエストか。クエストボードの目印にも使う。</summary>
+    public bool IsHigherRankQuest(int questRank) => questRank > rank;
 
     // ---- Exp / Level ----
     public int RequiredExpForNextLevel => 100 + (level - 1) * 50;
