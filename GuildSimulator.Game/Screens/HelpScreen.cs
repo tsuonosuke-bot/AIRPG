@@ -1,3 +1,4 @@
+using GuildSimulator.Core;
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
@@ -10,6 +11,11 @@ namespace GuildSimulator.Game.Screens;
 
 public static class HelpScreen
 {
+    // 遺物システムの凍結中は説明文からも遺物を伏せる。復活させれば記述もそのまま戻る。
+    static string SkillsAndRelics => GameFeatures.RelicsEnabled ? "スキル・遺物" : "スキル";
+    static string AdventurerSectionTitle =>
+        GameFeatures.RelicsEnabled ? "冒険者・装備・遺物" : "冒険者・装備";
+
     /// <summary>
     /// 武器とマスタリーの説明はマスタデータから組み立てる。
     /// JSONを触ったときにヘルプの記述だけが取り残されるのを防ぐため、数値はここに書き写さない。
@@ -30,7 +36,7 @@ public static class HelpScreen
                 new MenuOption("6", "能力値と戦闘数値", "能力値・装備が命中/DV/PV/AVに変わる過程"),
                 new MenuOption("7", "武器の種類", "剣・短剣・槍・斧・弓・魔法の得手不得手"),
                 new MenuOption("8", "職業とマスタリー", "マスタリーの効果と習得条件"),
-                new MenuOption("9", "冒険者・装備・遺物"),
+                new MenuOption("9", AdventurerSectionTitle),
                 new MenuOption("0", "戻る", Style: TextStyle.Dim),
             });
             switch (choice)
@@ -63,7 +69,9 @@ public static class HelpScreen
         Ui.WriteLine("  2) 冒険者を編成して送り出す（前衛/後衛の配置あり）");
         Ui.WriteLine("  3) ターンを進めると自動で戦闘・探索が進行する");
         Ui.WriteLine("  4) クエストが完了すると報酬（資金・経験値・選択報酬）を受け取る");
-        Ui.WriteLine("  5) 得た資金で雇用・装備・遺物を強化し、また次のクエストへ");
+        Ui.WriteLine(GameFeatures.RelicsEnabled
+            ? "  5) 得た資金で雇用・装備・遺物を強化し、また次のクエストへ"
+            : "  5) 得た資金で雇用・装備・施設を強化し、また次のクエストへ");
         Ui.WriteLine();
         Ui.WriteLine($"  毎ターン、ギルド基本維持費{GuildManager.GuildBaseUpkeepGoldPerTurn}Gと冒険者の賃金が資金から引かれるため、");
         Ui.WriteLine("  資金が尽きる（0以下になる）とゲームオーバーになる。");
@@ -158,7 +166,7 @@ public static class HelpScreen
         Ui.WriteLine("  能力値は直接ダメージに乗らない。ダメージの大きさを決めるのは「何回貫通したか」だけ。");
         Ui.WriteLine();
         Ui.WriteLine($"  ① 命中判定   1d{QudCombat.HIT_DIE} ＋ 命中補正 ＞ 相手のDV（回避値）なら命中");
-        Ui.WriteLine("     ・命中補正 ＝ 敏捷modifier ＋ 装備の命中補正 ＋ スキル・遺物 － 過積載");
+        Ui.WriteLine($"     ・命中補正 ＝ 敏捷modifier ＋ 装備の命中補正 ＋ {SkillsAndRelics} － 過積載");
         Ui.WriteLine($"                （後衛から近接武器で殴る場合はさらに-{BattleResolver.REAR_MELEE_TO_HIT_PENALTY}）");
         Ui.WriteLine($"     ・DVは{QudCombat.BASE_DV}を基準に敏捷と装備で増減する。重い鎧はDVを下げる。");
         Ui.WriteLine($"     ・素の出目{QudCombat.CRITICAL_ROLL}は会心。DVに関わらず必ず命中する。");
@@ -213,7 +221,7 @@ public static class HelpScreen
 
         Ui.BeginScreen();
         Ui.Header("能力値と戦闘数値");
-        Ui.WriteLine("  能力値そのものが判定に使われることはない。戦闘に入る前に、能力値・装備・スキル・遺物が");
+        Ui.WriteLine($"  能力値そのものが判定に使われることはない。戦闘に入る前に、能力値・装備・{SkillsAndRelics}が");
         Ui.WriteLine("  「HP / 士気 / 命中 / DV / PV / AV / 回復力」の7つの数値へ変換され、判定はその数値だけを見る。");
         Ui.WriteLine($"  多くは modifier を通す。modifier ＝ (能力値 - {QudCombat.MODIFIER_BASELINE}) ÷ {QudCombat.MODIFIER_STEP} の切り捨て。");
         Ui.WriteLine();
@@ -234,7 +242,7 @@ public static class HelpScreen
         Ui.WriteLine("  ■ 命中補正の内訳");
         Ui.WriteLine("     命中補正 ＝ AGIのmodifier");
         Ui.WriteLine("              ＋ 装備の命中補正の合計（短剣は+3、剣は+1、槍は-2、斧は-4）");
-        Ui.WriteLine("              ＋ スキル・遺物の命中補正");
+        Ui.WriteLine($"              ＋ {SkillsAndRelics}の命中補正");
         Ui.WriteLine($"              － 過積載ペナルティ（最大-{overweightToHit}）");
         Ui.WriteLine($"              －（後衛から近接武器で殴る場合のみ）{BattleResolver.REAR_MELEE_TO_HIT_PENALTY}");
         Ui.WriteLine("     この合計を1d20に足し、相手のDVと比べる。行動順もこの値の高い順に決まる。");
@@ -245,7 +253,7 @@ public static class HelpScreen
         Ui.WriteLine();
         Ui.WriteLine("  ■ 回避DVの内訳");
         Ui.WriteLine($"     DV ＝ {QudCombat.BASE_DV}（全員共通の下駄）＋ AGIのmodifier ＋ 装備のDV補正");
-        Ui.WriteLine($"        ＋ スキル・遺物 － 過積載ペナルティ（最大-{overweightDv}）");
+        Ui.WriteLine($"        ＋ {SkillsAndRelics} － 過積載ペナルティ（最大-{overweightDv}）");
         Ui.WriteLine($"     ・前衛が健在な間、後衛はさらに+{BattleResolver.REAR_COVER_DV_BONUS}される。");
         Ui.WriteLine("     ・板金鎧は-4、鎖帷子は-2のように、硬い鎧ほどDVを下げてAVを上げる。");
         Ui.WriteLine();
@@ -255,7 +263,7 @@ public static class HelpScreen
         Ui.WriteLine("       ただし基礎PVもダメージダイスも小さいので、武器はやはり持たせたほうがよい。");
         Ui.WriteLine("     ・上限の目安は 短剣・風杖が+5、剣・弓・水杖が+6、槍・土杖が+7、斧・火杖・闇杖が+8。");
         Ui.WriteLine("       回復用の光杖は0で、力も知恵も上乗せできない。");
-        Ui.WriteLine("     AV ＝ SIZのmodifier ＋ 防具のAV補正 ＋ スキル・遺物（mAVはMENのmodifierから同様に）");
+        Ui.WriteLine($"     AV ＝ SIZのmodifier ＋ 防具のAV補正 ＋ {SkillsAndRelics}（mAVはMENのmodifierから同様に）");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 積載と過積載");
         Ui.WriteLine("     積載上限 ＝ SIZ ＋ (STR＋VIT)÷2 ＋ スキルによる積載補正。装備の重さの合計がこれを超えると過積載になる。");
@@ -267,7 +275,8 @@ public static class HelpScreen
         Ui.WriteLine("     ・装備      : 装備している全スロットの補正を合計する。");
         Ui.WriteLine("     ・スキル    : 前衛限定・後衛限定・特定の武器/防具限定といった条件を満たすときだけ乗る。");
         Ui.WriteLine("                   パーティ全体に効くスキルは、生存している全員にそれぞれ加算される。");
-        Ui.WriteLine("     ・遺物      : 冒険者側のみ、全員に加算される。");
+        if (GameFeatures.RelicsEnabled)
+            Ui.WriteLine("     ・遺物      : 冒険者側のみ、全員に加算される。");
         Ui.WriteLine("     ・倍率がかかるのはHP・士気・回復力だけ。命中/DV/PV/AVは1点の重みが大きいため加算でしか動かない。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 敵の数値");
@@ -516,7 +525,7 @@ public static class HelpScreen
     static async Task ShowAdventurerAsync()
     {
         Ui.BeginScreen();
-        Ui.Header("冒険者・装備・遺物");
+        Ui.Header(AdventurerSectionTitle);
         Ui.WriteLine("  ・冒険者          : 雇用して編成に加える。クエストで経験値を得てレベルアップする。");
         Ui.WriteLine($"  ・冒険者ランク    : {Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。自分より上のランクのクエストを正規クリアした回数で上がる。");
         Ui.WriteLine($"                      {AdventurerData.ClearsForNextRank}回で1つ上がる。{Rank.Label(Rank.Max)}が上限。レベルとは別の物差し。");
@@ -531,8 +540,15 @@ public static class HelpScreen
         Ui.WriteLine("  ・レアリティ      : コモン、アンコモン、レア、ユニーク、レジェンドの順に希少。");
         Ui.WriteLine("  ・消費アイテム    : 出発前に最大2個選び、出発時に消費してクエスト中だけ効果を得る。");
         Ui.WriteLine("  ・商店            : 品ぞろえと在庫は5ターンごと（Turn 1、6、11…）に更新される。");
-        Ui.WriteLine("  ・遺物            : ギルド全体に常時効果を及ぼす特別なアイテム。クエストの選択報酬や");
-        Ui.WriteLine("                      道中の宝箱で入手できる。所持しているだけで効果を発揮する。");
+        if (GameFeatures.RelicsEnabled)
+        {
+            Ui.WriteLine("  ・遺物            : ギルド全体に常時効果を及ぼす特別なアイテム。クエストの選択報酬や");
+            Ui.WriteLine("                      道中の宝箱で入手できる。所持しているだけで効果を発揮する。");
+        }
+        else
+        {
+            Ui.WriteLine("  ・恒常的な強化    : ギルド全体に常時掛かる強化は「施設」に一本化されている。");
+        }
         await Ui.PauseAsync();
     }
 }

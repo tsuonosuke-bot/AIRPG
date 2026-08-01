@@ -163,6 +163,8 @@ public class GuildManager
 
     public void AddRelic(RelicMasterData relic, string reason = "")
     {
+        // 凍結中は入手そのものを起こさない。既存セーブの所持記録は消さずに残す。
+        if (!GameFeatures.RelicsEnabled) return;
         if (relics.Contains(relic)) return;
         relics.Add(relic);
         RelicSystem.SetRelics(relics);

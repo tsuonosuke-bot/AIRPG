@@ -378,6 +378,7 @@ public class QuestProgressor
         {
             foreach (var entry in enemy!.master.dropTable)
             {
+                if (RelicSystem.IsFrozenRelicReward(entry)) continue;
                 if (entry.chance <= 0f || GameRandom.NextFloat() >= entry.chance) continue;
                 var drop = entry.Copy();
                 q.pendingLoot.Add(drop);

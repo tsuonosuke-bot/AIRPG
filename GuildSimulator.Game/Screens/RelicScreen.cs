@@ -1,3 +1,4 @@
+using GuildSimulator.Core;
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Game.Presentation;
@@ -10,6 +11,16 @@ public static class RelicScreen
     {
         Ui.BeginScreen();
         Ui.Header("所持遺物");
+
+        // 凍結中はメニューから消えているので通常は辿り着かないが、念のため説明して戻す。
+        if (!GameFeatures.RelicsEnabled)
+        {
+            Ui.Dim("  遺物システムは現在凍結中です");
+            Ui.Dim("  恒常的な強化は「施設」に一本化されています");
+            await Ui.PauseAsync();
+            return;
+        }
+
         var relics = guild.relics;
 
         if (relics.Count == 0)
