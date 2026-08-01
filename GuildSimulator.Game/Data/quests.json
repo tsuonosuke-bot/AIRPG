@@ -52,7 +52,7 @@
     "rewardExp": 10,
     "dungeonId": "dungeon_meadow",
     "bossEnemyId": "unit_slime_pair",
-    "bossPhase": 10,
+    "bossPhase": 5,
     "bossDrops": [],
     "fixedEvents": [
       {
@@ -76,7 +76,7 @@
     "rewardExp": 10,
     "dungeonId": "dungeon_meadow",
     "bossEnemyId": "unit_raven_pair",
-    "bossPhase": 10,
+    "bossPhase": 5,
     "bossDrops": [],
     "fixedEvents": [
       {
