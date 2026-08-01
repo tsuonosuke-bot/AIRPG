@@ -26,28 +26,79 @@ public static class RankBandTable
     public const int MaxEquipmentTier = 5;
 
     /// <summary>
-    /// 採取クエストの <c>gatherChance</c> の下限。採取判定の当たり回数が少ないほど
-    /// 抽選のブレが大きくなり、期待量に余裕を持たせても予定フェーズ内に届かなくなる。
-    /// 下の <see cref="GatherSurplusFactor"/> と組で使って初めて達成率が担保される。
+    /// 採取クエストの <c>gatherChance</c> の下限。達成率そのものは
+    /// <see cref="GatherSuccessPercent"/> で厳密に見るので、これは<b>手触りのための下限</b>。
+    /// 判定回数が少ないと、同じ達成率でも「数回の当たり外れで決まった」感触になり、
+    /// 少しずつ集まっていく手応えが消える。希少さは1回の採取量の幅で表すこと。
     /// </summary>
     public const float MinGatherChance = 0.65f;
 
     /// <summary>
-    /// 採取の期待量が目標数の何倍あればよいか。予定フェーズ内に届かなくても撤退は確定せず、
-    /// 延長するか引き上げるかをプレイヤーが選べる（<c>QuestManager.ResolveGatherDecision</c>）ので、
-    /// 「絶対に届く」水準までは要らない。<see cref="MinGatherChance"/> と併せて満たすと、
-    /// 予定フェーズ内での達成が95%前後、残りが延長判断に回る。
+    /// 予定フェーズ内に採取目標へ届く確率(%)の帯。ランクが上がるほど低くし、
+    /// 「延長するか引き上げるか」の判断が奥へ行くほど頻繁に起きるようにする。
+    /// 届かなくても撤退が確定するわけではなく、行程を延ばせば取り返せる
+    /// （<c>QuestManager.ResolveGatherDecision</c>）ので、ここは失敗率ではなく
+    /// <b>予定どおりに帰れる率</b>だと読む。
     /// </summary>
-    public const float GatherSurplusFactor = 1.5f;
+    static readonly Dictionary<int, Band> _gatherSuccess = new()
+    {
+        [1] = new(76, 84), [2] = new(72, 80), [3] = new(68, 76), [4] = new(65, 73),
+        [5] = new(63, 71), [6] = new(61, 69), [7] = new(60, 68),
+    };
+
+    public static Band? GatherSuccessForRank(int rank) =>
+        _gatherSuccess.TryGetValue(rank, out var b) ? b : (Band?)null;
 
     /// <summary>そのクエストで見込める採取量。ボスのフェーズでは採取判定が起きない。</summary>
     public static float ExpectedGatherYield(int totalPhases, int bossPhase, bool hasBoss,
         float gatherChance, int minPerEvent, int maxPerEvent)
+        => GatherPhases(totalPhases, bossPhase, hasBoss)
+            * gatherChance * (minPerEvent + maxPerEvent) / 2f;
+
+    /// <summary>
+    /// 予定フェーズ内に <paramref name="targetCount"/> 個へ届く確率(%)。
+    ///
+    /// 期待量が目標の何倍か、という近似では足りない。同じ期待量でも
+    /// 「毎フェーズ1〜2個」と「たまに大量」ではブレの幅がまるで違い、達成率が10ポイント以上ずれる。
+    /// フェーズごとの畳み込みで分布そのものを出す。目標に届いた時点で採取は止まるので、
+    /// 到達済みの確率は吸収状態にまとめる。
+    /// </summary>
+    public static float GatherSuccessPercent(int totalPhases, int bossPhase, bool hasBoss,
+        float gatherChance, int minPerEvent, int maxPerEvent, int targetCount)
     {
-        int phases = totalPhases;
-        if (hasBoss && bossPhase >= 1 && bossPhase <= totalPhases) phases--;
-        return phases * gatherChance * (minPerEvent + maxPerEvent) / 2f;
+        if (targetCount <= 0) return 100f;
+
+        int phases = GatherPhases(totalPhases, bossPhase, hasBoss);
+        if (phases <= 0) return 0f;
+
+        float hit = Math.Clamp(gatherChance, 0f, 1f);
+        int low = Math.Max(0, minPerEvent);
+        int high = Math.Max(low, maxPerEvent);
+        double perValue = hit / (high - low + 1);
+
+        // dist[n] = ここまでに n 個集まっている確率。dist[targetCount] は到達済み（吸収状態）。
+        var dist = new double[targetCount + 1];
+        dist[0] = 1;
+        var next = new double[targetCount + 1];
+        for (int phase = 0; phase < phases; phase++)
+        {
+            Array.Clear(next);
+            next[targetCount] += dist[targetCount];
+            for (int held = 0; held < targetCount; held++)
+            {
+                double weight = dist[held];
+                if (weight <= 0) continue;
+                next[held] += weight * (1 - hit);
+                for (int got = low; got <= high; got++)
+                    next[Math.Min(targetCount, held + got)] += weight * perValue;
+            }
+            (dist, next) = (next, dist);
+        }
+        return (float)(dist[targetCount] * 100);
     }
+
+    static int GatherPhases(int totalPhases, int bossPhase, bool hasBoss) =>
+        hasBoss && bossPhase >= 1 && bossPhase <= totalPhases ? totalPhases - 1 : totalPhases;
 
     public sealed record EnemyBand(Band Hp, Band Av, Band Dv, Band Pv, Band Exp);
 

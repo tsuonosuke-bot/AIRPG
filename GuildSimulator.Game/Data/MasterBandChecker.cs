@@ -96,17 +96,19 @@ public static class MasterBandChecker
     }
 
     /// <summary>
-    /// 採取クエストが予定フェーズ内に目標数へ届くか。届かなくても即撤退にはならず、
-    /// 延長するか引き上げるかの判断になるが、それが毎回起きるようでは予定が予定にならない。
-    /// 「戦闘で負けた」ではなく「抽選が渋かった」で行程が延びるのはプレイヤーに手の打ちようが
-    /// ないので、通常は予定内で収まる余裕を数値の側に持たせておく。
+    /// 採取クエストが予定フェーズ内に目標数へ届く確率が、そのランクの帯に収まっているか。
+    ///
+    /// 届かなくても撤退が確定するわけではなく、延長するか引き上げるかの判断になる。
+    /// だからここで見るのは失敗率ではなく<b>予定どおりに帰れる率</b>で、
+    /// ランクが上がるほど下げて、粘るかどうかの判断が奥へ行くほど頻繁に起きるようにする。
+    /// 高すぎれば二択が一度も出ず、低すぎれば予定が予定にならない。
     /// </summary>
     static void CheckGatherQuests(GameMasterData db, List<string> warnings)
     {
         foreach (var q in db.allQuests)
         {
             if (!q.IsGatherQuest) continue;
-            string where = $"{q.id}（採取）";
+            string where = $"{q.id}（{RankBandTable.BandLabel(q.rank)}・採取）";
 
             if (q.gatherMinPerEvent < 0 || q.gatherMaxPerEvent < q.gatherMinPerEvent)
             {
@@ -118,17 +120,22 @@ public static class MasterBandChecker
             if (q.gatherChance < RankBandTable.MinGatherChance)
                 warnings.Add($"{where}: gatherChance が {q.gatherChance} で、"
                     + $"下限 {RankBandTable.MinGatherChance} を下回っています"
-                    + "（採取判定の回数が少なすぎて、期待量に余裕があってもブレで未達になります）");
+                    + "（判定回数が少なすぎて、達成率が同じでも数回の当たり外れで決まる手触りになります。"
+                    + "希少さは1回の採取量の幅で表してください）");
 
-            float expected = RankBandTable.ExpectedGatherYield(
+            var band = RankBandTable.GatherSuccessForRank(q.rank);
+            if (band == null) continue;
+
+            float success = RankBandTable.GatherSuccessPercent(
                 q.totalPhases, q.bossPhase, q.BossEnemy != null,
-                q.gatherChance, q.gatherMinPerEvent, q.gatherMaxPerEvent);
-            float needed = q.gatherTargetCount * RankBandTable.GatherSurplusFactor;
-            if (expected < needed)
-                warnings.Add($"{where}: 採取の期待量が {expected:0.#} しかなく、"
-                    + $"gatherTargetCount {q.gatherTargetCount} の"
-                    + $"{RankBandTable.GatherSurplusFactor:0.#}倍（{needed:0.#}）に届きません"
-                    + "（予定フェーズ内に終わらず、延長判断が頻発する設定です）");
+                q.gatherChance, q.gatherMinPerEvent, q.gatherMaxPerEvent, q.gatherTargetCount);
+            if (band.Value.Contains((int)Math.Round(success))) continue;
+
+            string why = success > band.Value.Max
+                ? "簡単すぎて、延長するかどうかの判断がほとんど起きません"
+                : "予定どおりに帰れる回数が少なすぎます";
+            warnings.Add($"{where}: 予定フェーズ内に gatherTargetCount {q.gatherTargetCount} へ届く確率が "
+                + $"{success:0.#}% で帯（{band.Value}%）の外です（{why}）");
         }
     }
 
