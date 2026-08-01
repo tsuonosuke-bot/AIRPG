@@ -108,6 +108,8 @@ public static class HelpScreen
         Ui.WriteLine("                      帰還処理で各自の死亡または負傷が確定し、医療院は死亡率を下げる。");
         Ui.WriteLine("  ・選択イベント    : ターン内の最終フェーズ後に発生することがある。");
         Ui.WriteLine("                      未解決の選択がある間は次のターンへ進めない。");
+        Ui.WriteLine("  ・報酬の見方      : クエストボードの基本報酬は確定分のみ。宝箱・敵ドロップ・選択イベントの");
+        Ui.WriteLine("                      副収入は含まれておらず、結果によって上乗せされる。");
         await Ui.PauseAsync();
     }
 
