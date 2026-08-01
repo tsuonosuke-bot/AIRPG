@@ -52,9 +52,12 @@ public static class DungeonDifficulty
 
         // --- 敵の脅威度帯 ---
         // 倍率でのスケーリングは廃止したので、出現しうる敵ユニットの脅威度をそのまま見る。
+        // このクエストのフェーズ数を超えたminPhaseを持つ行は実際には出現しないので除外する。
         if (d != null && d.encounterTable.Count > 0)
         {
-            var units = d.encounterTable.Where(e => e.Unit != null).Select(e => e.Unit!).ToList();
+            var units = d.encounterTable
+                .Where(e => e.Unit != null && e.minPhase <= q.totalPhases)
+                .Select(e => e.Unit!).ToList();
             if (units.Count > 0)
             {
                 r.enemyThreatMin = Rank.Clamp(units.Min(u => u.Threat));
