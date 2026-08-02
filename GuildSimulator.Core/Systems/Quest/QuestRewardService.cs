@@ -1,6 +1,7 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems;
 using GuildSimulator.Core.Systems.Guild;
 
 namespace GuildSimulator.Core.Systems.Quest;
@@ -136,8 +137,11 @@ public class QuestRewardService
         // ギルドポイントは達成の証なので撤退では入らない。
         if (q.def.rewardGuildPoints != 0 && !q.retreated)
         {
-            guild.AddGuildPoints(q.def.rewardGuildPoints, $"クエストGP: {q.def.questName}");
-            q.logs.Add($"{prefix} ギルドポイント +{q.def.rewardGuildPoints}");
+            int appearanceBonus = AppearanceSystem.GuildPointBonus(q.def.rewardGuildPoints, q.formation);
+            int guildPoints = q.def.rewardGuildPoints + appearanceBonus;
+            guild.AddGuildPoints(guildPoints, $"クエストGP: {q.def.questName}");
+            q.logs.Add($"{prefix} ギルドポイント +{guildPoints}"
+                + (appearanceBonus > 0 ? $"（容姿ボーナス +{appearanceBonus}）" : ""));
         }
     }
 

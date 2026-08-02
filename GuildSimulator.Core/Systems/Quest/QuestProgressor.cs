@@ -14,11 +14,12 @@ public class QuestProgressor
         var qe = ResolveQuestEvent(q.def, phase);
         bool isBoss = (q.def.BossEnemy != null && phase == q.def.bossPhase)
                    || qe == QuestEventType.ForceBossEncounter;
+        var partySkills = PartySkillEffects.Of(q.formation);
 
         DungeonEventType ev = RollDungeonEvent(
             q.def.Dungeon,
             phase,
-            PartySkillEffects.Of(q.formation),
+            partySkills,
             q.treasureFromNothingPercent,
             q.enemyFromNothingPercent);
 
@@ -28,7 +29,7 @@ public class QuestProgressor
         else if (qe == QuestEventType.ForceTreasure) ev = DungeonEventType.Treasure;
         if (isBoss) ev = DungeonEventType.EnemyEncounter;
 
-        // 採取判定はダンジョンイベントとは別枠。同じフェーズで戦闘や宝箱と同時に起きる。
+        // 採取判定はダンジョンイベントとは別枠。同じエリアで戦闘や宝箱と同時に起きる。
         bool gathers = q.def.IsGatherQuest && !q.GatherFulfilled && !isBoss
             && (qe == QuestEventType.ForceGather || GameRandom.NextFloat() < q.def.gatherChance);
 
@@ -56,7 +57,7 @@ public class QuestProgressor
                     var enemyI = enemyMembers.Cast<IUnitMember?>().ToArray();
 
                     // 敵は毎回フレッシュな個体なのでここでHPを初期化する。冒険者側はクエスト開始時に
-                    // 初期化済みで、フェーズを跨いで持ち越す（QuestManager.TryStartQuest参照）。
+                    // 初期化済みで、エリアを跨いで持ち越す（QuestManager.TryStartQuest参照）。
                     foreach (var (m, s) in UnitCalculator.CalcPerMember(enemyI, isAllySide: false))
                     {
                         m.CombatHpMax = s.hp;
@@ -92,16 +93,16 @@ public class QuestProgressor
                     {
                         int rally = q.morale.RestoreRate(MoraleState.VictoryRecoverRate);
                         evResult = $"勝利（HP {q.unitHpCurrent}/{q.unitHpMax} 士気 {q.morale.Current}/{q.morale.Max}）";
-                        if (rally > 0) q.logs.Add($"  Phase {phase}: 勝利で士気を持ち直した（+{rally}）");
+                        if (rally > 0) q.logs.Add($"  エリア {phase}: 勝利で士気を持ち直した（+{rally}）");
                         int totalExp = (int)Math.Floor(
                             enemyMembers.Sum(e => e?.master.exp ?? 0)
                             * (1f + q.expRewardBonusPercent / 100f)
                             * (1f + q.battleExpBonusPercent / 100f)
-                            * PartySkillEffects.Of(q.formation).ExpMultiplier);
+                            * partySkills.ExpMultiplier);
                         if (isBoss)
                         {
                             q.bossDefeated = true;
-                            q.logs.Add($"  Phase {phase}: ボス撃破！");
+                            q.logs.Add($"  エリア {phase}: ボス撃破！");
                             AddChest(q, TreasureChestKind.Boss, phase);
                         }
                         var participants = q.formation
@@ -122,7 +123,7 @@ public class QuestProgressor
                                 q.logs.Add($"  {a.name} 経験値 +{earnedExp}{levelUpText}");
                             }
                         }
-                        RollEnemyDrops(q, enemyMembers, phase);
+                        RollEnemyDrops(q, enemyMembers, phase, partySkills);
                     }
                     break;
                 }
@@ -133,7 +134,8 @@ public class QuestProgressor
                     int before = q.unitHpCurrent;
                     float restMul = RelicSystem.GetRestHealMultiplier()
                         * FacilitySystem.GetRestHealMultiplier()
-                        * (1f + q.restHealBonusPercent / 100f);
+                        * (1f + q.restHealBonusPercent / 100f)
+                        * partySkills.RestHealMultiplier;
                     var perMember = UnitCalculator.CalcPerMember(q.formation.Cast<IUnitMember?>().ToArray(), isAllySide: true);
                     foreach (var (m, s) in perMember)
                     {
@@ -209,7 +211,7 @@ public class QuestProgressor
         }
 
         q.currentPhase = phase;
-        q.logs.Add($"[Turn {currentTurn}] Phase {q.currentPhase}/{q.PhaseLimit}: {evTitle} - {evResult}");
+        q.logs.Add($"[Turn {currentTurn}] エリア {q.currentPhase}/{q.PhaseLimit}: {evTitle} - {evResult}");
         q.AddReportEvent(
             currentTurn,
             phase,
@@ -226,19 +228,19 @@ public class QuestProgressor
             string gatherResult = got <= 0
                 ? $"{q.def.gatherItemName} は見つからなかった（{q.gatheredCount}/{q.def.gatherTargetCount}）"
                 : $"{q.def.gatherItemName} を {got} 個採取（{q.gatheredCount}/{q.def.gatherTargetCount}）";
-            q.logs.Add($"[Turn {currentTurn}] Phase {q.currentPhase}/{q.PhaseLimit}: 採取 - {gatherResult}");
+            q.logs.Add($"[Turn {currentTurn}] エリア {q.currentPhase}/{q.PhaseLimit}: 採取 - {gatherResult}");
             q.AddReportEvent(currentTurn, phase, ExpeditionEventKind.Gather, "採取", gatherResult);
         }
 
-        // 予定のフェーズを使い切っても素材が足りないとき、パーティは勝手に引き返さず判断を仰ぐ。
+        // 予定のエリアを使い切っても素材が足りないとき、パーティは勝手に引き返さず判断を仰ぐ。
         // 延ばすか引くかはプレイヤーが決める。延長の代価は「もう1ターン帰ってこない」ことそのもの
-        // （そのぶんの維持費と、余分に踏むフェーズぶんの遭遇リスク）。
+        // （そのぶんの維持費と、余分に踏むエリアぶんの遭遇リスク）。
         if (!q.failed && !q.retreated && q.def.IsGatherQuest
             && !q.GatherFulfilled && q.currentPhase >= q.PhaseLimit)
         {
             q.gatherDecisionPending = true;
             q.gatherDecisionTurn = currentTurn;
-            q.logs.Add($"[Turn {currentTurn}] {q.def.gatherItemName} が目標数に届かないまま予定のフェーズを使い切った"
+            q.logs.Add($"[Turn {currentTurn}] {q.def.gatherItemName} が目標数に届かないまま予定のエリアを使い切った"
                 + $"（{q.gatheredCount}/{q.def.gatherTargetCount}）→ 続行するか引き上げるかの指示待ち");
             q.AddReportEvent(
                 currentTurn,
@@ -275,7 +277,7 @@ public class QuestProgressor
         _ => "戦闘から撤退",
     };
 
-    // ダンジョンの重み表からフェーズごとに1イベント抽選。未設定なら Nothing。
+    // ダンジョンの重み表からエリアごとに1イベント抽選。未設定なら Nothing。
     // 宝探しや罠の勘といったスキルは、この重みそのものを歪める。
     // 重みが0のイベント（そのダンジョンには存在しないもの）はスキルでも生やせない。
     static DungeonEventType RollDungeonEvent(
@@ -351,7 +353,7 @@ public class QuestProgressor
         return QuestEventType.None;
     }
 
-    // フェーズ帯で絞った候補から重み付き抽選。
+    // エリア帯で絞った候補から重み付き抽選。
     static EnemyUnitTemplate? PickEncounter(DungeonMasterData? d, int phase)
     {
         if (d == null || d.encounterTable.Count == 0) return null;
@@ -377,21 +379,30 @@ public class QuestProgressor
         var chest = new TreasureChest { kind = kind, foundPhase = phase };
         q.chests.Add(chest);
         if (kind == TreasureChestKind.Boss)
-            q.logs.Add($"  Phase {phase}: ボスの宝箱を手に入れた（帰還後に開封）");
+            q.logs.Add($"  エリア {phase}: ボスの宝箱を手に入れた（帰還後に開封）");
     }
 
-    static void RollEnemyDrops(QuestRun q, IEnumerable<EnemyData?> enemies, int phase)
+    static void RollEnemyDrops(
+        QuestRun q,
+        IEnumerable<EnemyData?> enemies,
+        int phase,
+        PartySkillEffects partySkills)
     {
         foreach (var enemy in enemies.Where(e => e != null))
         {
             foreach (var entry in enemy!.master.dropTable)
             {
                 if (RelicSystem.IsFrozenRelicReward(entry)) continue;
-                if (entry.chance <= 0f || GameRandom.NextFloat() >= entry.chance) continue;
+                float finalChance = partySkills.EnemyDropChanceFor(entry);
+                if (finalChance <= 0f || GameRandom.NextFloat() >= finalChance) continue;
                 var drop = entry.Copy();
                 q.pendingLoot.Add(drop);
-                q.logs.Add($"  Phase {phase}: レアドロップ！ {enemy.master.baseName}から"
-                    + $"{RewardDescription.DescribeLoot(drop)}{RewardDescription.DescribeQuantity(drop)}（帰還時に確定）");
+                string skillNote = Math.Abs(finalChance - entry.chance) > 0.0001f
+                    ? $"（解体補正 {entry.chance:P0}→{finalChance:P0}）"
+                    : "";
+                q.logs.Add($"  エリア {phase}: レアドロップ！ {enemy.master.baseName}から"
+                    + $"{RewardDescription.DescribeLoot(drop)}{RewardDescription.DescribeQuantity(drop)}"
+                    + $"{skillNote}（帰還時に確定）");
             }
         }
     }

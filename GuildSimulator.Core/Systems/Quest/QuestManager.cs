@@ -1,6 +1,7 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
 using System.Linq;
@@ -215,6 +216,9 @@ public class QuestManager
                 progressor.AdvanceOnePhase(q, currentTurn);
 
             if (q.IsInProgress)
+                AppearanceSystem.TryRunHumanEncounter(q, currentTurn);
+
+            if (q.IsInProgress)
             {
                 var choiceEvent = PickTurnEndEvent(q.def.Dungeon);
                 if (choiceEvent != null)
@@ -230,7 +234,23 @@ public class QuestManager
                 q.clearProgressApplied = true;
                 foreach (var a in q.EnumerateMembers())
                 {
-                    a.OnClearQuest(q.def.rank);
+                    var unlockedSkills = a.OnClearQuest(q.def.rank);
+                    if (unlockedSkills.Count > 0)
+                    {
+                        string names = string.Join("」「", unlockedSkills.Select(skill => skill.skillName));
+                        string className = a.currentClass?.className ?? "職業";
+                        string message = $"{a.name}がスキル「{names}」を習得"
+                            + $"（{className}習熟度 {a.CurrentClassClearCount}）";
+                        q.logs.Add($"[スキル習得] {message}");
+                        q.AddReportEvent(
+                            currentTurn,
+                            q.currentPhase,
+                            ExpeditionEventKind.Progress,
+                            "スキル習得",
+                            message,
+                            important: true,
+                            actorName: a.name);
+                    }
                     a.RecordQuestClearForRank(q.def.rank, out _);
                 }
                 if (q.def.rankUpOnClear > 0)
@@ -256,10 +276,10 @@ public class QuestManager
     }
 
     /// <summary>
-    /// 採取が目標に届かないまま予定フェーズを使い切ったときの二択を解決する。
+    /// 採取が目標に届かないまま予定エリアを使い切ったときの二択を解決する。
     ///
-    /// 続行を選ぶと <c>phasesPerTurn</c> ぶんフェーズが伸びる。伸びたぶんが進むのは次のターンなので、
-    /// 延長の代価は「もう1ターン帰ってこない」こと——余分な維持費と、踏み足すフェーズぶんの
+    /// 続行を選ぶと <c>phasesPerTurn</c> ぶんエリアが伸びる。伸びたぶんが進むのは次のターンなので、
+    /// 延長の代価は「もう1ターン帰ってこない」こと——余分な維持費と、踏み足すエリアぶんの
     /// 遭遇・罠・士気の消耗——になる。回数制限はなく、届くまで何度でも聞く。
     /// </summary>
     public bool ResolveGatherDecision(QuestRun q, bool keepSearching, out string result)
@@ -276,8 +296,8 @@ public class QuestManager
             int added = Math.Max(1, q.def.phasesPerTurn);
             q.extraPhases += added;
             q.gatherExtensions++;
-            result = $"捜索を続けさせた（{progress}）。行程を {added} フェーズ延ばす"
-                + $"（Phase {q.currentPhase}/{q.PhaseLimit}、延長 {q.gatherExtensions} 回目）";
+            result = $"捜索を続けさせた（{progress}）。行程を {added}エリア延ばす"
+                + $"（エリア {q.currentPhase}/{q.PhaseLimit}、延長 {q.gatherExtensions} 回目）";
             q.logs.Add($"[Turn {currentTurn}] 続行を指示。{result}");
             q.AddReportEvent(
                 currentTurn,
@@ -285,7 +305,7 @@ public class QuestManager
                 ExpeditionEventKind.Decision,
                 "捜索続行",
                 $"{progress} のまま帰るわけにはいかない。ギルドは滞在の延長を認めた"
-                    + $"（延長 {q.gatherExtensions} 回目、Phase {q.PhaseLimit} まで）。",
+                    + $"（延長 {q.gatherExtensions} 回目、エリア {q.PhaseLimit} まで）。",
                 important: true);
             return true;
         }

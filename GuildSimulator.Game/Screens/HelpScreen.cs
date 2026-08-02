@@ -2,6 +2,7 @@ using GuildSimulator.Core;
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Game.Data;
@@ -123,7 +124,7 @@ public static class HelpScreen
         Ui.WriteLine("                      道中で得た戦利品（宝箱など）はそのまま持ち帰れる。");
         Ui.WriteLine("  ・壊滅            : 全員が戦闘不能になった場合。報酬・戦利品はすべて失われる。");
         Ui.WriteLine("                      帰還処理で各自の死亡または負傷が確定し、医療院は死亡率を下げる。");
-        Ui.WriteLine("  ・選択イベント    : ターン内の最終フェーズ後に発生することがある。");
+        Ui.WriteLine("  ・選択イベント    : ターン内の最終エリア後に発生することがある。");
         Ui.WriteLine("                      未解決の選択がある間は次のターンへ進めない。");
         Ui.WriteLine("  ・報酬の見方      : クエストボードの基本報酬は確定分のみ。宝箱・敵ドロップ・選択イベントの");
         Ui.WriteLine("                      副収入は含まれておらず、結果によって上乗せされる。");
@@ -237,12 +238,14 @@ public static class HelpScreen
         Ui.WriteLine($"     AGI 敏捷 : 命中補正＝AGIのmodifier / DV＝{QudCombat.BASE_DV}＋AGIのmodifier");
         Ui.WriteLine("     STR 筋力 : 物理PV＝STRのmodifier（武器の上限まで）/ 積載上限");
         Ui.WriteLine("     INT 知力 : 魔法PV＝INTのmodifier（武器の上限まで）/ 回復力");
+        Ui.WriteLine($"     APP 容姿 : APP{AppearanceSystem.HighAppearanceThreshold}以上でクエストGPと戦闘中の士気回復にボーナス。対人遭遇の判定にも使う");
+        Ui.WriteLine("                APPが極端に高い、または低い隊員は、戦場で少し目立って狙われやすくなる。");
         Ui.WriteLine("     ・敏捷は命中とDVの両方に効くので、1点の価値がもっとも広い。");
         Ui.WriteLine($"     ・レベルアップで伸びるのは1レベルにつき{AdventurerData.StatPointsPerLevel}能力だけ。");
         Ui.WriteLine("       VIT・MEN・STR・AGI・INTのどれが伸びるかは種族と職業の重みで抽選され、選べない。");
         Ui.WriteLine("       得意な能力ほど当たりやすいが、不得手な能力も稀に伸びる。");
         Ui.WriteLine("       同じ職業・同じレベルでも育ち方が食い違うので、代わりの利かない一人になっていく。");
-        Ui.WriteLine("     ・SIZは伸びない。素の装甲AVと積載上限は雇用したときの素質で決まる。");
+        Ui.WriteLine("     ・SIZとAPPは伸びない。体格と容姿は雇用したときの素質で決まる。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 命中補正の内訳");
         Ui.WriteLine("     命中補正 ＝ AGIのmodifier");
@@ -434,7 +437,7 @@ public static class HelpScreen
         Ui.WriteLine("       ・[左手武器] 左手に武器を握っているとき（二刀流）");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 戦闘の外に効くスキル");
-        Ui.WriteLine("     報酬G・経験値・宝箱率・罠率を動かすスキルは、連れて行った全員ぶんが合算される。");
+        Ui.WriteLine("     報酬・道中イベント・休息・敵ドロップを動かすスキルは、連れて行った全員ぶんが合算される。");
         Ui.WriteLine("     隊列も生死も関係なく、その遠征に誰を出したかだけで決まる。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 習得条件 ── クラス習熟度");
@@ -486,6 +489,7 @@ public static class HelpScreen
                 var parts = EquipmentText.BonusParts(skill.add);
                 parts.AddRange(MultiplierParts(skill.mul));
                 parts.AddRange(EquipmentText.ExpeditionParts(skill.expedition));
+                parts.AddRange(EquipmentText.BattleParts(skill.battle));
                 if (!string.IsNullOrWhiteSpace(skill.unarmedDamageDice))
                     parts.Add($"素手{skill.unarmedDamageDice}");
                 string effect = parts.Count > 0 ? string.Join(" ", parts) : "効果なし";

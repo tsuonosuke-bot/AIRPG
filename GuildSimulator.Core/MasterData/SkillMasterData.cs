@@ -56,6 +56,9 @@ public class SkillMasterData
     /// <summary>戦闘の外――遠征そのものに効く補正。</summary>
     public SkillExpeditionEffect expedition;
 
+    /// <summary>HP・状態異常・盾の受けなど、戦闘中の出来事を条件に発動する効果。</summary>
+    public SkillBattleEffect battle;
+
     /// <summary>戦闘開始時に付与するバフ・状態効果。</summary>
     public List<CombatStatusApplicationData> battleStartStatuses = new();
 
@@ -81,7 +84,63 @@ public struct SkillExpeditionEffect
     /// <summary>ダンジョンの罠イベントの出やすさへの増減（%）。負の値で踏みにくくなる。</summary>
     public int trapChancePercent;
 
+    /// <summary>敵遭遇イベントの出やすさへの増減（%）。負の値で遭遇しにくくなる。</summary>
+    public int enemyEncounterChancePercent;
+
+    /// <summary>休息イベントの出やすさへの増減（%）。</summary>
+    public int healEventChancePercent;
+
+    /// <summary>休息イベントで回復するHPへの増減（%）。</summary>
+    public int restHealPercent;
+
+    /// <summary>敵ごとのドロップ抽選率への増減（%）。</summary>
+    public int enemyDropChancePercent;
+
+    /// <summary>
+    /// 装備ドロップのレアリティ1段階ごとに加える抽選率（%）。
+    /// アイテム自体を別レアリティへ変えるのではなく、希少なドロップほど見つけやすくする。
+    /// </summary>
+    public int rareDropChancePercent;
+
     public bool IsEmpty =>
         goldPercent == 0 && expPercent == 0
-        && treasureChancePercent == 0 && trapChancePercent == 0;
+        && treasureChancePercent == 0 && trapChancePercent == 0
+        && enemyEncounterChancePercent == 0 && healEventChancePercent == 0
+        && restHealPercent == 0 && enemyDropChancePercent == 0
+        && rareDropChancePercent == 0;
+}
+
+/// <summary>
+/// 戦闘の進行中に条件を判定するスキル効果。
+/// 静的な能力補正は <see cref="SkillMasterData.add"/>、開始時・命中時の状態付与は
+/// <see cref="SkillMasterData.battleStartStatuses"/> / <see cref="SkillMasterData.onHitStatuses"/> を使う。
+/// </summary>
+public struct SkillBattleEffect
+{
+    /// <summary>このHP率（%）以下の味方が狙われたとき、庇護を試みる。0なら発動しない。</summary>
+    public int protectAllyHpPercent;
+
+    /// <summary>庇護して攻撃対象を自分へ変える確率（%）。</summary>
+    public int protectChancePercent;
+
+    /// <summary>毒・出血・火傷中の攻撃対象に対する物理PV加算。</summary>
+    public int afflictedTargetPv;
+
+    /// <summary>回復成功時、対象の有害状態を1つ解除する確率（%）。</summary>
+    public int cleanseOnHealChancePercent;
+
+    /// <summary>このHP率（%）以下で背水PVを得る。0なら発動しない。</summary>
+    public int lowHpThresholdPercent;
+
+    /// <summary>背水条件を満たしている間の物理PV加算。</summary>
+    public int lowHpPv;
+
+    /// <summary>盾でダメージを完全に防いだ直後、通常攻撃で反撃する確率（%）。</summary>
+    public int counterChancePercent;
+
+    public bool IsEmpty =>
+        protectAllyHpPercent == 0 && protectChancePercent == 0
+        && afflictedTargetPv == 0 && cleanseOnHealChancePercent == 0
+        && lowHpThresholdPercent == 0 && lowHpPv == 0
+        && counterChancePercent == 0;
 }

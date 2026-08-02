@@ -76,6 +76,7 @@ public static class MasterLoader
                 unarmedDamageDice = s.unarmedDamageDice ?? "",
                 add = ParseStatBlock(s.add), mul = ParseMul(s.mul),
                 expedition = ParseExpedition(s.expedition),
+                battle = ParseBattle(s.battle),
                 battleStartStatuses = ParseCombatStatuses(s.battleStartStatuses),
                 onHitStatuses = ParseCombatStatuses(s.onHitStatuses),
             };
@@ -453,6 +454,25 @@ public static class MasterLoader
         d.TryGetValue("expPercent", out e.expPercent);
         d.TryGetValue("treasureChancePercent", out e.treasureChancePercent);
         d.TryGetValue("trapChancePercent", out e.trapChancePercent);
+        d.TryGetValue("enemyEncounterChancePercent", out e.enemyEncounterChancePercent);
+        d.TryGetValue("healEventChancePercent", out e.healEventChancePercent);
+        d.TryGetValue("restHealPercent", out e.restHealPercent);
+        d.TryGetValue("enemyDropChancePercent", out e.enemyDropChancePercent);
+        d.TryGetValue("rareDropChancePercent", out e.rareDropChancePercent);
+        return e;
+    }
+
+    static SkillBattleEffect ParseBattle(Dictionary<string, int>? d)
+    {
+        if (d == null) return default;
+        SkillBattleEffect e = default;
+        d.TryGetValue("protectAllyHpPercent", out e.protectAllyHpPercent);
+        d.TryGetValue("protectChancePercent", out e.protectChancePercent);
+        d.TryGetValue("afflictedTargetPv", out e.afflictedTargetPv);
+        d.TryGetValue("cleanseOnHealChancePercent", out e.cleanseOnHealChancePercent);
+        d.TryGetValue("lowHpThresholdPercent", out e.lowHpThresholdPercent);
+        d.TryGetValue("lowHpPv", out e.lowHpPv);
+        d.TryGetValue("counterChancePercent", out e.counterChancePercent);
         return e;
     }
 
@@ -504,6 +524,7 @@ public static class MasterLoader
         bool requirePhysicalWeapon = false,
         string? unarmedDamageDice = null,
         Dictionary<string, int>? expedition = null,
+        Dictionary<string, int>? battle = null,
         List<CombatStatusJson>? battleStartStatuses = null,
         List<CombatStatusJson>? onHitStatuses = null);
 

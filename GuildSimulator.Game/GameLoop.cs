@@ -275,13 +275,13 @@ public static class GameLoop
                 : q.CanComplete ? "完了可能"
                 : "進行中";
             Ui.WriteLine($"  ◆ {q.def.questName}  {status}");
-            Ui.WriteLine($"      Phase {before.Phase} → {q.currentPhase}/{q.def.totalPhases}"
+            Ui.WriteLine($"      エリア {before.Phase} → {q.currentPhase}/{q.def.totalPhases}"
                 + $"   HP {before.Hp} → {q.unitHpCurrent}/{q.unitHpMax}"
                 + $"   士気 {before.Morale} → {q.morale.Current}/{q.morale.Max}");
 
             var eventSummaries = q.logs
                 .Skip(before.LogCount)
-                .Where(log => log.StartsWith($"[Turn {summaryTurn}] Phase ") && log.Contains('/'))
+                .Where(log => log.StartsWith($"[Turn {summaryTurn}] エリア ") && log.Contains('/'))
                 .TakeLast(3)
                 .ToList();
             foreach (var log in eventSummaries)

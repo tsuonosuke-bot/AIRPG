@@ -45,7 +45,7 @@ public static class RecruitScreen
                     var detail = new List<string>
                     {
                         $"{m.DefaultClass?.className ?? "？"}/{m.Race?.raceName ?? "？"}  {Ui.RarityLabel(m.rarity)}  維持費{adventurerUpkeep}G/T",
-                        $"VIT:{m.vitality} MEN:{m.mental} STR:{m.strength} AGI:{m.agility} INT:{m.intelligence} SIZ:{m.constitution}",
+                        $"VIT:{m.vitality} MEN:{m.mental} STR:{m.strength} AGI:{m.agility} INT:{m.intelligence} SIZ:{m.constitution} APP:{m.appearance}",
                         $"武器:{m.DefaultWeapon?.displayName ?? "なし"}  防具:{m.DefaultArmor?.displayName ?? "なし"}",
                     };
                     if (m.gender != Gender.Unspecified)

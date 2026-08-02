@@ -41,11 +41,11 @@ public class QuestRun
     // それに帰還後に開けた宝箱の中身がここへ積まれ、まとめて付与される（全滅時は失う）。
     public List<RewardEntryData> pendingLoot = new();
 
-    // 採取クエストの収集数。目標に達した時点で最終フェーズを待たずに帰還できる。
+    // 採取クエストの収集数。目標に達した時点で最終エリアを待たずに帰還できる。
     public int gatheredCount;
 
     /// <summary>
-    /// 採取が目標に届かないまま予定フェーズを使い切ったとき、パーティは撤退せず判断を仰いでくる。
+    /// 採取が目標に届かないまま予定エリアを使い切ったとき、パーティは撤退せず判断を仰いでくる。
     /// これが立っている間は進行が止まり、プレイヤーが「延長」か「撤退」を選ぶまで動かない。
     /// </summary>
     public bool gatherDecisionPending;
@@ -53,7 +53,7 @@ public class QuestRun
     /// <summary>判断を仰いだターン。報告書の並びを合わせるために覚えておく。</summary>
     public int gatherDecisionTurn;
 
-    /// <summary>延長で積み増したフェーズ数。1回の延長で phasesPerTurn ぶん伸びる。</summary>
+    /// <summary>延長で積み増したエリア数。1回の延長で phasesPerTurn ぶん伸びる。</summary>
     public int extraPhases;
 
     /// <summary>延長した回数。回数制限はなく、届くまで何度でも聞かれる。</summary>
@@ -75,12 +75,12 @@ public class QuestRun
 
     public bool GatherFulfilled => def.IsGatherQuest && gatheredCount >= def.gatherTargetCount;
 
-    /// <summary>今回の遠征で踏み込めるフェーズ数。延長するたびに伸びる。</summary>
+    /// <summary>今回の遠征で踏み込めるエリア数。延長するたびに伸びる。</summary>
     public int PhaseLimit => def.totalPhases + extraPhases;
 
     /// <summary>
     /// 踏破・採取目標の達成。撤退や全滅は含まない。
-    /// <b>採取クエストの達成は素材が揃ったかどうかだけで決まる</b>。フェーズを使い切っても
+    /// <b>採取クエストの達成は素材が揃ったかどうかだけで決まる</b>。エリアを使い切っても
     /// 手ぶらならクリアではなく、延長するか撤退するかの判断待ちになる。
     /// </summary>
     public bool ReachedGoal => def.IsGatherQuest ? GatherFulfilled : currentPhase >= PhaseLimit;

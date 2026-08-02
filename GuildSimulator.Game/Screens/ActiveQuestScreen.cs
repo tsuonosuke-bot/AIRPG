@@ -31,7 +31,7 @@ public static class ActiveQuestScreen
                     : q.HasPendingChoice ? "[選択待ち]"
                     : q.HasGatherDecision ? "[採取の指示待ち]"
                     : q.CanComplete ? "[完了可能]"
-                    : $"Phase {q.currentPhase}/{q.PhaseLimit}";
+                    : $"エリア {q.currentPhase}/{q.PhaseLimit}";
                 string hp = q.unitHpMax > 0 ? $"HP {q.unitHpCurrent}/{q.unitHpMax}" : "";
                 string morale = $"  士気 {q.morale.Current}/{q.morale.Max}";
                 string gather = q.def.IsGatherQuest
@@ -95,7 +95,7 @@ public static class ActiveQuestScreen
             string state = q.failed ? "全員戦闘不能" : q.retreated ? "撤退" : q.CanComplete ? "完了可能" : "進行中";
             Ui.BeginScreen();
             Ui.Header($"クエスト: {q.def.questName}");
-            Ui.WriteLine($"  フェーズ: {q.currentPhase}/{q.PhaseLimit}  状態: {state}"
+            Ui.WriteLine($"  エリア: {q.currentPhase}/{q.PhaseLimit}  状態: {state}"
                 + (q.gatherExtensions > 0 ? $"（延長 {q.gatherExtensions} 回）" : ""));
             Ui.WriteLine($"  遠征方針  : {QuestManager.PolicyName(q.policy)}");
             Ui.WriteLine($"  ユニットHP: {q.unitHpCurrent}/{q.unitHpMax}");
@@ -288,7 +288,7 @@ public static class ActiveQuestScreen
         foreach (var e in q.reportEvents.TakeLast(8))
         {
             string marker = e.important ? "◆" : "・";
-            string phase = e.phase > 0 ? $" Phase {e.phase}" : "";
+            string phase = e.phase > 0 ? $" エリア {e.phase}" : "";
             Ui.WriteLine($"    {marker} Turn {e.turn}{phase}: {e.title}");
             if (!string.IsNullOrWhiteSpace(e.detail))
                 Ui.Dim($"       {e.detail}");
@@ -296,7 +296,7 @@ public static class ActiveQuestScreen
     }
 
     /// <summary>
-    /// 採取が目標に届かないまま予定フェーズを使い切ったときの二択。
+    /// 採取が目標に届かないまま予定エリアを使い切ったときの二択。
     /// 延長には回数制限がないので、引き際を決めるのはプレイヤーの側になる。
     /// 判断材料（残り士気・HP・現地の消耗）を並べたうえで聞く。
     /// </summary>
@@ -307,7 +307,7 @@ public static class ActiveQuestScreen
 
         Ui.BeginScreen();
         Ui.Header($"採取の指示待ち: {q.def.questName}");
-        Ui.Warn($"  予定していた {q.PhaseLimit} フェーズを使い切りましたが、"
+        Ui.Warn($"  予定していた {q.PhaseLimit}エリアを使い切りましたが、"
             + $"{q.def.gatherItemName} が {shortage} 個足りません");
         Ui.WriteLine($"  採取状況　: {q.def.gatherItemName} {q.gatheredCount}/{q.def.gatherTargetCount}");
         Ui.WriteLine($"  ユニットHP: {q.unitHpCurrent}/{q.unitHpMax}");
@@ -321,8 +321,8 @@ public static class ActiveQuestScreen
 
         var options = new List<MenuOption>
         {
-            new("1", $"捜索を続けさせる（+{added}フェーズ）",
-                "帰還が1ターン遅れ、そのぶん維持費がかかります。踏み足すフェーズでは戦闘も罠も起こります"),
+            new("1", $"捜索を続けさせる（+{added}エリア）",
+                "帰還が1ターン遅れ、そのぶん維持費がかかります。踏み足すエリアでは戦闘も罠も起こります"),
             new("2", "引き上げさせる",
                 $"撤退扱い。基本報酬は{QuestRewardService.RetreatRewardRate:P0}、ギルドポイントはなし。"
                     + "拾った戦利品と宝箱は持ち帰れます"),

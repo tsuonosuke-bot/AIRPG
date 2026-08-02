@@ -1,6 +1,7 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Quest;
 using GuildSimulator.Core.Systems.Guild;
@@ -79,7 +80,7 @@ public static class QuestBoardScreen
         if (q.IsGatherQuest)
             Ui.WriteLine($"  採取: {q.gatherItemName} x{q.gatherTargetCount}"
                 + $"（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還"
-                + $" / {q.totalPhases}フェーズで足りなければ延長か撤退を選ぶ）");
+                + $" / {q.totalPhases}エリアで足りなければ延長か撤退を選ぶ）");
         string bossInfo = diff.hasBoss ? $"  ボス:脅威度{diff.BossThreatLabel}" : "";
         Ui.WriteLine($"  場所: {q.Dungeon?.dungeonName ?? "？"}  敵の脅威度{diff.EnemyThreatRange}"
             + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
@@ -273,6 +274,12 @@ public static class QuestBoardScreen
         Ui.WriteLine();
         Ui.Header("パーティ戦力");
         Ui.WriteLine($"  平均レベル: {avgLevel}   合計HP: {totalHp}   推定士気: {totalMorale}");
+        int maxAppearance = AppearanceSystem.HighestAppearance(formation);
+        int fameBonus = AppearanceSystem.GuildPointBonusPercent(formation);
+        int battleMorale = AppearanceSystem.BattleMoralePerRound(
+            formation.Cast<IUnitMember?>());
+        Ui.WriteLine($"  最高APP: {maxAppearance}   名声ボーナス: +{fameBonus}%"
+            + $"   戦闘中の士気回復: +{battleMorale}/ラウンド");
         Ui.WriteLine($"  クエスト難易度: {diff.label}（スコア{diff.score:0}）  敵の脅威度: {diff.EnemyThreatRange}");
         if (diff.hasBoss)
             Ui.WriteLine($"  ボス: 脅威度{diff.BossThreatLabel}");

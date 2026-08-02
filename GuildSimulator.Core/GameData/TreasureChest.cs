@@ -10,7 +10,7 @@ public class TreasureChest
 {
     public TreasureChestKind kind;
 
-    /// <summary>見つけたフェーズ。報告の並び順を保つためだけに持つ。</summary>
+    /// <summary>見つけたエリア。報告の並び順を保つためだけに持つ。</summary>
     public int foundPhase;
 
     public bool IsBossChest => kind == TreasureChestKind.Boss;

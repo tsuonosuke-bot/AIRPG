@@ -34,7 +34,7 @@ public static class RankBandTable
     public const float MinGatherChance = 0.65f;
 
     /// <summary>
-    /// 予定フェーズ内に採取目標へ届く確率(%)の帯。ランクが上がるほど低くし、
+    /// 予定エリア内に採取目標へ届く確率(%)の帯。ランクが上がるほど低くし、
     /// 「延長するか引き上げるか」の判断が奥へ行くほど頻繁に起きるようにする。
     /// 届かなくても撤退が確定するわけではなく、行程を延ばせば取り返せる
     /// （<c>QuestManager.ResolveGatherDecision</c>）ので、ここは失敗率ではなく
@@ -49,18 +49,18 @@ public static class RankBandTable
     public static Band? GatherSuccessForRank(int rank) =>
         _gatherSuccess.TryGetValue(rank, out var b) ? b : (Band?)null;
 
-    /// <summary>そのクエストで見込める採取量。ボスのフェーズでは採取判定が起きない。</summary>
+    /// <summary>そのクエストで見込める採取量。ボスのエリアでは採取判定が起きない。</summary>
     public static float ExpectedGatherYield(int totalPhases, int bossPhase, bool hasBoss,
         float gatherChance, int minPerEvent, int maxPerEvent)
         => GatherPhases(totalPhases, bossPhase, hasBoss)
             * gatherChance * (minPerEvent + maxPerEvent) / 2f;
 
     /// <summary>
-    /// 予定フェーズ内に <paramref name="targetCount"/> 個へ届く確率(%)。
+    /// 予定エリア内に <paramref name="targetCount"/> 個へ届く確率(%)。
     ///
     /// 期待量が目標の何倍か、という近似では足りない。同じ期待量でも
-    /// 「毎フェーズ1〜2個」と「たまに大量」ではブレの幅がまるで違い、達成率が10ポイント以上ずれる。
-    /// フェーズごとの畳み込みで分布そのものを出す。目標に届いた時点で採取は止まるので、
+    /// 「毎エリア1〜2個」と「たまに大量」ではブレの幅がまるで違い、達成率が10ポイント以上ずれる。
+    /// エリアごとの畳み込みで分布そのものを出す。目標に届いた時点で採取は止まるので、
     /// 到達済みの確率は吸収状態にまとめる。
     /// </summary>
     public static float GatherSuccessPercent(int totalPhases, int bossPhase, bool hasBoss,

@@ -27,8 +27,8 @@ public static class DungeonDifficulty
     {
         public double score;         // 難易度の総合スコア（下限なし、段階数に縛られない目安値）
         public string label = "";
-        public float combatChance;   // 1フェーズあたりの敵遭遇率 0..1
-        public float trapChance;     // 1フェーズあたりの罠率 0..1
+        public float combatChance;   // 1エリアあたりの敵遭遇率 0..1
+        public float trapChance;     // 1エリアあたりの罠率 0..1
         public int enemyThreatMin;
         public int enemyThreatMax;
         public bool hasBoss;
@@ -66,7 +66,7 @@ public static class DungeonDifficulty
 
         // --- 敵の脅威度帯 ---
         // 倍率でのスケーリングは廃止したので、出現しうる敵ユニットの脅威度をそのまま見る。
-        // このクエストのフェーズ数を超えたminPhaseを持つ行は実際には出現しないので除外する。
+        // このクエストのエリア数を超えたminPhaseを持つ行は実際には出現しないので除外する。
         if (d != null && d.encounterTable.Count > 0)
         {
             var units = d.encounterTable

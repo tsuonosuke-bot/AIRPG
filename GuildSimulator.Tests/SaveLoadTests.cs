@@ -70,8 +70,9 @@ public class SaveLoadTests
         run.retreatReason = ExpeditionRetreatReason.SurvivalPolicy;
         run.morale.Drain(5);
         run.logs.Add("テストログ");
+        run.logs.Add("[Turn 2] Phase 2/10: 旧表記ログ");
         run.AddReportEvent(
-            2, 2, ExpeditionEventKind.Discovery, "テスト発見", "構造化された報告", important: true);
+            2, 2, ExpeditionEventKind.Discovery, "テスト発見", "Phase 2までの構造化された報告", important: true);
         run.pendingLoot.Add(new RewardEntryData
         {
             type = RewardType.Relic,
@@ -136,6 +137,8 @@ public class SaveLoadTests
             Assert.Equal(run.morale.Current, loadedRun.morale.Current);
             Assert.Equal(run.morale.Max, loadedRun.morale.Max);
             Assert.Contains("テストログ", loadedRun.logs);
+            Assert.Contains("[Turn 2] エリア 2/10: 旧表記ログ", loadedRun.logs);
+            Assert.DoesNotContain(loadedRun.logs, log => log.Contains("Phase") || log.Contains("フェーズ"));
             Assert.Same(loadedAdv, loadedRun.formation[0]);   // 編成の参照は復元済みadventurerと一致する
             Assert.Equal(run.startingLevels, loadedRun.startingLevels);
             Assert.Equal(run.guildUpkeepAtStart, loadedRun.guildUpkeepAtStart);
@@ -143,7 +146,7 @@ public class SaveLoadTests
             Assert.True(loadedRun.retreated);
             Assert.Equal(ExpeditionRetreatReason.SurvivalPolicy, loadedRun.retreatReason);
             var loadedReport = Assert.Single(loadedRun.reportEvents, e => e.title == "テスト発見");
-            Assert.Equal("構造化された報告", loadedReport.detail);
+            Assert.Equal("エリア 2までの構造化された報告", loadedReport.detail);
 
             var loadedLoot = Assert.Single(loadedRun.pendingLoot);
             Assert.Same(relic, loadedLoot.Relic);

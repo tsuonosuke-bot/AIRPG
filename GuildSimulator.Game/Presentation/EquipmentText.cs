@@ -110,6 +110,29 @@ public static class EquipmentText
         Add("経験値", e.expPercent);
         Add("宝箱率", e.treasureChancePercent);
         Add("罠率", e.trapChancePercent);
+        Add("敵遭遇率", e.enemyEncounterChancePercent);
+        Add("休息率", e.healEventChancePercent);
+        Add("休息回復", e.restHealPercent);
+        Add("敵ドロップ率", e.enemyDropChancePercent);
+        if (e.rareDropChancePercent != 0)
+            parts.Add($"高レア率{(e.rareDropChancePercent > 0 ? "+" : "")}{e.rareDropChancePercent}%/段階");
+        return parts;
+    }
+
+    /// <summary>戦闘中の出来事を条件に発動するスキル効果。0の項目は出さない。</summary>
+    public static List<string> BattleParts(SkillBattleEffect e)
+    {
+        var parts = new List<string>();
+        if (e.protectAllyHpPercent > 0 && e.protectChancePercent > 0)
+            parts.Add($"庇護HP{e.protectAllyHpPercent}%以下/{e.protectChancePercent}%");
+        if (e.afflictedTargetPv != 0)
+            parts.Add($"異常敵PV{(e.afflictedTargetPv > 0 ? "+" : "")}{e.afflictedTargetPv}");
+        if (e.cleanseOnHealChancePercent > 0)
+            parts.Add($"回復時浄化{e.cleanseOnHealChancePercent}%");
+        if (e.lowHpThresholdPercent > 0 && e.lowHpPv != 0)
+            parts.Add($"HP{e.lowHpThresholdPercent}%以下PV{(e.lowHpPv > 0 ? "+" : "")}{e.lowHpPv}");
+        if (e.counterChancePercent > 0)
+            parts.Add($"完全防御時反撃{e.counterChancePercent}%");
         return parts;
     }
 }

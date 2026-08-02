@@ -37,7 +37,7 @@ public class QuestRewardTests
         Assert.Equal(expectedGold, guild.Gold);
     }
 
-    // 目標に届かないまま予定フェーズを使い切っても、勝手に引き返さず指示を待つ。
+    // 目標に届かないまま予定エリアを使い切っても、勝手に引き返さず指示を待つ。
     [Fact]
     public void GatherQuestAsksForOrdersWhenTargetNotMetAtFinalPhase()
     {
@@ -49,6 +49,8 @@ public class QuestRewardTests
         Assert.False(run.CanComplete);   // 判断が済むまで完了処理には進めない
         Assert.False(run.IsInProgress);  // 進行も止まる
         Assert.Equal(0, run.gatheredCount);
+        Assert.Contains(run.logs, log => log.StartsWith("[Turn 1] エリア 3/3:"));
+        Assert.DoesNotContain(run.logs, log => log.Contains("Phase") || log.Contains("フェーズ"));
     }
 
     [Fact]
@@ -87,7 +89,7 @@ public class QuestRewardTests
         Assert.True(run.CanComplete);
     }
 
-    // 採取が一切起きないクエストを予定フェーズぶん進め、指示待ちの状態を作る。
+    // 採取が一切起きないクエストを予定エリアぶん進め、指示待ちの状態を作る。
     static QuestRun RunOutOfPhases()
     {
         var dungeon = new DungeonMasterData { id = "dungeon", dungeonName = "試験場" };
@@ -107,7 +109,7 @@ public class QuestRewardTests
         return run;
     }
 
-    // 予定フェーズを使い切っても素材が揃っていなければクリアではない。
+    // 予定エリアを使い切っても素材が揃っていなければクリアではない。
     // ここを取り違えると、手ぶらの遠征が満額報酬になる。
     [Fact]
     public void RunningOutOfPhasesEmptyHandedIsNotAClear()
@@ -353,7 +355,7 @@ public class QuestRewardTests
         Assert.Contains("宝箱 x2", result);
     }
 
-    // ボスを必ず倒せる編成で bossPhase を1フェーズだけ進め、ドロップ抽選の結果を返す。
+    // ボスを必ず倒せる編成で bossPhase を1エリアだけ進め、ドロップ抽選の結果を返す。
     static QuestRun DefeatBoss(List<RewardEntryData> bossDrops, bool guaranteed = false)
     {
         var boss = new EnemyUnitTemplate { id = "boss", unitName = "案山子" };

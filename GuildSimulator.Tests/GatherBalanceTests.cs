@@ -14,7 +14,7 @@ public class GatherBalanceTests
     static GameMasterData Load() => MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
 
     // 目標に届いた時点で採取は止まるので、確率は「いつか届く」ではなく
-    // 「予定フェーズの内に届く」でなければならない。
+    // 「予定エリアの内に届く」でなければならない。
     [Fact]
     public void SuccessChanceIsOneWhenEveryPhaseAlreadyMeetsTheTarget()
     {
@@ -23,17 +23,17 @@ public class GatherBalanceTests
             gatherChance: 1f, minPerEvent: 3, maxPerEvent: 3, targetCount: 3);
         Assert.Equal(100d, certain, 3);
 
-        // 5フェーズ x 毎回1個で、目標6個には決して届かない。
+        // 5エリア x 毎回1個で、目標6個には決して届かない。
         float impossible = RankBandTable.GatherSuccessPercent(
             5, 0, false, 1f, 1, 1, 6);
         Assert.Equal(0d, impossible, 3);
     }
 
-    // 採取判定が外れ続ければ届かない。10フェーズすべてで当たりを引く確率そのもの。
+    // 採取判定が外れ続ければ届かない。10エリアすべてで当たりを引く確率そのもの。
     [Fact]
     public void SuccessChanceMatchesTheHandComputedValue()
     {
-        // 毎フェーズ 50% で1個。10フェーズで10個ちょうど要るなら、全フェーズ当たりの 0.5^10。
+        // 毎エリア 50% で1個。10エリアで10個ちょうど要るなら、全エリア当たりの 0.5^10。
         float chance = RankBandTable.GatherSuccessPercent(10, 0, false, 0.5f, 1, 1, 10);
         Assert.Equal(Math.Pow(0.5, 10) * 100, chance, 4);
 
@@ -42,7 +42,7 @@ public class GatherBalanceTests
         Assert.Equal((1 - Math.Pow(0.5, 10)) * 100, lenient, 4);
     }
 
-    // ボスのフェーズでは採取判定が起きないので、そのぶん1フェーズ短く数える。
+    // ボスのエリアでは採取判定が起きないので、そのぶん1エリア短く数える。
     [Fact]
     public void BossPhaseDoesNotCountAsAGatheringPhase()
     {
@@ -50,7 +50,7 @@ public class GatherBalanceTests
         float withBoss = RankBandTable.GatherSuccessPercent(10, 10, true, 0.5f, 1, 1, 10);
 
         Assert.Equal(Math.Pow(0.5, 10) * 100, withoutBoss, 4);
-        Assert.Equal(0d, withBoss, 4);   // 採取できるのは9フェーズだけなので10個は不可能
+        Assert.Equal(0d, withBoss, 4);   // 採取できるのは9エリアだけなので10個は不可能
     }
 
     // 期待量が同じでも、ブレの幅が違えば達成率は変わる。
@@ -58,7 +58,7 @@ public class GatherBalanceTests
     [Fact]
     public void SameExpectedYieldButWiderSpreadIsLessReliable()
     {
-        // どちらも期待量は 10フェーズ x 0.8 x 2.5 = 20個。
+        // どちらも期待量は 10エリア x 0.8 x 2.5 = 20個。
         float narrow = RankBandTable.GatherSuccessPercent(10, 0, false, 0.8f, 2, 3, 15);
         float wide = RankBandTable.GatherSuccessPercent(10, 0, false, 0.8f, 1, 4, 15);
 

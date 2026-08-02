@@ -28,7 +28,15 @@ const weaponTraitKeys = ["armorPierce", "armorShred", "critRange", "extraAttacks
 const handKeys = ["isTwoHanded", "blockChance", "blockAv"];
 // AV/DV/PVは1点が重いので倍率では触らない。mul列はこの3つだけを扱う。
 const mulKeys = ["hp", "san", "heal"];
-const expeditionKeys = ["goldPercent", "expPercent", "treasureChancePercent", "trapChancePercent"];
+const expeditionKeys = [
+  "goldPercent", "expPercent", "treasureChancePercent", "trapChancePercent",
+  "enemyEncounterChancePercent", "healEventChancePercent", "restHealPercent",
+  "enemyDropChancePercent", "rareDropChancePercent",
+];
+const battleSkillKeys = [
+  "protectAllyHpPercent", "protectChancePercent", "afflictedTargetPv",
+  "cleanseOnHealChancePercent", "lowHpThresholdPercent", "lowHpPv", "counterChancePercent",
+];
 const rewardKeys = [
   "type", "relicId", "equipmentId", "skillId", "consumableId",
   "gold", "weight", "chance", "quantity", "unique",
@@ -154,6 +162,7 @@ const sheetDefinitions = {
       ...statKeys.map((key) => `add_${key}`),
       ...mulKeys.map((key) => `mul_${key}`),
       ...expeditionKeys.map((key) => `expedition_${key}`),
+      ...battleSkillKeys.map((key) => `battle_${key}`),
     ],
     labels: [
       "ID", "スキル名", "系統", "段階", "範囲", "前衛限定", "後衛限定",
@@ -162,6 +171,7 @@ const sheetDefinitions = {
       ...statKeys.map((key) => `加算 ${key}`),
       ...mulKeys.map((key) => `倍率 ${key}`),
       ...expeditionKeys.map((key) => `遠征 ${key}`),
+      ...battleSkillKeys.map((key) => `戦闘条件 ${key}`),
     ],
   },
   consumables: {
@@ -292,10 +302,10 @@ const sheetDefinitions = {
       "ID", "クエスト名", "依頼人", "依頼文", "物語クエスト",
       "必要クエストID（カンマ区切り）", "必要手掛かりID（カンマ区切り）",
       "獲得手掛かりID（カンマ区切り）", "分岐ID",
-      "ランク(1=F〜7=S)", "総フェーズ", "ターン毎フェーズ",
+      "ランク(1=F〜7=S)", "総エリア", "ターン毎エリア",
       "報酬Gold", "Guildポイント", "経験値",
       "緊急クエスト", "クリア時RankUp", "必要Guildポイント",
-      "ダンジョン", "ボス敵", "ボスフェーズ", "ボス報酬確定",
+      "ダンジョン", "ボス敵", "ボスエリア", "ボス報酬確定",
       "採取物名", "採取目標", "採取最小", "採取最大", "採取確率", "採取単価",
     ],
   },
@@ -316,7 +326,7 @@ const sheetDefinitions = {
     capacity: 240,
     unique: false,
     keys: ["questId", "order", "phase", "type"],
-    labels: ["クエストID", "順序", "フェーズ", "イベント種別"],
+    labels: ["クエストID", "順序", "エリア", "イベント種別"],
   },
   dungeons: {
     name: "ダンジョン",
@@ -340,7 +350,7 @@ const sheetDefinitions = {
     capacity: 300,
     unique: false,
     keys: ["dungeonId", "order", "unitId", "weight", "minPhase", "maxPhase"],
-    labels: ["ダンジョンID", "順序", "敵ユニットID", "重み", "最小フェーズ", "最大フェーズ"],
+    labels: ["ダンジョンID", "順序", "敵ユニットID", "重み", "最小エリア", "最大エリア"],
   },
   dungeonRewards: {
     name: "ダンジョン報酬",
@@ -411,6 +421,7 @@ const makeRows = (data) => {
     ...statKeys.map((key) => mapValue(s.add, key)),
     ...mulKeys.map((key) => mapValue(s.mul, key)),
     ...expeditionKeys.map((key) => mapValue(s.expedition, key)),
+    ...battleSkillKeys.map((key) => mapValue(s.battle, key)),
   ]);
 
   const consumables = data.consumables.map((c) => [
@@ -662,7 +673,7 @@ const addGuide = (workbook) => {
     ["明細", "職業スキル", "classIdとorderで職業ごとのスキル解禁順を構成"],
     ["主要", "種族", "能力成長率と就業可能な職業ID"],
     ["主要", "装備", "武器・防具、係数、価格、重量、bonus各種"],
-    ["主要", "スキル", "段階、装備条件、add/mul、遠征効果"],
+    ["主要", "スキル", "段階、装備条件、add/mul、遠征効果、戦闘条件効果"],
     ["主要", "道具", "消費アイテムの説明、価格、効果"],
     ["主要", "レリック", "効果種別、倍率、add/mul各種"],
     ["主要", "施設", "建設費、維持費、ギルド機能への加算"],
@@ -1085,6 +1096,8 @@ const importWorkbook = async (writeMode) => {
     item.mul = buildStatObject(x, "mul", row, true);
     const expedition = buildNumberObject(x, "expedition", expeditionKeys, row, true);
     if (Object.keys(expedition).length > 0) item.expedition = expedition;
+    const battle = buildNumberObject(x, "battle", battleSkillKeys, row, true);
+    if (Object.keys(battle).length > 0) item.battle = battle;
     return item;
   })).filter(Boolean);
   ensureUnique(skills, "スキル");

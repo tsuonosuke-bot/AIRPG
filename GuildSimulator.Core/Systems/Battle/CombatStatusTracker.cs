@@ -16,6 +16,13 @@ public sealed class CombatStatusInstance
 public sealed class CombatStatusTracker
 {
     readonly Dictionary<IUnitMember, Dictionary<CombatStatusType, CombatStatusInstance>> states = new();
+    static readonly CombatStatusType[] HarmfulStatuses =
+    {
+        CombatStatusType.Stunned,
+        CombatStatusType.Burning,
+        CombatStatusType.Poisoned,
+        CombatStatusType.Bleeding,
+    };
 
     public bool Apply(
         IUnitMember target,
@@ -48,7 +55,7 @@ public sealed class CombatStatusTracker
         state.SourceName = sourceName;
 
         string action = refreshed ? "延長" : "付与";
-        logs.Add($"  Phase {phase}: {target.Name} に{DisplayName(application.type)}を{action}"
+        logs.Add($"  エリア {phase}: {target.Name} に{DisplayName(application.type)}を{action}"
             + $"（{duration}ラウンド、{sourceName}）");
         return true;
     }
@@ -57,6 +64,38 @@ public sealed class CombatStatusTracker
         states.TryGetValue(member, out var byType)
             ? byType.Values.ToList()
             : Array.Empty<CombatStatusInstance>();
+
+    /// <summary>処刑人が狙う、継続ダメージを受けている対象か。</summary>
+    public bool HasDamagingAilment(IUnitMember member) =>
+        states.TryGetValue(member, out var byType)
+        && (byType.ContainsKey(CombatStatusType.Poisoned)
+            || byType.ContainsKey(CombatStatusType.Bleeding)
+            || byType.ContainsKey(CombatStatusType.Burning));
+
+    /// <summary>浄化できる有害状態が1つでもあるか。</summary>
+    public bool HasHarmfulStatus(IUnitMember member) =>
+        states.TryGetValue(member, out var byType)
+        && HarmfulStatuses.Any(byType.ContainsKey);
+
+    /// <summary>
+    /// 有害状態を1つ解除する。行動不能を最優先し、次にpotencyの大きい継続ダメージを選ぶ。
+    /// 攻勢・守勢・再生は有益な状態なので解除しない。
+    /// </summary>
+    public bool CleanseOneHarmful(IUnitMember member, string sourceName, List<string> logs, int phase)
+    {
+        if (!states.TryGetValue(member, out var byType)) return false;
+        var removed = byType.Values
+            .Where(state => HarmfulStatuses.Contains(state.Type))
+            .OrderByDescending(state => state.Type == CombatStatusType.Stunned)
+            .ThenByDescending(state => state.Potency)
+            .FirstOrDefault();
+        if (removed == null) return false;
+
+        byType.Remove(removed.Type);
+        if (byType.Count == 0) states.Remove(member);
+        logs.Add($"  エリア {phase}: {member.Name} の{DisplayName(removed.Type)}を浄化した（{sourceName}）");
+        return true;
+    }
 
     public StatBlock ApplyStatModifiers(IUnitMember member, StatBlock stats)
     {
@@ -105,7 +144,7 @@ public sealed class CombatStatusTracker
                 member.CombatHp = Math.Min(member.CombatHpMax, member.CombatHp + amount);
                 int healed = member.CombatHp - before;
                 if (healed > 0)
-                    logs.Add($"  Phase {phase}: {member.Name} の再生 +{healed}（{member.CombatHp}/{member.CombatHpMax}）");
+                    logs.Add($"  エリア {phase}: {member.Name} の再生 +{healed}（{member.CombatHp}/{member.CombatHpMax}）");
             }
 
             foreach (var type in new[] { CombatStatusType.Poisoned, CombatStatusType.Bleeding, CombatStatusType.Burning })
@@ -114,7 +153,7 @@ public sealed class CombatStatusTracker
                 int damage = Math.Max(1,
                     (int)Math.Ceiling(Math.Max(1, member.CombatHpMax) * dot.Potency / 100f));
                 member.CombatHp = Math.Max(0, member.CombatHp - damage);
-                logs.Add($"  Phase {phase}: {member.Name} は{DisplayName(type)}で{damage}ダメージ"
+                logs.Add($"  エリア {phase}: {member.Name} は{DisplayName(type)}で{damage}ダメージ"
                     + $"（{member.CombatHp}/{member.CombatHpMax}）");
                 if (member.CombatHp <= 0)
                 {
@@ -132,7 +171,7 @@ public sealed class CombatStatusTracker
             || !byType.Remove(CombatStatusType.Stunned))
             return false;
 
-        logs.Add($"  Phase {phase}: {member.Name} は{DisplayName(CombatStatusType.Stunned)}して行動できない");
+        logs.Add($"  エリア {phase}: {member.Name} は{DisplayName(CombatStatusType.Stunned)}して行動できない");
         if (byType.Count == 0) states.Remove(member);
         return true;
     }
@@ -157,12 +196,12 @@ public sealed class CombatStatusTracker
         if (member is AdventurerData adventurer)
         {
             adventurer.RegisterKnockout(severity);
-            logs.Add($"  Phase {phase}: {member.Name} は戦闘不能！ 帰還後に生死・負傷を判定する");
+            logs.Add($"  エリア {phase}: {member.Name} は戦闘不能！ 帰還後に生死・負傷を判定する");
         }
         else
         {
             member.IsAlive = false;
-            logs.Add($"  Phase {phase}: {member.Name} 撃破！");
+            logs.Add($"  エリア {phase}: {member.Name} 撃破！");
         }
     }
 

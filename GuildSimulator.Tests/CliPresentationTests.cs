@@ -169,6 +169,9 @@ public class CliPresentationTests
             () => ActiveQuestScreen.HandleQuestAsync(run, manager, guild));
 
         Assert.Contains("詳細ログを見る（全1件）", text);
+        Assert.Contains("エリア: 1/10", text);
+        Assert.DoesNotContain("Phase", text);
+        Assert.DoesNotContain("フェーズ", text);
         Assert.DoesNotContain("詳細ログ (", text);
         Assert.DoesNotContain("既定では隠れる戦闘計算ログ", text);
     }

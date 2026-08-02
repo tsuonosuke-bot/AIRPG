@@ -96,7 +96,7 @@ public static class MasterBandChecker
     }
 
     /// <summary>
-    /// 採取クエストが予定フェーズ内に目標数へ届く確率が、そのランクの帯に収まっているか。
+    /// 採取クエストが予定エリア内に目標数へ届く確率が、そのランクの帯に収まっているか。
     ///
     /// 届かなくても撤退が確定するわけではなく、延長するか引き上げるかの判断になる。
     /// だからここで見るのは失敗率ではなく<b>予定どおりに帰れる率</b>で、
@@ -134,7 +134,7 @@ public static class MasterBandChecker
             string why = success > band.Value.Max
                 ? "簡単すぎて、延長するかどうかの判断がほとんど起きません"
                 : "予定どおりに帰れる回数が少なすぎます";
-            warnings.Add($"{where}: 予定フェーズ内に gatherTargetCount {q.gatherTargetCount} へ届く確率が "
+            warnings.Add($"{where}: 予定エリア内に gatherTargetCount {q.gatherTargetCount} へ届く確率が "
                 + $"{success:0.#}% で帯（{band.Value}%）の外です（{why}）");
         }
     }
@@ -199,7 +199,7 @@ public static class MasterBandChecker
             if (!usedUnits.Contains(unit.id))
                 warnings.Add($"{unit.id}: どの encounterTable にもボスにも使われていないので一度も出てきません");
 
-        // 遭遇表がフェーズ全域を覆っていないと、その深さだけ戦闘が起きない。
+        // 遭遇表がエリア全域を覆っていないと、その深さだけ戦闘が起きない。
         foreach (var d in db.dungeons.Values)
         {
             int deepest = db.allQuests.Where(q => q.Dungeon == d).Select(q => q.totalPhases).DefaultIfEmpty(0).Max();
@@ -207,7 +207,7 @@ public static class MasterBandChecker
             for (int phase = 1; phase <= deepest; phase++)
             {
                 if (d.encounterTable.Any(e => e.IsEligible(phase))) continue;
-                warnings.Add($"{d.id}: フェーズ {phase} に出せる敵が encounterTable にありません"
+                warnings.Add($"{d.id}: エリア {phase} に出せる敵が encounterTable にありません"
                     + $"（このダンジョンの最大 totalPhases は {deepest}）");
                 break;
             }

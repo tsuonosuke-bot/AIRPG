@@ -37,6 +37,10 @@
         "requiredClearCount": 33
       },
       {
+        "skillId": "skill_backsToWall",
+        "requiredClearCount": 33
+      },
+      {
         "skillId": "skill_twoHandedMastery_lv2",
         "requiredClearCount": 42
       },
@@ -46,6 +50,10 @@
       },
       {
         "skillId": "skill_lightArmorMastery_lv2",
+        "requiredClearCount": 63
+      },
+      {
+        "skillId": "skill_executioner",
         "requiredClearCount": 63
       },
       {
@@ -96,6 +104,10 @@
         "requiredClearCount": 33
       },
       {
+        "skillId": "skill_protection",
+        "requiredClearCount": 33
+      },
+      {
         "skillId": "skill_spearMastery_lv3",
         "requiredClearCount": 42
       },
@@ -105,6 +117,10 @@
       },
       {
         "skillId": "skill_shieldMastery_lv3",
+        "requiredClearCount": 63
+      },
+      {
+        "skillId": "skill_counter",
         "requiredClearCount": 63
       },
       {
@@ -210,6 +226,10 @@
         "requiredClearCount": 25
       },
       {
+        "skillId": "skill_butchery",
+        "requiredClearCount": 33
+      },
+      {
         "skillId": "skill_dualWield_lv1",
         "requiredClearCount": 33
       },
@@ -266,6 +286,10 @@
       },
       {
         "skillId": "skill_swiftStep_lv1",
+        "requiredClearCount": 25
+      },
+      {
+        "skillId": "skill_scouting",
         "requiredClearCount": 25
       },
       {
@@ -328,11 +352,19 @@
         "requiredClearCount": 25
       },
       {
+        "skillId": "skill_campcraft",
+        "requiredClearCount": 25
+      },
+      {
         "skillId": "skill_firstAid_lv1",
         "requiredClearCount": 33
       },
       {
         "skillId": "skill_waterMastery_lv1",
+        "requiredClearCount": 42
+      },
+      {
+        "skillId": "skill_purification",
         "requiredClearCount": 42
       },
       {

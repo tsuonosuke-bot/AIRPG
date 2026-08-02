@@ -416,15 +416,15 @@ public static class SaveManager
             targetPvBonusByAdventurerId = new(saved.targetPvBonusByAdventurerId ?? new()),
             targetMpvBonusByAdventurerId = new(saved.targetMpvBonusByAdventurerId ?? new()),
         };
-        run.logs.AddRange(saved.logs);
+        run.logs.AddRange(saved.logs.Select(NormalizeAreaTerminology));
         foreach (var e in saved.reportEvents ?? new())
             run.reportEvents.Add(new ExpeditionEventRecord
             {
                 turn = e.turn,
                 phase = e.phase,
                 kind = e.kind,
-                title = e.title,
-                detail = e.detail,
+                title = NormalizeAreaTerminology(e.title),
+                detail = NormalizeAreaTerminology(e.detail),
                 actorName = e.actorName,
                 clueId = e.clueId,
                 important = e.important,
@@ -471,4 +471,7 @@ public static class SaveManager
 
         return run;
     }
+
+    static string NormalizeAreaTerminology(string log) =>
+        log.Replace("Phase ", "エリア ").Replace("フェーズ", "エリア");
 }

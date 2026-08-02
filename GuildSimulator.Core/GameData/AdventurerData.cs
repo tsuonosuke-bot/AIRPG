@@ -178,35 +178,38 @@ public class AdventurerData : IUnitMember
     bool HasLearnedAny(SkillMasterData skill)
         => learnedSkills.Any(x => x.skill == skill);
 
-    void LearnSkill(SkillMasterData skill, ClassMasterData? ownerClass)
+    bool LearnSkill(SkillMasterData skill, ClassMasterData? ownerClass)
     {
-        if (HasLearnedAny(skill)) return;
+        if (HasLearnedAny(skill)) return false;
         learnedSkills.Add(new LearnedSkill { skill = skill, ownerClass = ownerClass });
         MarkDirty();
+        return true;
     }
 
     public bool LearnPermanentSkill(SkillMasterData skill)
     {
-        if (HasLearnedAny(skill)) return false;
-        LearnSkill(skill, null);
-        return true;
+        return LearnSkill(skill, null);
     }
 
-    void GrantEntryClassSkills()
+    IReadOnlyList<SkillMasterData> GrantEntryClassSkills()
     {
-        if (currentClass == null) return;
+        if (currentClass == null) return Array.Empty<SkillMasterData>();
+        var unlocked = new List<SkillMasterData>();
         foreach (var e in currentClass.classSkills)
             if (e.requiredClearCount <= 0 && e.Skill != null)
-                LearnSkill(e.Skill, currentClass);
+                if (LearnSkill(e.Skill, currentClass)) unlocked.Add(e.Skill);
+        return unlocked;
     }
 
-    void CheckClassSkillUnlock()
+    IReadOnlyList<SkillMasterData> CheckClassSkillUnlock()
     {
-        if (currentClass == null) return;
+        if (currentClass == null) return Array.Empty<SkillMasterData>();
         int clears = GetClassClearCount(currentClass.id);
+        var unlocked = new List<SkillMasterData>();
         foreach (var e in currentClass.classSkills)
             if (e.Skill != null && clears >= e.requiredClearCount)
-                LearnSkill(e.Skill, currentClass);
+                if (LearnSkill(e.Skill, currentClass)) unlocked.Add(e.Skill);
+        return unlocked;
     }
 
     int GetClassClearCount(string classId)
@@ -214,26 +217,27 @@ public class AdventurerData : IUnitMember
 
     public int CurrentClassClearCount => currentClass != null ? GetClassClearCount(currentClass.id) : 0;
 
-    public void ChangeClass(ClassMasterData next)
+    public IReadOnlyList<SkillMasterData> ChangeClass(ClassMasterData next)
     {
-        if (currentClass == next) return;
+        if (currentClass == next) return Array.Empty<SkillMasterData>();
         currentClass = next;
-        GrantEntryClassSkills();
-        CheckClassSkillUnlock();
+        var unlocked = GrantEntryClassSkills().ToList();
+        unlocked.AddRange(CheckClassSkillUnlock());
         MarkDirty();
+        return unlocked;
     }
 
     /// <summary>
     /// クラス習熟度は「適正ランクのクエストを正規クリアした回数」で増える。
     /// 格下では学ぶものがなく、格上すぎるクエストは連れ回されているだけなので、どちらも数えない。
     /// </summary>
-    public void OnClearQuest(int questRank)
+    public IReadOnlyList<SkillMasterData> OnClearQuest(int questRank)
     {
-        if (!isAlive || !Rank.IsSuitable(questRank, rank)) return;
-        if (currentClass == null) return;
+        if (!isAlive || !Rank.IsSuitable(questRank, rank)) return Array.Empty<SkillMasterData>();
+        if (currentClass == null) return Array.Empty<SkillMasterData>();
         classClearCounts.TryGetValue(currentClass.id, out var c);
         classClearCounts[currentClass.id] = c + 1;
-        CheckClassSkillUnlock();
+        return CheckClassSkillUnlock();
     }
 
     /// <summary>今の自分にとって適正ランクのクエストか。冒険者詳細やクエストボードの目印に使う。</summary>

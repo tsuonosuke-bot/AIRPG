@@ -74,7 +74,7 @@ public static class AdventurerScreen
             if (a.ConditionTitle != null)
                 Ui.Info($"  称号        : {a.ConditionTitle}");
             Ui.WriteLine();
-            Ui.WriteLine($"  VIT:{a.vitality} MEN:{a.mental} STR:{a.strength} AGI:{a.agility} INT:{a.intelligence} SIZ:{a.constitution}");
+            Ui.WriteLine($"  VIT:{a.vitality} MEN:{a.mental} STR:{a.strength} AGI:{a.agility} INT:{a.intelligence} SIZ:{a.constitution} APP:{a.appearance}");
             var s = a.GetFinalCombatStats();
             int hpMax = a.CombatHpMax > 0 ? a.CombatHpMax : s.hp;
             int hpCur = a.CombatHpMax > 0 ? a.CombatHp : s.hp;
@@ -91,9 +91,7 @@ public static class AdventurerScreen
                 Ui.WriteLine(DescribeItem(item));
             }
             Ui.WriteLine();
-            Ui.Write("  スキル: ");
-            var skills = a.Skills;
-            Ui.WriteLine(skills.Count == 0 ? "なし" : string.Join(", ", skills.Select(x => x.skillName)));
+            ShowSkillSummary(a);
             ShowClassMastery(a);
             ShowConditions(a);
             Ui.WriteLine();
@@ -110,6 +108,8 @@ public static class AdventurerScreen
 
             bool busy = questManager?.IsAdventurerBusy(a.id) == true;
             var options = new List<MenuOption>();
+            if (a.AllLearnedSkills.Any())
+                options.Add(new MenuOption("s", "スキル詳細", "習得履歴と現在の発動条件を確認する"));
             if (!a.isAlive)
                 Ui.Dim("  （死亡者は装備・クラスを変更できません）");
             else if (busy)
@@ -136,6 +136,7 @@ public static class AdventurerScreen
             options.Add(new MenuOption("0", "戻る", Style: TextStyle.Dim));
 
             string input = await Ui.SelectAsync("選択", options);
+            if (input == "s") { await ShowSkillDetailsAsync(a); continue; }
             if (input == "e" && a.isAlive && !busy) { await ManageEquipmentAsync(a, guild); continue; }
             if (input == "c" && a.isAlive && !busy && IsClassChangeUnlocked(guild)) { await ChangeClassAsync(a, guild, db); continue; }
             if (input == "d" && !a.isAlive && !busy)
@@ -167,6 +168,102 @@ public static class AdventurerScreen
         else
             Ui.Dim("    この職業のスキルはすべて習得済み");
     }
+
+    static void ShowSkillSummary(AdventurerData a)
+    {
+        var skills = a.Skills;
+        if (skills.Count == 0)
+        {
+            Ui.WriteLine("  スキル: なし");
+            return;
+        }
+
+        Ui.WriteLine("  スキル: " + string.Join(", ", skills.Select(skill =>
+            $"{SkillState(skill, a, isEffectiveTier: true).marker}{skill.skillName}")));
+        Ui.Dim("    ○現在有効  △隊列条件あり  ×装備条件未達（全履歴は「スキル詳細」）");
+    }
+
+    static async Task ShowSkillDetailsAsync(AdventurerData a)
+    {
+        Ui.BeginScreen();
+        Ui.Header($"習得スキル詳細: {a.name}");
+        Ui.WriteLine("  ○ 現在の装備で有効  △ 前衛・後衛の配置時に有効");
+        Ui.WriteLine("  × 装備条件未達      ▽ 上位Lvに置換済み");
+        Ui.WriteLine();
+
+        var effectiveTiers = a.Skills.ToHashSet();
+        var learned = a.ExportLearnedSkills();
+        Ui.WriteLine($"  習得履歴 {learned.Count}件 / 現在採用 {effectiveTiers.Count}件");
+        Ui.WriteLine();
+
+        foreach (var (skill, ownerClass) in learned)
+        {
+            var state = SkillState(skill, a, effectiveTiers.Contains(skill));
+            string source = ownerClass?.className ?? "固有・イベント";
+            Ui.WriteLine($"  {state.marker} {skill.skillName}  [{state.label}]  習得元: {source}");
+
+            var details = SkillEffectParts(skill);
+            string requirements = SkillRequirementText(skill);
+            if (requirements.Length > 0) details.Add(requirements);
+            if (skill.scope == SkillScope.UnitAura) details.Add("隊全体");
+            Ui.Dim($"      {(details.Count > 0 ? string.Join(" / ", details) : "効果説明なし")}");
+        }
+
+        await Ui.PauseAsync();
+    }
+
+    static (string marker, string label) SkillState(
+        SkillMasterData skill,
+        AdventurerData adventurer,
+        bool isEffectiveTier)
+    {
+        if (!isEffectiveTier) return ("▽", "上位Lvに置換");
+        if (!UnitCalculator.MeetsGearRequirements(skill, adventurer)) return ("×", "装備条件未達");
+        if (skill.frontOnly) return ("△", "前衛時に有効");
+        if (skill.backOnly) return ("△", "後衛時に有効");
+        return ("○", "有効");
+    }
+
+    static List<string> SkillEffectParts(SkillMasterData skill)
+    {
+        var parts = EquipmentText.BonusParts(skill.add);
+        if (Math.Abs(skill.mul.hp - 1f) > 0.001f) parts.Add($"HPx{skill.mul.hp:0.##}");
+        if (Math.Abs(skill.mul.san - 1f) > 0.001f) parts.Add($"士気x{skill.mul.san:0.##}");
+        if (Math.Abs(skill.mul.heal - 1f) > 0.001f) parts.Add($"回復力x{skill.mul.heal:0.##}");
+        parts.AddRange(EquipmentText.ExpeditionParts(skill.expedition));
+        parts.AddRange(EquipmentText.BattleParts(skill.battle));
+        if (!string.IsNullOrWhiteSpace(skill.unarmedDamageDice))
+            parts.Add($"素手{skill.unarmedDamageDice}");
+        if (skill.battleStartStatuses.Count > 0)
+            parts.Add($"戦闘開始時効果{skill.battleStartStatuses.Count}件");
+        if (skill.onHitStatuses.Count > 0)
+            parts.Add($"命中時効果{skill.onHitStatuses.Count}件");
+        return parts;
+    }
+
+    static string SkillRequirementText(SkillMasterData skill)
+    {
+        var parts = new List<string>();
+        if (skill.requireWeaponType)
+            parts.Add($"{EquipmentText.WeaponClassName(skill.requiredWeaponType)}装備");
+        if (skill.requireArmorType) parts.Add($"{ArmorName(skill.requiredArmorType)}装備");
+        if (skill.requireUnarmed) parts.Add("素手");
+        if (skill.requireTwoHanded) parts.Add(skill.requirePhysicalWeapon ? "両手物理武器" : "両手武器");
+        else if (skill.requirePhysicalWeapon) parts.Add("物理武器");
+        if (skill.requireShield) parts.Add("盾");
+        if (skill.requireOffHandWeapon) parts.Add("左手武器");
+        if (skill.frontOnly) parts.Add("前衛");
+        if (skill.backOnly) parts.Add("後衛");
+        return parts.Count == 0 ? "" : $"条件: {string.Join("・", parts)}";
+    }
+
+    static string ArmorName(ArmorType type) => type switch
+    {
+        ArmorType.Cloth => "布防具",
+        ArmorType.LightArmor => "軽鎧",
+        ArmorType.Plate => "重鎧",
+        _ => "防具",
+    };
 
     static void ShowProfile(AdventurerData a)
     {
@@ -285,8 +382,10 @@ public static class AdventurerScreen
         if (!await Ui.ConfirmAsync("よろしいですか？")) return;
 
         guild.SpendGold(cost, $"クラスチェンジ: {a.name}（{a.currentClass?.className ?? "?"} → {chosen.className}）");
-        a.ChangeClass(chosen);
+        var unlockedSkills = a.ChangeClass(chosen);
         Ui.Info($"{a.name} のクラスを {chosen.className} に変更しました");
+        if (unlockedSkills.Count > 0)
+            Ui.Info($"{a.name}がスキル「{string.Join("」「", unlockedSkills.Select(skill => skill.skillName))}」を習得しました");
         await Ui.PauseAsync();
     }
 

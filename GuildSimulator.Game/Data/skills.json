@@ -2051,6 +2051,99 @@
     }
   },
   {
+    "id": "skill_scouting",
+    "skillName": "斥候術",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "enemyEncounterChancePercent": -25
+    }
+  },
+  {
+    "id": "skill_campcraft",
+    "skillName": "野営術",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "healEventChancePercent": 40,
+      "restHealPercent": 20
+    }
+  },
+  {
+    "id": "skill_butchery",
+    "skillName": "解体術",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "enemyDropChancePercent": 30,
+      "rareDropChancePercent": 20
+    }
+  },
+  {
+    "id": "skill_protection",
+    "skillName": "庇護",
+    "scope": 0,
+    "frontOnly": true,
+    "requireShield": true,
+    "add": {},
+    "mul": {},
+    "battle": {
+      "protectAllyHpPercent": 35,
+      "protectChancePercent": 100
+    }
+  },
+  {
+    "id": "skill_executioner",
+    "skillName": "処刑人",
+    "scope": 0,
+    "requirePhysicalWeapon": true,
+    "add": {},
+    "mul": {},
+    "battle": {
+      "afflictedTargetPv": 2
+    }
+  },
+  {
+    "id": "skill_purification",
+    "skillName": "浄化",
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 9,
+    "add": {},
+    "mul": {},
+    "battle": {
+      "cleanseOnHealChancePercent": 100
+    }
+  },
+  {
+    "id": "skill_backsToWall",
+    "skillName": "背水",
+    "scope": 0,
+    "requirePhysicalWeapon": true,
+    "add": {},
+    "mul": {},
+    "battle": {
+      "lowHpThresholdPercent": 35,
+      "lowHpPv": 3
+    }
+  },
+  {
+    "id": "skill_counter",
+    "skillName": "反撃",
+    "scope": 0,
+    "frontOnly": true,
+    "requireShield": true,
+    "requirePhysicalWeapon": true,
+    "add": {},
+    "mul": {},
+    "battle": {
+      "counterChancePercent": 35
+    }
+  },
+  {
     "id": "skill_spendthrift",
     "skillName": "浪費癖",
     "scope": 0,
