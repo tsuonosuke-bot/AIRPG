@@ -190,6 +190,7 @@ public static class MasterLoader
                 agility = e.agility, intelligence = e.intelligence, constitution = e.constitution,
                 naturalDamageDice = e.naturalDamageDice ?? "",
                 naturalPv = e.naturalPv, naturalAv = e.naturalAv, naturalMav = e.naturalMav,
+                naturalAttackKind = e.naturalAttackKind,
                 defaultOffHandId = e.defaultOffHandId ?? "", defaultShieldId = e.defaultShieldId ?? "",
             };
             if (!string.IsNullOrEmpty(e.defaultWeaponId) && db.equipment.TryGetValue(e.defaultWeaponId, out var w)) ed.DefaultWeapon = w;
@@ -560,7 +561,8 @@ public static class MasterLoader
         int agility, int intelligence, int constitution, string? defaultWeaponId, string? defaultArmorId,
         List<string>? skillIds, List<RewardEntryJson>? dropTable, string? naturalDamageDice = null,
         string? defaultOffHandId = null, string? defaultShieldId = null,
-        int naturalPv = QudCombatDefaults.WeaponPv, int naturalAv = 0, int naturalMav = 0);
+        int naturalPv = QudCombatDefaults.WeaponPv, int naturalAv = 0, int naturalMav = 0,
+        AttackKind naturalAttackKind = AttackKind.Physical);
 
     record EnemyUnitJson(string id, string unitName, List<string?>? formationIds);
 

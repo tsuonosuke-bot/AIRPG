@@ -491,19 +491,19 @@
         "maxPhase": 0
       },
       {
-        "unitId": "unit_kobold_patrol",
+        "unitId": "unit_rock_eater_pair",
         "weight": 4,
         "minPhase": 2,
         "maxPhase": 0
       },
       {
-        "unitId": "unit_kobold_crew",
+        "unitId": "unit_mine_infestation",
         "weight": 3,
         "minPhase": 5,
         "maxPhase": 0
       },
       {
-        "unitId": "unit_kobold_warband",
+        "unitId": "unit_mine_brood",
         "weight": 2,
         "minPhase": 9,
         "maxPhase": 0

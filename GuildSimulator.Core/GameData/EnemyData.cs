@@ -43,7 +43,10 @@ public class EnemyData : IUnitMember
         }
     }
 
-    public bool IsMagicAttack => master.DefaultWeapon != null && master.DefaultWeapon.IsMagicWeapon;
+    // 武器を持つ敵は武器の攻撃種別に従う。素手の敵は牙そのものが魔力を帯びていることがある。
+    public bool IsMagicAttack => master.DefaultWeapon != null
+        ? master.DefaultWeapon.IsMagicWeapon
+        : master.naturalAttackKind == AttackKind.Magic;
 
     // 素手の敵は牙・爪そのもののPVで貫く。膂力の乗せ方に上限を設けないのは、
     // 大型の獣がそのまま体重を叩きつけてくる感触を残すため。

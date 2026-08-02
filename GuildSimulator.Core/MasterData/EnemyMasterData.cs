@@ -42,6 +42,13 @@ public class EnemyMasterData
 
     /// <summary>魔よけの鱗など、防具を着ていなくても持っている魔法装甲値(mAV)。</summary>
     public int naturalMav;
+
+    /// <summary>
+    /// 牙や爪そのものの攻撃種別。武器を持たせている敵では武器側の attackKind が優先される。
+    /// メイジルプスのように<b>素手のまま魔法で殴る</b>個体を作るために使う。
+    /// Magic にすると命中後の判定が相手のmAVとこちらのmPVで行われ、貫通値に乗る能力値もINTに変わる。
+    /// </summary>
+    public Models.AttackKind naturalAttackKind = Models.AttackKind.Physical;
     public List<string> skillIds = new();
     public List<RewardEntryData> dropTable = new();
 

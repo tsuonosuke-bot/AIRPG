@@ -263,12 +263,13 @@ const sheetDefinitions = {
     keys: [
       "id", "baseName", "exp", "threat", "vitality", "mental", "strength", "agility",
       "intelligence", "constitution", "defaultWeaponId", "defaultArmorId", "defaultOffHandId",
-      "defaultShieldId", "naturalDamageDice", "naturalPv", "naturalAv", "naturalMav", "skillIds",
+      "defaultShieldId", "naturalDamageDice", "naturalPv", "naturalAv", "naturalMav",
+      "naturalAttackKind", "skillIds",
     ],
     labels: [
       "ID", "名称", "経験値", "脅威ランク", "生命力", "精神力", "筋力", "敏捷", "知力", "体格",
       "右手装備", "防具", "左手武器", "盾", "素のダメージ", "素のPV", "素のAV", "素のMAV",
-      "スキルID（カンマ区切り）",
+      "素の攻撃種別（Physical/Magic）", "スキルID（カンマ区切り）",
     ],
   },
   enemyDrops: {
@@ -483,7 +484,8 @@ const makeRows = (data) => {
     e.id, e.baseName, e.exp, e.threat, e.vitality, e.mental, e.strength, e.agility,
     e.intelligence, e.constitution, clean(e.defaultWeaponId), clean(e.defaultArmorId),
     clean(e.defaultOffHandId), clean(e.defaultShieldId), clean(e.naturalDamageDice),
-    clean(e.naturalPv), clean(e.naturalAv), clean(e.naturalMav), clean(e.skillIds?.join(", ")),
+    clean(e.naturalPv), clean(e.naturalAv), clean(e.naturalMav), clean(e.naturalAttackKind),
+    clean(e.skillIds?.join(", ")),
   ]);
   const enemyDrops = data.enemies.flatMap((e) =>
     (e.dropTable ?? []).map((reward, index) => flattenReward(e.id, index + 1, reward)));
@@ -1508,6 +1510,7 @@ const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
     for (const key of ["naturalPv", "naturalAv", "naturalMav"]) {
       optionalAssign(item, key, optionalNumber(x[key], key, row, true));
     }
+    optionalAssign(item, "naturalAttackKind", optionalText(x.naturalAttackKind));
     item.skillIds = idList(x.skillIds);
     if (item.defaultWeaponId) assertRef(weaponIds, item.defaultWeaponId, "敵.defaultWeaponId", row);
     if (item.defaultArmorId) assertRef(armorIds, item.defaultArmorId, "敵.defaultArmorId", row);

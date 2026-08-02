@@ -151,7 +151,7 @@
       "enemy_goblin",
       "enemy_goblin",
       "enemy_goblin_archer",
-      "enemy_goblin_shaman",
+      "enemy_goblin_mage",
       null
     ]
   },
@@ -235,7 +235,7 @@
       "enemy_goblin",
       "enemy_goblin",
       "enemy_goblin_archer",
-      "enemy_goblin_shaman",
+      "enemy_goblin_mage",
       "enemy_goblin_archer"
     ]
   },
@@ -367,7 +367,7 @@
       "enemy_bandit",
       "enemy_bandit",
       "enemy_bandit_archer",
-      "enemy_goblin_shaman",
+      "enemy_bandit_hexer",
       null
     ]
   },
@@ -420,11 +420,11 @@
     ]
   },
   {
-    "id": "unit_kobold_patrol",
-    "unitName": "コボルトの巡回",
+    "id": "unit_rock_eater_pair",
+    "unitName": "岩喰い虫の群れ",
     "formationIds": [
-      "enemy_kobold",
-      "enemy_kobold",
+      "enemy_rock_eater",
+      "enemy_rock_eater",
       null,
       null,
       null,
@@ -432,26 +432,26 @@
     ]
   },
   {
-    "id": "unit_kobold_crew",
-    "unitName": "コボルトの採掘班",
+    "id": "unit_mine_infestation",
+    "unitName": "坑道の巣食い",
     "formationIds": [
-      "enemy_kobold_digger",
-      "enemy_kobold",
-      "enemy_kobold",
-      "enemy_kobold_shaman",
+      "enemy_rock_eater",
+      "enemy_rock_eater",
       null,
+      "enemy_cave_sporecap",
+      "enemy_cave_sporecap",
       null
     ]
   },
   {
-    "id": "unit_kobold_warband",
-    "unitName": "コボルトの戦列",
+    "id": "unit_mine_brood",
+    "unitName": "岩喰いの巣",
     "formationIds": [
-      "enemy_kobold_digger",
-      "enemy_kobold_digger",
-      "enemy_kobold",
-      "enemy_kobold_shaman",
-      "enemy_kobold_shaman",
+      "enemy_rock_eater_queen",
+      "enemy_rock_eater",
+      "enemy_rock_eater",
+      "enemy_cave_sporecap",
+      "enemy_cave_sporecap",
       null
     ]
   },
@@ -496,9 +496,9 @@
     "unitName": "坑道の守り手",
     "formationIds": [
       "enemy_stone_golem",
-      "enemy_kobold_digger",
-      "enemy_kobold_digger",
-      "enemy_kobold_shaman",
+      "enemy_rock_eater_queen",
+      "enemy_rock_eater",
+      "enemy_cave_sporecap",
       "enemy_mine_wraith",
       null
     ]
