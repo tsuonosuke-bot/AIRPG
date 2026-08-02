@@ -84,6 +84,7 @@ public static class HelpScreen
         Ui.Header("ギルド運営");
         Ui.WriteLine("  ・資金（Gold）    : クエスト報酬や目標数を超えた採取物の買取で得る。毎ターン維持費が引かれる。");
         Ui.WriteLine($"  ・維持費          : ギルド基本{GuildManager.GuildBaseUpkeepGoldPerTurn}G＋所属冒険者のレベル合計×{GuildManager.UpkeepGoldPerLevel}G＋建設済み施設に応じた毎ターンの固定支出。");
+        Ui.WriteLine($"                      冒険者の賃金は認定ランクが1つ上がるごとに{GuildManager.UpkeepGoldPerRank}Gずつ増える（希少さは関係しない）。");
         Ui.WriteLine("                      遺物の効果でこの合計にさらに倍率がかかることがある（実際に引かれる額が実効維持費）。");
         Ui.WriteLine("  ・ギルドポイント  : クエストクリアで得る昇格試験の解禁ポイント。撤退では入らない。");
         Ui.WriteLine("  ・ギルドランク    : 昇格試験（緊急クエスト）に正規クリアすると上がる。");

@@ -9,6 +9,9 @@ public class GuildManager
     public const int GuildBaseUpkeepGoldPerTurn = 10;
     public const int UpkeepGoldPerLevel = 3;
 
+    /// <summary>認定ランクが1つ上がるごとに増える賃金。レアリティは維持費に関係させない。</summary>
+    public const int UpkeepGoldPerRank = 15;
+
     public List<AdventurerData> adventurers = new();
     public int Gold { get; private set; }
     public int GuildRank { get; private set; }
@@ -60,7 +63,7 @@ public class GuildManager
     public void AddAdventurer(AdventurerData adv)
     {
         adventurers.Add(adv);
-        economyLogs.Add($"雇用: {adv.name}（維持費 {CalculateAdventurerUpkeep(adv.level)}G/Turn）");
+        economyLogs.Add($"雇用: {adv.name}（維持費 {CalculateAdventurerUpkeep(adv.level, adv.rank)}G/Turn）");
     }
 
     public const int BurialCostBase = 30;
@@ -95,11 +98,16 @@ public class GuildManager
         GuildPoints = guildPoints;
     }
 
-    public static int CalculateAdventurerUpkeep(int level) =>
-        Math.Max(1, level) * UpkeepGoldPerLevel;
+    /// <summary>
+    /// 冒険者1人ぶんの賃金。レベルぶんの単価に、認定ランクが上がるごとの加算を足す。
+    /// ランクが上がるほど「安く使える駒」ではなくなる、というのがこのゲームの取り決め。
+    /// </summary>
+    public static int CalculateAdventurerUpkeep(int level, int rank = Rank.Min) =>
+        Math.Max(1, level) * UpkeepGoldPerLevel
+        + (Rank.Clamp(rank) - Rank.Min) * UpkeepGoldPerRank;
 
     public int AdventurerUpkeepPerTurn =>
-        adventurers.Where(a => a != null && a.isAlive).Sum(a => CalculateAdventurerUpkeep(a.level));
+        adventurers.Where(a => a != null && a.isAlive).Sum(a => CalculateAdventurerUpkeep(a.level, a.rank));
 
     public int FacilityUpkeepPerTurn => facilities.Sum(f => f.upkeepGoldPerTurn);
 

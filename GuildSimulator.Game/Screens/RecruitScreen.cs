@@ -37,7 +37,7 @@ public static class RecruitScreen
                     int hireCost = CalcHireCost(m);
                     string tag = alreadyHired ? " [雇用済]" : $"  雇用費: {hireCost}G";
                     int candidateAfterHire = guild.Gold - hireCost;
-                    int adventurerUpkeep = GuildManager.CalculateAdventurerUpkeep(m.defaultLevel);
+                    int adventurerUpkeep = GuildManager.CalculateAdventurerUpkeep(m.defaultLevel, m.defaultRank);
                     int candidateUpkeep = GuildManager.CalculateEffectiveUpkeep(guild.BaseUpkeepPerTurn + adventurerUpkeep);
                     int candidateSafeTurns = GuildManager.SafeUpkeepTurns(candidateAfterHire, candidateUpkeep);
                     string runway = candidateSafeTurns == int.MaxValue ? "∞" : candidateSafeTurns.ToString();
@@ -92,7 +92,7 @@ public static class RecruitScreen
             }
 
             int afterHire = guild.Gold - cost;
-            int chosenUpkeep = GuildManager.CalculateAdventurerUpkeep(chosen.defaultLevel);
+            int chosenUpkeep = GuildManager.CalculateAdventurerUpkeep(chosen.defaultLevel, chosen.defaultRank);
             int projectedUpkeep = GuildManager.CalculateEffectiveUpkeep(guild.BaseUpkeepPerTurn + chosenUpkeep);
             int safeTurns = GuildManager.SafeUpkeepTurns(afterHire, projectedUpkeep);
             if (safeTurns <= 1)
@@ -114,7 +114,20 @@ public static class RecruitScreen
 
     public static int CalcHireCost(AdventurerMasterData m)
         // 維持費バランスの変更で初期雇用費まで連動しないよう、従来のLv単価を維持する。
-        => Math.Max(10, Math.Max(1, m.defaultLevel) * 55);
+        // レアリティは雇入れ時だけの上乗せで、以後の維持費には関係させない。
+        => Math.Max(10, Math.Max(1, m.defaultLevel) * 55) + RarityHirePremium(m.rarity, m.defaultLevel);
+
+    /// <summary>希少な人材を雇うときだけ乗る上乗せ額。コモンは0。</summary>
+    public static int RarityHirePremium(Rarity rarity, int level)
+    {
+        int lv = Math.Max(1, level);
+        return rarity switch
+        {
+            Rarity.Uncommon => 20 + lv * 1,
+            Rarity.Rare => 40 + lv * 2,
+            _ => 0,
+        };
+    }
 
     static async Task RerollCandidatesAsync(
         List<AdventurerMasterData> candidates,

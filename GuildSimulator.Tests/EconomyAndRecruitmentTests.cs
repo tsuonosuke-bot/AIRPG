@@ -1,5 +1,6 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Game.Screens;
 using Xunit;
@@ -16,6 +17,43 @@ public class EconomyAndRecruitmentTests
     public void UpkeepIsThreeGoldPerCurrentLevel(int level, int expected)
     {
         Assert.Equal(expected, GuildManager.CalculateAdventurerUpkeep(level));
+    }
+
+    [Theory]
+    [InlineData(1, 1, 3)]
+    [InlineData(1, 2, 18)]
+    [InlineData(1, 7, 93)]
+    [InlineData(10, 3, 60)]
+    public void UpkeepAddsFifteenGoldPerAdventurerRank(int level, int rank, int expected)
+    {
+        Assert.Equal(expected, GuildManager.CalculateAdventurerUpkeep(level, rank));
+    }
+
+    [Fact]
+    public void UpkeepIgnoresRarity()
+    {
+        var common = Master("common", level: 4);
+        var rare = Master("rare", level: 4);
+        rare.rarity = Rarity.Rare;
+
+        Assert.Equal(
+            GuildManager.CalculateAdventurerUpkeep(common.defaultLevel, common.defaultRank),
+            GuildManager.CalculateAdventurerUpkeep(rare.defaultLevel, rare.defaultRank));
+    }
+
+    [Fact]
+    public void GuildUpkeepRisesWhenAdventurerRankUp()
+    {
+        var adventurer = new AdventurerData(Master("adv", level: 1));
+        var guild = new GuildManager();
+        guild.AddAdventurer(adventurer);
+
+        Assert.Equal(3, guild.AdventurerUpkeepPerTurn);
+
+        adventurer.rank = 3;
+
+        Assert.Equal(33, guild.AdventurerUpkeepPerTurn);
+        Assert.Equal(43, guild.BaseUpkeepPerTurn);
     }
 
     [Fact]
@@ -63,6 +101,20 @@ public class EconomyAndRecruitmentTests
     public void HireCostKeepsItsExistingLevelRate(int level, int expected)
     {
         Assert.Equal(expected, RecruitScreen.CalcHireCost(Master("hire", level)));
+    }
+
+    [Theory]
+    [InlineData(Rarity.Common, 1, 55)]
+    [InlineData(Rarity.Uncommon, 1, 76)]
+    [InlineData(Rarity.Rare, 1, 97)]
+    [InlineData(Rarity.Uncommon, 5, 300)]
+    [InlineData(Rarity.Rare, 5, 325)]
+    public void HireCostAddsRarityPremium(Rarity rarity, int level, int expected)
+    {
+        var master = Master("hire", level);
+        master.rarity = rarity;
+
+        Assert.Equal(expected, RecruitScreen.CalcHireCost(master));
     }
 
     [Theory]
