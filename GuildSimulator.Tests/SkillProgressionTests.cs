@@ -118,10 +118,13 @@ public class SkillProgressionTests
             ["class_Rogue"] = "盗賊",
             ["class_Archer"] = "狩人",
             ["class_Healer"] = "神官",
-            ["class_Sorcerer"] = "魔術師",
+            ["class_Sorcerer"] = "炎魔導士",
             ["class_MartialArtist"] = "武道家",
-            ["class_Warder"] = "結界師",
+            ["class_Warder"] = "土魔導士",
             ["class_Caravaner"] = "隊商人",
+            ["class_WaterMage"] = "水魔導士",
+            ["class_WindMage"] = "風魔導士",
+            ["class_DarkMage"] = "闇魔導士",
         };
 
         Assert.Equal(expectedNames.Count, db.classes.Count);
@@ -131,13 +134,26 @@ public class SkillProgressionTests
         AssertSignatureTree(db.classes["class_MartialArtist"], "martial_arts");
         AssertSignatureTree(db.classes["class_Warder"], "mastery_earth");
         AssertSignatureTree(db.classes["class_Caravaner"], "mastery_bow");
+        AssertSignatureTree(db.classes["class_WaterMage"], "mastery_water");
+        AssertSignatureTree(db.classes["class_WindMage"], "mastery_wind");
+        AssertSignatureTree(db.classes["class_DarkMage"], "mastery_dark");
 
-        foreach (var id in new[] { "class_MartialArtist", "class_Warder", "class_Caravaner" })
+        // 土魔導士だけ成長合計1.15（盗賊と同じ1.1枠の例外）。他は1.1に収める。
+        var expectedGrowthTotals = new Dictionary<string, float>
+        {
+            ["class_MartialArtist"] = 1.1f,
+            ["class_Warder"] = 1.15f,
+            ["class_Caravaner"] = 1.1f,
+            ["class_WaterMage"] = 1.1f,
+            ["class_WindMage"] = 1.1f,
+            ["class_DarkMage"] = 1.1f,
+        };
+        foreach (var (id, expectedTotal) in expectedGrowthTotals)
         {
             var cls = db.classes[id];
             float growthTotal = cls.vitGrowth + cls.mentGrowth + cls.strGrowth
                 + cls.intGrowth + cls.agiGrowth;
-            Assert.Equal(1.1f, growthTotal, 3);
+            Assert.Equal(expectedTotal, growthTotal, 3);
             Assert.Equal(new[] { 0, 3, 7, 12, 18, 25, 33, 42, 52, 63, 75, 88 },
                 cls.classSkills.Select(e => e.requiredClearCount).ToArray());
         }

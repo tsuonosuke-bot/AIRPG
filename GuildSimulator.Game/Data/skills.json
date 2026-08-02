@@ -435,7 +435,16 @@
     "add": {
       "mpv": 4
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Burning",
+        "target": "Enemy",
+        "chancePercent": 15,
+        "durationRounds": 3,
+        "potency": 2
+      }
+    ]
   },
   {
     "id": "skill_fireMastery_lv4",
@@ -449,7 +458,16 @@
       "mpv": 5,
       "critPv": 2
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Burning",
+        "target": "Enemy",
+        "chancePercent": 20,
+        "durationRounds": 3,
+        "potency": 2
+      }
+    ]
   },
   {
     "id": "skill_fireMastery_lv5",
@@ -463,7 +481,16 @@
       "mpv": 7,
       "critPv": 3
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Burning",
+        "target": "Enemy",
+        "chancePercent": 30,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
   },
   {
     "id": "skill_windMastery_lv1",
@@ -518,7 +545,8 @@
     "add": {
       "mpv": 4,
       "dv": 3,
-      "toHit": 1
+      "toHit": 1,
+      "extraAttacks": 1
     },
     "mul": {}
   },
@@ -533,7 +561,8 @@
     "add": {
       "mpv": 5,
       "dv": 4,
-      "toHit": 2
+      "toHit": 2,
+      "extraAttacks": 1
     },
     "mul": {}
   },
@@ -576,9 +605,16 @@
       "mpv": 3,
       "mav": 2
     },
-    "mul": {
-      "heal": 1.1
-    }
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Stunned",
+        "target": "Enemy",
+        "chancePercent": 10,
+        "durationRounds": 1,
+        "potency": 0
+      }
+    ]
   },
   {
     "id": "skill_waterMastery_lv4",
@@ -592,9 +628,16 @@
       "mpv": 4,
       "mav": 2
     },
-    "mul": {
-      "heal": 1.2
-    }
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Stunned",
+        "target": "Enemy",
+        "chancePercent": 15,
+        "durationRounds": 1,
+        "potency": 0
+      }
+    ]
   },
   {
     "id": "skill_waterMastery_lv5",
@@ -608,9 +651,16 @@
       "mpv": 5,
       "mav": 3
     },
-    "mul": {
-      "heal": 1.3
-    }
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Stunned",
+        "target": "Enemy",
+        "chancePercent": 20,
+        "durationRounds": 2,
+        "potency": 0
+      }
+    ]
   },
   {
     "id": "skill_earthMastery_lv1",
@@ -743,7 +793,16 @@
       "threatWeight": -30,
       "critRange": 1
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "ManaSapped",
+        "target": "Enemy",
+        "chancePercent": 25,
+        "durationRounds": 2,
+        "potency": 2
+      }
+    ]
   },
   {
     "id": "skill_darkMastery_lv5",
@@ -758,7 +817,16 @@
       "threatWeight": -40,
       "critRange": 2
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "ManaSapped",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
   },
   {
     "id": "skill_lightMastery_lv1",
@@ -2329,6 +2397,99 @@
     "add": {
       "mpv": 1,
       "mav": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_blazeSoul_lv1",
+    "skillName": "焔の魂 Lv1",
+    "family": "blaze_soul",
+    "level": 1,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 4,
+    "add": {
+      "mpv": 1,
+      "critPv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_flameChorus_lv1",
+    "skillName": "焔の唱和 Lv1",
+    "family": "flame_chorus",
+    "level": 1,
+    "scope": 1,
+    "requireWeaponType": true,
+    "requiredWeaponType": 4,
+    "add": {
+      "mpv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_frostbind_lv1",
+    "skillName": "凍てつく波動 Lv1",
+    "family": "frostbind",
+    "level": 1,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 6,
+    "add": {},
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Chilled",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 2,
+        "potency": 2
+      }
+    ]
+  },
+  {
+    "id": "skill_frostbind_lv2",
+    "skillName": "凍てつく波動 Lv2",
+    "family": "frostbind",
+    "level": 2,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 6,
+    "add": {},
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Chilled",
+        "target": "Enemy",
+        "chancePercent": 50,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
+  },
+  {
+    "id": "skill_sanctuary_lv1",
+    "skillName": "聖なる加護 Lv1",
+    "family": "sanctuary",
+    "level": 1,
+    "scope": 1,
+    "requireWeaponType": true,
+    "requiredWeaponType": 9,
+    "add": {
+      "mav": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_sanctuary_lv2",
+    "skillName": "聖なる加護 Lv2",
+    "family": "sanctuary",
+    "level": 2,
+    "scope": 1,
+    "requireWeaponType": true,
+    "requiredWeaponType": 9,
+    "add": {
+      "mav": 2
     },
     "mul": {}
   }

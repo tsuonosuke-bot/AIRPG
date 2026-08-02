@@ -113,6 +113,12 @@ public enum CombatStatusType
     Regenerating,
     Empowered,
     Guarded,
+
+    /// <summary>凍え。体が冷えて回避が鈍る（DVがpotencyぶん下がる）。</summary>
+    Chilled,
+
+    /// <summary>魔力減衰。魔法の威力が落ちる（mPVがpotencyぶん下がる）。</summary>
+    ManaSapped,
 }
 
 /// <summary>スキル・装備から発生する状態効果の対象。</summary>
