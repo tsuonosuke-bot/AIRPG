@@ -1,14 +1,17 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import crypto from "node:crypto";
 import { FileBlob, SpreadsheetFile, Workbook } from "@oai/artifact-tool";
 
 const command = process.argv[2] ?? "export";
+const workbookSchemaVersion = 2;
 const scriptDir = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, "$1");
 const repoRoot = path.resolve(scriptDir, "../..");
 const dataDir = path.join(repoRoot, "GuildSimulator.Game", "Data");
 const outputDir = path.join(repoRoot, "outputs", "master-data-editor");
 const workbookPath = path.join(outputDir, "マスタデータ統合_編集用.xlsx");
 const previewDir = path.join(outputDir, "previews");
+const balanceReportPath = path.join(repoRoot, "outputs", "balance-lab", "balance-report.json");
 const masterFiles = [
   "skills", "classes", "races", "equipment", "consumables", "relics", "facilities",
   "enemies", "choice_events", "enemy_units", "dungeons", "clues", "quests", "adventurers",
@@ -64,6 +67,16 @@ const flattenReward = (parentId, order, reward) => [
   parentId,
   order,
   ...rewardKeys.map((key) => mapValue(reward, key)),
+];
+const flattenStatuses = (ownerId, owner) => [
+  ...(owner.battleStartStatuses ?? []).map((status, index) => [
+    ownerId, "battleStart", index + 1, status.type, status.target,
+    clean(status.chancePercent), clean(status.durationRounds), clean(status.potency),
+  ]),
+  ...(owner.onHitStatuses ?? []).map((status, index) => [
+    ownerId, "onHit", index + 1, status.type, status.target,
+    clean(status.chancePercent), clean(status.durationRounds), clean(status.potency),
+  ]),
 ];
 
 const colors = {
@@ -149,6 +162,14 @@ const sheetDefinitions = {
       ...statKeys.map((key) => `補正 ${key}`),
     ],
   },
+  equipmentStatuses: {
+    name: "装備状態効果",
+    title: "装備 状態効果明細",
+    capacity: 360,
+    unique: false,
+    keys: ["equipmentId", "trigger", "order", "type", "target", "chancePercent", "durationRounds", "potency"],
+    labels: ["装備ID", "発動契機", "順序", "状態種別", "対象", "確率%", "持続ラウンド", "強度"],
+  },
   skills: {
     name: "スキル",
     title: "スキルマスタ",
@@ -173,6 +194,14 @@ const sheetDefinitions = {
       ...expeditionKeys.map((key) => `遠征 ${key}`),
       ...battleSkillKeys.map((key) => `戦闘条件 ${key}`),
     ],
+  },
+  skillStatuses: {
+    name: "スキル状態効果",
+    title: "スキル 状態効果明細",
+    capacity: 720,
+    unique: false,
+    keys: ["skillId", "trigger", "order", "type", "target", "chancePercent", "durationRounds", "potency"],
+    labels: ["スキルID", "発動契機", "順序", "状態種別", "対象", "確率%", "持続ラウンド", "強度"],
   },
   consumables: {
     name: "道具",
@@ -217,11 +246,13 @@ const sheetDefinitions = {
     keys: [
       "id", "displayName", "description", "buildCostGold", "upkeepGoldPerTurn",
       "requiredGuildRank", "questBoardBonus", "shopLevelBonus", "restHealBonusPercent",
-      "growthRateBonusPercent", "recruitMinBonus",
+      "growthRateBonusPercent", "recruitMinBonus", "injuryRecoveryBonus",
+      "fatalityReductionPercent", "scarPreventionPercent",
     ],
     labels: [
       "ID", "施設名", "説明", "建設費", "毎ターン維持費", "必要ギルドランク",
       "掲示板枠加算", "商店Lv加算", "休息回復%", "成長率%", "最低採用候補加算",
+      "負傷回復加算", "死亡率軽減%", "傷痕予防%",
     ],
   },
   enemies: {
@@ -411,6 +442,7 @@ const makeRows = (data) => {
     e.price, e.weight, clean(e.shopTier),
     ...statKeys.map((key) => mapValue(e.bonus, key)),
   ]);
+  const equipmentStatuses = data.equipment.flatMap((e) => flattenStatuses(e.id, e));
 
   const skills = data.skills.map((s) => [
     s.id, s.skillName, clean(s.family), clean(s.level), s.scope, Boolean(s.frontOnly), Boolean(s.backOnly),
@@ -423,6 +455,7 @@ const makeRows = (data) => {
     ...expeditionKeys.map((key) => mapValue(s.expedition, key)),
     ...battleSkillKeys.map((key) => mapValue(s.battle, key)),
   ]);
+  const skillStatuses = data.skills.flatMap((s) => flattenStatuses(s.id, s));
 
   const consumables = data.consumables.map((c) => [
     c.id, c.displayName, clean(c.description), clean(c.rarity),
@@ -442,7 +475,8 @@ const makeRows = (data) => {
   const facilities = data.facilities.map((f) => [
     f.id, f.displayName, clean(f.description), f.buildCostGold, f.upkeepGoldPerTurn,
     f.requiredGuildRank, f.questBoardBonus, f.shopLevelBonus, f.restHealBonusPercent,
-    f.growthRateBonusPercent, clean(f.recruitMinBonus),
+    f.growthRateBonusPercent, clean(f.recruitMinBonus), clean(f.injuryRecoveryBonus),
+    clean(f.fatalityReductionPercent), clean(f.scarPreventionPercent),
   ]);
 
   const enemies = data.enemies.map((e) => [
@@ -510,7 +544,9 @@ const makeRows = (data) => {
     classSkills,
     races,
     equipment,
+    equipmentStatuses,
     skills,
+    skillStatuses,
     consumables,
     clues,
     relics,
@@ -656,6 +692,158 @@ const addValidation = (sheet, definition, key, values) => {
   };
 };
 
+const addMetadata = (workbook, data) => {
+  const sheet = workbook.worksheets.add("_meta");
+  sheet.showGridLines = false;
+  const fingerprint = crypto
+    .createHash("sha256")
+    .update(JSON.stringify(stable(data)))
+    .digest("hex");
+  sheet.getRange("A1:D1").merge();
+  sheet.getRange("A1").values = [["AIRPG マスタデータ ブック管理情報"]];
+  sheet.getRange("A1:D1").format = {
+    fill: colors.navy,
+    font: { bold: true, color: colors.white, size: 14, name: bodyFont },
+    rowHeight: 28,
+  };
+  sheet.getRange("A3:B7").values = [
+    ["項目", "値"],
+    ["schemaVersion", workbookSchemaVersion],
+    ["generatedAtUtc", `UTC ${new Date().toISOString()}`],
+    ["masterFingerprintSha256", fingerprint],
+    ["source", "GuildSimulator.Game/Data/*.json"],
+  ];
+  sheet.getRange("A3:B3").format = {
+    fill: colors.blue,
+    font: { bold: true, color: colors.white, name: bodyFont },
+  };
+  sheet.getRange("A4:A7").format = {
+    fill: colors.paleBlue,
+    font: { bold: true, color: colors.navy, name: bodyFont },
+  };
+  sheet.getRange("A3:B7").format.borders = {
+    insideHorizontal: { style: "thin", color: colors.lightGray },
+    outside: { style: "thin", color: "#9FB4C3" },
+  };
+  sheet.getRange("A:A").format.columnWidth = 28;
+  sheet.getRange("B:B").format.columnWidth = 72;
+  sheet.getRange("B4:B7").format.wrapText = true;
+  return sheet;
+};
+
+const readBalanceReport = async () => {
+  try {
+    const json = await fs.readFile(balanceReportPath, "utf8");
+    return JSON.parse(json.replace(/^\uFEFF/, ""));
+  } catch (error) {
+    if (error?.code === "ENOENT") return null;
+    throw error;
+  }
+};
+
+const addBalanceReport = (workbook, report) => {
+  const sheet = workbook.worksheets.add("バランスレポート");
+  sheet.showGridLines = false;
+  sheet.getRange("A1:Q1").merge();
+  sheet.getRange("A1").values = [["Balance Lab シミュレーション結果"]];
+  sheet.getRange("A1:Q1").format = {
+    fill: colors.navy,
+    font: { bold: true, color: colors.white, size: 16, name: bodyFont },
+    rowHeight: 30,
+  };
+  sheet.getRange("A3:B5").values = [
+    ["レポート生成日時", report ? `UTC ${report.generatedAtUtc}` : "未生成"],
+    ["合格目安: 最低クリア率", 0.6],
+    ["警戒目安: 最大失敗率", 0.2],
+  ];
+  sheet.getRange("A3:A5").format = {
+    fill: colors.paleBlue,
+    font: { bold: true, color: colors.navy, name: bodyFont },
+  };
+  sheet.getRange("B4:B5").format.numberFormat = "0.0%";
+  sheet.getRange("A3:B5").format.borders = {
+    insideHorizontal: { style: "thin", color: colors.lightGray },
+    outside: { style: "thin", color: "#9FB4C3" },
+  };
+
+  const headers = [
+    "シナリオID", "名称", "種別", "試行数", "クリア率", "撤退率", "失敗率", "破産率",
+    "平均ラウンド", "平均ターン", "残HP率", "平均Gold差", "平均延長", "平均宝箱",
+    "基準差 クリアpt", "基準差 HPpt", "判定",
+  ];
+  sheet.getRange("A7:Q7").values = [headers];
+  sheet.getRange("A7:Q7").format = {
+    fill: colors.blue,
+    font: { bold: true, color: colors.white, name: bodyFont },
+    wrapText: true,
+    rowHeight: 34,
+  };
+
+  const scenarios = report?.scenarios ?? [];
+  if (scenarios.length === 0) {
+    sheet.getRange("A8:Q9").merge();
+    sheet.getRange("A8").values = [[
+      "outputs/balance-lab/balance-report.json がありません。Balance Labを実行してからexportしてください。",
+    ]];
+    sheet.getRange("A8:Q9").format = {
+      fill: colors.paleGold,
+      font: { color: colors.navy, name: bodyFont },
+      wrapText: true,
+      rowHeight: 36,
+    };
+  } else {
+    const rows = scenarios.map((x) => [
+      x.id, x.name, x.type, x.runs,
+      (x.clearRatePercent ?? 0) / 100,
+      (x.retreatRatePercent ?? 0) / 100,
+      (x.failureRatePercent ?? 0) / 100,
+      (x.bankruptcyRatePercent ?? 0) / 100,
+      x.meanRounds ?? 0, x.meanTurns ?? 0,
+      (x.meanRemainingHpPercent ?? 0) / 100,
+      x.meanGoldDelta ?? 0, x.meanGatherExtensions ?? 0, x.meanChests ?? 0,
+      x.baselineDelta?.clearRatePoints ?? null,
+      x.baselineDelta?.meanRemainingHpPoints ?? null,
+      null,
+    ]);
+    const lastRow = rows.length + 7;
+    sheet.getRange(`A8:Q${lastRow}`).values = rows;
+    sheet.getRange("Q8").formulas = [["=IF(E8<$B$4,\"要調整\",IF(G8>$B$5,\"要調整\",\"OK\"))"]];
+    sheet.getRange(`Q8:Q${lastRow}`).fillDown();
+    sheet.getRange(`D8:D${lastRow}`).format.numberFormat = "#,##0";
+    sheet.getRange(`E8:H${lastRow}`).format.numberFormat = "0.0%";
+    sheet.getRange(`I8:P${lastRow}`).format.numberFormat = "0.0";
+    sheet.getRange(`K8:K${lastRow}`).format.numberFormat = "0.0%";
+    sheet.getRange(`Q8:Q${lastRow}`).conditionalFormats.add(
+      "containsText",
+      { text: "要調整", format: { fill: colors.paleRed, font: { color: "#A61B1B", bold: true } } },
+    );
+    sheet.getRange(`Q8:Q${lastRow}`).conditionalFormats.add(
+      "containsText",
+      { text: "OK", format: { fill: colors.paleGreen, font: { color: "#237A43", bold: true } } },
+    );
+    const table = sheet.tables.add(`A7:Q${lastRow}`, true, "BalanceLabResults");
+    table.style = "TableStyleMedium2";
+    table.showBandedRows = true;
+
+    sheet.getRange("S7:V7").values = [["名称", "クリア率", "撤退率", "失敗率"]];
+    sheet.getRange("S8:V8").formulas = [["=B8", "=E8", "=F8", "=G8"]];
+    sheet.getRange(`S8:V${lastRow}`).fillDown();
+    const chart = sheet.charts.add("bar", sheet.getRange(`S7:V${lastRow}`));
+    chart.title = "シナリオ別 成功・撤退・失敗率";
+    chart.hasLegend = true;
+    chart.xAxis = { axisType: "textAxis" };
+    chart.yAxis = { numberFormatCode: "0%", min: 0, max: 1 };
+    chart.setPosition("S2", "AC18");
+  }
+
+  sheet.getRange("A:A").format.columnWidth = 24;
+  sheet.getRange("B:B").format.columnWidth = 28;
+  sheet.getRange("C:Q").format.columnWidth = 14;
+  sheet.getRange("A7:Q40").format.font = { name: bodyFont, size: 10 };
+  sheet.freezePanes.freezeRows(7);
+  return sheet;
+};
+
 const addGuide = (workbook) => {
   const sheet = workbook.worksheets.add("入力ガイド");
   sheet.showGridLines = false;
@@ -673,7 +861,9 @@ const addGuide = (workbook) => {
     ["明細", "職業スキル", "classIdとorderで職業ごとのスキル解禁順を構成"],
     ["主要", "種族", "能力成長率と就業可能な職業ID"],
     ["主要", "装備", "武器・防具、係数、価格、重量、bonus各種"],
+    ["明細", "装備状態効果", "equipmentId・発動契機・orderで戦闘開始時／命中時の状態効果を構成"],
     ["主要", "スキル", "段階、装備条件、add/mul、遠征効果、戦闘条件効果"],
+    ["明細", "スキル状態効果", "skillId・発動契機・orderで戦闘開始時／命中時の状態効果を構成"],
     ["主要", "道具", "消費アイテムの説明、価格、効果"],
     ["主要", "レリック", "効果種別、倍率、add/mul各種"],
     ["主要", "施設", "建設費、維持費、ギルド機能への加算"],
@@ -693,6 +883,8 @@ const addGuide = (workbook) => {
     ["明細", "ダンジョン報酬", "treasureTable（宝箱）の中身と重み"],
     ["明細", "ダンジョン終了イベント", "turnEndEventIdsの順序付き一覧"],
     ["参照", "参照マスター", "各編集シートのIDと名称を横断確認する一覧"],
+    ["分析", "バランスレポート", "Balance Labの試行結果、基準差、要調整シナリオを表示"],
+    ["管理", "_meta", "ブックのschemaVersion、生成日時、マスタ指紋を記録"],
     ["共通", "入力チェック", "ID重複の簡易表示。JSON保存時にはツールが全参照を再検証"],
   ];
   const lastGuideRow = guideRows.length + 2;
@@ -762,9 +954,11 @@ const addReferences = (workbook, refs) => {
   sheet.freezePanes.freezeRows(3);
 };
 
-const exportWorkbook = async () => {
-  const entries = await Promise.all(masterFiles.map(async (name) => [name, await readJson(name)]));
-  const data = Object.fromEntries(entries);
+const exportWorkbook = async (providedData = null, exitWhenDone = true, renderPreviews = true) => {
+  const entries = providedData == null
+    ? await Promise.all(masterFiles.map(async (name) => [name, await readJson(name)]))
+    : null;
+  const data = providedData ?? Object.fromEntries(entries);
   const refs = {
     classes: data.classes,
     races: data.races,
@@ -782,6 +976,7 @@ const exportWorkbook = async () => {
   const rowsBySheet = makeRows(data);
   const workbook = Workbook.create();
   workbook.comments.setSelf({ displayName: "User" });
+  addMetadata(workbook, data);
   const guideLastRow = addGuide(workbook);
   const sheets = {};
   let tableIndex = 1;
@@ -790,6 +985,8 @@ const exportWorkbook = async () => {
     tableIndex += 1;
   }
   addReferences(workbook, refs);
+  const balanceReport = await readBalanceReport();
+  addBalanceReport(workbook, balanceReport);
 
   const boolFields = {
     skills: [
@@ -845,6 +1042,14 @@ const exportWorkbook = async () => {
   ];
   addValidation(sheets.choiceOptions, sheetDefinitions.choiceOptions, "effectType", choiceEffectTypes);
   addValidation(sheets.choiceOutcomes, sheetDefinitions.choiceOutcomes, "effectType", choiceEffectTypes);
+  const statusTriggers = ["battleStart", "onHit"];
+  const statusTypes = ["Poisoned", "Bleeding", "Burning", "Stunned", "Regenerating", "Empowered", "Guarded"];
+  const statusTargets = ["Self", "Allies", "Enemy"];
+  for (const key of ["equipmentStatuses", "skillStatuses"]) {
+    addValidation(sheets[key], sheetDefinitions[key], "trigger", statusTriggers);
+    addValidation(sheets[key], sheetDefinitions[key], "type", statusTypes);
+    addValidation(sheets[key], sheetDefinitions[key], "target", statusTargets);
+  }
 
   await fs.mkdir(outputDir, { recursive: true });
   await fs.mkdir(previewDir, { recursive: true });
@@ -864,6 +1069,7 @@ const exportWorkbook = async () => {
   console.log(errors.ndjson);
 
   const previewRanges = [
+    ["_meta", "A1:D8"],
     ["入力ガイド", `A1:H${guideLastRow}`],
     ...Object.entries(sheetDefinitions).map(([key, definition]) => {
       const lastColumn = columnName(definition.keys.length + 1);
@@ -871,18 +1077,21 @@ const exportWorkbook = async () => {
       return [definition.name, `A1:${lastColumn}${lastRow}`];
     }),
     ["参照マスター", "A1:AJ30"],
+    ["バランスレポート", "A1:AC20"],
   ];
-  for (const [sheetName, range] of previewRanges) {
-    const preview = await workbook.render({
-      sheetName,
-      range,
-      scale: 0.8,
-      format: "png",
-    });
-    await fs.writeFile(
-      path.join(previewDir, `${sheetName}.png`),
-      new Uint8Array(await preview.arrayBuffer()),
-    );
+  if (renderPreviews) {
+    for (const [sheetName, range] of previewRanges) {
+      const preview = await workbook.render({
+        sheetName,
+        range,
+        scale: 0.8,
+        format: "png",
+      });
+      await fs.writeFile(
+        path.join(previewDir, `${sheetName}.png`),
+        new Uint8Array(await preview.arrayBuffer()),
+      );
+    }
   }
   const output = await SpreadsheetFile.exportXlsx(workbook);
   await output.save(workbookPath);
@@ -897,7 +1106,7 @@ const exportWorkbook = async () => {
   console.log(`REOPENED_OK=${reopenCheck.ndjson.includes("adv_0001")}`);
   console.log(`WORKBOOK=${workbookPath}`);
   await fs.writeFile(path.join(outputDir, "export.ok"), workbookPath, "utf8");
-  process.exit(0);
+  if (exitWhenDone) process.exit(0);
 };
 
 const text = (value) => String(value ?? "").trim();
@@ -926,8 +1135,33 @@ const boolValue = (value, label, row) => {
 };
 const optionalBool = (value, label, row) => (isBlank(value) ? null : boolValue(value, label, row));
 
-const readSheetRows = (workbook, definition) => {
-  const sheet = workbook.worksheets.getItem(definition.name);
+const readSheetRows = (workbook, definition, allowMissingHeaders = false) => {
+  let sheet;
+  try {
+    sheet = workbook.worksheets.getItem(definition.name);
+  } catch (error) {
+    if (allowMissingHeaders) return [];
+    throw error;
+  }
+  if (allowMissingHeaders) {
+    const usedValues = sheet.getUsedRange().values;
+    const actualHeaders = (usedValues[3] ?? []).map(text);
+    const indexes = definition.keys.map((key) => actualHeaders.indexOf(key));
+    if (indexes[0] < 0) {
+      throw new Error(`${definition.name}: 移行に必要な先頭キー ${definition.keys[0]} がありません。`);
+    }
+    return usedValues
+      .slice(4)
+      .map((sourceValues, index) => {
+        const values = indexes.map((sourceIndex) => sourceIndex < 0 ? null : sourceValues[sourceIndex]);
+        return {
+          row: index + 5,
+          values,
+          object: Object.fromEntries(definition.keys.map((key, keyIndex) => [key, values[keyIndex]])),
+        };
+      })
+      .filter(({ values }) => !isBlank(values[0]));
+  }
   const lastColumn = columnName(definition.keys.length);
   const actualHeaders = sheet.getRange(`A4:${lastColumn}4`).values[0].map(text);
   if (JSON.stringify(actualHeaders) !== JSON.stringify(definition.keys)) {
@@ -1007,10 +1241,13 @@ const firstDifference = (left, right, currentPath = "$") => {
   return `${currentPath}: ${JSON.stringify(left)} != ${JSON.stringify(right)}`;
 };
 
-const importWorkbook = async (writeMode) => {
+const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
   const workbook = await SpreadsheetFile.importXlsx(await FileBlob.load(workbookPath));
   const rows = Object.fromEntries(
-    Object.entries(sheetDefinitions).map(([key, definition]) => [key, readSheetRows(workbook, definition)]),
+    Object.entries(sheetDefinitions).map(([key, definition]) => [
+      key,
+      readSheetRows(workbook, definition, allowMissingHeaders),
+    ]),
   );
   let refs = {};
   const errors = [];
@@ -1036,6 +1273,34 @@ const importWorkbook = async (writeMode) => {
     [...items].sort((a, b) =>
       text(a.object[parentKey]).localeCompare(text(b.object[parentKey])) ||
       numberValue(a.object.order, "order", a.row, true) - numberValue(b.object.order, "order", b.row, true));
+
+  const buildStatusGroups = (entries, parentKey) => {
+    const groups = new Map();
+    for (const entry of orderRows(entries, parentKey)) {
+      guarded(() => {
+        const parentId = text(entry.object[parentKey]);
+        const trigger = text(entry.object.trigger);
+        if (trigger !== "battleStart" && trigger !== "onHit")
+          throw new Error(`trigger (${entry.row}行目) は battleStart/onHit で入力してください。`);
+        const status = {
+          type: text(entry.object.type),
+          target: text(entry.object.target),
+        };
+        optionalAssign(status, "chancePercent",
+          optionalNumber(entry.object.chancePercent, "chancePercent", entry.row, true));
+        optionalAssign(status, "durationRounds",
+          optionalNumber(entry.object.durationRounds, "durationRounds", entry.row, true));
+        optionalAssign(status, "potency",
+          optionalNumber(entry.object.potency, "potency", entry.row, true));
+        if (!groups.has(parentId)) groups.set(parentId, { battleStartStatuses: [], onHitStatuses: [] });
+        groups.get(parentId)[trigger === "battleStart" ? "battleStartStatuses" : "onHitStatuses"].push(status);
+      });
+    }
+    return groups;
+  };
+
+  const equipmentStatusGroups = buildStatusGroups(rows.equipmentStatuses, "equipmentId");
+  const skillStatusGroups = buildStatusGroups(rows.skillStatuses, "skillId");
 
   const equipment = rows.equipment.map(({ object: x, row }) => guarded(() => {
     const item = {
@@ -1065,6 +1330,9 @@ const importWorkbook = async (writeMode) => {
     optionalAssign(item, "shopTier", optionalNumber(x.shopTier, "shopTier", row, true));
     const bonus = buildStatObject(x, "bonus", row);
     if (Object.keys(bonus).length > 0) item.bonus = bonus;
+    const statuses = equipmentStatusGroups.get(item.id);
+    if (statuses?.battleStartStatuses.length > 0) item.battleStartStatuses = statuses.battleStartStatuses;
+    if (statuses?.onHitStatuses.length > 0) item.onHitStatuses = statuses.onHitStatuses;
     return item;
   })).filter(Boolean);
   ensureUnique(equipment, "装備");
@@ -1098,10 +1366,17 @@ const importWorkbook = async (writeMode) => {
     if (Object.keys(expedition).length > 0) item.expedition = expedition;
     const battle = buildNumberObject(x, "battle", battleSkillKeys, row, true);
     if (Object.keys(battle).length > 0) item.battle = battle;
+    const statuses = skillStatusGroups.get(item.id);
+    if (statuses?.battleStartStatuses.length > 0) item.battleStartStatuses = statuses.battleStartStatuses;
+    if (statuses?.onHitStatuses.length > 0) item.onHitStatuses = statuses.onHitStatuses;
     return item;
   })).filter(Boolean);
   ensureUnique(skills, "スキル");
   const skillIds = new Set(skills.map((x) => x.id));
+  for (const entry of rows.equipmentStatuses)
+    assertRef(equipmentIds, entry.object.equipmentId, "装備状態効果.equipmentId", entry.row);
+  for (const entry of rows.skillStatuses)
+    assertRef(skillIds, entry.object.skillId, "スキル状態効果.skillId", entry.row);
 
   const consumables = rows.consumables.map(({ object: x, row }) => guarded(() => {
     const item = { id: text(x.id), displayName: text(x.displayName) };
@@ -1203,7 +1478,11 @@ const importWorkbook = async (writeMode) => {
       growthRateBonusPercent: numberValue(x.growthRateBonusPercent, "growthRateBonusPercent", row, true),
     };
     optionalAssign(item, "description", optionalText(x.description));
-    optionalAssign(item, "recruitMinBonus", optionalNumber(x.recruitMinBonus, "recruitMinBonus", row, true));
+    for (const key of [
+      "recruitMinBonus", "injuryRecoveryBonus", "fatalityReductionPercent", "scarPreventionPercent",
+    ]) {
+      optionalAssign(item, key, optionalNumber(x[key], key, row, true));
+    }
     return item;
   })).filter(Boolean);
   ensureUnique(facilities, "施設");
@@ -1257,8 +1536,8 @@ const importWorkbook = async (writeMode) => {
       const outcome = {
         weight: numberValue(entry.object.weight, "weight", entry.row, true),
         effectType,
-        value: numberValue(entry.object.value, "value", entry.row, true),
       };
+      optionalAssign(outcome, "value", optionalNumber(entry.object.value, "value", entry.row, true));
       const resultText = optionalText(entry.object.resultText);
       if (resultText !== null) outcome.resultText = resultText;
       if (!isBlank(entry.object.targetId) || resultText !== null) outcome.targetId = text(entry.object.targetId);
@@ -1278,8 +1557,8 @@ const importWorkbook = async (writeMode) => {
         text: text(entry.object.text),
         resultText: text(entry.object.resultText),
         effectType,
-        value: numberValue(entry.object.value, "value", entry.row, true),
       };
+      optionalAssign(option, "value", optionalNumber(entry.object.value, "value", entry.row, true));
       optionalAssign(option, "targetId", optionalText(entry.object.targetId));
       if (boolValue(entry.object.targetsOneMember, "targetsOneMember", entry.row)) {
         option.targetsOneMember = true;
@@ -1604,6 +1883,7 @@ const importWorkbook = async (writeMode) => {
     }
   }
   console.log(`ROUNDTRIP_MATCH=${allMatch}`);
+  console.log(`DIFF_FILES=${[...changedNames].join(",") || "(none)"}`);
 
   if (writeMode) {
     const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\..+/, "").replace("T", "_");
@@ -1619,16 +1899,65 @@ const importWorkbook = async (writeMode) => {
     console.log(`SAVED=${[...changedNames].map((name) => `${name}.json`).join(",") || "(none)"}`);
     console.log(`BACKUP_DIR=${backupDir}`);
   }
+  return reconstructed;
+};
+
+const mergeMissingObjectFields = (current, migrated) => {
+  if (Array.isArray(migrated)) return migrated;
+  if (!migrated || typeof migrated !== "object") return migrated;
+  const result = current && typeof current === "object" && !Array.isArray(current)
+    ? { ...current }
+    : {};
+  for (const [key, value] of Object.entries(migrated)) {
+    result[key] = value && typeof value === "object" && !Array.isArray(value)
+      ? mergeMissingObjectFields(current?.[key], value)
+      : value;
+  }
+  return result;
+};
+
+const mergeMigratedMasterData = (current, migrated) => Object.fromEntries(
+  masterFiles.map((name) => {
+    const currentItems = current[name] ?? [];
+    const migratedItems = migrated[name] ?? [];
+    const currentById = new Map(currentItems.map((item) => [item.id, item]));
+    const migratedIds = new Set(migratedItems.map((item) => item.id));
+    const merged = migratedItems.map((item) =>
+      mergeMissingObjectFields(currentById.get(item.id), item));
+    for (const item of currentItems) {
+      if (!migratedIds.has(item.id)) merged.push(item);
+    }
+    return [name, merged];
+  }),
+);
+
+const migrateWorkbook = async () => {
+  const migrated = await importWorkbook(false, true);
+  const currentEntries = await Promise.all(masterFiles.map(async (name) => [name, await readJson(name)]));
+  const current = Object.fromEntries(currentEntries);
+  const merged = mergeMigratedMasterData(current, migrated);
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\..+/, "").replace("T", "_");
+  const backupDir = path.join(outputDir, "workbook-backups", stamp);
+  await fs.mkdir(backupDir, { recursive: true });
+  await fs.copyFile(workbookPath, path.join(backupDir, path.basename(workbookPath)));
+  await exportWorkbook(merged, false, false);
+  console.log(`MIGRATED_SCHEMA_VERSION=${workbookSchemaVersion}`);
+  console.log(`WORKBOOK_BACKUP_DIR=${backupDir}`);
+  process.exit(0);
 };
 
 if (command === "export") {
   await exportWorkbook();
 } else if (command === "check") {
   await importWorkbook(false);
+} else if (command === "diff") {
+  await importWorkbook(false);
 } else if (command === "import") {
   await importWorkbook(true);
+} else if (command === "migrate") {
+  await migrateWorkbook();
 } else {
-  throw new Error("Usage: master-data-tool.mjs export|check|import");
+  throw new Error("Usage: master-data-tool.mjs export|check|diff|import|migrate");
 }
 
 process.exit(0);

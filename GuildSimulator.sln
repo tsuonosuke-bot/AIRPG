@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuildSimulator.Game", "Guil
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuildSimulator.Web", "GuildSimulator.Web\GuildSimulator.Web.csproj", "{27631F0B-A66B-4116-8B9A-45404146D9CA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuildSimulator.Balance", "GuildSimulator.Balance\GuildSimulator.Balance.csproj", "{B4D6D5C0-F0DC-4F8B-BC56-AB12F7D21D62}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{27631F0B-A66B-4116-8B9A-45404146D9CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27631F0B-A66B-4116-8B9A-45404146D9CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27631F0B-A66B-4116-8B9A-45404146D9CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4D6D5C0-F0DC-4F8B-BC56-AB12F7D21D62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4D6D5C0-F0DC-4F8B-BC56-AB12F7D21D62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4D6D5C0-F0DC-4F8B-BC56-AB12F7D21D62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4D6D5C0-F0DC-4F8B-BC56-AB12F7D21D62}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -114,6 +114,19 @@ dotnet run --project GuildSimulator.Web
 dotnet run --project GuildSimulator.Cli -- --validate-master
 ```
 
+### Balance Lab
+
+実際の戦闘・クエスト進行ロジックをseed固定で繰り返し、勝率、撤退率、失敗率、残HP、所要ターン、Gold差などをJSON/CSVへ出力します。
+
+```powershell
+.\tools\balance-lab.cmd
+.\tools\balance-lab.cmd --runs 10000 --seed 12345
+.\tools\balance-lab.cmd --compare outputs\balance-lab\baseline.json
+```
+
+既定シナリオは `GuildSimulator.Balance/scenarios/default.json`、結果は
+`outputs/balance-lab/balance-report.json` と同名CSVです。Excelマスタを再出力すると、結果が「バランスレポート」シートへ取り込まれます。
+
 ### 機能フラグ（凍結中の機能）
 
 作り込んだ機能を消さずに止めておくためのスイッチを `GuildSimulator.Core/GameFeatures.cs` に置いています。
