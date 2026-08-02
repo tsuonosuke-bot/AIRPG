@@ -9,17 +9,28 @@ public class EnemyData : IUnitMember
     public string id = Guid.NewGuid().ToString("N");
     public EnemyMasterData master;
     public string name;
-    public int level;
     public bool isAlive = true;
 
     bool IUnitMember.IsAlive { get => isAlive; set => isAlive = value; }
-    public int Level => level;
+
+    /// <summary>脅威度（F〜S）。マスタに手で書いた値をそのまま使う。</summary>
+    public int Threat => Models.Rank.Clamp(master.threat);
     public string Name => name;
     public int CombatHp { get; set; }
     public int CombatHpMax { get; set; }
-    public IReadOnlyList<SkillMasterData> Skills => master.Skills;
+    // 冒険者と同じく、同系統の段階スキルは最上位だけが効く。
+    // マスタに Lv1 と Lv3 を並べて書いても二重には乗らない。
+    public IReadOnlyList<SkillMasterData> Skills => skills ??= SkillProgression.Collapse(master.Skills);
+    IReadOnlyList<SkillMasterData>? skills;
     public EquipmentMasterData? Weapon => master.DefaultWeapon;
     public EquipmentMasterData? Armor => master.DefaultArmor;
+
+    // 両手武器を構えている敵の左手は塞がっている。冒険者側と同じ制約をかける。
+    bool HasFreeOffHand => master.DefaultWeapon is not { isTwoHanded: true };
+    public EquipmentMasterData? OffHandWeapon =>
+        HasFreeOffHand && master.DefaultOffHand is { type: EquipmentType.Weapon } w ? w : null;
+    public EquipmentMasterData? Shield =>
+        HasFreeOffHand && master.DefaultShield is { } s && s.IsShield ? s : null;
 
     // 武器を持つ敵は武器ダイス、素手の敵は種族固有の自然攻撃ダイスで殴る。
     public string DamageDice
@@ -39,27 +50,27 @@ public class EnemyData : IUnitMember
     public int WeaponBasePv => master.DefaultWeapon?.basePv ?? master.naturalPv;
     public int MaxStatBonus => master.DefaultWeapon?.maxStatBonus ?? QudCombatDefaults.UnlimitedStatBonus;
     public int AttackStatModifier => QudCombat.Modifier(
-        IsMagicAttack ? Scaled(master.intelligence) : Scaled(master.strength));
+        IsMagicAttack ? master.intelligence : master.strength);
 
-    public EnemyData(EnemyMasterData master, int level = 1)
+    // 牙や爪には武器クラスの個性がない。槍持ちのゴブリンなら、その槍の貫通力をそのまま使う。
+    public WeaponTraits Traits => master.DefaultWeapon?.Traits ?? WeaponTraits.None;
+
+    public EnemyData(EnemyMasterData master)
     {
         this.master = master;
         this.name = master.baseName;
-        this.level = level;
     }
 
-    public const double GROWTH_PER_LEVEL = 0.1; // レベルごとにステータスを10%ずつ伸ばす線形成長（冒険者と同様、複利にしない）
-
-    int Scaled(int baseVal) => (int)Math.Floor(baseVal * (1.0 + GROWTH_PER_LEVEL * (level - 1)));
-
-    // 冒険者と同じ組み立て。敵はレベル成長を通した能力値からAV/DV/命中を出す。
+    // 冒険者と同じ組み立て。敵はマスタに書かれた能力値をそのまま使う。
+    // レベル倍率で一律に伸ばしていた頃は「硬いが弱い」「脆いが痛い」が作れなかったので、
+    // 強弱は個体を別々に用意して表す。
     public StatBlock GetBaseCombatStats()
     {
-        int vit = Scaled(master.vitality);
-        int men = Scaled(master.mental);
-        int agi = Scaled(master.agility);
-        int intl = Scaled(master.intelligence);
-        int cons = Scaled(master.constitution);
+        int vit = master.vitality;
+        int men = master.mental;
+        int agi = master.agility;
+        int intl = master.intelligence;
+        int cons = master.constitution;
         return new StatBlock
         {
             hp = (vit * 10 + cons * 5) / 2,
@@ -73,11 +84,14 @@ public class EnemyData : IUnitMember
         };
     }
 
+    // 左手の武器の補正は乗せない（冒険者側と同じ取り決め）。盾は防具なので乗せるが、
+    // 装甲だけは受けに成功したときにしか効かないので blockAv 側に置いてある。
     public StatBlock GetEquipmentBonus()
     {
         StatBlock b = default;
         if (Weapon != null) b += Weapon.bonus;
         if (Armor != null) b += Armor.bonus;
+        if (Shield != null) b += Shield.bonus;
         return b;
     }
 

@@ -1,6 +1,7 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems;
 using GuildSimulator.Core.Systems.Guild;
 
 namespace GuildSimulator.Core.Systems.Quest;
@@ -21,20 +22,23 @@ public class QuestRewardService
     {
         foreach (var chest in q.chests)
         {
+            bool usesKey = !chest.IsBossChest && q.guaranteedNonEmptyChestCount > 0;
+            if (usesKey) q.guaranteedNonEmptyChestCount--;
             var contents = chest.IsBossChest
                 ? RollBossChest(q)
-                : RollDungeonChest(q, guild);
+                : RollDungeonChest(q, guild, skipEmptyRoll: usesKey);
+            string keyTag = usesKey ? "（盗掘者の合鍵を使用）" : "";
 
             if (contents.Count == 0)
             {
-                q.logs.Add($"{prefix} {chest.Label}を開けた → 空っぽだった");
+                q.logs.Add($"{prefix} {chest.Label}を開けた{keyTag} → 空っぽだった");
                 continue;
             }
 
             q.pendingLoot.AddRange(contents);
             string found = string.Join("、", contents.Select(
                 e => RewardDescription.DescribeLoot(e) + RewardDescription.DescribeQuantity(e)));
-            q.logs.Add($"{prefix} {chest.Label}を開けた → {found}");
+            q.logs.Add($"{prefix} {chest.Label}を開けた{keyTag} → {found}");
         }
         q.chests.Clear();
     }
@@ -46,6 +50,7 @@ public class QuestRewardService
         var contents = new List<RewardEntryData>();
         foreach (var entry in q.def.bossDrops)
         {
+            if (RelicSystem.IsFrozenRelicReward(entry)) continue;
             if (!q.def.bossDropsAreGuaranteed
                 && (entry.chance <= 0f || GameRandom.NextFloat() >= entry.chance)) continue;
             contents.Add(entry.Copy());
@@ -55,15 +60,20 @@ public class QuestRewardService
 
     // 道中の宝箱はダンジョンの宝箱テーブルから1件。一定確率で空っぽ。
     // 所持済みの遺物は開けても捨てるだけなので抽選から外す。
-    static List<RewardEntryData> RollDungeonChest(QuestRun q, GuildManager guild)
+    // 遺物システムの凍結中は遺物エントリを丸ごと除外し、残りの中身で抽選し直す
+    // （重みの合計を取り直すので、他の中身の出やすさの比率は変わらない）。
+    static List<RewardEntryData> RollDungeonChest(
+        QuestRun q, GuildManager guild, bool skipEmptyRoll = false)
     {
-        if (GameRandom.NextFloat() < EmptyChestRate) return new();
+        if (!skipEmptyRoll && GameRandom.NextFloat() < EmptyChestRate) return new();
 
         var table = q.def.Dungeon?.treasureTable;
         if (table == null) return new();
 
         var candidates = table
-            .Where(e => e.weight > 0 && !IsOwnedRelic(e, guild))
+            .Where(e => e.weight > 0
+                && !RelicSystem.IsFrozenRelicReward(e)
+                && !IsOwnedRelic(e, guild))
             .ToList();
 
         int total = 0;
@@ -98,31 +108,40 @@ public class QuestRewardService
         if (q.retreated)
             q.logs.Add($"{prefix} 撤退のため基本報酬は {RetreatRewardRate:P0}（戦利品はそのまま持ち帰り）");
 
-        int gold = (int)Math.Floor((baseGold + gatherGold) * rate
-            * RelicSystem.GetGoldRewardMultiplier() * (1f + q.goldRewardBonusPercent / 100f));
-        guild.AddGold(gold, $"クエスト報酬: {q.def.questName}");
-        q.logs.Add($"{prefix} 資金 +{gold}G（基本 {baseGold}{(gatherGold > 0 ? $" + 買取 {gatherGold}" : "")}）");
+        // 連れて行った顔ぶれのスキル（値切り・目利き・教導など）は報酬そのものに効く。
+        var partySkills = PartySkillEffects.Of(q.formation);
 
-        int totalExp = (int)Math.Floor(q.def.rewardExp * rate * (1f + q.expRewardBonusPercent / 100f));
+        int gold = (int)Math.Floor((baseGold + gatherGold) * rate
+            * RelicSystem.GetGoldRewardMultiplier() * (1f + q.goldRewardBonusPercent / 100f)
+            * partySkills.GoldMultiplier);
+        guild.AddGold(gold, $"クエスト報酬: {q.def.questName}");
+        string goldSkillNote = partySkills.goldPercent != 0 ? $" / スキル {partySkills.goldPercent:+#;-#;0}%" : "";
+        q.logs.Add($"{prefix} 資金 +{gold}G（基本 {baseGold}{(gatherGold > 0 ? $" + 買取 {gatherGold}" : "")}{goldSkillNote}）");
+
+        int totalExp = (int)Math.Floor(
+            q.def.rewardExp * rate * (1f + q.expRewardBonusPercent / 100f) * partySkills.ExpMultiplier);
         var members = q.formation.Where(x => x != null).ToList();
         int memberCount = members.Count;
-        int share = memberCount > 0 ? totalExp / memberCount : 0;
-        int remainder = memberCount > 0 ? totalExp % memberCount : 0;
         for (int i = 0; i < memberCount; i++)
         {
             var a = members[i]!;
-            int questExp = share + (i < remainder ? 1 : 0);
+            int questExp = ExperienceRewardSplitter.ShareFor(totalExp, memberCount, i);
             int levelBefore = a.level;
-            a.AddExperience(questExp, out var ups);
-            string levelUpText = ups > 0 ? $"（レベルアップ {levelBefore}lv→{a.level}lv）" : "";
+            a.AddExperience(questExp, out var ups, out var grownStats);
+            string levelUpText = ups > 0
+                ? $"（レベルアップ {levelBefore}lv→{a.level}lv、{QuestManager.FormatGrownStats(grownStats)}）"
+                : "";
             q.logs.Add($"{prefix} {a.name} 経験値 +{questExp}{levelUpText}");
         }
 
         // ギルドポイントは達成の証なので撤退では入らない。
         if (q.def.rewardGuildPoints != 0 && !q.retreated)
         {
-            guild.AddGuildPoints(q.def.rewardGuildPoints, $"クエストGP: {q.def.questName}");
-            q.logs.Add($"{prefix} ギルドポイント +{q.def.rewardGuildPoints}");
+            int appearanceBonus = AppearanceSystem.GuildPointBonus(q.def.rewardGuildPoints, q.formation);
+            int guildPoints = q.def.rewardGuildPoints + appearanceBonus;
+            guild.AddGuildPoints(guildPoints, $"クエストGP: {q.def.questName}");
+            q.logs.Add($"{prefix} ギルドポイント +{guildPoints}"
+                + (appearanceBonus > 0 ? $"（容姿ボーナス +{appearanceBonus}）" : ""));
         }
     }
 
@@ -138,7 +157,8 @@ public class QuestRewardService
                     q.logs.Add($"{prefix} 戦利品 資金 +{e.gold}G");
                     break;
                 case RewardType.Relic:
-                    if (e.Relic == null) break;
+                    // 凍結前のセーブに積まれたままの遺物は、黙って無かったことにする。
+                    if (RelicSystem.IsFrozenRelicReward(e) || e.Relic == null) break;
                     if (guild.relics.Contains(e.Relic))
                         q.logs.Add($"{prefix} 戦利品 遺物「{e.Relic.relicName}」は所持済みのため見送り");
                     else { guild.AddRelic(e.Relic, q.def.questName); q.logs.Add($"{prefix} 戦利品 遺物入手: {e.Relic.relicName}"); }

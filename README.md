@@ -63,9 +63,38 @@ dotnet run --project GuildSimulator.Cli
 
 ### ビルドとテスト
 
-```bash
-dotnet build GuildSimulator.sln
-dotnet test GuildSimulator.sln
+日常開発では `Debug` を使い、テストプロジェクトだけを直接実行します。
+これにより、テストに不要なブラウザ版のビルドと、Git管理されている
+`bin/Release` 配下の更新を避けられます。
+
+変更に対応するテスト名が分かる場合は、対象テストの成功後に同じビルド成果物で
+全テストを実行します。
+
+```powershell
+.\tools\test-fast.cmd -Filter "FullyQualifiedName~RecruitScreenRendersEachCandidateOnlyOnce"
+```
+
+対象テストだけを繰り返す場合は `-SkipFull`、最初から全テストを実行する場合は
+引数なしで起動します。`.cmd` は、このPCのPowerShell実行ポリシーを変更せず、
+この1回のプロセスに限って `test-fast.ps1` を実行します。
+
+```powershell
+.\tools\test-fast.cmd -Filter "FullyQualifiedName~RecruitScreenRendersEachCandidateOnlyOnce" -SkipFull
+.\tools\test-fast.cmd
+```
+
+NuGet依存関係を明示的に復元し直す場合は `-Restore` を指定します。
+
+```powershell
+.\tools\test-fast.cmd -Restore
+```
+
+配布前だけ、ソリューション全体を `Release` でビルドしてからテストします。
+`bin/Release` は配布用としてGit管理されているため、生成差分も確認してください。
+
+```powershell
+dotnet build GuildSimulator.sln -c Release -m:1 -nr:false
+.\tools\test-fast.cmd -Configuration Release
 ```
 
 ### ブラウザ版をローカルで動かす
@@ -84,3 +113,46 @@ dotnet run --project GuildSimulator.Web
 ```bash
 dotnet run --project GuildSimulator.Cli -- --validate-master
 ```
+
+### Balance Lab
+
+実際の戦闘・クエスト進行ロジックをseed固定で繰り返し、勝率、撤退率、失敗率、残HP、所要ターン、Gold差などをJSON/CSVへ出力します。
+
+```powershell
+.\tools\balance-lab.cmd
+.\tools\balance-lab.cmd --runs 10000 --seed 12345
+.\tools\balance-lab.cmd --compare outputs\balance-lab\baseline.json
+```
+
+既定シナリオは `GuildSimulator.Balance/scenarios/default.json`、結果は
+`outputs/balance-lab/balance-report.json` と同名CSVです。Excelマスタを再出力すると、結果が「バランスレポート」シートへ取り込まれます。
+
+### 機能フラグ（凍結中の機能）
+
+作り込んだ機能を消さずに止めておくためのスイッチを `GuildSimulator.Core/GameFeatures.cs` に置いています。
+コードもマスタデータも残したまま、フラグ1つで on/off を切り替えます。
+
+| フラグ | 既定値 | 状態 |
+| --- | --- | --- |
+| `GameFeatures.RelicsEnabled` | `false` | **遺物システムは凍結中** |
+
+#### 遺物システムの凍結について
+
+恒常的な強化（永久バフ）の入手経路を **施設に一本化** し、遺物と施設で二重に管理する
+複雑さをなくすために止めています。凍結中の挙動は次の通りです。
+
+- 遺物の効果はすべて無効（加算0・倍率1.0）。所持済みの遺物も効きません
+- 宝箱・ボスドロップ・敵ドロップから遺物が出ません。
+  遺物エントリを除外したうえで重みを取り直すので、**他の中身の出やすさの比率は変わりません**
+- メインメニューから「遺物一覧」が消え、ヘルプの記述からも遺物が外れます
+- `relics.json` と遺物を指す `relicId` はそのまま残しています（消すと復活できないため）
+- セーブデータの `relicIds` は読み書きを続けるので、凍結前の所持記録は失われません
+
+復活させるときは `GameFeatures.RelicsEnabled` を `true` に戻すだけです。
+画面・ヘルプ・ドロップ・効果のすべてが同時に戻り、凍結中に進めたセーブデータでも
+記録済みの遺物がそのまま効き始めます。凍結と復活の両方の挙動は
+`GuildSimulator.Tests/RelicFreezeTests.cs` で固定しています。
+
+なお、遺物が担っていた強化のうち **ユニットの能力補正・クエスト報酬倍率・維持費倍率** には
+まだ対応する施設がありません（`facilities.json` にあるのは掲示枠・商店・休息回復・成長率・
+雇入れ・負傷回復まで）。一本化を完了させるには、これらを施設側に用意する必要があります。

@@ -1,10 +1,14 @@
 using GuildSimulator.Core.GameData;
+using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems;
 
 namespace GuildSimulator.Core.Systems.Battle;
 
 public static class BattleResolver
 {
+    public const int SurvivalPartyHpPercent = 50;
+    public const int SurvivalMemberHpPercent = 25;
     public class Result
     {
         public bool adventurersRetreated;
@@ -29,6 +33,15 @@ public static class BattleResolver
     const float HEAL_TARGET_HP_RATE = 0.7f; // 味方のHP率がこれを下回っていたら回復を選ぶ
     const int MAX_ACTIONS = 300;            // 長期戦の安全弁（個別行動の総数）
 
+    /// <summary>
+    /// 狙われにくさの下限。どれだけ気配を消しても完全に的から外れることはない
+    /// （全員が隠形を積んだ編成で抽選が成り立たなくなるのを防ぐ）。
+    /// </summary>
+    public const float MIN_THREAT_WEIGHT_SCALE = 0.1f;
+
+    /// <summary>応急処置が発動するHP率。これを下回った瞬間に1戦闘1度だけ効く。</summary>
+    public const float EMERGENCY_HEAL_HP_RATE = 0.5f;
+
     public static Result Resolve(
         IUnitMember?[] advSide,
         IUnitMember?[] enemySide,
@@ -36,37 +49,72 @@ public static class BattleResolver
         int turn,
         int phase,
         MoraleState morale,
-        ExpeditionPolicy policy = ExpeditionPolicy.ObjectiveFirst)
+        ExpeditionPolicy policy = ExpeditionPolicy.ObjectiveFirst,
+        Func<IUnitMember, StatBlock>? temporaryStatBonus = null,
+        int emergencyRetreatHpPercent = 0)
     {
         var res = new Result();
         int actions = 0;
         int round = 0;
 
-        logs.Add($"[Turn {turn}] Phase {phase}: 戦闘開始 冒険者 vs {DescribeComposition(enemySide)}");
+        // 斧に削られた装甲は戦闘が終わるまで戻らない。ラウンドをまたいで積み上がるので、
+        // 毎ラウンド作り直される statsByMember ではなくここで持つ。
+        var armorShredded = new Dictionary<IUnitMember, int>();
 
-        // 格上との遭遇はそれ自体が士気を削る。
-        int levelGap = UnitCalculator.AvgLevel(enemySide) - UnitCalculator.AvgLevel(advSide);
-        int shock = morale.DrainLevelGap(levelGap);
+        // 応急処置は1回の戦闘につき1度きり。ラウンドをまたいで覚えておく。
+        var emergencyHealUsed = new HashSet<IUnitMember>();
+
+        // 毒・出血・火傷・凍結と、一時的な攻勢/守勢/再生はこの戦闘の中だけ保持する。
+        var statuses = new CombatStatusTracker();
+
+        logs.Add($"[Turn {turn}] エリア {phase}: 戦闘開始 冒険者 vs {DescribeComposition(enemySide)}");
+        ApplyBattleStartStatuses(advSide, enemySide, statuses, logs, phase);
+        ApplyBattleStartStatuses(enemySide, advSide, statuses, logs, phase);
+
+        // 格上との遭遇はそれ自体が士気を削る。物差しは冒険者ランクと敵の脅威度（F〜S）。
+        int rankGap = UnitCalculator.AvgThreat(enemySide) - UnitCalculator.AvgThreat(advSide);
+        int shock = morale.DrainThreatGap(rankGap);
         if (shock > 0)
-            logs.Add($"  Phase {phase}: 格上の相手に気圧された（士気 -{shock} → {morale.Current}/{morale.Max}）");
+            logs.Add($"  エリア {phase}: 格上の相手に気圧された（士気 -{shock} → {morale.Current}/{morale.Max}）");
 
         int partyMaxHp = SumMaxHp(advSide);
+        if (ShouldUseSmokeBomb(advSide, enemySide, emergencyRetreatHpPercent))
+            return RetreatWithSmoke(logs, phase, round);
 
         while (actions < MAX_ACTIONS)
         {
             round++;
             int partyHpAtRoundStart = SumCurrentHp(advSide);
             int partyDowned = 0;
+            partyDowned += statuses.ProcessRoundStart(advSide, round, logs, phase);
+            statuses.ProcessRoundStart(enemySide, round, logs, phase);
+            if (!AnyAlive(advSide) || !AnyAlive(enemySide))
+            {
+                res.rounds = round;
+                return res;
+            }
+            int moraleRecovery = morale.Restore(AppearanceSystem.BattleMoralePerRound(advSide));
+            if (moraleRecovery > 0)
+                logs.Add($"  エリア {phase}: 隊員の華やかな存在感で士気 +{moraleRecovery}（{morale.Current}/{morale.Max}）");
             var advCalc = UnitCalculator.CalcPerMember(advSide, isAllySide: true);
+            if (temporaryStatBonus != null)
+            {
+                advCalc = advCalc.Select(entry =>
+                {
+                    var stats = entry.stats;
+                    stats += temporaryStatBonus(entry.member);
+                    return (entry.member, stats);
+                }).ToArray();
+            }
             var enemyCalc = UnitCalculator.CalcPerMember(enemySide, isAllySide: false);
             if (advCalc.Length == 0 || enemyCalc.Length == 0) break;
 
             var statsByMember = new Dictionary<IUnitMember, StatBlock>();
-            foreach (var (m, s) in advCalc) statsByMember[m] = s;
-            foreach (var (m, s) in enemyCalc) statsByMember[m] = s;
+            foreach (var (m, s) in advCalc) statsByMember[m] = statuses.ApplyStatModifiers(m, s);
+            foreach (var (m, s) in enemyCalc) statsByMember[m] = statuses.ApplyStatModifiers(m, s);
 
-            var queue = advCalc.Select(x => (member: x.member, isAdvSide: true, stats: x.stats, slot: SlotOf(advSide, x.member)))
-                .Concat(enemyCalc.Select(x => (member: x.member, isAdvSide: false, stats: x.stats, slot: SlotOf(enemySide, x.member))))
+            var queue = advCalc.Select(x => (member: x.member, isAdvSide: true, stats: statsByMember[x.member], slot: SlotOf(advSide, x.member)))
+                .Concat(enemyCalc.Select(x => (member: x.member, isAdvSide: false, stats: statsByMember[x.member], slot: SlotOf(enemySide, x.member))))
                 .OrderByDescending(x => x.stats.toHit)
                 .ThenBy(_ => GameRandom.NextFloat())
                 .ToList();
@@ -82,6 +130,12 @@ public static class BattleResolver
                 bool isRear = entry.slot >= 3;
                 if (!AnyAlive(allySideArr) || !AnyAlive(enemySideArr)) continue;
 
+                if (statuses.TryConsumeStun(actor, logs, phase))
+                {
+                    actions++;
+                    continue;
+                }
+
                 var actorStats = entry.stats;
                 bool canHeal = actor.Weapon != null && actor.Weapon.IsHealWeapon;
                 IUnitMember? healTarget = canHeal ? PickHealTarget(allySideArr) : null;
@@ -95,7 +149,7 @@ public static class BattleResolver
 
                     if (healFumble)
                     {
-                        logs.Add($"  Phase {phase}: {actor.Name}→{healTarget.Name} 手当て失敗（1d20={healRoll}） うまくいかない");
+                        logs.Add($"  エリア {phase}: {actor.Name}→{healTarget.Name} 手当て失敗（1d20={healRoll}） うまくいかない");
                     }
                     else
                     {
@@ -106,67 +160,171 @@ public static class BattleResolver
                         {
                             healTarget.CombatHp += healAmt;
                             string healTag = healCrit ? "会心の治療" : "回復";
-                            logs.Add($"  Phase {phase}: {actor.Name}→{healTarget.Name} {healTag} +{healAmt}（1d20={healRoll}）（{healTarget.CombatHp}/{healTarget.CombatHpMax}）");
+                            logs.Add($"  エリア {phase}: {actor.Name}→{healTarget.Name} {healTag} +{healAmt}（1d20={healRoll}）（{healTarget.CombatHp}/{healTarget.CombatHpMax}）");
+                            var regen = CombatStatusDefaults.OnHeal(actor.Weapon);
+                            if (regen != null)
+                                statuses.Apply(healTarget, regen, actor.Weapon!.displayName, round, logs, phase);
+                            TryCleanseOnHeal(
+                                actor, healTarget, entry.slot, statuses, logs, phase);
                         }
                     }
                 }
                 else
                 {
-                    var target = PickTarget(enemySideArr);
-                    if (target == null) continue;
-                    var targetStats = statsByMember[target];
-
                     // 物理か魔法かは能力値の大小ではなく武器そのもので決まる。
-                    // 魔道士が剣を持てば剣で殴り、戦士が杖を持てば魔法が飛ぶ。
+                    // 魔術師が剣を持てば剣で殴り、斧戦士が杖を持てば魔法が飛ぶ。
                     bool isMagic = actor.IsMagicAttack;
+
+                    // 武器クラスの個性は「得物そのもの」＋「スキル・遺物の補正」。
+                    // 短剣なら連撃と広い会心域、槍なら装甲貫通、斧なら装甲破壊がここに入る。
+                    var traits = actor.Traits.Combine(actorStats);
 
                     int toHit = actorStats.toHit;
                     if (isRear && !IsRangedWeapon(actor)) toHit -= REAR_MELEE_TO_HIT_PENALTY;
 
-                    int dv = targetStats.dv;
-                    if (SlotOf(enemySideArr, target) >= 3 && HasAliveFront(enemySideArr))
-                        dv += REAR_COVER_DV_BONUS;
+                    // PVは武器の基礎値に能力値modifierを（武器ごとの上限つきで）乗せ、装備・スキル補正を足す。
+                    int basePv = QudCombat.EffectivePv(
+                        actor.WeaponBasePv, actor.AttackStatModifier, actor.MaxStatBonus,
+                        isMagic ? actorStats.mpv : actorStats.pv);
 
-                    var check = QudCombat.RollToHit(toHit, dv);
+                    // 1振りぶんの解決。右手の連撃も左手の追撃も、得物の数値を差し替えて同じ経路を通る。
+                    void Swing(
+                        int pv,
+                        string? dice,
+                        WeaponTraits w,
+                        bool magic,
+                        string swingTag,
+                        EquipmentMasterData? usedWeapon)
+                    {
+                        var target = PickTarget(enemySideArr, statsByMember);
+                        if (target == null) return;
+                        target = TryProtectTarget(
+                            target, enemySideArr, statsByMember, logs, phase);
+                        var targetStats = statsByMember[target];
 
-                    if (!check.hit)
-                    {
-                        logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} 回避！（1d20={check.roll}{toHit:+#;-#;+0}={check.total} ≦ DV{dv}） ダメージなし");
-                    }
-                    else
-                    {
-                        // PVは武器の基礎値に能力値modifierを（武器ごとの上限つきで）乗せ、装備・スキル補正を足す。
+                        var conditionalPv = magic
+                            ? (bonus: 0, detail: "")
+                            : ConditionalPvBonus(actor, entry.slot, target, statuses);
+                        int effectivePv = pv + conditionalPv.bonus;
+
+                        int dv = targetStats.dv;
+                        if (SlotOf(enemySideArr, target) >= 3 && HasAliveFront(enemySideArr))
+                            dv += REAR_COVER_DV_BONUS;
+
+                        var check = QudCombat.RollToHit(toHit, dv, w.critRange);
+
+                        if (!check.hit)
+                        {
+                            logs.Add($"  エリア {phase}: {actor.Name}→{target.Name} {swingTag}回避！（1d20={check.roll}{toHit:+#;-#;+0}={check.total} ≦ DV{dv}） ダメージなし");
+                            return;
+                        }
+
                         // AVは装甲そのもの。どちらも小さな整数で、1点が貫通回数に効く。
-                        int pv = QudCombat.EffectivePv(
-                            actor.WeaponBasePv, actor.AttackStatModifier, actor.MaxStatBonus,
-                            isMagic ? actorStats.mpv : actorStats.pv);
-                        int av = Math.Max(0, isMagic ? targetStats.mav : targetStats.av);
+                        // 斧に削られたぶんは物理AVからのみ引く（魔法装甲は割れない）。
+                        int av = magic
+                            ? Math.Max(0, targetStats.mav)
+                            : Math.Max(0, targetStats.av - ShredOf(armorShredded, target));
 
-                        var dealt = QudCombat.ResolveAttack(pv, av, actor.DamageDice, check.critical);
+                        // 盾は常時硬くするのではなく、受けに成功した一撃だけを重くする。
+                        // 削られた素の装甲とは別枠で足すので、装甲破壊では剥がせない。
+                        string blockTag = "";
+                        bool shieldBlocked = false;
+                        var shield = target.Shield;
+                        if (shield != null && !magic
+                            && QudCombat.RollBlock(shield.blockChance + targetStats.blockChance))
+                        {
+                            shieldBlocked = true;
+                            // 高位の盾術は「受けたうえで完全に殺す」。相手のPVがいくつでも通らない。
+                            if (QudCombat.RollBlockNegate(targetStats.blockNegate))
+                            {
+                                logs.Add($"  エリア {phase}: {actor.Name}→{target.Name} {swingTag}{target.Name}は{shield.displayName}で完全に受けきった ダメージなし");
+                                if (TryCounterattack(
+                                        target, actor, enemySideArr, allySideArr,
+                                        statsByMember, armorShredded, statuses, round, logs, phase))
+                                    if (entry.isAdvSide) partyDowned++;
+                                return;
+                            }
+                            av += shield.blockAv;
+                            blockTag = $"（{shield.displayName}で受け AV+{shield.blockAv}）";
+                        }
 
+                        var dealt = QudCombat.ResolveAttack(
+                            effectivePv, av, dice, check.critical,
+                            w.armorPierce, actorStats.critPv, actorStats.autoPenetrate);
+
+                        int hpBefore = target.CombatHp;
                         target.CombatHp -= dealt.damage;
                         string tag = check.critical ? "会心！" : "命中！";
-                        string atkKind = isMagic ? "魔法" : "物理";
+                        string atkKind = magic ? "魔法" : "物理";
                         string roll = $"1d20={check.roll}{toHit:+#;-#;+0}={check.total} > DV{dv}";
-                        string judge = $"{atkKind} PV{dealt.pv} vs AV{dealt.av}";
+                        string pierce = w.armorPierce > 0 && !magic ? $"（装甲貫通-{w.armorPierce}）" : "";
+                        string skillPvTag = conditionalPv.bonus != 0
+                            ? $"（{conditionalPv.detail} PV+{conditionalPv.bonus}）"
+                            : "";
+                        string judge = $"{atkKind} PV{dealt.pv} vs AV{dealt.av}{pierce}{skillPvTag}{blockTag}";
 
                         if (dealt.penetrations == 0)
                         {
-                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {tag}（{roll}、{judge}） 装甲に弾かれた ダメージなし");
+                            logs.Add($"  エリア {phase}: {actor.Name}→{target.Name} {swingTag}{tag}（{roll}、{judge}） 装甲に弾かれた ダメージなし");
+                            if (shieldBlocked
+                                && TryCounterattack(
+                                    target, actor, enemySideArr, allySideArr,
+                                    statsByMember, armorShredded, statuses, round, logs, phase))
+                                if (entry.isAdvSide) partyDowned++;
                         }
                         else
                         {
-                            string dice = string.IsNullOrWhiteSpace(actor.DamageDice)
-                                ? QudCombat.DEFAULT_DAMAGE_DICE : actor.DamageDice;
-                            logs.Add($"  Phase {phase}: {actor.Name}→{target.Name} {tag}（{roll}、{judge}） {dealt.penetrations}回貫通 {dice}×{dealt.penetrations} ダメージ={dealt.damage} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
+                            string shown = string.IsNullOrWhiteSpace(dice) ? QudCombat.DEFAULT_DAMAGE_DICE : dice;
+                            string forced = dealt.autoPenetrated ? "急所を突いた！ " : "";
+                            logs.Add($"  エリア {phase}: {actor.Name}→{target.Name} {swingTag}{tag}（{roll}、{judge}） {forced}{dealt.penetrations}回貫通 {shown}×{dealt.penetrations} ダメージ={dealt.damage} HP={Math.Max(0, target.CombatHp)}/{target.CombatHpMax}");
+
+                            // 装甲破壊は「貫通した攻撃」にだけ乗る。削れた装甲は味方全員の攻撃にも効く。
+                            int shred = ApplyArmorShred(armorShredded, target, w.armorShred, magic);
+                            if (shred > 0)
+                                logs.Add($"  エリア {phase}: {target.Name} の装甲が砕けた（AV-{shred} 累計-{ShredOf(armorShredded, target)}）");
                         }
 
                         if (target.CombatHp <= 0)
                         {
-                            target.CombatHp = 0;
-                            target.IsAlive = false;
-                            logs.Add($"  Phase {phase}: {target.Name} 撃破！");
+                            int severity = 1;
+                            if (check.critical) severity++;
+                            if (dealt.damage - hpBefore >= Math.Max(1, target.CombatHpMax / 5)) severity++;
+                            SetCombatDown(target, severity, logs, phase);
                             if (!entry.isAdvSide) partyDowned++;
+                        }
+                        else if (dealt.damage > 0)
+                        {
+                            ApplyOnHitStatuses(
+                                actor, target, allySideArr, enemySideArr, usedWeapon,
+                                entry.slot, statuses, round, logs, phase);
+                            // 深手を負った瞬間に手が動く。倒れてしまってからでは間に合わない。
+                            TryEmergencyHeal(target, targetStats, emergencyHealUsed, logs, phase);
+                        }
+                    }
+
+                    // 連撃は同じ手番のうちに続けて振るう。狙いは1振りごとに選び直す。
+                    int swings = 1 + traits.extraAttacks;
+                    for (int swing = 0; swing < swings; swing++)
+                    {
+                        if (!AnyAlive(enemySideArr) || !actor.IsAlive) break;
+                        Swing(QudCombat.FollowUpPv(basePv, swing), actor.DamageDice, traits, isMagic,
+                            swing == 0 ? "" : "追撃 ", actor.Weapon);
+                    }
+
+                    // 左手の武器は確率でしか振れない。連撃の減衰とは別枠で、常に本来のPVで入る
+                    // （連撃は右手の性質、二刀流は装備構成の話なので、混ぜると二重取りになる）。
+                    var offHand = actor.OffHandWeapon;
+                    if (offHand != null && AnyAlive(enemySideArr) && actor.IsAlive)
+                    {
+                        var offTraits = offHand.Traits.Combine(actorStats);
+                        int chance = QudCombat.OFF_HAND_BASE_CHANCE
+                            + offHand.offHandBonus + actorStats.offHandChance;
+                        if (QudCombat.RollOffHand(chance))
+                        {
+                            // 左手に魔法は持てない（魔法は両手武器）ので、常に物理として解決する。
+                            int offPv = QudCombat.EffectivePv(
+                                offHand.basePv, actor.AttackStatModifier, offHand.maxStatBonus, actorStats.pv);
+                            Swing(offPv, offHand.damageDice, offTraits, magic: false, "左手 ", offHand);
                         }
                     }
                 }
@@ -179,22 +337,24 @@ public static class BattleResolver
                     res.adventurersRetreated = false;
                     return res;
                 }
+                if (ShouldUseSmokeBomb(advSide, enemySide, emergencyRetreatHpPercent))
+                    return RetreatWithSmoke(logs, phase, round);
             }
 
             // 士気は「押し込まれた分だけ」削れる。回復で押し返せた分は勘定に入らないので、
-            // 治療師がHPを保っている限り士気も保たれ、優勢なまま突然逃げ出すことはない。
+            // 神官がHPを保っている限り士気も保たれ、優勢なまま突然逃げ出すことはない。
             int netHpLoss = partyHpAtRoundStart - SumCurrentHp(advSide);
             int lost = morale.DrainFromDamage(netHpLoss, partyMaxHp);
             if (partyDowned > 0)
             {
                 int downLoss = morale.DrainAllyDown(partyDowned);
                 lost += downLoss;
-                if (downLoss > 0) logs.Add($"  Phase {phase}: 仲間が倒れて動揺した（士気 -{downLoss}）");
+                if (downLoss > 0) logs.Add($"  エリア {phase}: 仲間が倒れて動揺した（士気 -{downLoss}）");
             }
 
             if (morale.IsBroken)
             {
-                logs.Add($"  Phase {phase}: 士気が尽きた！パーティは撤退する（士気 0/{morale.Max}）");
+                logs.Add($"  エリア {phase}: 士気が尽きた！パーティは撤退する（士気 0/{morale.Max}）");
                 res.adventurersRetreated = true;
                 res.retreatReason = ExpeditionRetreatReason.MoraleBroken;
                 res.rounds = round;
@@ -205,16 +365,9 @@ public static class BattleResolver
             // 士気切れは方針に関わらず上の撤退ロジックが担うため、ここでは損耗（HP）だけで判断する。
             if (policy == ExpeditionPolicy.SurvivalFirst && AnyAlive(advSide) && AnyAlive(enemySide))
             {
-                int aliveMaxHp = advSide
-                    .Where(a => a != null && a.IsAlive)
-                    .Sum(a => Math.Max(1, a!.CombatHpMax));
-                int aliveCurrentHp = SumCurrentHp(advSide);
-                bool partyBadlyHurt = aliveMaxHp > 0 && (float)aliveCurrentHp / aliveMaxHp <= 0.60f;
-                bool memberInDanger = advSide
-                    .Any(a => a != null && a.IsAlive && HpRate(a) <= 0.30f);
-                if (partyBadlyHurt || memberInDanger)
+                if (ShouldSurvivalFirstRetreat(advSide))
                 {
-                    logs.Add($"  Phase {phase}: 生還優先の命令に従い、損耗が危険域へ達する前に撤退した");
+                    logs.Add($"  エリア {phase}: 生還優先の命令に従い、損耗が危険域へ達する前に撤退した");
                     res.adventurersRetreated = true;
                     res.retreatReason = ExpeditionRetreatReason.SurvivalPolicy;
                     res.rounds = round;
@@ -223,26 +376,381 @@ public static class BattleResolver
             }
 
             if (lost > 0 && morale.Rate <= 0.3f)
-                logs.Add($"  Phase {phase}: 士気が揺らいでいる（士気 {morale.Current}/{morale.Max}）");
+                logs.Add($"  エリア {phase}: 士気が揺らいでいる（士気 {morale.Current}/{morale.Max}）");
+
+            statuses.EndRound(round);
         }
 
-        logs.Add($"  Phase {phase}: 長期戦 → 撤退扱い");
+        logs.Add($"  エリア {phase}: 長期戦 → 撤退扱い");
         res.adventurersRetreated = true;
         res.retreatReason = ExpeditionRetreatReason.BattleStalemate;
         res.rounds = round;
         return res;
     }
 
+    /// <summary>
+    /// 生還優先の撤退線。生存者の合計HPが50%以下、または誰か1人が25%以下なら撤退する。
+    /// 整数比較にして、ちょうど閾値に達した場合も確実に撤退させる。
+    /// </summary>
+    public static bool ShouldSurvivalFirstRetreat(IEnumerable<IUnitMember?> party)
+    {
+        var alive = party.Where(member => member != null && member.IsAlive).Select(member => member!).ToList();
+        if (alive.Count == 0) return false;
+
+        int partyMaxHp = alive.Sum(member => Math.Max(1, member.CombatHpMax));
+        int partyCurrentHp = alive.Sum(member => Math.Max(0, member.CombatHp));
+        bool partyBadlyHurt = partyCurrentHp * 100 <= partyMaxHp * SurvivalPartyHpPercent;
+        bool memberInDanger = alive.Any(member =>
+            Math.Max(0, member.CombatHp) * 100
+            <= Math.Max(1, member.CombatHpMax) * SurvivalMemberHpPercent);
+        return partyBadlyHurt || memberInDanger;
+    }
+
+    static bool ShouldUseSmokeBomb(
+        IUnitMember?[] advSide, IUnitMember?[] enemySide, int hpPercent)
+    {
+        if (hpPercent <= 0 || !AnyAlive(advSide) || !AnyAlive(enemySide)) return false;
+        int maxHp = advSide.Where(a => a != null).Sum(a => Math.Max(0, a!.CombatHpMax));
+        int currentHp = advSide
+            .Where(a => a != null && a.IsAlive)
+            .Sum(a => Math.Max(0, a!.CombatHp));
+        return maxHp > 0 && currentHp * 100 <= maxHp * Math.Clamp(hpPercent, 1, 99);
+    }
+
+    static Result RetreatWithSmoke(List<string> logs, int phase, int round)
+    {
+        logs.Add($"  エリア {phase}: 機関の煙玉を展開！煙に紛れて戦闘から離脱した");
+        return new Result
+        {
+            adventurersRetreated = true,
+            retreatReason = ExpeditionRetreatReason.SmokeBomb,
+            rounds = round,
+        };
+    }
+
+    static void ApplyBattleStartStatuses(
+        IUnitMember?[] side,
+        IUnitMember?[] opponents,
+        CombatStatusTracker statuses,
+        List<string> logs,
+        int phase)
+    {
+        for (int slot = 0; slot < side.Length; slot++)
+        {
+            var actor = side[slot];
+            if (actor == null || !actor.IsAlive) continue;
+
+            var defaultEffect = CombatStatusDefaults.BattleStart(actor.Weapon);
+            if (defaultEffect != null)
+                ApplyStatusTargets(actor, null, side, opponents, defaultEffect,
+                    actor.Weapon!.displayName, statuses, currentRound: 1, logs, phase);
+
+            foreach (var effect in actor.Weapon?.battleStartStatuses ?? new())
+                ApplyStatusTargets(actor, null, side, opponents, effect,
+                    actor.Weapon!.displayName, statuses, currentRound: 1, logs, phase);
+
+            foreach (var skill in actor.Skills.Where(skill =>
+                         UnitCalculator.IsSkillActive(skill, actor, isFront: slot < 3)))
+                foreach (var effect in skill.battleStartStatuses)
+                    ApplyStatusTargets(actor, null, side, opponents, effect,
+                        skill.skillName, statuses, currentRound: 1, logs, phase);
+        }
+    }
+
+    static void ApplyOnHitStatuses(
+        IUnitMember actor,
+        IUnitMember hitTarget,
+        IUnitMember?[] allies,
+        IUnitMember?[] enemies,
+        EquipmentMasterData? usedWeapon,
+        int actorSlot,
+        CombatStatusTracker statuses,
+        int currentRound,
+        List<string> logs,
+        int phase)
+    {
+        var defaultEffect = CombatStatusDefaults.OnHit(usedWeapon);
+        if (defaultEffect != null)
+            ApplyStatusTargets(actor, hitTarget, allies, enemies, defaultEffect,
+                usedWeapon!.displayName, statuses, currentRound, logs, phase);
+
+        foreach (var effect in usedWeapon?.onHitStatuses ?? new())
+            ApplyStatusTargets(actor, hitTarget, allies, enemies, effect,
+                usedWeapon!.displayName, statuses, currentRound, logs, phase);
+
+        foreach (var skill in actor.Skills.Where(skill =>
+                     UnitCalculator.IsSkillActive(skill, actor, isFront: actorSlot < 3)))
+            foreach (var effect in skill.onHitStatuses)
+                ApplyStatusTargets(actor, hitTarget, allies, enemies, effect,
+                    skill.skillName, statuses, currentRound, logs, phase);
+    }
+
+    static void TryCleanseOnHeal(
+        IUnitMember healer,
+        IUnitMember target,
+        int healerSlot,
+        CombatStatusTracker statuses,
+        List<string> logs,
+        int phase)
+    {
+        if (!statuses.HasHarmfulStatus(target)) return;
+
+        SkillMasterData? source = null;
+        foreach (var skill in healer.Skills)
+        {
+            if (!UnitCalculator.IsSkillActive(skill, healer, isFront: healerSlot < 3)) continue;
+            if (skill.battle.cleanseOnHealChancePercent <= 0) continue;
+            if (source == null
+                || skill.battle.cleanseOnHealChancePercent > source.battle.cleanseOnHealChancePercent)
+                source = skill;
+        }
+
+        if (source == null || !RollPercent(source.battle.cleanseOnHealChancePercent)) return;
+        statuses.CleanseOneHarmful(target, source.skillName, logs, phase);
+    }
+
+    /// <summary>瀕死の味方への攻撃を、庇護スキルを持つ別の生存者へ差し替える。</summary>
+    static IUnitMember TryProtectTarget(
+        IUnitMember originalTarget,
+        IUnitMember?[] defendingSide,
+        IReadOnlyDictionary<IUnitMember, StatBlock> statsByMember,
+        List<string> logs,
+        int phase)
+    {
+        IUnitMember? protector = null;
+        SkillMasterData? source = null;
+
+        for (int slot = 0; slot < defendingSide.Length; slot++)
+        {
+            var candidate = defendingSide[slot];
+            if (candidate == null || !candidate.IsAlive || candidate == originalTarget) continue;
+
+            foreach (var skill in candidate.Skills)
+            {
+                if (!UnitCalculator.IsSkillActive(skill, candidate, isFront: slot < 3)) continue;
+                int threshold = Math.Clamp(skill.battle.protectAllyHpPercent, 0, 100);
+                int chance = Math.Clamp(skill.battle.protectChancePercent, 0, 100);
+                if (threshold <= 0 || chance <= 0 || originalTarget.CombatHpMax <= 0) continue;
+                if (Math.Max(0, originalTarget.CombatHp) * 100
+                    > originalTarget.CombatHpMax * threshold) continue;
+
+                if (source == null || chance > source.battle.protectChancePercent)
+                {
+                    protector = candidate;
+                    source = skill;
+                }
+            }
+        }
+
+        if (protector == null || source == null
+            || !statsByMember.ContainsKey(protector)
+            || !RollPercent(source.battle.protectChancePercent))
+            return originalTarget;
+
+        logs.Add($"  エリア {phase}: {protector.Name}が{originalTarget.Name}を庇った（{source.skillName}）");
+        return protector;
+    }
+
+    /// <summary>処刑人と背水の、攻撃対象・現在HPを見て初めて決まる物理PV。</summary>
+    static (int bonus, string detail) ConditionalPvBonus(
+        IUnitMember actor,
+        int actorSlot,
+        IUnitMember target,
+        CombatStatusTracker statuses)
+    {
+        int total = 0;
+        var sources = new List<string>();
+        foreach (var skill in actor.Skills)
+        {
+            if (!UnitCalculator.IsSkillActive(skill, actor, isFront: actorSlot < 3)) continue;
+            int skillBonus = 0;
+            if (skill.battle.afflictedTargetPv != 0 && statuses.HasDamagingAilment(target))
+                skillBonus += skill.battle.afflictedTargetPv;
+
+            int threshold = Math.Clamp(skill.battle.lowHpThresholdPercent, 0, 100);
+            if (threshold > 0 && skill.battle.lowHpPv != 0 && actor.CombatHpMax > 0
+                && Math.Max(0, actor.CombatHp) * 100 <= actor.CombatHpMax * threshold)
+                skillBonus += skill.battle.lowHpPv;
+
+            if (skillBonus == 0) continue;
+            total += skillBonus;
+            sources.Add(skill.skillName);
+        }
+        return (total, string.Join("+", sources));
+    }
+
+    /// <summary>
+    /// 盾で完全に防いだ者が、構えている主武器で1回だけ反撃する。
+    /// 反撃には連撃・左手・盾受け・再反撃を発生させず、再帰する戦闘を防ぐ。
+    /// </summary>
+    static bool TryCounterattack(
+        IUnitMember defender,
+        IUnitMember attacker,
+        IUnitMember?[] defenderSide,
+        IUnitMember?[] attackerSide,
+        IReadOnlyDictionary<IUnitMember, StatBlock> statsByMember,
+        Dictionary<IUnitMember, int> armorShredded,
+        CombatStatusTracker statuses,
+        int currentRound,
+        List<string> logs,
+        int phase)
+    {
+        if (!defender.IsAlive || !attacker.IsAlive || defender.Weapon == null
+            || defender.IsMagicAttack || defender.Weapon.IsHealWeapon)
+            return false;
+
+        int defenderSlot = SlotOf(defenderSide, defender);
+        var counterSkills = defender.Skills
+            .Where(skill => UnitCalculator.IsSkillActive(
+                skill, defender, isFront: defenderSlot < 3)
+                && skill.battle.counterChancePercent > 0)
+            .ToList();
+        int chance = Math.Clamp(counterSkills.Sum(skill => skill.battle.counterChancePercent), 0, 100);
+        if (chance <= 0 || !RollPercent(chance)) return false;
+        if (!statsByMember.TryGetValue(defender, out var defenderStats)
+            || !statsByMember.TryGetValue(attacker, out var attackerStats))
+            return false;
+
+        int toHit = defenderStats.toHit;
+        if (defenderSlot >= 3 && !IsRangedWeapon(defender))
+            toHit -= REAR_MELEE_TO_HIT_PENALTY;
+        int dv = attackerStats.dv;
+        if (SlotOf(attackerSide, attacker) >= 3 && HasAliveFront(attackerSide))
+            dv += REAR_COVER_DV_BONUS;
+
+        var traits = defender.Traits.Combine(defenderStats);
+        var check = QudCombat.RollToHit(toHit, dv, traits.critRange);
+        string source = string.Join("+", counterSkills.Select(skill => skill.skillName));
+        if (!check.hit)
+        {
+            logs.Add($"  エリア {phase}: {defender.Name}→{attacker.Name} 反撃は回避された"
+                + $"（1d20={check.roll}{toHit:+#;-#;+0}={check.total} ≦ DV{dv}、{source}）");
+            return false;
+        }
+
+        var conditional = ConditionalPvBonus(defender, defenderSlot, attacker, statuses);
+        int pv = QudCombat.EffectivePv(
+            defender.WeaponBasePv,
+            defender.AttackStatModifier,
+            defender.MaxStatBonus,
+            defenderStats.pv) + conditional.bonus;
+        int av = Math.Max(0, attackerStats.av - ShredOf(armorShredded, attacker));
+        var dealt = QudCombat.ResolveAttack(
+            pv, av, defender.DamageDice, check.critical,
+            traits.armorPierce, defenderStats.critPv, defenderStats.autoPenetrate);
+
+        attacker.CombatHp -= dealt.damage;
+        if (dealt.penetrations == 0)
+        {
+            logs.Add($"  エリア {phase}: {defender.Name}→{attacker.Name} 反撃（{source}）は装甲に弾かれた");
+            return false;
+        }
+
+        logs.Add($"  エリア {phase}: {defender.Name}→{attacker.Name} 反撃（{source}） "
+            + $"{dealt.penetrations}回貫通 ダメージ={dealt.damage} "
+            + $"HP={Math.Max(0, attacker.CombatHp)}/{attacker.CombatHpMax}");
+        int shred = ApplyArmorShred(armorShredded, attacker, traits.armorShred, isMagic: false);
+        if (shred > 0)
+            logs.Add($"  エリア {phase}: {attacker.Name} の装甲が砕けた"
+                + $"（AV-{shred} 累計-{ShredOf(armorShredded, attacker)}）");
+
+        if (attacker.CombatHp <= 0)
+        {
+            int severity = check.critical ? 2 : 1;
+            SetCombatDown(attacker, severity, logs, phase);
+            return true;
+        }
+
+        ApplyOnHitStatuses(
+            defender, attacker, defenderSide, attackerSide, defender.Weapon,
+            defenderSlot, statuses, currentRound, logs, phase);
+        return false;
+    }
+
+    static bool RollPercent(int chance)
+    {
+        chance = Math.Clamp(chance, 0, 100);
+        return chance >= 100 || (chance > 0 && GameRandom.Range(1, 101) <= chance);
+    }
+
+    static void ApplyStatusTargets(
+        IUnitMember actor,
+        IUnitMember? hitTarget,
+        IUnitMember?[] allies,
+        IUnitMember?[] enemies,
+        CombatStatusApplicationData effect,
+        string sourceName,
+        CombatStatusTracker statuses,
+        int currentRound,
+        List<string> logs,
+        int phase)
+    {
+        switch (effect.target)
+        {
+            case CombatStatusTarget.Self:
+                statuses.Apply(actor, effect, sourceName, currentRound, logs, phase);
+                break;
+            case CombatStatusTarget.Allies:
+                foreach (var ally in allies.Where(m => m != null && m.IsAlive).Select(m => m!))
+                    statuses.Apply(ally, effect, sourceName, currentRound, logs, phase);
+                break;
+            default:
+                var target = hitTarget ?? PickRandomAlive(enemies);
+                if (target != null)
+                    statuses.Apply(target, effect, sourceName, currentRound, logs, phase);
+                break;
+        }
+    }
+
+    static IUnitMember? PickRandomAlive(IUnitMember?[] side)
+    {
+        var alive = side.Where(m => m != null && m.IsAlive).Select(m => m!).ToList();
+        return alive.Count == 0 ? null : alive[GameRandom.Range(0, alive.Count)];
+    }
+
+    static void SetCombatDown(IUnitMember target, int severity, List<string> logs, int phase)
+    {
+        target.CombatHp = 0;
+        if (target is AdventurerData adventurer)
+        {
+            adventurer.RegisterKnockout(severity);
+            logs.Add($"  エリア {phase}: {target.Name} は戦闘不能！ 帰還後に生死・負傷を判定する");
+        }
+        else
+        {
+            target.IsAlive = false;
+            logs.Add($"  エリア {phase}: {target.Name} 撃破！");
+        }
+    }
+
     // 敵の内訳（名前・レベル・頭数）をログに残し、戦闘ログだけで強さの見立てができるようにする。
     static string DescribeComposition(IUnitMember?[] side)
     {
         var groups = side.Where(a => a != null && a.IsAlive)
-            .GroupBy(a => (a!.Name, a.Level))
+            .GroupBy(a => (a!.Name, a.Threat))
             .Select(g => g.Count() > 1
-                ? $"{g.Key.Name}(Lv{g.Key.Level})×{g.Count()}"
-                : $"{g.Key.Name}(Lv{g.Key.Level})");
+                ? $"{g.Key.Name}({Models.Rank.Label(g.Key.Threat)})×{g.Count()}"
+                : $"{g.Key.Name}({Models.Rank.Label(g.Key.Threat)})");
         var desc = string.Join("、", groups);
         return desc.Length > 0 ? desc : "敵";
+    }
+
+    static int ShredOf(Dictionary<IUnitMember, int> shredded, IUnitMember target)
+        => shredded.TryGetValue(target, out var v) ? v : 0;
+
+    /// <summary>
+    /// 装甲破壊を積む。1体につき<see cref="QudCombat.MAX_ARMOR_SHRED"/>までで打ち止めにして、
+    /// 長引いた戦闘で装甲が意味を失うのを防ぐ。実際に削れた量を返す。
+    /// </summary>
+    static int ApplyArmorShred(
+        Dictionary<IUnitMember, int> shredded, IUnitMember target, int amount, bool isMagic)
+    {
+        if (amount <= 0 || isMagic) return 0;
+        int current = ShredOf(shredded, target);
+        int applied = Math.Min(amount, QudCombat.MAX_ARMOR_SHRED - current);
+        if (applied <= 0) return 0;
+        shredded[target] = current + applied;
+        return applied;
     }
 
     static bool AnyAlive(IUnitMember?[] side)
@@ -268,6 +776,26 @@ public static class BattleResolver
         return hp;
     }
 
+    /// <summary>
+    /// 応急処置。HPが半分を切った瞬間に、最大HPの emergencyHeal% を自分で取り返す。
+    /// 1回の戦闘につき1度きりなので、粘りを生むが立て直しの手にはならない。
+    /// </summary>
+    static void TryEmergencyHeal(
+        IUnitMember target, StatBlock stats, HashSet<IUnitMember> used, List<string> logs, int phase)
+    {
+        if (stats.emergencyHeal <= 0 || !target.IsAlive) return;
+        if (target.CombatHpMax <= 0) return;
+        if (HpRate(target) >= EMERGENCY_HEAL_HP_RATE) return;
+        if (!used.Add(target)) return;
+
+        int amount = (int)Math.Ceiling(target.CombatHpMax * stats.emergencyHeal / 100f);
+        amount = Math.Min(amount, target.CombatHpMax - target.CombatHp);
+        if (amount <= 0) return;
+
+        target.CombatHp += amount;
+        logs.Add($"  エリア {phase}: {target.Name} 応急処置 +{amount}（{target.CombatHp}/{target.CombatHpMax}）");
+    }
+
     static IUnitMember? PickHealTarget(IUnitMember?[] side)
     {
         IUnitMember? lowest = null;
@@ -283,7 +811,7 @@ public static class BattleResolver
 
     // 前衛優先（前衛がいれば80%の確率で前衛から）で対象の列を選び、列内では硬さ・回避のしにくさに
     // 反比例する重み付け抽選で1体選ぶ。
-    static IUnitMember? PickTarget(IUnitMember?[] side)
+    static IUnitMember? PickTarget(IUnitMember?[] side, IReadOnlyDictionary<IUnitMember, StatBlock> statsByMember)
     {
         var front = new List<IUnitMember>();
         var back = new List<IUnitMember>();
@@ -298,7 +826,7 @@ public static class BattleResolver
         bool pickFront = front.Count > 0 && (back.Count == 0 || GameRandom.NextFloat() < FRONT_TARGET_CHANCE);
         var pool = pickFront ? front : back;
         if (pool.Count == 0) pool = pickFront ? back : front;
-        return PickWeightedBySquishiness(pool);
+        return PickWeightedBySquishiness(pool, statsByMember);
     }
 
     static int SlotOf(IUnitMember?[] side, IUnitMember member)
@@ -325,16 +853,24 @@ public static class BattleResolver
 
     // 硬い相手・避ける相手ほど狙われにくい。AV/DVは1桁の整数なので、旧来の200分率ではなく
     // 「装甲と回避の合計1点につき狙われにくさが効く」スケールで重みを取る。
-    static IUnitMember? PickWeightedBySquishiness(List<IUnitMember> pool)
+    // そのうえで threatWeight（挑発・隠形）を掛ける。囮は硬くても引きつけられ、
+    // 気配を消した者は柔らかくても後回しにされる。
+    static IUnitMember? PickWeightedBySquishiness(
+        List<IUnitMember> pool, IReadOnlyDictionary<IUnitMember, StatBlock> statsByMember)
     {
         if (pool.Count == 0) return null;
         float sum = 0;
         var weights = new float[pool.Count];
         for (int i = 0; i < pool.Count; i++)
         {
-            var s = pool[i].GetFinalCombatStats();
+            // 隊列を織り込んだ最終値があればそれを使う。無ければ素の値で近似する。
+            var s = statsByMember.TryGetValue(pool[i], out var known)
+                ? known
+                : pool[i].GetFinalCombatStats();
             int toughness = Math.Max(0, s.av) + Math.Max(0, s.mav) + Math.Max(0, s.dv);
             float w = 1f / (1f + toughness / 10f);
+            w *= Math.Max(MIN_THREAT_WEIGHT_SCALE, 1f + s.threatWeight / 100f);
+            w *= AppearanceSystem.TargetWeightMultiplier(pool[i]);
             weights[i] = w; sum += w;
         }
         if (sum <= 0) return pool[GameRandom.Range(0, pool.Count)];

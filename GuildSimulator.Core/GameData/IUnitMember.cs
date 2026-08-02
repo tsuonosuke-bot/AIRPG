@@ -6,7 +6,13 @@ namespace GuildSimulator.Core.GameData;
 public interface IUnitMember
 {
     bool IsAlive { get; set; }
-    int Level { get; }
+
+    /// <summary>
+    /// 脅威度（F〜S の1〜7）。冒険者は認定ランク、敵はマスタの threat。
+    /// 士気の格上ショックはこの値の差で決まる。
+    /// </summary>
+    int Threat { get; }
+
     string Name { get; }
     int CombatHp { get; set; }
     int CombatHpMax { get; set; }
@@ -20,6 +26,12 @@ public interface IUnitMember
     IReadOnlyList<SkillMasterData> Skills { get; }
     EquipmentMasterData? Weapon { get; }
     EquipmentMasterData? Armor { get; }
+
+    /// <summary>左手に握った武器。二刀流の対象。両手武器を構えていればnull。</summary>
+    EquipmentMasterData? OffHandWeapon { get; }
+
+    /// <summary>左手に構えた盾。受けに成功した攻撃にだけ装甲が乗る。</summary>
+    EquipmentMasterData? Shield { get; }
 
     /// <summary>攻撃時に振るダメージダイス。貫通1回につき1度振る。</summary>
     string DamageDice { get; }
@@ -35,4 +47,7 @@ public interface IUnitMember
 
     /// <summary>PVに乗る能力値modifier（物理は筋力、魔法は知力）。上限の適用前の値。</summary>
     int AttackStatModifier { get; }
+
+    /// <summary>握っている得物そのものの個性（装甲貫通・装甲破壊・会心域・追撃）。スキル補正は含まない。</summary>
+    WeaponTraits Traits { get; }
 }

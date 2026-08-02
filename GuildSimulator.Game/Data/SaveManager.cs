@@ -96,6 +96,7 @@ public static class SaveManager
         shopEquipmentStock = new Dictionary<string, int>(guild.shopEquipmentStock),
         shopConsumableStock = new Dictionary<string, int>(guild.shopConsumableStock),
         adventurers = guild.adventurers.Select(ExportAdventurer).ToList(),
+        discoveredEnemyIds = guild.DiscoveredEnemyIds.OrderBy(id => id).ToList(),
         burialRecords = guild.burialRecords.Select(b => new BurialRecordSave
         {
             name = b.name,
@@ -115,8 +116,11 @@ public static class SaveManager
         level = a.level,
         experience = a.experience,
         isAlive = a.isAlive,
+        isIncapacitated = a.isIncapacitated,
+        pendingInjurySeverity = a.pendingInjurySeverity,
         rank = a.rank,
-        rankPoint = a.rankPoint,
+        higherRankClears = a.higherRankClears,
+        suitableRankClearsTotal = a.suitableRankClearsTotal,
         raceId = a.race?.id ?? "",
         classId = a.currentClass?.id ?? "",
         weaponId = a.Weapon?.id ?? "",
@@ -135,10 +139,17 @@ public static class SaveManager
         successfulExpeditionCount = a.successfulExpeditionCount,
         retreatCount = a.retreatCount,
         adventureHistory = new List<string>(a.adventureHistory),
+        injuries = a.injuries.Select(injury => new InjurySaveData
+        {
+            type = injury.type,
+            remainingRestTurns = injury.remainingRestTurns,
+            scarChancePercent = injury.scarChancePercent,
+        }).ToList(),
+        scars = a.scars.Select(scar => new ScarSaveData { type = scar.type }).ToList(),
         learnedSkills = a.ExportLearnedSkills()
             .Select(x => new LearnedSkillSave { skillId = x.skill.id, ownerClassId = x.ownerClass?.id })
             .ToList(),
-        classClearCounts = new Dictionary<string, int>(a.ExportClassClearCounts()),
+        classMasteryPoints = new Dictionary<string, int>(a.ExportClassMasteryPoints()),
     };
 
     static QuestManagerSaveData ExportQuestManager(QuestManager qm) => new()
@@ -201,10 +212,22 @@ public static class SaveManager
             .Select(c => new TreasureChestSave { kind = c.kind, foundPhase = c.foundPhase })
             .ToList(),
         gatheredCount = q.gatheredCount,
+        gatherDecisionPending = q.gatherDecisionPending,
+        gatherDecisionTurn = q.gatherDecisionTurn,
+        extraPhases = q.extraPhases,
+        gatherExtensions = q.gatherExtensions,
         usedConsumableIds = new List<string>(q.usedConsumableIds),
         goldRewardBonusPercent = q.goldRewardBonusPercent,
         expRewardBonusPercent = q.expRewardBonusPercent,
         trapDamageReductionPercent = q.trapDamageReductionPercent,
+        restHealBonusPercent = q.restHealBonusPercent,
+        treasureFromNothingPercent = q.treasureFromNothingPercent,
+        enemyFromNothingPercent = q.enemyFromNothingPercent,
+        battleExpBonusPercent = q.battleExpBonusPercent,
+        guaranteedNonEmptyChestCount = q.guaranteedNonEmptyChestCount,
+        emergencyRetreatHpPercent = q.emergencyRetreatHpPercent,
+        targetPvBonusByAdventurerId = new(q.targetPvBonusByAdventurerId),
+        targetMpvBonusByAdventurerId = new(q.targetMpvBonusByAdventurerId),
         pendingChoiceEventId = q.pendingChoice?.Event.id ?? "",
         pendingChoiceCreatedTurn = q.pendingChoice?.createdTurn ?? 0,
     };
@@ -250,6 +273,9 @@ public static class SaveManager
             data.guild.lastShopRefreshTurn,
             new Dictionary<string, int>(data.guild.shopEquipmentStock),
             new Dictionary<string, int>(data.guild.shopConsumableStock));
+        guild.RestoreDiscoveredEnemies(
+            (data.guild.discoveredEnemyIds ?? new())
+                .Where(db.enemies.ContainsKey));
 
         var adventurersById = new Dictionary<string, AdventurerData>();
         guild.adventurers.Clear();
@@ -299,8 +325,12 @@ public static class SaveManager
             level = saved.level,
             experience = saved.experience,
             isAlive = saved.isAlive,
-            rank = saved.rank,
-            rankPoint = saved.rankPoint,
+            isIncapacitated = saved.isIncapacitated,
+            pendingInjurySeverity = saved.pendingInjurySeverity,
+            // 冒険者ランクに上限がなかった頃のセーブは7(S)を超えていることがある。
+            rank = Rank.Clamp(saved.rank),
+            higherRankClears = saved.higherRankClears,
+            suitableRankClearsTotal = saved.suitableRankClearsTotal,
             race = db.races.GetValueOrDefault(saved.raceId),
             currentClass = db.classes.GetValueOrDefault(saved.classId),
             vitality = saved.vitality,
@@ -316,6 +346,13 @@ public static class SaveManager
             successfulExpeditionCount = saved.successfulExpeditionCount,
             retreatCount = saved.retreatCount,
             adventureHistory = new List<string>(saved.adventureHistory ?? new()),
+            injuries = (saved.injuries ?? new()).Select(injury => new AdventurerInjury
+            {
+                type = injury.type,
+                remainingRestTurns = Math.Max(1, injury.remainingRestTurns),
+                scarChancePercent = Math.Clamp(injury.scarChancePercent, 0, 100),
+            }).ToList(),
+            scars = (saved.scars ?? new()).Select(scar => new AdventurerScar { type = scar.type }).ToList(),
         };
 
         // スロットベース装備の復元（v4以降）。無ければ旧形式からマイグレーション。
@@ -342,7 +379,7 @@ public static class SaveManager
                 skill: db.skills[ls.skillId],
                 ownerClass: ls.ownerClassId != null ? db.classes.GetValueOrDefault(ls.ownerClassId) : null))
             .ToList();
-        adv.RestoreProgress(skills, saved.classClearCounts);
+        adv.RestoreProgress(skills, saved.classMasteryPoints);
 
         return adv;
     }
@@ -369,19 +406,31 @@ public static class SaveManager
             startingLevels = new Dictionary<string, int>(saved.startingLevels),
             guildUpkeepAtStart = saved.guildUpkeepAtStart,
             gatheredCount = saved.gatheredCount,
+            gatherDecisionPending = saved.gatherDecisionPending,
+            gatherDecisionTurn = saved.gatherDecisionTurn,
+            extraPhases = saved.extraPhases,
+            gatherExtensions = saved.gatherExtensions,
             goldRewardBonusPercent = saved.goldRewardBonusPercent,
             expRewardBonusPercent = saved.expRewardBonusPercent,
             trapDamageReductionPercent = saved.trapDamageReductionPercent,
+            restHealBonusPercent = saved.restHealBonusPercent,
+            treasureFromNothingPercent = saved.treasureFromNothingPercent,
+            enemyFromNothingPercent = saved.enemyFromNothingPercent,
+            battleExpBonusPercent = saved.battleExpBonusPercent,
+            guaranteedNonEmptyChestCount = saved.guaranteedNonEmptyChestCount,
+            emergencyRetreatHpPercent = saved.emergencyRetreatHpPercent,
+            targetPvBonusByAdventurerId = new(saved.targetPvBonusByAdventurerId ?? new()),
+            targetMpvBonusByAdventurerId = new(saved.targetMpvBonusByAdventurerId ?? new()),
         };
-        run.logs.AddRange(saved.logs);
+        run.logs.AddRange(saved.logs.Select(NormalizeAreaTerminology));
         foreach (var e in saved.reportEvents ?? new())
             run.reportEvents.Add(new ExpeditionEventRecord
             {
                 turn = e.turn,
                 phase = e.phase,
                 kind = e.kind,
-                title = e.title,
-                detail = e.detail,
+                title = NormalizeAreaTerminology(e.title),
+                detail = NormalizeAreaTerminology(e.detail),
                 actorName = e.actorName,
                 clueId = e.clueId,
                 important = e.important,
@@ -428,4 +477,7 @@ public static class SaveManager
 
         return run;
     }
+
+    static string NormalizeAreaTerminology(string log) =>
+        log.Replace("Phase ", "エリア ").Replace("フェーズ", "エリア");
 }

@@ -1,12 +1,16 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
 
 namespace GuildSimulator.Core.Systems.Guild;
 
 public class GuildManager
 {
     public const int GuildBaseUpkeepGoldPerTurn = 10;
-    public const int UpkeepGoldPerLevel = 5;
+    public const int UpkeepGoldPerLevel = 1;
+
+    /// <summary>認定ランクが1つ上がるごとに増える賃金。レアリティは維持費に関係させない。</summary>
+    public const int UpkeepGoldPerRank = 15;
 
     public List<AdventurerData> adventurers = new();
     public int Gold { get; private set; }
@@ -20,11 +24,20 @@ public class GuildManager
     public Dictionary<string, int> shopEquipmentStock = new();
     public Dictionary<string, int> shopConsumableStock = new();
     public int LastShopRefreshTurn { get; private set; }
+    readonly HashSet<string> discoveredEnemyIds = new(StringComparer.Ordinal);
 
-    public GuildManager(int startGold = 50, int startRank = 1)
+    /// <summary>実際の遠征で一度でも遭遇し、モンスター図鑑へ登録された敵ID。</summary>
+    public IReadOnlyCollection<string> DiscoveredEnemyIds => discoveredEnemyIds;
+
+    /// <summary>プレイヤーに見せるギルドランクの表記（F〜S）。</summary>
+    public string GuildRankLabel => Rank.Label(GuildRank);
+
+    public bool IsMaxGuildRank => Rank.IsMax(GuildRank);
+
+    public GuildManager(int startGold = 50, int startRank = Rank.Min)
     {
         Gold = startGold;
-        GuildRank = startRank;
+        GuildRank = Rank.Clamp(startRank);
         RelicSystem.SetRelics(relics);
         FacilitySystem.SetFacilities(facilities);
         economyLogs.Add($"初期資金: {Gold}G");
@@ -46,15 +59,15 @@ public class GuildManager
 
     public void RankUp(int amount, string reason)
     {
-        if (amount <= 0) return;
-        GuildRank = Math.Max(1, GuildRank + amount);
-        economyLogs.Add($"{reason}: 認定ランク → {GuildRank}");
+        if (amount <= 0 || IsMaxGuildRank) return;
+        GuildRank = Rank.Clamp(GuildRank + amount);
+        economyLogs.Add($"{reason}: 認定ランク → {GuildRankLabel}");
     }
 
     public void AddAdventurer(AdventurerData adv)
     {
         adventurers.Add(adv);
-        economyLogs.Add($"雇用: {adv.name}（維持費 {CalculateAdventurerUpkeep(adv.level)}G/Turn）");
+        economyLogs.Add($"雇用: {adv.name}（維持費 {CalculateAdventurerUpkeep(adv.level, adv.rank)}G/Turn）");
     }
 
     public const int BurialCostBase = 30;
@@ -85,15 +98,34 @@ public class GuildManager
     public void RestoreEconomy(int gold, int guildRank, int guildPoints)
     {
         Gold = gold;
-        GuildRank = guildRank;
+        GuildRank = Rank.Clamp(guildRank);
         GuildPoints = guildPoints;
     }
 
-    public static int CalculateAdventurerUpkeep(int level) =>
-        Math.Max(1, level) * UpkeepGoldPerLevel;
+    /// <summary>敵を図鑑へ登録する。初遭遇ならtrue、登録済みならfalse。</summary>
+    public bool DiscoverEnemy(EnemyMasterData enemy) =>
+        !string.IsNullOrWhiteSpace(enemy.id) && discoveredEnemyIds.Add(enemy.id);
+
+    public bool HasDiscoveredEnemy(string enemyId) => discoveredEnemyIds.Contains(enemyId);
+
+    /// <summary>セーブデータからの復元専用。現在のマスタに存在するIDだけを渡す。</summary>
+    public void RestoreDiscoveredEnemies(IEnumerable<string> enemyIds)
+    {
+        discoveredEnemyIds.Clear();
+        foreach (var id in enemyIds.Where(id => !string.IsNullOrWhiteSpace(id)))
+            discoveredEnemyIds.Add(id);
+    }
+
+    /// <summary>
+    /// 冒険者1人ぶんの賃金。レベルぶんの単価に、認定ランクが上がるごとの加算を足す。
+    /// ランクが上がるほど「安く使える駒」ではなくなる、というのがこのゲームの取り決め。
+    /// </summary>
+    public static int CalculateAdventurerUpkeep(int level, int rank = Rank.Min) =>
+        Math.Max(1, level) * UpkeepGoldPerLevel
+        + (Rank.Clamp(rank) - Rank.Min) * UpkeepGoldPerRank;
 
     public int AdventurerUpkeepPerTurn =>
-        adventurers.Where(a => a != null && a.isAlive).Sum(a => CalculateAdventurerUpkeep(a.level));
+        adventurers.Where(a => a != null && a.isAlive).Sum(a => CalculateAdventurerUpkeep(a.level, a.rank));
 
     public int FacilityUpkeepPerTurn => facilities.Sum(f => f.upkeepGoldPerTurn);
 
@@ -132,8 +164,33 @@ public class GuildManager
         return effectiveTotal;
     }
 
+    /// <summary>
+    /// クエストへ出ていない冒険者を1ターン休養させる。負傷中でも出発はできるため、
+    /// 休ませるか戦力として使うかは編成によってプレイヤーが選ぶ。
+    /// </summary>
+    public IReadOnlyList<string> AdvanceRecovery(
+        int currentTurn,
+        Func<AdventurerData, bool> canRest)
+    {
+        var messages = new List<string>();
+        int recovery = 1 + Math.Max(0, FacilitySystem.GetInjuryRecoveryBonus());
+        int scarPrevention = FacilitySystem.GetScarPreventionPercent();
+
+        foreach (var adventurer in adventurers.Where(a => a.isAlive && a.injuries.Count > 0 && canRest(a)))
+        {
+            var result = adventurer.AdvanceRecovery(recovery, scarPrevention);
+            foreach (var injury in result.Healed)
+                messages.Add($"[Turn {currentTurn}] {adventurer.name}: {injury.DisplayName}が回復");
+            foreach (var scar in result.NewScars)
+                messages.Add($"[Turn {currentTurn}] {adventurer.name}: {scar.DisplayName}が残り、称号「{scar.Title}」を獲得");
+        }
+        return messages;
+    }
+
     public void AddRelic(RelicMasterData relic, string reason = "")
     {
+        // 凍結中は入手そのものを起こさない。既存セーブの所持記録は消さずに残す。
+        if (!GameFeatures.RelicsEnabled) return;
         if (relics.Contains(relic)) return;
         relics.Add(relic);
         RelicSystem.SetRelics(relics);
@@ -152,7 +209,7 @@ public class GuildManager
         if (HasFacility(facility)) { reason = $"既に建設済みです: {facility.displayName}"; return false; }
         if (GuildRank < facility.requiredGuildRank)
         {
-            reason = $"ギルドランクが不足しています（必要: {facility.requiredGuildRank}）";
+            reason = $"ギルドランクが不足しています（必要: {Rank.Label(facility.requiredGuildRank)}）";
             return false;
         }
         if (Gold < facility.buildCostGold)

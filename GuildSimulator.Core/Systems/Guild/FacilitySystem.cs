@@ -34,4 +34,14 @@ public static class FacilitySystem
     /// <summary>毎ターンの雇入れ候補の最低人数。</summary>
     public static int GetRecruitMinBonus() =>
         _facilities?.Sum(f => f.recruitMinBonus) ?? 0;
+
+    /// <summary>休養1ターンあたりの追加回復量。</summary>
+    public static int GetInjuryRecoveryBonus() =>
+        _facilities?.Sum(f => f.injuryRecoveryBonus) ?? 0;
+
+    public static int GetFatalityReductionPercent() =>
+        Math.Clamp(_facilities?.Sum(f => f.fatalityReductionPercent) ?? 0, 0, 100);
+
+    public static int GetScarPreventionPercent() =>
+        Math.Clamp(_facilities?.Sum(f => f.scarPreventionPercent) ?? 0, 0, 100);
 }

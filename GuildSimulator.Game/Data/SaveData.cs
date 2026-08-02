@@ -7,7 +7,7 @@ namespace GuildSimulator.Game.Data;
 
 public class SaveGameData
 {
-    public int saveVersion = 5;
+    public int saveVersion = 9;
     public int currentTurn = 1;
     public GuildSaveData guild = new();
     public QuestManagerSaveData questManager = new();
@@ -29,6 +29,7 @@ public class GuildSaveData
     public Dictionary<string, int> shopConsumableStock = new();
     public List<AdventurerSaveData> adventurers = new();
     public List<BurialRecordSave> burialRecords = new();
+    public List<string> discoveredEnemyIds = new();
 }
 
 public class BurialRecordSave
@@ -55,8 +56,11 @@ public class AdventurerSaveData
     public int level;
     public int experience;
     public bool isAlive = true;
+    public bool isIncapacitated;
+    public int pendingInjurySeverity;
     public int rank;
-    public int rankPoint;
+    public int higherRankClears;
+    public int suitableRankClearsTotal;
     public string raceId = "";
     public string classId = "";
     public string weaponId = "";
@@ -69,8 +73,22 @@ public class AdventurerSaveData
     public int successfulExpeditionCount;
     public int retreatCount;
     public List<string> adventureHistory = new();
+    public List<InjurySaveData> injuries = new();
+    public List<ScarSaveData> scars = new();
     public List<LearnedSkillSave> learnedSkills = new();
-    public Dictionary<string, int> classClearCounts = new();
+    public Dictionary<string, int> classMasteryPoints = new();
+}
+
+public class InjurySaveData
+{
+    public InjuryType type;
+    public int remainingRestTurns;
+    public int scarChancePercent;
+}
+
+public class ScarSaveData
+{
+    public ScarType type;
 }
 
 public class LearnedSkillSave
@@ -120,10 +138,22 @@ public class QuestRunSaveData
     public List<PendingLootSave> pendingLoot = new();
     public List<TreasureChestSave> chests = new();
     public int gatheredCount;
+    public bool gatherDecisionPending;
+    public int gatherDecisionTurn;
+    public int extraPhases;
+    public int gatherExtensions;
     public List<string> usedConsumableIds = new();
     public int goldRewardBonusPercent;
     public int expRewardBonusPercent;
     public int trapDamageReductionPercent;
+    public int restHealBonusPercent;
+    public int treasureFromNothingPercent;
+    public int enemyFromNothingPercent;
+    public int battleExpBonusPercent;
+    public int guaranteedNonEmptyChestCount;
+    public int emergencyRetreatHpPercent;
+    public Dictionary<string, int> targetPvBonusByAdventurerId = new();
+    public Dictionary<string, int> targetMpvBonusByAdventurerId = new();
     public string pendingChoiceEventId = "";
     public int pendingChoiceCreatedTurn;
 }

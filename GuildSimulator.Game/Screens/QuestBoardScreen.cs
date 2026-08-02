@@ -1,6 +1,7 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Quest;
 using GuildSimulator.Core.Systems.Guild;
@@ -19,7 +20,7 @@ public static class QuestBoardScreen
             var board = questManager.questBoard;
             var availableAdvs = guild.adventurers.Where(a => a.isAlive && !questManager.IsAdventurerBusy(a.id)).ToList();
             int partyAvgLevel = availableAdvs.Count > 0 ? (int)Math.Round(availableAdvs.Average(a => a.level)) : 0;
-            Ui.WriteLine($"  受注可能: ギルドランク{guild.GuildRank}以下    待機中冒険者: {availableAdvs.Count}人（平均Lv{partyAvgLevel}）");
+            Ui.WriteLine($"  受注可能: ギルドランク{guild.GuildRankLabel}以下    待機中冒険者: {availableAdvs.Count}人（平均Lv{partyAvgLevel}）");
             Ui.WriteLine();
             if (board.Count == 0)
             {
@@ -37,48 +38,78 @@ public static class QuestBoardScreen
                 string story = q.isStoryQuest ? " [物語]" : "";
                 int estTurns = (int)Math.Ceiling((double)q.totalPhases / q.phasesPerTurn);
                 var diff = DungeonDifficulty.Evaluate(q);
-                var detail = new List<string>();
-                if (!string.IsNullOrWhiteSpace(q.clientName))
-                    detail.Add($"依頼人: {q.clientName}");
-                if (!string.IsNullOrWhiteSpace(q.description))
-                    detail.Add(q.description);
-                detail.Add($"難易度 {diff.label}（スコア{diff.score:0}）  報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
-                int estimatedUpkeep = guild.EffectiveUpkeepPerTurn * estTurns;
-                int estimatedNet = guild.EstimateNetAfterUpkeep(q.rewardGold, estTurns);
-                string netText = $"予想収支: {q.rewardGold}G - 維持費{estimatedUpkeep}G = {estimatedNet:+#;-#;0}G（概算）";
-                detail.Add(estimatedNet < 0 ? $"⚠ {netText}" : netText);
-                if (q.IsGatherQuest)
-                    detail.Add($"採取: {q.gatherItemName} x{q.gatherTargetCount}（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還）");
-                string bossInfo = diff.hasBoss ? $"  ボス:Lv{diff.bossLevel}" : "";
-                detail.Add($"場所: {q.Dungeon?.dungeonName ?? "？"}  敵{diff.EnemyLevelRange}"
-                    + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
-                detail.Add($"掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
+
+                // 一覧は一目で比較できる要点だけにする。詳細はタップ後の確認画面で見せる。
+                string summary = $"難易度 {diff.label}（スコア{diff.score:0}）  基本報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}"
+                    + $"　掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン";
 
                 entries.Add(new MenuOption(
                     (i + 1).ToString(),
-                    $"【Rank{q.rank}】{q.questName}  所要:{estTurns}T{emg}{story}",
-                    string.Join(Environment.NewLine, detail),
+                    $"【{Rank.Label(q.rank)}】{q.questName}  所要:{estTurns}T{emg}{story}",
+                    summary,
                     q.isEmergencyQuest ? TextStyle.Warn : TextStyle.Normal));
             }
 
             int? sel = await Ui.SelectIndexAsync("受注するクエスト", entries);
             if (sel == null) return;
-            await SelectAndStartAsync(board[sel.Value - 1].quest, questManager, guild, currentTurn);
+            var entry = board[sel.Value - 1];
+            if (await ShowQuestDetailAsync(entry, questManager, currentTurn, availableAdvs))
+                await SelectAndStartAsync(entry.quest, questManager, guild, currentTurn);
         }
+    }
+
+    /// <summary>タップ後に詳細を出し、受注するかどうかをここで確定させる。</summary>
+    static async Task<bool> ShowQuestDetailAsync(
+        QuestBoardEntry e, QuestManager questManager, int currentTurn, List<AdventurerData> availableAdvs)
+    {
+        var q = e.quest;
+        int estTurns = (int)Math.Ceiling((double)q.totalPhases / q.phasesPerTurn);
+        var diff = DungeonDifficulty.Evaluate(q);
+        string emg = q.isEmergencyQuest ? " [緊急]" : "";
+        string story = q.isStoryQuest ? " [物語]" : "";
+
+        Ui.BeginScreen();
+        Ui.Header($"【{Rank.Label(q.rank)}】{q.questName}{emg}{story}");
+        if (!string.IsNullOrWhiteSpace(q.clientName))
+            Ui.WriteLine($"  依頼人: {q.clientName}");
+        if (!string.IsNullOrWhiteSpace(q.description))
+            Ui.WriteLine($"  {q.description}");
+        Ui.WriteLine();
+        Ui.WriteLine($"  所要: {estTurns}ターン　難易度 {diff.label}（スコア{diff.score:0}）");
+        Ui.WriteLine($"  基本報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
+        if (q.IsGatherQuest)
+            Ui.WriteLine($"  採取: {q.gatherItemName} x{q.gatherTargetCount}"
+                + $"（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還"
+                + $" / {q.totalPhases}エリアで足りなければ延長か撤退を選ぶ）");
+        string bossInfo = diff.hasBoss ? $"  ボス:脅威度{diff.BossThreatLabel}" : "";
+        Ui.WriteLine($"  場所: {q.Dungeon?.dungeonName ?? "？"}  敵の脅威度{diff.EnemyThreatRange}"
+            + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
+        // 習熟度は適正ランクのクエストでしか増えない。誰を出せば伸びるのかを受注前に見せる。
+        int suitableCount = availableAdvs.Count(a => a.IsSuitableQuestRank(q.rank));
+        Ui.WriteLine($"  適正ランク: {Rank.SuitableAdventurerRangeLabel(q.rank)}（このランク帯の冒険者が正規クリアすると習熟度が入る）"
+            + $"（待機中 {suitableCount}/{availableAdvs.Count}人が該当）");
+        Ui.WriteLine($"  掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
+        Ui.WriteLine();
+
+        return await Ui.ConfirmAsync("このクエストを受注しますか？");
     }
 
     static async Task SelectAndStartAsync(
         QuestMasterData def, QuestManager qm, GuildManager guild, int currentTurn)
     {
-        Ui.BeginScreen();
-        Ui.Header($"編成: {def.questName}");
-        Ui.WriteLine("冒険者を選び、次に配置先を指定してください");
-
         var formation = new AdventurerData?[6];
         var advs = guild.adventurers;
 
         while (formation.Any(x => x == null))
         {
+            // 配置を1人確定するたびに画面を描き直す。Web版で変更前と変更後の
+            // 「現在の編成」が同じ画面に積み重ならないようにする。
+            Ui.BeginScreen();
+            Ui.Header($"編成: {def.questName}");
+            Ui.WriteLine("冒険者を選び、次に配置先を指定してください");
+            Ui.WriteLine();
+            ShowFormation(formation);
+
             var available = advs.Where((a, i) =>
                 a.isAlive &&
                 !qm.IsAdventurerBusy(a.id) &&
@@ -90,8 +121,6 @@ public static class QuestBoardScreen
             }
 
             Ui.WriteLine();
-            ShowFormation(formation);
-            Ui.WriteLine();
 
             var memberOptions = new List<MenuOption>();
             for (int i = 0; i < available.Count; i++)
@@ -99,8 +128,8 @@ public static class QuestBoardScreen
                 var a = available[i];
                 memberOptions.Add(new MenuOption(
                     (i + 1).ToString(),
-                    $"{a.name} Lv{a.level}",
-                    a.ClassAndRace,
+                    $"{a.name} Lv{a.level}" + (a.IsInjured ? $" [負傷{a.injuries.Count}]" : ""),
+                    a.ClassAndRace + (a.IsInjured ? $" / {a.ConditionSummary}" : ""),
                     Ui.RarityStyle(a.master.rarity)));
             }
 
@@ -133,13 +162,13 @@ public static class QuestBoardScreen
         ShowPartyPreview(formation, def);
         var policy = await SelectPolicyAsync();
         if (policy == null) return;
-        var carriedConsumables = await SelectConsumablesAsync(guild);
+        var carriedConsumables = await SelectConsumablesAsync(guild, formation);
         Ui.WriteLine($"  遠征方針: {QuestManager.PolicyName(policy.Value)}");
         if (carriedConsumables.Count > 0)
-            Ui.WriteLine($"  持ち込み（出発時消費）: {string.Join(", ", carriedConsumables.Select(x => x.displayName))}");
+            Ui.WriteLine($"  持ち込み（出発時消費）: {string.Join(", ", carriedConsumables.Select(x => x.DisplayName))}");
         if (!await Ui.ConfirmAsync("このメンバーで受注しますか？")) return;
 
-        if (qm.TryStartQuest(
+        if (qm.TryStartQuestWithConsumables(
             def, formation, currentTurn, out var error, carriedConsumables, policy.Value))
             Ui.Info($"クエスト「{def.questName}」を受注しました！ （Turn {currentTurn} 開始）");
         else
@@ -153,8 +182,10 @@ public static class QuestBoardScreen
         Ui.WriteLine();
         string key = await Ui.SelectAsync("遠征方針", new[]
         {
-            new MenuOption("1", "生還優先", "損耗（HP）が危険域へ入る前に撤退する"),
-            new MenuOption("2", "依頼達成優先", "行動可能な限り任務を続行する"),
+            new MenuOption("1", "生還優先",
+                $"パーティHP{BattleResolver.SurvivalPartyHpPercent}%以下、または誰かが{BattleResolver.SurvivalMemberHpPercent}%以下で撤退する"),
+            new MenuOption("2", "依頼達成優先",
+                "行動可能な限り任務を続行する。戦闘不能者が出るほど帰還時の死亡リスクが高まる"),
             new MenuOption("0", "受注をやめる", Style: TextStyle.Dim),
         });
         return key switch
@@ -165,13 +196,14 @@ public static class QuestBoardScreen
         };
     }
 
-    static async Task<List<ConsumableMasterData>> SelectConsumablesAsync(GuildManager guild)
+    static async Task<List<ConsumableUse>> SelectConsumablesAsync(
+        GuildManager guild, AdventurerData?[] formation)
     {
-        var selected = new List<ConsumableMasterData>();
+        var selected = new List<ConsumableUse>();
         for (int slot = 1; slot <= 2; slot++)
         {
             var stock = guild.GetConsumablesView()
-                .Where(s => s.count > selected.Count(x => x == s.item))
+                .Where(s => s.count > selected.Count(x => x.item == s.item))
                 .ToList();
             if (stock.Count == 0) break;
 
@@ -186,7 +218,26 @@ public static class QuestBoardScreen
             int? pick = await Ui.SelectIndexAsync(
                 $"持ち込みスロット{slot}（出発時に消費）", options, "選択を終了");
             if (pick == null) break;
-            selected.Add(stock[pick.Value - 1].item);
+            var item = stock[pick.Value - 1].item;
+            AdventurerData? target = null;
+            if (item.RequiresTarget)
+            {
+                var members = formation.Where(a => a != null).Select(a => a!).ToList();
+                var targetOptions = members.Select((a, i) => new MenuOption(
+                    (i + 1).ToString(),
+                    $"{a.name} Lv{a.level}",
+                    a.ClassAndRace,
+                    Ui.RarityStyle(a.master.rarity))).ToList();
+                int? targetPick = await Ui.SelectIndexAsync(
+                    $"{item.displayName}を使う冒険者", targetOptions, "道具選択へ戻る");
+                if (targetPick == null)
+                {
+                    slot--;
+                    continue;
+                }
+                target = members[targetPick.Value - 1];
+            }
+            selected.Add(new ConsumableUse(item, target));
         }
         return selected;
     }
@@ -223,10 +274,29 @@ public static class QuestBoardScreen
         Ui.WriteLine();
         Ui.Header("パーティ戦力");
         Ui.WriteLine($"  平均レベル: {avgLevel}   合計HP: {totalHp}   推定士気: {totalMorale}");
-        Ui.WriteLine($"  クエスト難易度: {diff.label}（スコア{diff.score:0}）  敵レベル帯: {diff.EnemyLevelRange}");
+        int maxAppearance = AppearanceSystem.HighestAppearance(formation);
+        int fameBonus = AppearanceSystem.GuildPointBonusPercent(formation);
+        int battleMorale = AppearanceSystem.BattleMoralePerRound(
+            formation.Cast<IUnitMember?>());
+        Ui.WriteLine($"  最高APP: {maxAppearance}   名声ボーナス: +{fameBonus}%"
+            + $"   戦闘中の士気回復: +{battleMorale}/ラウンド");
+        Ui.WriteLine($"  クエスト難易度: {diff.label}（スコア{diff.score:0}）  敵の脅威度: {diff.EnemyThreatRange}");
         if (diff.hasBoss)
-            Ui.WriteLine($"  ボス: Lv{diff.bossLevel}");
-        if (avgLevel < diff.enemyLevelMin)
-            Ui.Warn($"  ⚠ パーティの平均レベル({avgLevel})が敵の最低レベル({diff.enemyLevelMin})を下回っています");
+            Ui.WriteLine($"  ボス: 脅威度{diff.BossThreatLabel}");
+        var assessment = DungeonDifficulty.EvaluateParty(def, members);
+        string assessmentText = $"  編成相対評価: {assessment.Label}"
+            + $"（人数 {assessment.MemberCount}/{assessment.RecommendedSize}人目安、"
+            + $"平均認定{assessment.AverageRankLabel}/最大脅威{assessment.TargetThreatLabel}）";
+        if (assessment.Score < 0) Ui.Warn(assessmentText);
+        else Ui.Info(assessmentText);
+        Ui.Dim("    ※人数・認定ランク・負傷状態による目安。装備や相性、乱数で結果は変わります");
+        // 士気の格上ショックは「敵の脅威度 － 味方の認定ランク」で決まる。編成前に気づけるようにする。
+        int avgRank = (int)Math.Round(members.Average(a => (double)a.rank));
+        if (avgRank < diff.enemyThreatMax)
+            Ui.Warn($"  ⚠ 敵の脅威度({Rank.Label(diff.enemyThreatMax)})がパーティの平均ランク({Rank.Label(avgRank)})を上回っています"
+                + "（遭遇時に士気を削られます）");
+        var injured = members.Where(a => a.IsInjured).ToList();
+        if (injured.Count > 0)
+            Ui.Warn($"  ⚠ 負傷者を編成中: {string.Join("、", injured.Select(a => a.name))}（負傷補正を含む戦力です）");
     }
 }

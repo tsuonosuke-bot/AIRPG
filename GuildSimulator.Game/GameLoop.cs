@@ -16,6 +16,7 @@ namespace GuildSimulator.Game;
 public static class GameLoop
 {
     const int MaxCandidateCount = 3;
+    const int StartingGold = 300;
 
     /// <summary>リスタートを含めてゲームが終了するまで回す。</summary>
     public static async Task RunAsync(GameMasterData db, ISaveStore saveStore)
@@ -36,7 +37,7 @@ public static class GameLoop
     static async Task<bool> RunGameAsync(GameMasterData db, ISaveStore saveStore)
     {
         // ---- 初期化 ----
-        var guild = new GuildManager(startGold: 200, startRank: 1);
+        var guild = new GuildManager(startGold: StartingGold, startRank: 1);
         var questManager = new QuestManager(guild);
 
         int currentTurn = 1;
@@ -51,14 +52,23 @@ public static class GameLoop
             Ui.BeginScreen();
             Ui.Header($"ギルドシミュレーター  Turn {currentTurn}");
             int upkeepPerTurn = guild.EffectiveUpkeepPerTurn;
-            Ui.WriteLine($"  所持金: {guild.Gold}G（維持費 {upkeepPerTurn}G/T）   ギルドランク: {guild.GuildRank}   ギルドポイント: {guild.GuildPoints}");
-            Ui.WriteLine($"  冒険者: {guild.adventurers.Count}人   進行中クエスト: {questManager.activeQuests.Count}件   遺物: {guild.relics.Count}個   施設: {guild.facilities.Count}件");
-            Ui.WriteLine($"  雇入れ候補: {recruitCandidates.Count}人");
+            int injuredCount = guild.adventurers.Count(a => a.isAlive && a.IsInjured);
+            // スマホ幅で1行に情報を詰め込むと項目名の途中で折り返されるため、
+            // 経済・進行・資産を短い行へ分ける。
+            Ui.WriteLine($"  所持金: {guild.Gold}G（維持費 {upkeepPerTurn}G/T）");
+            Ui.WriteLine($"  ギルドランク: {guild.GuildRankLabel}   ギルドポイント: {guild.GuildPoints}");
+            Ui.WriteLine($"  冒険者: {guild.adventurers.Count}人"
+                + (injuredCount > 0 ? $"（負傷 {injuredCount}人）" : "")
+                + $"   進行中クエスト: {questManager.activeQuests.Count}件");
+            // 遺物システムの凍結中は所持数の行ごと出さない（復活すれば自動で戻る）。
+            Ui.WriteLine(
+                (GameFeatures.RelicsEnabled ? $"  遺物: {guild.relics.Count}個   施設" : "  施設")
+                + $": {guild.facilities.Count}件   雇入れ候補: {recruitCandidates.Count}人");
             ShowPromotionProgress(db.allQuests, guild, questManager);
             ShowEconomyForecast(guild, upkeepPerTurn);
             Ui.WriteLine();
 
-            string input = await Ui.SelectAsync("選択", new[]
+            var menu = new List<MenuOption>
             {
                 new MenuOption("1", "クエストボード", Group: "クエスト"),
                 new MenuOption("2", "進行中クエスト", Group: "クエスト"),
@@ -66,11 +76,18 @@ public static class GameLoop
                 new MenuOption("4", "雇う", Group: "冒険者"),
                 new MenuOption("5", "倉庫", Group: "ギルド資産"),
                 new MenuOption("6", "商店", Group: "ギルド資産"),
-                new MenuOption("7", "遺物一覧", Group: "ギルド資産"),
+            };
+            // 凍結中は遺物一覧そのものを出さない。同じグループの並びは崩さない。
+            if (GameFeatures.RelicsEnabled)
+                menu.Add(new MenuOption("7", "遺物一覧", Group: "ギルド資産"));
+            menu.AddRange(new[]
+            {
                 new MenuOption("F", "施設", Group: "ギルド資産"),
                 new MenuOption("8", "経済ログ", Group: "ギルド管理"),
                 new MenuOption("B", "埋葬記録", Group: "ギルド管理"),
                 new MenuOption("J", "調査記録", Group: "ギルド管理"),
+                new MenuOption("M", "モンスター図鑑", Group: "ギルド管理"),
+                new MenuOption("T", "戦闘シミュレーター", Group: "ギルド管理"),
                 new MenuOption("H", "ヘルプ・用語集", Group: "ギルド管理"),
                 // 同じグループは連続させる（グループ見出しは切り替わりでしか出さないため）。
                 new MenuOption("9", "ターンを進める", Group: "ターン操作"),
@@ -78,6 +95,8 @@ public static class GameLoop
                 new MenuOption("S", "セーブする", Group: "セーブデータ"),
                 new MenuOption("L", "ロードする", Group: "セーブデータ"),
             });
+
+            string input = await Ui.SelectAsync("選択", menu);
 
             switch (input.Trim().ToUpperInvariant())
             {
@@ -90,16 +109,20 @@ public static class GameLoop
                     break;
                 case "5": await InventoryScreen.ShowAsync(guild); break;
                 case "6": await ShopScreen.ShowAsync(db, guild, currentTurn); break;
-                case "7": await RelicScreen.ShowAsync(guild); break;
+                case "7":
+                    if (GameFeatures.RelicsEnabled) await RelicScreen.ShowAsync(guild);
+                    break;
                 case "F": await FacilityScreen.ShowAsync(db, guild); break;
                 case "8": await ShowEconomyLogAsync(guild); break;
                 case "B": await BurialScreen.ShowAsync(guild); break;
                 case "J": await StoryJournalScreen.ShowAsync(db, questManager); break;
-                case "H": await HelpScreen.ShowAsync(); break;
+                case "M": await MonsterGuideScreen.ShowAsync(db, guild); break;
+                case "T": await BattleSimScreen.ShowAsync(db, guild); break;
+                case "H": await HelpScreen.ShowAsync(db); break;
                 case "9":
-                    if (questManager.HasPendingChoices)
+                    if (questManager.HasPendingDecisions)
                     {
-                        Ui.Warn("未解決の選択イベントがあります。すべて決定するまで次のターンへ進めません");
+                        Ui.Warn("指示待ちのクエストがあります。すべて決定するまで次のターンへ進めません");
                         await ShowPendingChoicesAsync(questManager, guild);
                         break;
                     }
@@ -205,11 +228,13 @@ public static class GameLoop
     // これが無いと「進行中クエスト」画面を毎ターン自発的に覗かない限りクリアに気づけない。
     static async Task ShowQuestsNeedingAttentionAsync(QuestManager qm, GuildManager guild)
     {
-        var needAttention = qm.activeQuests.Where(q => q.failed || q.CanComplete || q.HasPendingChoice).ToList();
+        var needAttention = qm.activeQuests
+            .Where(q => q.failed || q.CanComplete || q.HasPendingChoice || q.HasGatherDecision)
+            .ToList();
         if (needAttention.Count == 0) return;
 
-        Ui.Header("結果報告");
-        Ui.WriteLine($"  {needAttention.Count}件のクエストが結果待ちです");
+        Ui.Header("クエスト確認");
+        Ui.WriteLine($"  {needAttention.Count}件のクエストに確認・指示が必要です");
         await Ui.PauseAsync();
 
         foreach (var q in needAttention)
@@ -218,7 +243,8 @@ public static class GameLoop
 
     static async Task ShowPendingChoicesAsync(QuestManager qm, GuildManager guild)
     {
-        foreach (var q in qm.activeQuests.Where(q => q.HasPendingChoice).ToList())
+        foreach (var q in qm.activeQuests
+                     .Where(q => q.HasPendingChoice || q.HasGatherDecision).ToList())
             await ActiveQuestScreen.HandleQuestAsync(q, qm, guild);
     }
 
@@ -231,8 +257,13 @@ public static class GameLoop
             q => (Phase: q.currentPhase, Hp: q.unitHpCurrent, Morale: q.morale.Current, LogCount: q.logs.Count));
 
         questManager.AdvanceAll(currentTurn);
+        var recoveryMessages = guild.AdvanceRecovery(
+            currentTurn,
+            adventurer => !questManager.IsAdventurerBusy(adventurer.id));
         guild.PayUpkeepForAll(currentTurn);
         Ui.Info($"Turn {currentTurn} が始まりました");
+        foreach (var message in recoveryMessages)
+            Ui.Info(message);
 
         if (snapshots.Count == 0) return;
 
@@ -241,18 +272,18 @@ public static class GameLoop
         {
             if (!snapshots.TryGetValue(q, out var before)) continue;
 
-            string status = q.failed ? "全滅"
+            string status = q.failed ? "全員戦闘不能"
                 : q.retreated ? "撤退"
                 : q.CanComplete ? "完了可能"
                 : "進行中";
             Ui.WriteLine($"  ◆ {q.def.questName}  {status}");
-            Ui.WriteLine($"      Phase {before.Phase} → {q.currentPhase}/{q.def.totalPhases}"
+            Ui.WriteLine($"      エリア {before.Phase} → {q.currentPhase}/{q.def.totalPhases}"
                 + $"   HP {before.Hp} → {q.unitHpCurrent}/{q.unitHpMax}"
                 + $"   士気 {before.Morale} → {q.morale.Current}/{q.morale.Max}");
 
             var eventSummaries = q.logs
                 .Skip(before.LogCount)
-                .Where(log => log.StartsWith($"[Turn {summaryTurn}] Phase ") && log.Contains('/'))
+                .Where(log => log.StartsWith($"[Turn {summaryTurn}] エリア ") && log.Contains('/'))
                 .TakeLast(3)
                 .ToList();
             foreach (var log in eventSummaries)

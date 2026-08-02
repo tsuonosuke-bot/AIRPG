@@ -6,6 +6,8 @@ on:
     paths:
       - "GuildSimulator.Core/**"
       - "GuildSimulator.Game/**"
+      - "GuildSimulator.Balance/**"
+      - "GuildSimulator.Tests/**"
       - "GuildSimulator.Web/**"
       - ".github/workflows/deploy-web.yml"
   workflow_dispatch:
@@ -21,7 +23,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: restore
+        run: dotnet restore GuildSimulator.Tests/GuildSimulator.Tests.csproj
+
+      - name: test
+        env:
+          DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER: "1"
+          DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+        run: dotnet test GuildSimulator.Tests/GuildSimulator.Tests.csproj --no-restore -c Debug -m:1 -nr:false
+
+      - name: validate master data
+        run: dotnet run --project GuildSimulator.Cli --no-build -- --validate-master
+
+      - name: Balance Lab smoke test
+        run: dotnet run --project GuildSimulator.Balance --no-build -- --runs 50 --output outputs/balance-lab/ci-smoke.json
+
   build:
+    needs: quality
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

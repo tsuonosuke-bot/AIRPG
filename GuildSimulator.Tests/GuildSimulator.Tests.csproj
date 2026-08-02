@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GuildSimulator.Core\GuildSimulator.Core.csproj" />
     <ProjectReference Include="..\GuildSimulator.Cli\GuildSimulator.Cli.csproj" />
+    <ProjectReference Include="..\GuildSimulator.Balance\GuildSimulator.Balance.csproj" />
     <ProjectReference Include="..\GuildSimulator.Game\GuildSimulator.Game.csproj" />
   </ItemGroup>
 

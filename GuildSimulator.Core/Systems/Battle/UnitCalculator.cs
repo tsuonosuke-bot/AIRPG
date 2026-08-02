@@ -28,6 +28,8 @@ public static class UnitCalculator
             u.pv += s.pv; u.mpv += s.mpv;
             u.dv += s.dv; u.toHit += s.toHit;
             u.heal += s.heal;
+            u.armorPierce += s.armorPierce; u.armorShred += s.armorShred;
+            u.critRange += s.critRange; u.extraAttacks += s.extraAttacks;
         }
 
         u.hp += auraAdd.hp; u.san += auraAdd.san;
@@ -35,6 +37,8 @@ public static class UnitCalculator
         u.pv += auraAdd.pv; u.mpv += auraAdd.mpv;
         u.dv += auraAdd.dv; u.toHit += auraAdd.toHit;
         u.heal += auraAdd.heal;
+        u.armorPierce += auraAdd.armorPierce; u.armorShred += auraAdd.armorShred;
+        u.critRange += auraAdd.critRange; u.extraAttacks += auraAdd.extraAttacks;
         ApplyMulToStats(ref u, auraMul);
 
         if (isAllySide)
@@ -45,6 +49,8 @@ public static class UnitCalculator
             u.pv += relicAdd.pv; u.mpv += relicAdd.mpv;
             u.dv += relicAdd.dv; u.toHit += relicAdd.toHit;
             u.heal += relicAdd.heal;
+            u.armorPierce += relicAdd.armorPierce; u.armorShred += relicAdd.armorShred;
+            u.critRange += relicAdd.critRange; u.extraAttacks += relicAdd.extraAttacks;
             ApplyMulToStats(ref u, relicMul);
         }
 
@@ -93,11 +99,12 @@ public static class UnitCalculator
     public static int CountAlive(IUnitMember?[] members)
         => members?.Count(m => m != null && m.IsAlive) ?? 0;
 
-    public static int AvgLevel(IUnitMember?[] members)
+    /// <summary>生存者の平均脅威度（F〜S）。士気の格上ショックの判定に使う。</summary>
+    public static int AvgThreat(IUnitMember?[] members)
     {
         var alive = members?.Where(m => m != null && m.IsAlive).ToArray();
-        if (alive == null || alive.Length == 0) return 1;
-        return (int)Math.Round(alive.Average(m => (double)m!.Level));
+        if (alive == null || alive.Length == 0) return Models.Rank.Min;
+        return (int)Math.Round(alive.Average(m => (double)m!.Threat));
     }
 
     static void ApplySkills(IUnitMember m, bool isFront, ref StatBlock s,
@@ -105,7 +112,7 @@ public static class UnitCalculator
     {
         foreach (var sk in m.Skills)
         {
-            if (!IsActive(sk, m, isFront)) continue;
+            if (!IsSkillActive(sk, m, isFront)) continue;
             var mul = FixMul(sk.mul);
             if (sk.scope == SkillScope.UnitAura)
             {
@@ -120,12 +127,26 @@ public static class UnitCalculator
         }
     }
 
-    static bool IsActive(SkillMasterData sk, IUnitMember m, bool isFront)
+    public static bool IsSkillActive(SkillMasterData sk, IUnitMember m, bool isFront)
     {
         if (sk.frontOnly && !isFront) return false;
         if (sk.backOnly && isFront) return false;
+        return MeetsGearRequirements(sk, m);
+    }
+
+    /// <summary>
+    /// 立ち位置を除いた「構え」の条件。装備さえ見れば決まるので、
+    /// 戦闘前に積載や素手ダメージを計算する側からも同じ判定を使える。
+    /// </summary>
+    public static bool MeetsGearRequirements(SkillMasterData sk, IUnitMember m)
+    {
         if (sk.requireWeaponType && (m.Weapon == null || m.Weapon.weaponType != sk.requiredWeaponType)) return false;
         if (sk.requireArmorType && (m.Armor == null || m.Armor.armorType != sk.requiredArmorType)) return false;
+        if (sk.requireUnarmed && m.Weapon != null) return false;
+        if (sk.requireTwoHanded && m.Weapon is not { isTwoHanded: true }) return false;
+        if (sk.requirePhysicalWeapon && (m.Weapon == null || m.IsMagicAttack)) return false;
+        if (sk.requireShield && m.Shield == null) return false;
+        if (sk.requireOffHandWeapon && m.OffHandWeapon == null) return false;
         return true;
     }
 

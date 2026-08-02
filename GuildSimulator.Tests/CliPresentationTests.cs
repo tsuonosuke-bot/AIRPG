@@ -1,4 +1,5 @@
 using GuildSimulator.Cli;
+using GuildSimulator.Game.Data;
 using GuildSimulator.Game.Presentation;
 using GuildSimulator.Game.Screens;
 using GuildSimulator.Core.GameData;
@@ -94,6 +95,8 @@ public class CliPresentationTests
 
         Assert.Equal(1, CountOccurrences(text, candidate.baseName));
         Assert.Contains("VIT:", text);
+        Assert.Contains("SIZ:", text);
+        Assert.DoesNotContain("CON:", text);
     }
 
     [Fact]
@@ -114,8 +117,164 @@ public class CliPresentationTests
             () => QuestBoardScreen.ShowAsync(manager, guild, currentTurn: 1));
 
         Assert.Equal(1, CountOccurrences(text, quest.questName));
-        Assert.Contains("1. 【Rank1】", text);
-        Assert.DoesNotContain("1. 1. 【Rank1】", text);
+        Assert.Contains("1. 【F】", text);
+        Assert.DoesNotContain("1. 1. 【F】", text);
+        Assert.Contains("基本報酬", text);
+        Assert.DoesNotContain("予想収支", text);
+        Assert.DoesNotContain("宝箱・敵ドロップ・選択イベントは上の概算に含みません", text);
+    }
+
+    [Fact]
+    public async Task QuestBoardShowsDetailScreenBeforeAcceptingQuest()
+    {
+        var guild = new GuildManager(startGold: 100);
+        var manager = new QuestManager(guild);
+        var quest = new QuestMasterData
+        {
+            id = "detail",
+            questName = "詳細確認クエスト",
+            description = "掲示板には出ない詳しい依頼内容",
+            rewardGold = 50,
+        };
+        manager.questBoard.Add(new QuestBoardEntry(quest, postedTurn: 1));
+
+        string text = await CaptureConsoleAsync(
+            "1\nn\n0\n",
+            () => QuestBoardScreen.ShowAsync(manager, guild, currentTurn: 1));
+
+        Assert.Contains("掲示板には出ない詳しい依頼内容", text);
+        Assert.Contains("このクエストを受注しますか？", text);
+    }
+
+    [Fact]
+    public async Task QuestDetailsKeepVerboseLogsCollapsedByDefault()
+    {
+        var guild = new GuildManager(startGold: 100);
+        var manager = new QuestManager(guild);
+        var quest = new QuestMasterData
+        {
+            id = "active",
+            questName = "ログ折り畳みテスト",
+            totalPhases = 10,
+        };
+        var run = new QuestRun(quest, startedTurn: 1)
+        {
+            currentPhase = 1,
+        };
+        run.logs.Add("既定では隠れる戦闘計算ログ");
+        manager.RestoreState(new(), new() { run }, Array.Empty<string>());
+
+        string text = await CaptureConsoleAsync(
+            "\n",
+            () => ActiveQuestScreen.HandleQuestAsync(run, manager, guild));
+
+        Assert.Contains("詳細ログを見る（全1件）", text);
+        Assert.Contains("エリア: 1/10", text);
+        Assert.DoesNotContain("Phase", text);
+        Assert.DoesNotContain("フェーズ", text);
+        Assert.DoesNotContain("詳細ログ (", text);
+        Assert.DoesNotContain("既定では隠れる戦闘計算ログ", text);
+    }
+
+    [Fact]
+    public async Task RecruitMinimumFacilityShowsItsActualEffect()
+    {
+        var db = MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
+        var facility = db.facilities["fac_recruitment_office_01"];
+        var guild = new GuildManager(startGold: 200);
+
+        string text = await CaptureConsoleAsync(
+            "0\n",
+            () => FacilityScreen.ShowAsync(db, guild));
+
+        Assert.Equal(1, facility.recruitMinBonus);
+        Assert.Contains("雇入れ候補の最低人数+1", text);
+        Assert.DoesNotContain("効果なし", text);
+    }
+
+    [Fact]
+    public async Task EquippingShieldShowsItsIntrinsicEffectInChangeSummary()
+    {
+        var adventurer = new AdventurerData(new AdventurerMasterData
+        {
+            id = "shield_user",
+            baseName = "盾役",
+            defaultLevel = 1,
+            defaultRank = 1,
+            vitality = 10,
+            mental = 8,
+            strength = 10,
+            agility = 8,
+            intelligence = 6,
+            constitution = 10,
+        });
+        var shield = new EquipmentMasterData
+        {
+            id = "test_shield",
+            displayName = "テスト小盾",
+            type = EquipmentType.Shield,
+            blockChance = 25,
+            blockAv = 4,
+            weight = 3,
+        };
+        var guild = new GuildManager(startGold: 100);
+        guild.AddAdventurer(adventurer);
+        guild.AddEquipment(shield, 1);
+
+        string text = await CaptureConsoleAsync(
+            "1\ne\n2\n1\n\n0\n0\n0\n",
+            () => AdventurerScreen.ShowAsync(new GameMasterData(), guild));
+
+        Assert.Contains("ステータス・装備変化", text);
+        Assert.Contains("装備効果: なし → [盾] 受け25% 受け成功時AV+4 重量3", text);
+        Assert.DoesNotContain("ステータス・装備変化:\r\n── Enterで続ける", text);
+    }
+
+    [Fact]
+    public async Task SkillChoiceEventShowsThreeSkillsAndTheSelectedMembersLearningState()
+    {
+        var skills = new[]
+        {
+            new SkillMasterData { id = "skill_choice_1", skillName = "野営の知恵" },
+            new SkillMasterData { id = "skill_choice_2", skillName = "危険察知" },
+            new SkillMasterData { id = "skill_choice_3", skillName = "獣道歩き" },
+        };
+        var choice = new QuestChoiceEventMasterData
+        {
+            id = "event_choice_ui",
+            title = "森渡りの教え",
+            description = "三つの技から一つを選ぶ。",
+            options = skills.Select(skill => new QuestChoiceOptionData
+            {
+                text = $"「{skill.skillName}」を学ぶ",
+                resultText = "技を学んだ。",
+                effectType = QuestChoiceEffectType.AdventurerSkill,
+                targetId = skill.id,
+                targetsOneMember = true,
+                Skill = skill,
+            }).ToList(),
+        };
+        var adventurer = new AdventurerData(Master("choice", "選択者"));
+        var guild = new GuildManager(startGold: 100);
+        guild.AddAdventurer(adventurer);
+        var manager = new QuestManager(guild);
+        var run = new QuestRun(new QuestMasterData { id = "choice_ui", questName = "選択試験" }, 1)
+        {
+            pendingChoice = new PendingQuestChoice { Event = choice, createdTurn = 2 },
+        };
+        run.formation[0] = adventurer;
+
+        string text = await CaptureConsoleAsync(
+            "2\n1\n\n",
+            () => ActiveQuestScreen.HandleQuestAsync(run, manager, guild));
+
+        Assert.Contains("1. 「野営の知恵」を学ぶ", text);
+        Assert.Contains("2. 「危険察知」を学ぶ", text);
+        Assert.Contains("3. 「獣道歩き」を学ぶ", text);
+        Assert.Contains("選んだ隊員がスキル「危険察知」を習得", text);
+        Assert.Contains("「危険察知」未習得", text);
+        Assert.Contains(skills[1], adventurer.AllLearnedSkills);
+        Assert.Null(run.pendingChoice);
     }
 
     static async Task<string> CaptureConsoleAsync(string inputText, Func<Task> action)

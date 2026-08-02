@@ -37,6 +37,18 @@ if (args.Contains("--validate-master", StringComparer.OrdinalIgnoreCase))
         foreach (var error in errors) Console.WriteLine($"  - {error}");
         Environment.ExitCode = 1;
     }
+
+    // 帯からの逸脱はエラーにしない。まだ入れていないランク帯のぶんは必ず外れるので、
+    // ここは「残りの作業量」を数える表として読む。
+    var warnings = MasterBandChecker.Check(db);
+    Console.WriteLine();
+    if (warnings.Count == 0)
+        Console.WriteLine("ランク帯の物差し: 逸脱なし");
+    else
+    {
+        Console.WriteLine($"ランク帯の物差し: {warnings.Count}件の逸脱（エラーではありません）");
+        foreach (var warning in warnings) Console.WriteLine($"  - {warning}");
+    }
     return;
 }
 

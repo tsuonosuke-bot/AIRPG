@@ -27,4 +27,13 @@ public class FacilityMasterData
 
     /// <summary>毎ターンの雇入れ候補の最低人数を増やす数。</summary>
     public int recruitMinBonus;
+
+    /// <summary>出発していない冒険者が1ターンに進める負傷回復量への加算。</summary>
+    public int injuryRecoveryBonus;
+
+    /// <summary>帰還時の死亡率を直接減らす割合（%）。</summary>
+    public int fatalityReductionPercent;
+
+    /// <summary>負傷完治時に傷痕・後遺症が残る確率を減らす割合（%）。</summary>
+    public int scarPreventionPercent;
 }

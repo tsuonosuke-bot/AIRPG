@@ -2,7 +2,6 @@
   {
     "id": "adv_0001",
     "baseName": "ナーバル",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 2,
@@ -19,7 +18,7 @@
     "defaultWeaponId": "eq_sword_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_swordMastery"
+      "skill_swordMastery_lv2"
     ],
     "rarity": "Rare",
     "background": "辺境守備隊で六年間斥候を務めた元兵士。部隊の壊滅後、行方不明者を探して各地を渡っている。",
@@ -33,7 +32,6 @@
   {
     "id": "adv_0002",
     "baseName": "ローラ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -62,7 +60,6 @@
   {
     "id": "adv_0003",
     "baseName": "リュウ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -91,7 +88,6 @@
   {
     "id": "adv_0004",
     "baseName": "エディ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -120,7 +116,6 @@
   {
     "id": "adv_0005",
     "baseName": "セラ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -149,7 +144,6 @@
   {
     "id": "adv_0006",
     "baseName": "ジェス",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -166,14 +160,13 @@
     "defaultWeaponId": "eq_sword_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_swordMastery"
+      "skill_swordMastery_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0007",
     "baseName": "ケティ",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -190,14 +183,13 @@
     "defaultWeaponId": "eq_sword_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_swordMastery"
+      "skill_swordMastery_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0008",
     "baseName": "カジ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -219,7 +211,6 @@
   {
     "id": "adv_0009",
     "baseName": "ヤジ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -241,7 +232,6 @@
   {
     "id": "adv_0010",
     "baseName": "ベーツ",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -258,14 +248,13 @@
     "defaultWeaponId": "eq_axe_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_axeMastery"
+      "skill_axeMastery_lv2"
     ],
     "rarity": "Uncommon"
   },
   {
     "id": "adv_0011",
     "baseName": "ダイナ",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -282,14 +271,13 @@
     "defaultWeaponId": "eq_axe_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_axeMastery"
+      "skill_axeMastery_lv2"
     ],
     "rarity": "Uncommon"
   },
   {
     "id": "adv_0012",
     "baseName": "マーク",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -311,7 +299,6 @@
   {
     "id": "adv_0013",
     "baseName": "ハンネス",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -333,7 +320,6 @@
   {
     "id": "adv_0014",
     "baseName": "ミラ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -355,7 +341,6 @@
   {
     "id": "adv_0015",
     "baseName": "トビ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -377,7 +362,6 @@
   {
     "id": "adv_0016",
     "baseName": "ニケ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -399,7 +383,6 @@
   {
     "id": "adv_0017",
     "baseName": "グラム",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -421,7 +404,6 @@
   {
     "id": "adv_0018",
     "baseName": "エルナ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -443,7 +425,6 @@
   {
     "id": "adv_0019",
     "baseName": "ポルカ",
-    "upkeepGold": 10,
     "defaultLevel": 1,
     "defaultRank": 1,
     "recruitGuildRank": 1,
@@ -465,7 +446,6 @@
   {
     "id": "adv_0020",
     "baseName": "サイラス",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -482,14 +462,13 @@
     "defaultWeaponId": "eq_water_01",
     "defaultArmorId": "eq_cloth_01",
     "skillIds": [
-      "skill_waterMastery"
+      "skill_waterMastery_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0021",
     "baseName": "テオ",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -506,14 +485,13 @@
     "defaultWeaponId": "eq_Light_01",
     "defaultArmorId": "eq_cloth_01",
     "skillIds": [
-      "skill_lightMastery"
+      "skill_lightMastery_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0022",
     "baseName": "ボルグ",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -530,14 +508,13 @@
     "defaultWeaponId": "eq_spear_01",
     "defaultArmorId": "eq_plate_01",
     "skillIds": [
-      "skill_swordSpear"
+      "skill_spearMastery_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0023",
     "baseName": "リノ",
-    "upkeepGold": 30,
     "defaultLevel": 3,
     "defaultRank": 1,
     "recruitGuildRank": 2,
@@ -554,14 +531,13 @@
     "defaultWeaponId": "eq_bow_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_bowSpear"
+      "skill_bowMastery_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0024",
     "baseName": "ガーランド",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -578,15 +554,14 @@
     "defaultWeaponId": "eq_axe_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_axeMastery",
-      "skill_battleCry"
+      "skill_axeMastery_lv2",
+      "skill_battleCry_lv1"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0025",
     "baseName": "セリカ",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -603,15 +578,14 @@
     "defaultWeaponId": "eq_fire_01",
     "defaultArmorId": "eq_cloth_01",
     "skillIds": [
-      "skill_fireMastery",
-      "skill_manaFlow"
+      "skill_fireMastery_lv2",
+      "skill_manaFlow_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0026",
     "baseName": "ドルグ",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -628,7 +602,7 @@
     "defaultWeaponId": "eq_spear_01",
     "defaultArmorId": "eq_plate_01",
     "skillIds": [
-      "skill_swordSpear",
+      "skill_spearMastery_lv2",
       "skill_ironWall"
     ],
     "rarity": "Common"
@@ -636,7 +610,6 @@
   {
     "id": "adv_0027",
     "baseName": "アイナ",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -653,15 +626,14 @@
     "defaultWeaponId": "eq_Light_01",
     "defaultArmorId": "eq_cloth_01",
     "skillIds": [
-      "skill_lightMastery",
-      "skill_prayer"
+      "skill_lightMastery_lv2",
+      "skill_prayer_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0028",
     "baseName": "ヴァイス",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -678,15 +650,14 @@
     "defaultWeaponId": "eq_sword_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_swordMastery",
-      "skill_swiftStep"
+      "skill_swordMastery_lv2",
+      "skill_swiftStep_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0029",
     "baseName": "ハスキル",
-    "upkeepGold": 60,
     "defaultLevel": 6,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -703,15 +674,14 @@
     "defaultWeaponId": "eq_bow_01",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_bowSpear",
-      "skill_eagleEye"
+      "skill_bowMastery_lv2",
+      "skill_eagleEye_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0030",
     "baseName": "モーガン",
-    "upkeepGold": 70,
     "defaultLevel": 7,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -728,15 +698,14 @@
     "defaultWeaponId": "eq_axe_02",
     "defaultArmorId": "eq_chain_01",
     "skillIds": [
-      "skill_axeMastery",
-      "skill_toughBody"
+      "skill_axeMastery_lv2",
+      "skill_toughBody_lv3"
     ],
     "rarity": "Rare"
   },
   {
     "id": "adv_0031",
     "baseName": "ユキ",
-    "upkeepGold": 70,
     "defaultLevel": 7,
     "defaultRank": 2,
     "recruitGuildRank": 3,
@@ -753,15 +722,14 @@
     "defaultWeaponId": "eq_sword_02",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_swordMastery",
-      "skill_swiftStep"
+      "skill_swordMastery_lv2",
+      "skill_swiftStep_lv2"
     ],
     "rarity": "Rare"
   },
   {
     "id": "adv_0032",
     "baseName": "バルドル",
-    "upkeepGold": 110,
     "defaultLevel": 10,
     "defaultRank": 3,
     "recruitGuildRank": 4,
@@ -778,16 +746,15 @@
     "defaultWeaponId": "eq_spear_02",
     "defaultArmorId": "eq_plate_01",
     "skillIds": [
-      "skill_swordSpear",
+      "skill_spearMastery_lv2",
       "skill_ironWall",
-      "skill_guardian"
+      "skill_guardian_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0033",
     "baseName": "レイフェル",
-    "upkeepGold": 110,
     "defaultLevel": 10,
     "defaultRank": 3,
     "recruitGuildRank": 4,
@@ -804,15 +771,14 @@
     "defaultWeaponId": "eq_fire_02",
     "defaultArmorId": "eq_robe_02",
     "skillIds": [
-      "skill_fireMastery",
-      "skill_manaFlow"
+      "skill_fireMastery_lv2",
+      "skill_manaFlow_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0034",
     "baseName": "シグルド",
-    "upkeepGold": 110,
     "defaultLevel": 10,
     "defaultRank": 3,
     "recruitGuildRank": 4,
@@ -829,16 +795,15 @@
     "defaultWeaponId": "eq_sword_02",
     "defaultArmorId": "eq_chain_01",
     "skillIds": [
-      "skill_swordMastery",
-      "skill_swiftStep",
-      "skill_toughBody"
+      "skill_swordMastery_lv2",
+      "skill_swiftStep_lv2",
+      "skill_toughBody_lv3"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0035",
     "baseName": "ノエル",
-    "upkeepGold": 110,
     "defaultLevel": 10,
     "defaultRank": 3,
     "recruitGuildRank": 4,
@@ -855,15 +820,14 @@
     "defaultWeaponId": "eq_Light_02",
     "defaultArmorId": "eq_robe_02",
     "skillIds": [
-      "skill_lightMastery",
-      "skill_prayer"
+      "skill_lightMastery_lv2",
+      "skill_prayer_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0036",
     "baseName": "ザイド",
-    "upkeepGold": 120,
     "defaultLevel": 11,
     "defaultRank": 3,
     "recruitGuildRank": 4,
@@ -880,16 +844,15 @@
     "defaultWeaponId": "eq_bow_02",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
-      "skill_bowSpear",
-      "skill_eagleEye",
-      "skill_swiftStep"
+      "skill_bowMastery_lv2",
+      "skill_eagleEye_lv2",
+      "skill_swiftStep_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0037",
     "baseName": "アルヴィス",
-    "upkeepGold": 170,
     "defaultLevel": 14,
     "defaultRank": 4,
     "recruitGuildRank": 4,
@@ -906,17 +869,16 @@
     "defaultWeaponId": "eq_axe_02",
     "defaultArmorId": "eq_plate_02",
     "skillIds": [
-      "skill_axeMastery",
-      "skill_axeMastery2",
-      "skill_battleCry",
-      "skill_berserk"
+      "skill_axeMastery_lv2",
+      "skill_axeMastery_lv5",
+      "skill_battleCry_lv1",
+      "skill_berserk_lv2"
     ],
     "rarity": "Common"
   },
   {
     "id": "adv_0038",
     "baseName": "オルフェ",
-    "upkeepGold": 170,
     "defaultLevel": 14,
     "defaultRank": 4,
     "recruitGuildRank": 4,
@@ -933,8 +895,8 @@
     "defaultWeaponId": "eq_dark_01",
     "defaultArmorId": "eq_robe_02",
     "skillIds": [
-      "skill_darkMastery",
-      "skill_manaFlow",
+      "skill_darkMastery_lv2",
+      "skill_manaFlow_lv2",
       "skill_deathAura"
     ],
     "rarity": "Common"
@@ -942,7 +904,6 @@
   {
     "id": "adv_0039",
     "baseName": "ロランド",
-    "upkeepGold": 180,
     "defaultLevel": 15,
     "defaultRank": 4,
     "recruitGuildRank": 4,
@@ -959,10 +920,10 @@
     "defaultWeaponId": "eq_sword_02",
     "defaultArmorId": "eq_plate_02",
     "skillIds": [
-      "skill_swordMastery",
-      "skill_swordMastery2",
-      "skill_swiftStep",
-      "skill_toughBody"
+      "skill_swordMastery_lv2",
+      "skill_swordMastery_lv5",
+      "skill_swiftStep_lv2",
+      "skill_toughBody_lv3"
     ],
     "rarity": "Common"
   }

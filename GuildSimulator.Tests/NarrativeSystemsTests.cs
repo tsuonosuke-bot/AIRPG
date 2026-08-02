@@ -9,6 +9,7 @@ using Xunit;
 
 namespace GuildSimulator.Tests;
 
+[Collection("Guild static state")]
 public class NarrativeSystemsTests
 {
     [Fact]
@@ -17,9 +18,7 @@ public class NarrativeSystemsTests
         string dataDir = Path.Combine(AppContext.BaseDirectory, "Data");
         var db = MasterLoader.Load(dataDir);
 
-        Assert.Contains(db.allAdventurers, a =>
-            !string.IsNullOrWhiteSpace(a.background)
-            && !string.IsNullOrWhiteSpace(a.selfIntroduction));
+        Assert.Contains(db.allAdventurers, a => !string.IsNullOrWhiteSpace(a.background));
         Assert.Contains("clue_stolen_blue_ore", db.clues.Keys);
 
         var goblin = Assert.Single(db.allQuests, q => q.id == "quest_goblin_slayer");

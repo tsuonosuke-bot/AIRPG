@@ -34,6 +34,15 @@ public sealed class WebGameIo : IGameIo
 
     public bool IsWaiting => _pending != null;
 
+    /// <summary>
+    /// ゲームループが終わったら true。コンソール版はプロセスが終わるだけだが、
+    /// ブラウザ版はページが残るため、終わったことを画面に出す必要がある。
+    /// </summary>
+    public bool IsFinished { get; private set; }
+
+    /// <summary>ゲームループが例外で終わったときのメッセージ。正常終了なら null。</summary>
+    public string? FailureMessage { get; private set; }
+
     /// <summary>出力や入力待ちの状態が変わったときに発火する。画面はこれで再描画する。</summary>
     public event Action? StateChanged;
 
@@ -116,5 +125,38 @@ public sealed class WebGameIo : IGameIo
         // 末尾は書きかけの行なので、その手前までを「読み終えた」とみなす。
         _readLineCount = _lines.Count - 1;
         pending.SetResult(value);
+    }
+
+    // ---- 終了・再開 ----
+
+    /// <summary>
+    /// ゲームループが終わったことを画面へ知らせる。
+    /// これを呼ばないと入力待ちでもないまま再描画も起きず、「処理中...」の表示で固まる。
+    /// </summary>
+    /// <param name="failureMessage">例外で終わった場合のメッセージ。正常終了なら null。</param>
+    public void Finish(string? failureMessage = null)
+    {
+        _pending = null;
+        Prompt = "";
+        Options = Array.Empty<MenuOption>();
+        IsTextInput = false;
+        IsFinished = true;
+        FailureMessage = failureMessage;
+        StateChanged?.Invoke();
+    }
+
+    /// <summary>終了後にもう一度遊べるよう、出力と状態を初期状態へ戻す。</summary>
+    public void Reset()
+    {
+        _lines.Clear();
+        _lines.Add(new List<OutputSegment>());
+        _readLineCount = 0;
+        _pending = null;
+        Prompt = "";
+        Options = Array.Empty<MenuOption>();
+        IsTextInput = false;
+        IsFinished = false;
+        FailureMessage = null;
+        StateChanged?.Invoke();
     }
 }

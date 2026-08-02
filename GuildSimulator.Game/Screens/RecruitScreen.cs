@@ -1,5 +1,6 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Game.Presentation;
 
@@ -36,7 +37,7 @@ public static class RecruitScreen
                     int hireCost = CalcHireCost(m);
                     string tag = alreadyHired ? " [雇用済]" : $"  雇用費: {hireCost}G";
                     int candidateAfterHire = guild.Gold - hireCost;
-                    int adventurerUpkeep = GuildManager.CalculateAdventurerUpkeep(m.defaultLevel);
+                    int adventurerUpkeep = GuildManager.CalculateAdventurerUpkeep(m.defaultLevel, m.defaultRank);
                     int candidateUpkeep = GuildManager.CalculateEffectiveUpkeep(guild.BaseUpkeepPerTurn + adventurerUpkeep);
                     int candidateSafeTurns = GuildManager.SafeUpkeepTurns(candidateAfterHire, candidateUpkeep);
                     string runway = candidateSafeTurns == int.MaxValue ? "∞" : candidateSafeTurns.ToString();
@@ -44,19 +45,19 @@ public static class RecruitScreen
                     var detail = new List<string>
                     {
                         $"{m.DefaultClass?.className ?? "？"}/{m.Race?.raceName ?? "？"}  {Ui.RarityLabel(m.rarity)}  維持費{adventurerUpkeep}G/T",
-                        $"VIT:{m.vitality} MEN:{m.mental} STR:{m.strength} AGI:{m.agility} INT:{m.intelligence} CON:{m.constitution}",
+                        $"VIT:{m.vitality} MEN:{m.mental} STR:{m.strength} AGI:{m.agility} INT:{m.intelligence} SIZ:{m.constitution} APP:{m.appearance}",
                         $"武器:{m.DefaultWeapon?.displayName ?? "なし"}  防具:{m.DefaultArmor?.displayName ?? "なし"}",
                     };
-                    if (!string.IsNullOrWhiteSpace(m.selfIntroduction))
-                        detail.Add($"「{m.selfIntroduction}」");
-                    if (!string.IsNullOrWhiteSpace(m.personality) || !string.IsNullOrWhiteSpace(m.specialty))
-                        detail.Add($"人柄:{ValueOrUnknown(m.personality)}  得意:{ValueOrUnknown(m.specialty)}");
+                    if (m.gender != Gender.Unspecified)
+                        detail.Add($"性別: {(m.gender == Gender.Male ? "男性" : "女性")}");
+                    if (!string.IsNullOrWhiteSpace(m.background))
+                        detail.Add(m.background);
                     if (!alreadyHired && candidateAfterHire >= 0)
                         detail.Add($"雇用後: {candidateAfterHire}G  合計維持費:{candidateUpkeep}G/T  資金猶予:{runway}T");
 
                     entries.Add(new MenuOption(
                         (i + 1).ToString(),
-                        $"{m.baseName}  Lv{m.defaultLevel} Rank{m.defaultRank}{tag}",
+                        $"{m.baseName}  Lv{m.defaultLevel} ランク{Rank.Label(m.defaultRank)}{tag}",
                         string.Join(Environment.NewLine, detail),
                         Ui.RarityStyle(m.rarity)));
                 }
@@ -91,7 +92,7 @@ public static class RecruitScreen
             }
 
             int afterHire = guild.Gold - cost;
-            int chosenUpkeep = GuildManager.CalculateAdventurerUpkeep(chosen.defaultLevel);
+            int chosenUpkeep = GuildManager.CalculateAdventurerUpkeep(chosen.defaultLevel, chosen.defaultRank);
             int projectedUpkeep = GuildManager.CalculateEffectiveUpkeep(guild.BaseUpkeepPerTurn + chosenUpkeep);
             int safeTurns = GuildManager.SafeUpkeepTurns(afterHire, projectedUpkeep);
             if (safeTurns <= 1)
@@ -113,10 +114,20 @@ public static class RecruitScreen
 
     public static int CalcHireCost(AdventurerMasterData m)
         // 維持費バランスの変更で初期雇用費まで連動しないよう、従来のLv単価を維持する。
-        => Math.Max(10, Math.Max(1, m.defaultLevel) * 55);
+        // レアリティは雇入れ時だけの上乗せで、以後の維持費には関係させない。
+        => Math.Max(10, Math.Max(1, m.defaultLevel) * 55) + RarityHirePremium(m.rarity, m.defaultLevel);
 
-    static string ValueOrUnknown(string value) =>
-        string.IsNullOrWhiteSpace(value) ? "記録なし" : value;
+    /// <summary>希少な人材を雇うときだけ乗る上乗せ額。コモンは0。</summary>
+    public static int RarityHirePremium(Rarity rarity, int level)
+    {
+        int lv = Math.Max(1, level);
+        return rarity switch
+        {
+            Rarity.Uncommon => 20 + lv * 1,
+            Rarity.Rare => 40 + lv * 2,
+            _ => 0,
+        };
+    }
 
     static async Task RerollCandidatesAsync(
         List<AdventurerMasterData> candidates,

@@ -1,4 +1,6 @@
+using GuildSimulator.Core;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems.Battle;
 
 namespace GuildSimulator.Game.Data;
 
@@ -7,6 +9,10 @@ public static class MasterValidator
     public static List<string> Validate(GameMasterData db)
     {
         var errors = new List<string>();
+
+        // MasterLoader は解決できないIDを黙って読み飛ばすので、そのままだと
+        // 「エラーは出ないがゲーム内に一生出てこない」データができる。ここで必ず落とす。
+        errors.AddRange(db.unresolvedRefs);
 
         foreach (var a in db.allAdventurers)
         {
@@ -20,6 +26,77 @@ public static class MasterValidator
                 errors.Add($"{a.id}: 不明なdefaultWeaponId '{a.defaultWeaponId}'");
             if (!string.IsNullOrEmpty(a.defaultArmorId) && a.DefaultArmor == null)
                 errors.Add($"{a.id}: 不明なdefaultArmorId '{a.defaultArmorId}'");
+        }
+
+        // 武器クラスの個性は「同じ武器種・同じ持ち手なら同じ値」で揃える。
+        // Tier差は basePv とダメージダイスが表し、片手/両手の差は maxStatBonus などで表す。
+        foreach (var group in db.equipment.Values
+                     .Where(e => e.type == EquipmentType.Weapon && e.weaponType != WeaponType.Null)
+                     .GroupBy(e => (e.weaponType, e.isTwoHanded)))
+        {
+            var head = group.First();
+            string hands = head.isTwoHanded ? "両手" : "片手";
+            foreach (var e in group.Skip(1))
+            {
+                if (e.maxStatBonus != head.maxStatBonus)
+                    errors.Add($"{e.id}: maxStatBonusが同じ武器種({hands})の{head.id}({head.maxStatBonus})と違います({e.maxStatBonus})");
+                if (e.Traits != head.Traits)
+                    errors.Add($"{e.id}: 武器クラスの個性(armorPierce/armorShred/critRange/extraAttacks/offHandBonus)が"
+                        + $"同じ武器種({hands})の{head.id}と違います");
+            }
+        }
+
+        foreach (var e in db.equipment.Values)
+        {
+            if (e.critRange < 0 || e.critRange > QudCombat.MAX_CRIT_RANGE)
+                errors.Add($"{e.id}: critRangeは0〜{QudCombat.MAX_CRIT_RANGE}にしてください");
+            if (e.armorPierce < 0 || e.armorShred < 0 || e.extraAttacks < 0 || e.offHandBonus < 0)
+                errors.Add($"{e.id}: armorPierce/armorShred/extraAttacks/offHandBonusは0以上にしてください");
+            if (e.type != EquipmentType.Weapon && !e.Traits.Equals(WeaponTraits.None))
+                errors.Add($"{e.id}: 武器以外に武器クラスの個性は設定できません");
+
+            if (e.type == EquipmentType.Weapon)
+            {
+                // 弓と魔法は両手で構える。盾も二刀流も物理の近接武器だけの特権にする。
+                bool mustBeTwoHanded = e.IsMagicWeapon || e.attackKind == AttackKind.Heal
+                    || e.weaponType == WeaponType.Bow;
+                if (mustBeTwoHanded && !e.isTwoHanded)
+                    errors.Add($"{e.id}: 弓と魔法は両手武器にしてください（isTwoHanded: true）");
+                if (e.isTwoHanded && e.offHandBonus > 0)
+                    errors.Add($"{e.id}: 両手武器は左手に持てないのでoffHandBonusは設定できません");
+            }
+
+            if (e.IsShield)
+            {
+                if (e.blockChance <= 0)
+                    errors.Add($"{e.id}: 盾にはblockChance（受け率%）が必要です");
+                if (e.blockAv <= 0)
+                    errors.Add($"{e.id}: 盾にはblockAv（受け成功時に乗る装甲）が必要です");
+                // 盾の装甲は受けに成功したときだけ乗る。bonus.av に書くと常時加算になってしまう。
+                if (e.bonus.av != 0)
+                    errors.Add($"{e.id}: 盾の装甲はbonus.avではなくblockAvに書いてください（bonus.avは常時加算されます）");
+                if (!e.GetAllowedSlots().Contains(EquipSlot.LeftHand) || e.GetAllowedSlots().Count != 1)
+                    errors.Add($"{e.id}: 盾のallowedSlotsは[\"LeftHand\"]にしてください");
+            }
+            else if (e.blockChance > 0 || e.blockAv > 0)
+            {
+                errors.Add($"{e.id}: 盾(type:3)以外にblockChance/blockAvは設定できません");
+            }
+        }
+
+        foreach (var enemy in db.enemies.Values)
+        {
+            // 脅威度は冒険者ランクと同じ物差し。範囲外だと士気の格上ショックが意図とずれる。
+            if (enemy.threat < Rank.Min || enemy.threat > Rank.Max)
+                errors.Add($"{enemy.id}: threatは{Rank.Min}〜{Rank.Max}"
+                    + $"（{Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}）にしてください（現在{enemy.threat}）");
+            if (enemy.DefaultShield != null && !enemy.DefaultShield.IsShield)
+                errors.Add($"{enemy.id}: defaultShieldIdに盾でない装備が指定されています");
+            if (enemy.DefaultOffHand != null && enemy.DefaultOffHand.type != EquipmentType.Weapon)
+                errors.Add($"{enemy.id}: defaultOffHandIdに武器でない装備が指定されています");
+            if (enemy.DefaultWeapon is { isTwoHanded: true }
+                && (enemy.DefaultOffHand != null || enemy.DefaultShield != null))
+                errors.Add($"{enemy.id}: 両手武器を持たせているので左手（defaultOffHandId/defaultShieldId）は使えません");
         }
 
         foreach (var enemy in db.enemies.Values)
@@ -39,6 +116,35 @@ public static class MasterValidator
                 errors.Add($"{enemy.id}: drop chanceは0より大きく1以下にしてください");
         }
 
+        foreach (var ev in db.choiceEvents.Values)
+        foreach (var option in ev.options)
+        {
+            // 結果テーブルの重みが全部0だと抽選できず、常に先頭の結果になってしまう。
+            if (option.outcomes.Count > 0 && option.outcomes.Sum(o => Math.Max(0, o.weight)) <= 0)
+                errors.Add($"{ev.id}: 選択肢「{option.text}」の結果テーブルの重みが全て0です");
+
+            foreach (var outcome in option.Outcomes)
+            {
+                bool needsMember = outcome.effectType is
+                    QuestChoiceEffectType.AdventurerStatUp or QuestChoiceEffectType.AdventurerStatDown
+                    or QuestChoiceEffectType.AdventurerSkill or QuestChoiceEffectType.AdventurerDamage;
+                if (needsMember && !option.targetsOneMember)
+                    errors.Add($"{ev.id}: 選択肢「{option.text}」は隊員1人に効く効果"
+                        + $"（{outcome.effectType}）を持つので targetsOneMember を true にしてください");
+
+                if (outcome.effectType == QuestChoiceEffectType.AdventurerSkill && outcome.Skill == null)
+                    errors.Add($"{ev.id}: 選択肢「{option.text}」のスキル付与で"
+                        + $"不明なskillId '{outcome.targetId}' が指定されています");
+
+                if (outcome.effectType is QuestChoiceEffectType.AdventurerStatUp
+                        or QuestChoiceEffectType.AdventurerStatDown
+                    && !string.IsNullOrEmpty(outcome.targetId)
+                    && !Enum.TryParse<StatType>(outcome.targetId, ignoreCase: true, out _))
+                    errors.Add($"{ev.id}: 選択肢「{option.text}」の能力指定 '{outcome.targetId}' が不明です"
+                        + "（空にするとランダム）");
+            }
+        }
+
         foreach (var dungeon in db.dungeons.Values)
         {
             if (dungeon.turnEndEvents.Any(e => e.options.Count < 2))
@@ -53,6 +159,14 @@ public static class MasterValidator
                         e => e.options.Any(o => o.effectType == QuestChoiceEffectType.Treasure)))
                     errors.Add($"{dungeon.id}: 宝箱の選択肢があるのにtreasureTableが空です");
             }
+
+            // 遺物システムの凍結中、遺物エントリは抽選候補から外れる。
+            // 遺物しか残らないテーブルは必ず空っぽになるので、他の中身も置いておく。
+            if (!GameFeatures.RelicsEnabled
+                && dungeon.treasureTable.Count > 0
+                && !dungeon.treasureTable.Any(e => e.weight > 0 && e.type != RewardType.Relic))
+                errors.Add($"{dungeon.id}: treasureTableに遺物以外の中身がありません"
+                    + "（遺物システムは凍結中なので、宝箱が必ず空っぽになります）");
         }
 
         var questIds = db.allQuests.Select(q => q.id).ToHashSet();
@@ -64,6 +178,13 @@ public static class MasterValidator
             foreach (var clueId in quest.requiredClueIds.Concat(quest.grantedClueIds))
                 if (!db.clues.ContainsKey(clueId))
                     errors.Add($"{quest.id}: 不明なclueId '{clueId}'");
+
+            // 同じく、遺物しか入っていないボスの宝箱は凍結中に必ず空っぽになる。
+            if (!GameFeatures.RelicsEnabled
+                && quest.bossDrops.Count > 0
+                && quest.bossDrops.All(d => d.type == RewardType.Relic))
+                errors.Add($"{quest.id}: bossDropsに遺物以外の中身がありません"
+                    + "（遺物システムは凍結中なので、ボスの宝箱が必ず空っぽになります）");
 
             // ボスドロップは1件ずつ確率抽選する。bossDropsAreGuaranteed のクエストだけ抽選しない。
             if (quest.bossDropsAreGuaranteed) continue;

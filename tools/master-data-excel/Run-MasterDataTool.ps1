@@ -1,5 +1,5 @@
 param(
-    [ValidateSet("export", "check", "import")]
+    [ValidateSet("export", "check", "diff", "import", "migrate")]
     [string]$Mode = "export"
 )
 
@@ -20,13 +20,13 @@ else {
     $node = $nodeCommand.Source
 }
 
-if ($Mode -eq "export" -and (Test-Path $exportMarker)) {
+if (($Mode -eq "export" -or $Mode -eq "migrate") -and (Test-Path $exportMarker)) {
     Remove-Item -LiteralPath $exportMarker -Force
 }
 
 & $node (Join-Path $toolDir "master-data-tool.mjs") $Mode
 $toolExitCode = $LASTEXITCODE
-if ($Mode -eq "export" -and (Test-Path $exportMarker)) {
+if (($Mode -eq "export" -or $Mode -eq "migrate") -and (Test-Path $exportMarker)) {
     exit 0
 }
 if ($toolExitCode -ne 0) {

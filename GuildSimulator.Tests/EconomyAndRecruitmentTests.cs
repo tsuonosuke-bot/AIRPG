@@ -1,20 +1,59 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Game.Screens;
 using Xunit;
 
 namespace GuildSimulator.Tests;
 
+[Collection("Guild static state")]
 public class EconomyAndRecruitmentTests
 {
     [Theory]
-    [InlineData(1, 5)]
-    [InlineData(3, 15)]
-    [InlineData(10, 50)]
-    public void UpkeepIsFiveGoldPerCurrentLevel(int level, int expected)
+    [InlineData(1, 1)]
+    [InlineData(3, 3)]
+    [InlineData(10, 10)]
+    public void UpkeepIsOneGoldPerCurrentLevel(int level, int expected)
     {
         Assert.Equal(expected, GuildManager.CalculateAdventurerUpkeep(level));
+    }
+
+    [Theory]
+    [InlineData(1, 1, 1)]
+    [InlineData(1, 2, 16)]
+    [InlineData(1, 7, 91)]
+    [InlineData(10, 3, 40)]
+    public void UpkeepAddsFifteenGoldPerAdventurerRank(int level, int rank, int expected)
+    {
+        Assert.Equal(expected, GuildManager.CalculateAdventurerUpkeep(level, rank));
+    }
+
+    [Fact]
+    public void UpkeepIgnoresRarity()
+    {
+        var common = Master("common", level: 4);
+        var rare = Master("rare", level: 4);
+        rare.rarity = Rarity.Rare;
+
+        Assert.Equal(
+            GuildManager.CalculateAdventurerUpkeep(common.defaultLevel, common.defaultRank),
+            GuildManager.CalculateAdventurerUpkeep(rare.defaultLevel, rare.defaultRank));
+    }
+
+    [Fact]
+    public void GuildUpkeepRisesWhenAdventurerRankUp()
+    {
+        var adventurer = new AdventurerData(Master("adv", level: 1));
+        var guild = new GuildManager();
+        guild.AddAdventurer(adventurer);
+
+        Assert.Equal(1, guild.AdventurerUpkeepPerTurn);
+
+        adventurer.rank = 3;
+
+        Assert.Equal(31, guild.AdventurerUpkeepPerTurn);
+        Assert.Equal(41, guild.BaseUpkeepPerTurn);
     }
 
     [Fact]
@@ -24,13 +63,13 @@ public class EconomyAndRecruitmentTests
         var guild = new GuildManager();
         guild.AddAdventurer(adventurer);
 
-        Assert.Equal(5, guild.AdventurerUpkeepPerTurn);
-        Assert.Equal(15, guild.BaseUpkeepPerTurn);
+        Assert.Equal(1, guild.AdventurerUpkeepPerTurn);
+        Assert.Equal(11, guild.BaseUpkeepPerTurn);
 
         adventurer.level = 2;
 
-        Assert.Equal(10, guild.AdventurerUpkeepPerTurn);
-        Assert.Equal(20, guild.BaseUpkeepPerTurn);
+        Assert.Equal(2, guild.AdventurerUpkeepPerTurn);
+        Assert.Equal(12, guild.BaseUpkeepPerTurn);
     }
 
     [Fact]
@@ -51,9 +90,9 @@ public class EconomyAndRecruitmentTests
         guild.AddAdventurer(new AdventurerData(Master("a", level: 1)));
         guild.AddAdventurer(new AdventurerData(Master("b", level: 1)));
 
-        Assert.Equal(20, guild.EffectiveUpkeepPerTurn);
-        Assert.Equal(-10, guild.EstimateNetAfterUpkeep(rewardGold: 30, turns: 2));
-        Assert.Equal(20, guild.EstimateNetAfterUpkeep(rewardGold: 60, turns: 2));
+        Assert.Equal(12, guild.EffectiveUpkeepPerTurn);
+        Assert.Equal(6, guild.EstimateNetAfterUpkeep(rewardGold: 30, turns: 2));
+        Assert.Equal(36, guild.EstimateNetAfterUpkeep(rewardGold: 60, turns: 2));
     }
 
     [Theory]
@@ -62,6 +101,20 @@ public class EconomyAndRecruitmentTests
     public void HireCostKeepsItsExistingLevelRate(int level, int expected)
     {
         Assert.Equal(expected, RecruitScreen.CalcHireCost(Master("hire", level)));
+    }
+
+    [Theory]
+    [InlineData(Rarity.Common, 1, 55)]
+    [InlineData(Rarity.Uncommon, 1, 76)]
+    [InlineData(Rarity.Rare, 1, 97)]
+    [InlineData(Rarity.Uncommon, 5, 300)]
+    [InlineData(Rarity.Rare, 5, 325)]
+    public void HireCostAddsRarityPremium(Rarity rarity, int level, int expected)
+    {
+        var master = Master("hire", level);
+        master.rarity = rarity;
+
+        Assert.Equal(expected, RecruitScreen.CalcHireCost(master));
     }
 
     [Theory]

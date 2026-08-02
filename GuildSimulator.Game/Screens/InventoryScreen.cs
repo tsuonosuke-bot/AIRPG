@@ -66,43 +66,11 @@ public static class InventoryScreen
 
     static string DescribeEquipment(EquipmentMasterData item)
     {
-        var parts = new List<string>();
-        if (item.type == EquipmentType.Weapon)
-        {
-            if (item.attackKind == AttackKind.Heal)
-            {
-                parts.Add($"回復効果x{item.healPower:0.##}");
-            }
-            else
-            {
-                parts.Add($"{(item.attackKind == AttackKind.Magic ? "魔法" : "物理")} PV{item.basePv}");
-                if (!string.IsNullOrWhiteSpace(item.damageDice)) parts.Add($"{item.damageDice}/貫通");
-                parts.Add(item.maxStatBonus >= QudCombatDefaults.UnlimitedStatBonus
-                    ? "能力値上限なし" : $"能力値上限+{item.maxStatBonus}");
-            }
-        }
-        parts.AddRange(BonusParts(item.bonus));
+        var parts = EquipmentText.WeaponParts(item);
+        parts.AddRange(EquipmentText.BonusParts(item.bonus));
         parts.Add($"重量{item.weight}");
         parts.Add($"購入価格{item.price}G");
         return string.Join(" ", parts);
     }
 
-    static List<string> BonusParts(StatBlock stats)
-    {
-        var parts = new List<string>();
-        void Add(string name, int value)
-        {
-            if (value != 0) parts.Add($"{name}{(value > 0 ? "+" : "")}{value}");
-        }
-
-        Add("HP", stats.hp);
-        Add("AV", stats.av);
-        Add("mAV", stats.mav);
-        Add("PV", stats.pv);
-        Add("mPV", stats.mpv);
-        Add("DV", stats.dv);
-        Add("命中", stats.toHit);
-        Add("回復力", stats.heal);
-        return parts;
-    }
 }
