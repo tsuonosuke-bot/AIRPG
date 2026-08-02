@@ -138,7 +138,9 @@ public class SkillProgressionTests
             float growthTotal = cls.vitGrowth + cls.mentGrowth + cls.strGrowth
                 + cls.intGrowth + cls.agiGrowth;
             Assert.Equal(1.1f, growthTotal, 3);
-            Assert.Equal(new[] { 0, 3, 7, 12, 18, 25, 33, 42, 52, 63, 75, 88 },
+            Assert.Equal(
+                new[] { 0, 3, 7, 12, 18, 25, 33, 42, 52, 63, 75, 88 }
+                    .Select(v => v * 100).ToArray(),
                 cls.classSkills.Select(e => e.requiredClearCount).ToArray());
         }
     }

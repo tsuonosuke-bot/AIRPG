@@ -14,55 +14,55 @@
       },
       {
         "skillId": "skill_lightArmorMastery_lv1",
-        "requiredClearCount": 3
+        "requiredClearCount": 300
       },
       {
         "skillId": "skill_axeMastery_lv2",
-        "requiredClearCount": 7
+        "requiredClearCount": 700
       },
       {
         "skillId": "skill_twoHandedMastery_lv1",
-        "requiredClearCount": 12
+        "requiredClearCount": 1200
       },
       {
         "skillId": "skill_axeMastery_lv3",
-        "requiredClearCount": 18
+        "requiredClearCount": 1800
       },
       {
         "skillId": "skill_toughBody_lv1",
-        "requiredClearCount": 25
+        "requiredClearCount": 2500
       },
       {
         "skillId": "skill_berserk_lv1",
-        "requiredClearCount": 33
+        "requiredClearCount": 3300
       },
       {
         "skillId": "skill_backsToWall",
-        "requiredClearCount": 33
+        "requiredClearCount": 3300
       },
       {
         "skillId": "skill_twoHandedMastery_lv2",
-        "requiredClearCount": 42
+        "requiredClearCount": 4200
       },
       {
         "skillId": "skill_axeMastery_lv4",
-        "requiredClearCount": 52
+        "requiredClearCount": 5200
       },
       {
         "skillId": "skill_lightArmorMastery_lv2",
-        "requiredClearCount": 63
+        "requiredClearCount": 6300
       },
       {
         "skillId": "skill_executioner",
-        "requiredClearCount": 63
+        "requiredClearCount": 6300
       },
       {
         "skillId": "skill_twoHandedMastery_lv3",
-        "requiredClearCount": 75
+        "requiredClearCount": 7500
       },
       {
         "skillId": "skill_axeMastery_lv5",
-        "requiredClearCount": 88
+        "requiredClearCount": 8800
       }
     ]
   },
@@ -81,55 +81,55 @@
       },
       {
         "skillId": "skill_plateMastery_lv1",
-        "requiredClearCount": 3
+        "requiredClearCount": 300
       },
       {
         "skillId": "skill_shieldMastery_lv1",
-        "requiredClearCount": 7
+        "requiredClearCount": 700
       },
       {
         "skillId": "skill_spearMastery_lv2",
-        "requiredClearCount": 12
+        "requiredClearCount": 1200
       },
       {
         "skillId": "skill_plateMastery_lv2",
-        "requiredClearCount": 18
+        "requiredClearCount": 1800
       },
       {
         "skillId": "skill_shieldMastery_lv2",
-        "requiredClearCount": 25
+        "requiredClearCount": 2500
       },
       {
         "skillId": "skill_guardian_lv1",
-        "requiredClearCount": 33
+        "requiredClearCount": 3300
       },
       {
         "skillId": "skill_protection",
-        "requiredClearCount": 33
+        "requiredClearCount": 3300
       },
       {
         "skillId": "skill_spearMastery_lv3",
-        "requiredClearCount": 42
+        "requiredClearCount": 4200
       },
       {
         "skillId": "skill_taunt_lv1",
-        "requiredClearCount": 52
+        "requiredClearCount": 5200
       },
       {
         "skillId": "skill_shieldMastery_lv3",
-        "requiredClearCount": 63
+        "requiredClearCount": 6300
       },
       {
         "skillId": "skill_counter",
-        "requiredClearCount": 63
+        "requiredClearCount": 6300
       },
       {
         "skillId": "skill_spearMastery_lv4",
-        "requiredClearCount": 75
+        "requiredClearCount": 7500
       },
       {
         "skillId": "skill_spearMastery_lv5",
-        "requiredClearCount": 88
+        "requiredClearCount": 8800
       }
     ]
   },
@@ -148,47 +148,47 @@
       },
       {
         "skillId": "skill_lightArmorMastery_lv1",
-        "requiredClearCount": 3
+        "requiredClearCount": 300
       },
       {
         "skillId": "skill_swordMastery_lv2",
-        "requiredClearCount": 7
+        "requiredClearCount": 700
       },
       {
         "skillId": "skill_swiftStep_lv1",
-        "requiredClearCount": 12
+        "requiredClearCount": 1200
       },
       {
         "skillId": "skill_swordMastery_lv3",
-        "requiredClearCount": 18
+        "requiredClearCount": 1800
       },
       {
         "skillId": "skill_lightArmorMastery_lv2",
-        "requiredClearCount": 25
+        "requiredClearCount": 2500
       },
       {
         "skillId": "skill_precision_lv1",
-        "requiredClearCount": 33
+        "requiredClearCount": 3300
       },
       {
         "skillId": "skill_dualWield_lv1",
-        "requiredClearCount": 42
+        "requiredClearCount": 4200
       },
       {
         "skillId": "skill_swordMastery_lv4",
-        "requiredClearCount": 52
+        "requiredClearCount": 5200
       },
       {
         "skillId": "skill_lightArmorMastery_lv3",
-        "requiredClearCount": 63
+        "requiredClearCount": 6300
       },
       {
         "skillId": "skill_swiftStep_lv2",
-        "requiredClearCount": 75
+        "requiredClearCount": 7500
       },
       {
         "skillId": "skill_swordMastery_lv5",
-        "requiredClearCount": 88
+        "requiredClearCount": 8800
       }
     ]
   },
@@ -207,51 +207,51 @@
       },
       {
         "skillId": "skill_lightArmorMastery_lv1",
-        "requiredClearCount": 3
+        "requiredClearCount": 300
       },
       {
         "skillId": "skill_daggerMastery_lv2",
-        "requiredClearCount": 7
+        "requiredClearCount": 700
       },
       {
         "skillId": "skill_stealth_lv1",
-        "requiredClearCount": 12
+        "requiredClearCount": 1200
       },
       {
         "skillId": "skill_daggerMastery_lv3",
-        "requiredClearCount": 18
+        "requiredClearCount": 1800
       },
       {
         "skillId": "skill_treasureHunter_lv1",
-        "requiredClearCount": 25
+        "requiredClearCount": 2500
       },
       {
         "skillId": "skill_butchery",
-        "requiredClearCount": 33
+        "requiredClearCount": 3300
       },
       {
         "skillId": "skill_dualWield_lv1",
-        "requiredClearCount": 33
+        "requiredClearCount": 3300
       },
       {
         "skillId": "skill_trapSense_lv1",
-        "requiredClearCount": 42
+        "requiredClearCount": 4200
       },
       {
         "skillId": "skill_daggerMastery_lv4",
-        "requiredClearCount": 52
+        "requiredClearCount": 5200
       },
       {
         "skillId": "skill_precision_lv1",
-        "requiredClearCount": 63
+        "requiredClearCount": 6300
       },
       {
         "skillId": "skill_stealth_lv2",
-        "requiredClearCount": 75
+        "requiredClearCount": 7500
       },
       {
         "skillId": "skill_daggerMastery_lv5",
-        "requiredClearCount": 88
+        "requiredClearCount": 8800
       }
     ]
   },
@@ -270,51 +270,51 @@
       },
       {
         "skillId": "skill_lightArmorMastery_lv1",
-        "requiredClearCount": 3
+        "requiredClearCount": 300
       },
       {
         "skillId": "skill_bowMastery_lv2",
-        "requiredClearCount": 7
+        "requiredClearCount": 700
       },
       {
         "skillId": "skill_eagleEye_lv1",
-        "requiredClearCount": 12
+        "requiredClearCount": 1200
       },
       {
         "skillId": "skill_bowMastery_lv3",
-        "requiredClearCount": 18
+        "requiredClearCount": 1800
       },
       {
         "skillId": "skill_swiftStep_lv1",
-        "requiredClearCount": 25
+        "requiredClearCount": 2500
       },
       {
         "skillId": "skill_scouting",
-        "requiredClearCount": 25
+        "requiredClearCount": 2500
       },
       {
         "skillId": "skill_stealth_lv1",
-        "requiredClearCount": 33
+        "requiredClearCount": 3300
       },
       {
         "skillId": "skill_eagleEye_lv2",
-        "requiredClearCount": 42
+        "requiredClearCount": 4200
       },
       {
         "skillId": "skill_bowMastery_lv4",
-        "requiredClearCount": 52
+        "requiredClearCount": 5200
       },
       {
         "skillId": "skill_precision_lv1",
-        "requiredClearCount": 63
+        "requiredClearCount": 6300
       },
       {
         "skillId": "skill_lightArmorMastery_lv2",
-        "requiredClearCount": 75
+        "requiredClearCount": 7500
       },
       {
         "skillId": "skill_bowMastery_lv5",
-        "requiredClearCount": 88
+        "requiredClearCount": 8800
       }
     ]
   },
@@ -333,55 +333,55 @@
       },
       {
         "skillId": "skill_clothMastery_lv1",
-        "requiredClearCount": 3
+        "requiredClearCount": 300
       },
       {
         "skillId": "skill_lightMastery_lv2",
-        "requiredClearCount": 7
+        "requiredClearCount": 700
       },
       {
         "skillId": "skill_prayer_lv1",
-        "requiredClearCount": 12
+        "requiredClearCount": 1200
       },
       {
         "skillId": "skill_lightMastery_lv3",
-        "requiredClearCount": 18
+        "requiredClearCount": 1800
       },
       {
         "skillId": "skill_clothMastery_lv2",
-        "requiredClearCount": 25
+        "requiredClearCount": 2500
       },
       {
         "skillId": "skill_campcraft",
-        "requiredClearCount": 25
+        "requiredClearCount": 2500
       },
       {
         "skillId": "skill_firstAid_lv1",
-        "requiredClearCount": 33
+        "requiredClearCount": 3300
       },
       {
         "skillId": "skill_waterMastery_lv1",
-        "requiredClearCount": 42
+        "requiredClearCount": 4200
       },
       {
         "skillId": "skill_purification",
-        "requiredClearCount": 42
+        "requiredClearCount": 4200
       },
       {
         "skillId": "skill_lightMastery_lv4",
-        "requiredClearCount": 52
+        "requiredClearCount": 5200
       },
       {
         "skillId": "skill_prayer_lv2",
-        "requiredClearCount": 63
+        "requiredClearCount": 6300
       },
       {
         "skillId": "skill_waterMastery_lv2",
-        "requiredClearCount": 75
+        "requiredClearCount": 7500
       },
       {
         "skillId": "skill_lightMastery_lv5",
-        "requiredClearCount": 88
+        "requiredClearCount": 8800
       }
     ]
   },
@@ -400,47 +400,47 @@
       },
       {
         "skillId": "skill_clothMastery_lv1",
-        "requiredClearCount": 3
+        "requiredClearCount": 300
       },
       {
         "skillId": "skill_fireMastery_lv2",
-        "requiredClearCount": 7
+        "requiredClearCount": 700
       },
       {
         "skillId": "skill_manaFlow_lv1",
-        "requiredClearCount": 12
+        "requiredClearCount": 1200
       },
       {
         "skillId": "skill_fireMastery_lv3",
-        "requiredClearCount": 18
+        "requiredClearCount": 1800
       },
       {
         "skillId": "skill_clothMastery_lv2",
-        "requiredClearCount": 25
+        "requiredClearCount": 2500
       },
       {
         "skillId": "skill_darkMastery_lv1",
-        "requiredClearCount": 33
+        "requiredClearCount": 3300
       },
       {
         "skillId": "skill_deepCut_lv1",
-        "requiredClearCount": 42
+        "requiredClearCount": 4200
       },
       {
         "skillId": "skill_fireMastery_lv4",
-        "requiredClearCount": 52
+        "requiredClearCount": 5200
       },
       {
         "skillId": "skill_manaFlow_lv2",
-        "requiredClearCount": 63
+        "requiredClearCount": 6300
       },
       {
         "skillId": "skill_darkMastery_lv2",
-        "requiredClearCount": 75
+        "requiredClearCount": 7500
       },
       {
         "skillId": "skill_fireMastery_lv5",
-        "requiredClearCount": 88
+        "requiredClearCount": 8800
       }
     ]
   },
@@ -459,47 +459,47 @@
       },
       {
         "skillId": "skill_clothMastery_lv1",
-        "requiredClearCount": 3
+        "requiredClearCount": 300
       },
       {
         "skillId": "skill_martialArts_lv2",
-        "requiredClearCount": 7
+        "requiredClearCount": 700
       },
       {
         "skillId": "skill_swiftStep_lv1",
-        "requiredClearCount": 12
+        "requiredClearCount": 1200
       },
       {
         "skillId": "skill_martialArts_lv3",
-        "requiredClearCount": 18
+        "requiredClearCount": 1800
       },
       {
         "skillId": "skill_willpower_lv1",
-        "requiredClearCount": 25
+        "requiredClearCount": 2500
       },
       {
         "skillId": "skill_toughBody_lv1",
-        "requiredClearCount": 33
+        "requiredClearCount": 3300
       },
       {
         "skillId": "skill_sureStrike_lv1",
-        "requiredClearCount": 42
+        "requiredClearCount": 4200
       },
       {
         "skillId": "skill_martialArts_lv4",
-        "requiredClearCount": 52
+        "requiredClearCount": 5200
       },
       {
         "skillId": "skill_swiftStep_lv2",
-        "requiredClearCount": 63
+        "requiredClearCount": 6300
       },
       {
         "skillId": "skill_willpower_lv2",
-        "requiredClearCount": 75
+        "requiredClearCount": 7500
       },
       {
         "skillId": "skill_martialArts_lv5",
-        "requiredClearCount": 88
+        "requiredClearCount": 8800
       }
     ]
   },
@@ -518,47 +518,47 @@
       },
       {
         "skillId": "skill_clothMastery_lv1",
-        "requiredClearCount": 3
+        "requiredClearCount": 300
       },
       {
         "skillId": "skill_earthMastery_lv2",
-        "requiredClearCount": 7
+        "requiredClearCount": 700
       },
       {
         "skillId": "skill_wardEnchant_lv1",
-        "requiredClearCount": 12
+        "requiredClearCount": 1200
       },
       {
         "skillId": "skill_earthMastery_lv3",
-        "requiredClearCount": 18
+        "requiredClearCount": 1800
       },
       {
         "skillId": "skill_clothMastery_lv2",
-        "requiredClearCount": 25
+        "requiredClearCount": 2500
       },
       {
         "skillId": "skill_guardian_lv1",
-        "requiredClearCount": 33
+        "requiredClearCount": 3300
       },
       {
         "skillId": "skill_willpower_lv1",
-        "requiredClearCount": 42
+        "requiredClearCount": 4200
       },
       {
         "skillId": "skill_earthMastery_lv4",
-        "requiredClearCount": 52
+        "requiredClearCount": 5200
       },
       {
         "skillId": "skill_wardEnchant_lv2",
-        "requiredClearCount": 63
+        "requiredClearCount": 6300
       },
       {
         "skillId": "skill_guardian_lv2",
-        "requiredClearCount": 75
+        "requiredClearCount": 7500
       },
       {
         "skillId": "skill_earthMastery_lv5",
-        "requiredClearCount": 88
+        "requiredClearCount": 8800
       }
     ]
   },
@@ -577,47 +577,47 @@
       },
       {
         "skillId": "skill_lightArmorMastery_lv1",
-        "requiredClearCount": 3
+        "requiredClearCount": 300
       },
       {
         "skillId": "skill_bowMastery_lv2",
-        "requiredClearCount": 7
+        "requiredClearCount": 700
       },
       {
         "skillId": "skill_porter_lv1",
-        "requiredClearCount": 12
+        "requiredClearCount": 1200
       },
       {
         "skillId": "skill_bowMastery_lv3",
-        "requiredClearCount": 18
+        "requiredClearCount": 1800
       },
       {
         "skillId": "skill_haggle_lv1",
-        "requiredClearCount": 25
+        "requiredClearCount": 2500
       },
       {
         "skillId": "skill_mentor_lv1",
-        "requiredClearCount": 33
+        "requiredClearCount": 3300
       },
       {
         "skillId": "skill_porter_lv2",
-        "requiredClearCount": 42
+        "requiredClearCount": 4200
       },
       {
         "skillId": "skill_bowMastery_lv4",
-        "requiredClearCount": 52
+        "requiredClearCount": 5200
       },
       {
         "skillId": "skill_haggle_lv2",
-        "requiredClearCount": 63
+        "requiredClearCount": 6300
       },
       {
         "skillId": "skill_mentor_lv2",
-        "requiredClearCount": 75
+        "requiredClearCount": 7500
       },
       {
         "skillId": "skill_bowMastery_lv5",
-        "requiredClearCount": 88
+        "requiredClearCount": 8800
       }
     ]
   }

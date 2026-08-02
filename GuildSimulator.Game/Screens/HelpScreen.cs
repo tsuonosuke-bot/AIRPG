@@ -442,15 +442,14 @@ public static class HelpScreen
         Ui.WriteLine();
         Ui.WriteLine("  ■ 習得条件 ── クラス習熟度");
         Ui.WriteLine("     職業スキルは経験値やレベルではなく、その職業の「クラス習熟度」で開く。");
-        Ui.WriteLine("     習熟ポイント100ptが習熟度1。必要習熟度×100ptに達するとスキルを習得する。");
-        Ui.WriteLine("     一覧の各スキルには必要な習熟度が決まっていて、0のものは職業に就いた瞬間に手に入る。");
+        Ui.WriteLine("     各スキルには必要な習熟度が決まっていて、0のものは職業に就いた瞬間に手に入る。");
         Ui.WriteLine();
-        Ui.WriteLine("     習熟ポイントが入るのは、次をすべて満たしたときだけ。");
+        Ui.WriteLine("     習熟度が入るのは、次をすべて満たしたときだけ。");
         Ui.WriteLine("       ・そのクエストに参加していること");
         Ui.WriteLine("       ・クエストを正規クリアすること（撤退・全滅では増えない）");
         Ui.WriteLine("       ・帰還時に生存していること");
         Ui.WriteLine("       ・クエストが、その冒険者にとって適正ランクであること");
-        Ui.WriteLine("     1回の獲得量は 100＋INT（上限130）pt。INTが低くても100ptを下回らない。");
+        Ui.WriteLine($"     1回の獲得量は {AdventurerData.BaseMasteryPerClear}＋INT（上限{AdventurerData.BaseMasteryPerClear + AdventurerData.MaxIntMasteryBonus}）。INTが低くても{AdventurerData.BaseMasteryPerClear}を下回らない。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 適正ランクとは");
         Ui.WriteLine($"     自分と同じランクから、{Rank.SuitableRangeAbove}つ上までのクエスト。");
@@ -497,7 +496,7 @@ public static class HelpScreen
                 string effect = parts.Count > 0 ? string.Join(" ", parts) : "効果なし";
                 string where = skill.frontOnly ? "[前衛]" : skill.backOnly ? "[後衛]" : "";
                 string scope = skill.scope == SkillScope.UnitAura ? "[隊全体]" : "";
-                Ui.WriteLine($"        習熟度{entry.requiredClearCount,2} "
+                Ui.WriteLine($"        習熟度{entry.requiredClearCount,5} "
                     + Ui.PadWide(skill.skillName, 22)
                     + Ui.PadWide(effect, 29) + $"{GearRequirementText(skill)}{where}{scope}");
             }
@@ -541,9 +540,21 @@ public static class HelpScreen
         Ui.BeginScreen();
         Ui.Header(AdventurerSectionTitle);
         Ui.WriteLine("  ・冒険者          : 雇用して編成に加える。クエストで経験値を得てレベルアップする。");
-        Ui.WriteLine($"  ・冒険者ランク    : {Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。自分より上のランクのクエストを正規クリアした回数で上がる。");
-        Ui.WriteLine($"                      {AdventurerData.ClearsForNextRank}回で1つ上がる。{Rank.Label(Rank.Max)}が上限。レベルとは別の物差し。");
-        Ui.WriteLine("                      同ランク以下のクエストは何本こなしても昇格には数えない。");
+        Ui.WriteLine($"  ・冒険者ランク    : {Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。「格上クエストの正規クリア数」と");
+        Ui.WriteLine("                      「累積の適正クエスト正規クリア数」の両方を満たすと1つ上がる。");
+        Ui.WriteLine("                      同ランク以下のクエストは格上には数えないが、適正帯なら累積には載る。");
+        Ui.WriteLine("                      昇格条件（格上／累積適正）:");
+        for (int r = Rank.Min; r < Rank.Max; r++)
+        {
+            var probe = new AdventurerData(new AdventurerMasterData
+            {
+                id = "help_probe", baseName = "", defaultRank = r,
+            });
+            var req = probe.NextRankRequirement!.Value;
+            Ui.WriteLine($"                        {Rank.Label(r)}→{Rank.Label(r + 1)}: "
+                + $"格上{req.higherRankClears} ／ 累積{req.suitableTotalClears}");
+        }
+        Ui.WriteLine($"                      {Rank.Label(Rank.Max)}が上限。レベルとは別の物差し。");
         Ui.WriteLine("                      死亡した冒険者は蘇生できない。");
         Ui.WriteLine("  ・負傷            : 戦闘不能から生還すると裂傷・骨折・深い傷・心的外傷などが残ることがある。");
         Ui.WriteLine($"                      帰還時死亡率は重症度により{AdventurerData.MinorTraumaFatalityPercent}%/{AdventurerData.MajorTraumaFatalityPercent}%/{AdventurerData.CriticalTraumaFatalityPercent}%、壊滅時はさらに+{AdventurerData.PartyWipeFatalityBonusPercent}%。");

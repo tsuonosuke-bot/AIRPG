@@ -75,31 +75,30 @@ public class RankTests
         };
 
         adventurer.OnClearQuest(2); // E: 格下
-        Assert.Equal(0, adventurer.CurrentClassMasteryPoints);
+        Assert.Equal(0, adventurer.CurrentClassMastery);
 
         adventurer.OnClearQuest(6); // A: 格上すぎる
-        Assert.Equal(0, adventurer.CurrentClassMasteryPoints);
+        Assert.Equal(0, adventurer.CurrentClassMastery);
 
         adventurer.OnClearQuest(3); // D: 同ランク
         adventurer.OnClearQuest(5); // B: 適正帯の上端
-        Assert.Equal(200, adventurer.CurrentClassMasteryPoints);
-        Assert.Equal(2f, adventurer.CurrentClassMastery);
+        Assert.Equal(200, adventurer.CurrentClassMastery);
 
         // 死者は数えない。
         adventurer.isAlive = false;
         adventurer.OnClearQuest(3);
-        Assert.Equal(200, adventurer.CurrentClassMasteryPoints);
+        Assert.Equal(200, adventurer.CurrentClassMastery);
     }
 
     [Fact]
     public void AdventurerRankStopsAtS()
     {
+        // Sから始めて、何本クリアしてもSより上には行かず、カウンタも動かない。
         var adventurer = new AdventurerData(new AdventurerMasterData
         {
-            id = "adv", baseName = "測定用", defaultRank = Rank.Min,
+            id = "adv", baseName = "測定用", defaultRank = Rank.Max,
         });
 
-        // 格上クエストをいくら重ねても S より上には行かない。
         for (int i = 0; i < 100; i++) adventurer.RecordQuestClearForRank(Rank.Max, out _);
 
         Assert.Equal(Rank.Max, adventurer.rank);
@@ -107,37 +106,68 @@ public class RankTests
         Assert.Equal("S", adventurer.RankLabel);
         // 上限に達したら回数も数えない。溜まり続けると昇格できるように見えてしまう。
         Assert.Equal(0, adventurer.higherRankClears);
+        Assert.Equal(0, adventurer.suitableRankClearsTotal);
     }
 
     [Fact]
-    public void AdventurerRanksUpAfterThreeHigherRankClears()
+    public void AdventurerRanksUpWhenBothHigherAndCumulativeSuitableClearsAreMet()
     {
+        // F→Eは 格上1 かつ 累積適正3。両方を満たさないと上がらない。
         var adventurer = new AdventurerData(new AdventurerMasterData
         {
             id = "adv", baseName = "測定用", defaultRank = Rank.Min,
         });
 
-        // 同ランク以下は何本こなしても昇格に数えない。
-        for (int i = 0; i < 10; i++) adventurer.RecordQuestClearForRank(Rank.Min, out _);
-        Assert.Equal(Rank.Min, adventurer.rank);
+        // 同ランク以下（格下含む）は格上に載らない。
+        for (int i = 0; i < 5; i++) adventurer.RecordQuestClearForRank(Rank.Min - 1, out _);
         Assert.Equal(0, adventurer.higherRankClears);
+        Assert.Equal(0, adventurer.suitableRankClearsTotal);
 
-        // 格上を規定回数クリアすると1つ上がり、カウントは戻る。
-        for (int i = 0; i < AdventurerData.ClearsForNextRank - 1; i++)
-        {
-            adventurer.RecordQuestClearForRank(Rank.Min + 1, out int noRankUp);
-            Assert.Equal(0, noRankUp);
-        }
-        Assert.Equal(Rank.Min, adventurer.rank);
+        // 同ランクは適正帯なので累積には載る。ただし格上ではない。
+        adventurer.RecordQuestClearForRank(Rank.Min, out int noUp1);
+        Assert.Equal(0, noUp1);
+        Assert.Equal(0, adventurer.higherRankClears);
+        Assert.Equal(1, adventurer.suitableRankClearsTotal);
 
-        adventurer.RecordQuestClearForRank(Rank.Min + 1, out int rankUps);
+        // 格上1本を先にクリアしても、累積がまだ3に届かないので昇格しない。
+        adventurer.RecordQuestClearForRank(Rank.Min + 1, out int noUp2);
+        Assert.Equal(0, noUp2);
+        Assert.Equal(1, adventurer.higherRankClears);
+        Assert.Equal(2, adventurer.suitableRankClearsTotal);
+
+        // もう1本適正帯（同ランク）を積むと累積3に達し、格上条件も満たしているので昇格。
+        adventurer.RecordQuestClearForRank(Rank.Min, out int rankUps);
         Assert.Equal(1, rankUps);
         Assert.Equal(Rank.Min + 1, adventurer.rank);
+        // 格上カウンタはリセット。累積は昇格後も残る。
         Assert.Equal(0, adventurer.higherRankClears);
+        Assert.Equal(3, adventurer.suitableRankClearsTotal);
+    }
 
-        // 昇格したので、さっきまで格上だったランクはもう数えられない。
-        adventurer.RecordQuestClearForRank(Rank.Min + 1, out _);
-        Assert.Equal(0, adventurer.higherRankClears);
+    [Fact]
+    public void CumulativeSuitableClearsGateEvenWhenHigherRankIsSatisfied()
+    {
+        // E→Dは 格上2 かつ 累積10。格上だけ先に満たしても累積が足りなければ止まる。
+        var adventurer = new AdventurerData(new AdventurerMasterData
+        {
+            id = "adv", baseName = "測定用", defaultRank = Rank.Min + 1, // E
+        });
+
+        // 格上を2本先に取る（適正帯でもあるので累積にも2載る）。
+        adventurer.RecordQuestClearForRank(Rank.Min + 2, out _);
+        adventurer.RecordQuestClearForRank(Rank.Min + 2, out int noUp);
+        Assert.Equal(0, noUp);
+        Assert.Equal(2, adventurer.higherRankClears);
+        Assert.Equal(2, adventurer.suitableRankClearsTotal);
+
+        // 累積10に届くまで同ランクを積む。まだ上がらない。
+        for (int i = 0; i < 7; i++) adventurer.RecordQuestClearForRank(Rank.Min + 1, out int stillNo);
+        Assert.Equal(Rank.Min + 1, adventurer.rank);
+
+        // 10本目で条件を満たして昇格。
+        adventurer.RecordQuestClearForRank(Rank.Min + 1, out int rankUps);
+        Assert.Equal(1, rankUps);
+        Assert.Equal(Rank.Min + 2, adventurer.rank);
     }
 
     [Fact]

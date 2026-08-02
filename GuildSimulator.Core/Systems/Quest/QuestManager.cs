@@ -242,15 +242,15 @@ public class QuestManager
                     if (mastery.PointsGained > 0)
                     {
                         string className = a.currentClass?.className ?? "職業";
-                        q.logs.Add($"[職業習熟] {a.name} {className} +{mastery.PointsGained}pt"
-                            + $"（合計 {mastery.TotalPoints}pt / 習熟度 {mastery.TotalPoints / (float)AdventurerData.MasteryPointsPerLevel:0.##}）");
+                        q.logs.Add($"[職業習熟] {a.name} {className} +{mastery.PointsGained}"
+                            + $"（合計 習熟度 {mastery.TotalPoints}）");
                     }
                     if (mastery.UnlockedSkills.Count > 0)
                     {
                         string names = string.Join("」「", mastery.UnlockedSkills.Select(skill => skill.skillName));
                         string className = a.currentClass?.className ?? "職業";
                         string message = $"{a.name}がスキル「{names}」を習得"
-                            + $"（{className}習熟度 {a.CurrentClassMastery:0.##}）";
+                            + $"（{className}習熟度 {a.CurrentClassMastery}）";
                         q.logs.Add($"[スキル習得] {message}");
                         q.AddReportEvent(
                             currentTurn,

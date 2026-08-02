@@ -22,7 +22,7 @@ public class ClassSkillAcquisitionTests
         {
             skillId = skill.id,
             Skill = skill,
-            requiredClearCount = 1,
+            requiredClearCount = 100,
         });
 
         var adventurer = new AdventurerData(Master("notice", "習得者", cls));
@@ -53,7 +53,7 @@ public class ClassSkillAcquisitionTests
         var report = Assert.Single(run.reportEvents, entry => entry.title == "スキル習得");
         Assert.True(report.important);
         Assert.Equal(adventurer.name, report.actorName);
-        Assert.Contains("通知職習熟度 1.1", report.detail);
+        Assert.Contains("通知職習熟度 110", report.detail);
 
         manager.AdvanceAll(currentTurn: 3);
         Assert.Single(run.reportEvents, entry => entry.title == "スキル習得");
@@ -80,7 +80,7 @@ public class ClassSkillAcquisitionTests
 
         Assert.Equal(expectedPoints, progress.PointsGained);
         Assert.Equal(expectedPoints, progress.TotalPoints);
-        Assert.Equal(expectedPoints, adventurer.CurrentClassMasteryPoints);
+        Assert.Equal(expectedPoints, adventurer.CurrentClassMastery);
     }
 
     static AdventurerMasterData Master(string id, string name, ClassMasterData cls) => new()
@@ -142,7 +142,7 @@ public class ClassSkillPresentationTests
         });
         cls.classSkills.Add(new ClassSkillEntry
         {
-            skillId = lv2.id, Skill = lv2, requiredClearCount = 1,
+            skillId = lv2.id, Skill = lv2, requiredClearCount = 100,
         });
         cls.classSkills.Add(new ClassSkillEntry
         {

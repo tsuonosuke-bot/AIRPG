@@ -26,6 +26,9 @@ public class AdventurerData : IUnitMember
 
     /// <summary>今のランクになってから、格上のクエストを正規クリアした回数。昇格すると0に戻る。</summary>
     public int higherRankClears;
+
+    /// <summary>これまでに正規クリアした適正ランク帯のクエスト総数。昇格しても減らない。</summary>
+    public int suitableRankClearsTotal;
     public int expeditionCount;
     public int successfulExpeditionCount;
     public int retreatCount;
@@ -139,16 +142,13 @@ public class AdventurerData : IUnitMember
         public ClassMasterData? ownerClass;
     }
 
-    // INTで加速する職業別の習熟ポイント。
+    // INTで加速する職業別の習熟度。1適正クリア=100+INTを加算していく素点。
     readonly Dictionary<string, int> classMasteryPoints = new();
 
-    /// <summary>マスタの requiredClearCount 1点に相当する内部ポイント。</summary>
-    public const int MasteryPointsPerLevel = 100;
+    /// <summary>適正クエスト1回の基礎習熟度。</summary>
+    public const int BaseMasteryPerClear = 100;
 
-    /// <summary>適正クエスト1回の基礎習熟ポイント。</summary>
-    public const int BaseMasteryPointsPerClear = 100;
-
-    /// <summary>INTによる習熟ポイント加算の上限。低INTへの減点は行わない。</summary>
+    /// <summary>INTによる習熟度加算の上限。低INTへの減点は行わない。</summary>
     public const int MaxIntMasteryBonus = 30;
 
     public AdventurerData(AdventurerMasterData master)
@@ -222,27 +222,23 @@ public class AdventurerData : IUnitMember
     IReadOnlyList<SkillMasterData> CheckClassSkillUnlock()
     {
         if (currentClass == null) return Array.Empty<SkillMasterData>();
-        int points = GetClassMasteryPoints(currentClass.id);
+        int mastery = GetClassMastery(currentClass.id);
         var unlocked = new List<SkillMasterData>();
         foreach (var e in currentClass.classSkills)
-            if (e.Skill != null && points >= RequiredMasteryPoints(e.requiredClearCount))
+            if (e.Skill != null && mastery >= Math.Max(0, e.requiredClearCount))
                 if (LearnSkill(e.Skill, currentClass)) unlocked.Add(e.Skill);
         return unlocked;
     }
 
-    int GetClassMasteryPoints(string classId)
+    int GetClassMastery(string classId)
         => classMasteryPoints.TryGetValue(classId, out var v) ? v : 0;
 
-    public int CurrentClassMasteryPoints =>
-        currentClass != null ? GetClassMasteryPoints(currentClass.id) : 0;
+    /// <summary>今就いている職業の習熟度。1適正クリア=100+INTで積み上がる。</summary>
+    public int CurrentClassMastery =>
+        currentClass != null ? GetClassMastery(currentClass.id) : 0;
 
-    public float CurrentClassMastery => CurrentClassMasteryPoints / (float)MasteryPointsPerLevel;
-
-    public int MasteryPointsPerSuitableClear =>
-        BaseMasteryPointsPerClear + Math.Clamp(intelligence, 0, MaxIntMasteryBonus);
-
-    public static int RequiredMasteryPoints(int requiredClearCount) =>
-        Math.Max(0, requiredClearCount) * MasteryPointsPerLevel;
+    public int MasteryPerSuitableClear =>
+        BaseMasteryPerClear + Math.Clamp(intelligence, 0, MaxIntMasteryBonus);
 
     public IReadOnlyList<SkillMasterData> ChangeClass(ClassMasterData next)
     {
@@ -263,7 +259,7 @@ public class AdventurerData : IUnitMember
         if (!isAlive || !Rank.IsSuitable(questRank, rank)) return ClassMasteryProgress.None;
         if (currentClass == null) return ClassMasteryProgress.None;
 
-        int gained = MasteryPointsPerSuitableClear;
+        int gained = MasteryPerSuitableClear;
         classMasteryPoints.TryGetValue(currentClass.id, out int current);
         int total = current + gained;
         classMasteryPoints[currentClass.id] = total;
@@ -282,27 +278,47 @@ public class AdventurerData : IUnitMember
     public bool IsMaxRank => Rank.IsMax(rank);
 
     /// <summary>
-    /// 昇格に必要な「格上クエスト」の正規クリア回数。
-    /// ポイントの累積ではなく回数で数えるのは、1本ずつの達成が昇格に直結するほうが
-    /// プレイヤーから見て「あと何本で上がるか」が読めるため。
+    /// ランク別の昇格条件。「格上クエストの正規クリア数」と「累積の適正クエスト正規クリア数」の
+    /// 両方を満たすと1つ上がる。低ランクは軽く、Aあたりで急に重くなる曲線に載せてある。
+    /// 添字は現在ランク(F=1..A=6)。Sは打ち止めなので入っていない。
     /// </summary>
-    public const int ClearsForNextRank = 3;
+    static readonly RankPromotionRequirement[] PromotionTable =
+    {
+        new(higherRankClears: 1, suitableTotalClears: 3),   // F → E
+        new(higherRankClears: 2, suitableTotalClears: 10),  // E → D
+        new(higherRankClears: 3, suitableTotalClears: 30),  // D → C
+        new(higherRankClears: 3, suitableTotalClears: 50),  // C → B
+        new(higherRankClears: 4, suitableTotalClears: 75),  // B → A
+        new(higherRankClears: 4, suitableTotalClears: 100), // A → S
+    };
 
-    public int RequiredClearsForNextRank => ClearsForNextRank;
+    public readonly record struct RankPromotionRequirement(int higherRankClears, int suitableTotalClears);
+
+    /// <summary>今のランクから次に上がるための条件。Sだと null。</summary>
+    public RankPromotionRequirement? NextRankRequirement =>
+        IsMaxRank ? null : PromotionTable[Math.Clamp(rank, Rank.Min, Rank.Max - 1) - Rank.Min];
+
+    /// <summary>UIの下位互換用: 昇格に必要な格上クリア数。</summary>
+    public int RequiredClearsForNextRank => NextRankRequirement?.higherRankClears ?? 0;
 
     /// <summary>
-    /// クエストの正規クリアを昇格の数に反映する。数えるのは**自分より上のランク**のクエストだけ。
-    /// 同ランク以下はこなせて当たり前なので、何本やっても昇格にはつながらない。
+    /// クエストの正規クリアを昇格に反映する。
+    ///   ・適正ランク帯のクリアは「累積の適正クリア数」に載る。昇格しても減らない。
+    ///   ・格上（自分より上のランク）のクリアは「格上クリア」に載る。こちらは昇格で0に戻る。
+    /// どちらもそのランクの閾値を超えたら1段上がる。同ランク以下は格上にも載らない。
     /// </summary>
     public void RecordQuestClearForRank(int questRank, out int rankUps)
     {
         rankUps = 0;
         // Sに達したら数えない。溜まり続けると昇格できるように見えてしまう。
         if (!isAlive || IsMaxRank) return;
-        if (!IsHigherRankQuest(questRank)) return;
 
-        higherRankClears++;
-        if (higherRankClears < ClearsForNextRank) return;
+        if (Rank.IsSuitable(questRank, rank)) suitableRankClearsTotal++;
+        if (IsHigherRankQuest(questRank)) higherRankClears++;
+
+        var req = PromotionTable[rank - Rank.Min];
+        if (higherRankClears < req.higherRankClears) return;
+        if (suitableRankClearsTotal < req.suitableTotalClears) return;
 
         higherRankClears = 0;
         rank = Rank.Clamp(rank + 1);
