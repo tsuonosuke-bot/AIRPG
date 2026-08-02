@@ -75,69 +75,148 @@ public class RankTests
         };
 
         adventurer.OnClearQuest(2); // E: 格下
-        Assert.Equal(0, adventurer.CurrentClassMasteryPoints);
+        Assert.Equal(0, adventurer.CurrentClassMastery);
 
         adventurer.OnClearQuest(6); // A: 格上すぎる
-        Assert.Equal(0, adventurer.CurrentClassMasteryPoints);
+        Assert.Equal(0, adventurer.CurrentClassMastery);
 
         adventurer.OnClearQuest(3); // D: 同ランク
         adventurer.OnClearQuest(5); // B: 適正帯の上端
-        Assert.Equal(200, adventurer.CurrentClassMasteryPoints);
-        Assert.Equal(2f, adventurer.CurrentClassMastery);
+        Assert.Equal(200, adventurer.CurrentClassMastery);
 
         // 死者は数えない。
         adventurer.isAlive = false;
         adventurer.OnClearQuest(3);
-        Assert.Equal(200, adventurer.CurrentClassMasteryPoints);
+        Assert.Equal(200, adventurer.CurrentClassMastery);
     }
 
     [Fact]
     public void AdventurerRankStopsAtS()
     {
+        // Sから始めて、何本クリアしてもSより上には行かず、カウンタも動かない。
         var adventurer = new AdventurerData(new AdventurerMasterData
         {
-            id = "adv", baseName = "測定用", defaultRank = Rank.Min,
+            id = "adv", baseName = "測定用", defaultRank = Rank.Max,
         });
 
-        // 格上クエストをいくら重ねても S より上には行かない。
-        for (int i = 0; i < 100; i++) adventurer.RecordQuestClearForRank(Rank.Max, out _);
+        for (int i = 0; i < 100; i++) adventurer.RecordQuestClearForRank(Rank.Max);
 
         Assert.Equal(Rank.Max, adventurer.rank);
         Assert.True(adventurer.IsMaxRank);
         Assert.Equal("S", adventurer.RankLabel);
         // 上限に達したら回数も数えない。溜まり続けると昇格できるように見えてしまう。
         Assert.Equal(0, adventurer.higherRankClears);
+        Assert.Equal(0, adventurer.suitableRankClearsTotal);
     }
 
     [Fact]
-    public void AdventurerRanksUpAfterThreeHigherRankClears()
+    public void AdventurerBecomesRankUpEligibleButDoesNotPromoteOnItsOwn()
     {
+        // F→Eは 格上1 かつ 累積適正3。両方を満たすと CanRankUp が立つが、
+        // ランクそのものは自動では上がらない（プレイヤー選択で昇格させる）。
         var adventurer = new AdventurerData(new AdventurerMasterData
         {
             id = "adv", baseName = "測定用", defaultRank = Rank.Min,
         });
 
-        // 同ランク以下は何本こなしても昇格に数えない。
-        for (int i = 0; i < 10; i++) adventurer.RecordQuestClearForRank(Rank.Min, out _);
-        Assert.Equal(Rank.Min, adventurer.rank);
+        // 同ランク以下（格下含む）は格上に載らない。
+        for (int i = 0; i < 5; i++) adventurer.RecordQuestClearForRank(Rank.Min - 1);
         Assert.Equal(0, adventurer.higherRankClears);
+        Assert.Equal(0, adventurer.suitableRankClearsTotal);
 
-        // 格上を規定回数クリアすると1つ上がり、カウントは戻る。
-        for (int i = 0; i < AdventurerData.ClearsForNextRank - 1; i++)
+        // 同ランクは適正帯なので累積には載る。ただし格上ではない。
+        adventurer.RecordQuestClearForRank(Rank.Min);
+        Assert.Equal(0, adventurer.higherRankClears);
+        Assert.Equal(1, adventurer.suitableRankClearsTotal);
+        Assert.False(adventurer.CanRankUp);
+
+        // 格上を1本クリアしても、累積がまだ3に届かない。
+        adventurer.RecordQuestClearForRank(Rank.Min + 1);
+        Assert.Equal(1, adventurer.higherRankClears);
+        Assert.Equal(2, adventurer.suitableRankClearsTotal);
+        Assert.False(adventurer.CanRankUp);
+
+        // もう1本適正帯を積むと累積3に達し、両方の条件を満たす。
+        adventurer.RecordQuestClearForRank(Rank.Min);
+        Assert.Equal(Rank.Min, adventurer.rank); // 自動昇格しない
+        Assert.True(adventurer.CanRankUp);
+    }
+
+    [Fact]
+    public void CumulativeSuitableClearsGateEvenWhenHigherRankIsSatisfied()
+    {
+        // E→Dは 格上2 かつ 累積10。格上だけ先に満たしても累積が足りなければ CanRankUp は立たない。
+        var adventurer = new AdventurerData(new AdventurerMasterData
         {
-            adventurer.RecordQuestClearForRank(Rank.Min + 1, out int noRankUp);
-            Assert.Equal(0, noRankUp);
-        }
-        Assert.Equal(Rank.Min, adventurer.rank);
+            id = "adv", baseName = "測定用", defaultRank = Rank.Min + 1, // E
+        });
 
-        adventurer.RecordQuestClearForRank(Rank.Min + 1, out int rankUps);
-        Assert.Equal(1, rankUps);
+        // 格上を2本先に取る（適正帯でもあるので累積にも2載る）。
+        adventurer.RecordQuestClearForRank(Rank.Min + 2);
+        adventurer.RecordQuestClearForRank(Rank.Min + 2);
+        Assert.Equal(2, adventurer.higherRankClears);
+        Assert.Equal(2, adventurer.suitableRankClearsTotal);
+        Assert.False(adventurer.CanRankUp);
+
+        // 累積10に届くまで同ランクを積む。
+        for (int i = 0; i < 8; i++) adventurer.RecordQuestClearForRank(Rank.Min + 1);
         Assert.Equal(Rank.Min + 1, adventurer.rank);
-        Assert.Equal(0, adventurer.higherRankClears);
+        Assert.True(adventurer.CanRankUp);
+    }
 
-        // 昇格したので、さっきまで格上だったランクはもう数えられない。
-        adventurer.RecordQuestClearForRank(Rank.Min + 1, out _);
+    [Fact]
+    public void ManualRankUpGivesStatsMasteryAndUnlocksSkills()
+    {
+        // 昇格報酬: 全能力+1 と 現在職業に習熟度+500。到達したスキルは同時に解禁される。
+        var lateSkill = new SkillMasterData { id = "skill_promo_late", skillName = "昇格記念スキル" };
+        var cls = new ClassMasterData { id = "cls_promo", className = "昇格試験職" };
+        cls.classSkills.Add(new ClassSkillEntry
+        {
+            skillId = lateSkill.id, Skill = lateSkill,
+            requiredClearCount = AdventurerData.RankUpMasteryGain, // ちょうど+500で開くしきい値
+        });
+        var adventurer = new AdventurerData(new AdventurerMasterData
+        {
+            id = "adv", baseName = "測定用",
+            defaultRank = Rank.Min,
+            vitality = 5, mental = 5, strength = 5,
+            agility = 5, intelligence = 5, constitution = 5, appearance = 5,
+            DefaultClass = cls, defaultClassId = cls.id,
+        });
+
+        // F→E の条件をひととおり満たす。
+        adventurer.RecordQuestClearForRank(Rank.Min + 1);
+        adventurer.RecordQuestClearForRank(Rank.Min);
+        adventurer.RecordQuestClearForRank(Rank.Min);
+        Assert.True(adventurer.CanRankUp);
+        Assert.Equal(0, adventurer.CurrentClassMastery);
+
+        Assert.True(adventurer.TryRankUp(out var result));
+        Assert.Equal(Rank.Min, result.PreviousRank);
+        Assert.Equal(Rank.Min + 1, result.NewRank);
+        Assert.Equal(Rank.Min + 1, adventurer.rank);
+        // 全能力+1（SIZ,APPも含む）
+        Assert.Equal(6, adventurer.vitality);
+        Assert.Equal(6, adventurer.mental);
+        Assert.Equal(6, adventurer.strength);
+        Assert.Equal(6, adventurer.agility);
+        Assert.Equal(6, adventurer.intelligence);
+        Assert.Equal(6, adventurer.constitution);
+        Assert.Equal(6, adventurer.appearance);
+        // 習熟度+500 と、それによるスキル解禁。
+        Assert.Equal(AdventurerData.RankUpMasteryGain, result.MasteryGained);
+        Assert.Equal(AdventurerData.RankUpMasteryGain, adventurer.CurrentClassMastery);
+        Assert.Contains(lateSkill, result.UnlockedSkills);
+        Assert.Contains(lateSkill, adventurer.Skills);
+        // 格上カウンタは0に戻り、累積は残る。
         Assert.Equal(0, adventurer.higherRankClears);
+        Assert.Equal(3, adventurer.suitableRankClearsTotal);
+        // 履歴に昇格ログが残る（スキル名を含む）。
+        Assert.Contains(adventurer.adventureHistory, line =>
+            line.Contains("F→E に昇格") && line.Contains("昇格記念スキル"));
+        // 昇格後に再度呼んでも失敗する（条件が消えている）。
+        Assert.False(adventurer.CanRankUp);
+        Assert.False(adventurer.TryRankUp(out _));
     }
 
     [Fact]
@@ -149,7 +228,7 @@ public class RankTests
         });
         adventurer.isAlive = false;
 
-        for (int i = 0; i < 10; i++) adventurer.RecordQuestClearForRank(Rank.Max, out _);
+        for (int i = 0; i < 10; i++) adventurer.RecordQuestClearForRank(Rank.Max);
 
         Assert.Equal(Rank.Min, adventurer.rank);
         Assert.Equal(0, adventurer.higherRankClears);

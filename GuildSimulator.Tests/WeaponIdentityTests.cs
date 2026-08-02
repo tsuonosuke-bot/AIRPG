@@ -300,7 +300,7 @@ public class WeaponIdentityTests
         {
             Assert.Contains(cls.className, text);
             foreach (var entry in cls.classSkills.Where(e => e.Skill != null))
-                Assert.Contains($"習熟度{entry.requiredClearCount,2} {entry.Skill!.skillName}", text);
+                Assert.Contains($"習熟度{entry.requiredClearCount,5} {entry.Skill!.skillName}", text);
         }
     }
 

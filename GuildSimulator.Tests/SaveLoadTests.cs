@@ -124,7 +124,7 @@ public class SaveLoadTests
             Assert.Equal(adv.level, loadedAdv.level);
             Assert.Equal(adv.experience, loadedAdv.experience);
             Assert.Equal(adv.vitality, loadedAdv.vitality);
-            Assert.Equal(adv.CurrentClassMasteryPoints, loadedAdv.CurrentClassMasteryPoints);
+            Assert.Equal(adv.CurrentClassMastery, loadedAdv.CurrentClassMastery);
             Assert.Equal(adv.expeditionCount, loadedAdv.expeditionCount);
             Assert.Equal(adv.retreatCount, loadedAdv.retreatCount);
             Assert.Equal(adv.adventureHistory, loadedAdv.adventureHistory);

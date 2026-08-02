@@ -120,6 +120,7 @@ public static class SaveManager
         pendingInjurySeverity = a.pendingInjurySeverity,
         rank = a.rank,
         higherRankClears = a.higherRankClears,
+        suitableRankClearsTotal = a.suitableRankClearsTotal,
         raceId = a.race?.id ?? "",
         classId = a.currentClass?.id ?? "",
         weaponId = a.Weapon?.id ?? "",
@@ -329,6 +330,7 @@ public static class SaveManager
             // 冒険者ランクに上限がなかった頃のセーブは7(S)を超えていることがある。
             rank = Rank.Clamp(saved.rank),
             higherRankClears = saved.higherRankClears,
+            suitableRankClearsTotal = saved.suitableRankClearsTotal,
             race = db.races.GetValueOrDefault(saved.raceId),
             currentClass = db.classes.GetValueOrDefault(saved.classId),
             vitality = saved.vitality,

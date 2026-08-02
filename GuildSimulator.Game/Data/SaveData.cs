@@ -7,7 +7,7 @@ namespace GuildSimulator.Game.Data;
 
 public class SaveGameData
 {
-    public int saveVersion = 8;
+    public int saveVersion = 9;
     public int currentTurn = 1;
     public GuildSaveData guild = new();
     public QuestManagerSaveData questManager = new();
@@ -60,6 +60,7 @@ public class AdventurerSaveData
     public int pendingInjurySeverity;
     public int rank;
     public int higherRankClears;
+    public int suitableRankClearsTotal;
     public string raceId = "";
     public string classId = "";
     public string weaponId = "";
