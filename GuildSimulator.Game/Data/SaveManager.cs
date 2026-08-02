@@ -96,6 +96,7 @@ public static class SaveManager
         shopEquipmentStock = new Dictionary<string, int>(guild.shopEquipmentStock),
         shopConsumableStock = new Dictionary<string, int>(guild.shopConsumableStock),
         adventurers = guild.adventurers.Select(ExportAdventurer).ToList(),
+        discoveredEnemyIds = guild.DiscoveredEnemyIds.OrderBy(id => id).ToList(),
         burialRecords = guild.burialRecords.Select(b => new BurialRecordSave
         {
             name = b.name,
@@ -271,6 +272,9 @@ public static class SaveManager
             data.guild.lastShopRefreshTurn,
             new Dictionary<string, int>(data.guild.shopEquipmentStock),
             new Dictionary<string, int>(data.guild.shopConsumableStock));
+        guild.RestoreDiscoveredEnemies(
+            (data.guild.discoveredEnemyIds ?? new())
+                .Where(db.enemies.ContainsKey));
 
         var adventurersById = new Dictionary<string, AdventurerData>();
         guild.adventurers.Clear();

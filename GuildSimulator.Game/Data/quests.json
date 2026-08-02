@@ -188,7 +188,7 @@
   },
   {
     "id": "quest_wolf_cull",
-    "questName": "森狼の間引き",
+    "questName": "ルプスの間引き",
     "rank": 1,
     "totalPhases": 5,
     "phasesPerTurn": 5,
@@ -212,7 +212,7 @@
   },
   {
     "id": "quest_wolf_pack_hunt",
-    "questName": "森狼の群れ討伐",
+    "questName": "ルプスの群れ討伐",
     "rank": 1,
     "totalPhases": 12,
     "phasesPerTurn": 5,
@@ -240,7 +240,7 @@
   },
   {
     "id": "quest_spider_nest_clear",
-    "questName": "蜘蛛の巣穴掃討",
+    "questName": "マルフィサの巣穴掃討",
     "rank": 1,
     "totalPhases": 12,
     "phasesPerTurn": 5,

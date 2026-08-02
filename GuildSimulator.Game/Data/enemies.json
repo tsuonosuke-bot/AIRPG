@@ -11,7 +11,7 @@
     "constitution": 4,
     "defaultWeaponId": "",
     "defaultArmorId": "",
-    "naturalDamageDice": "1d4",
+    "naturalDamageDice": "1d2",
     "skillIds": [],
     "naturalPv": 3,
     "naturalAv": 2,
@@ -86,9 +86,9 @@
     "constitution": 2,
     "defaultWeaponId": "",
     "defaultArmorId": "",
-    "naturalDamageDice": "1d4",
+    "naturalDamageDice": "1d2",
     "skillIds": [],
-    "naturalPv": 3,
+    "naturalPv": 2,
     "threat": 1
   },
   {
@@ -111,7 +111,7 @@
   {
     "id": "enemy_goblin_thrower",
     "baseName": "ゴブリン投擲兵",
-    "exp": 9,
+    "exp": 6,
     "vitality": 3,
     "mental": 3,
     "strength": 5,
@@ -124,7 +124,7 @@
       "skill_bowMastery_lv2"
     ],
     "naturalPv": 4,
-    "threat": 2
+    "threat": 1
   },
   {
     "id": "enemy_goblin_soldier",
@@ -248,9 +248,9 @@
   },
   {
     "id": "enemy_forest_wolf",
-    "baseName": "森狼",
-    "exp": 8,
-    "vitality": 5,
+    "baseName": "ルプス",
+    "exp": 6,
+    "vitality": 4,
     "mental": 2,
     "strength": 7,
     "agility": 9,
@@ -258,7 +258,7 @@
     "constitution": 4,
     "defaultWeaponId": "",
     "defaultArmorId": "",
-    "naturalDamageDice": "1d6",
+    "naturalDamageDice": "1d3",
     "skillIds": [
       "skill_beastFang"
     ],
@@ -271,27 +271,27 @@
         "unique": false
       }
     ],
-    "naturalPv": 4,
-    "naturalAv": 1,
-    "threat": 2
+    "naturalPv": 3,
+    "naturalAv": 2,
+    "threat": 1
   },
   {
     "id": "enemy_giant_spider",
-    "baseName": "大蜘蛛",
-    "exp": 9,
-    "vitality": 6,
+    "baseName": "マルフィサ",
+    "exp": 6,
+    "vitality": 3,
     "mental": 2,
     "strength": 6,
     "agility": 7,
     "intelligence": 1,
-    "constitution": 5,
+    "constitution": 6,
     "defaultWeaponId": "",
     "defaultArmorId": "",
-    "naturalDamageDice": "1d6",
+    "naturalDamageDice": "1d2+1",
     "skillIds": [],
-    "naturalPv": 5,
-    "naturalAv": 1,
-    "threat": 2
+    "naturalPv": 3,
+    "naturalAv": 2,
+    "threat": 1
   },
   {
     "id": "enemy_treant",

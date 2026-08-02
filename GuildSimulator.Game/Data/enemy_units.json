@@ -157,7 +157,7 @@
   },
   {
     "id": "unit_wolf_pair",
-    "unitName": "森狼のつがい",
+    "unitName": "ルプスのつがい",
     "formationIds": [
       "enemy_forest_wolf",
       "enemy_forest_wolf",
@@ -169,7 +169,7 @@
   },
   {
     "id": "unit_wolf_pack",
-    "unitName": "森狼の群れ",
+    "unitName": "ルプスの群れ",
     "formationIds": [
       "enemy_forest_wolf",
       "enemy_forest_wolf",
@@ -181,7 +181,7 @@
   },
   {
     "id": "unit_spider_single",
-    "unitName": "大蜘蛛",
+    "unitName": "マルフィサ",
     "formationIds": [
       "enemy_giant_spider",
       null,
@@ -193,7 +193,7 @@
   },
   {
     "id": "unit_spider_nest",
-    "unitName": "蜘蛛の巣穴",
+    "unitName": "マルフィサの巣穴",
     "formationIds": [
       "enemy_giant_spider",
       "enemy_giant_spider",

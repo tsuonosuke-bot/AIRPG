@@ -27,6 +27,9 @@ public class SaveLoadTests
         var db = LoadDb();
         var guild = new GuildManager(startGold: 200, startRank: 1);
         var questManager = new QuestManager(guild);
+        var discoveredEnemies = db.enemies.Values.Take(2).ToList();
+        foreach (var enemy in discoveredEnemies)
+            guild.DiscoverEnemy(enemy);
 
         var advMaster = db.allAdventurers.First(a => a.recruitGuildRank <= 1);
         var adv = new AdventurerData(advMaster);
@@ -109,6 +112,9 @@ public class SaveLoadTests
             Assert.Equal(guild.GuildRank, loaded.Guild.GuildRank);
             Assert.Equal(guild.GuildPoints, loaded.Guild.GuildPoints);
             Assert.Equal(guild.economyLogs, loaded.Guild.economyLogs);
+            Assert.Equal(
+                discoveredEnemies.Select(enemy => enemy.id).OrderBy(id => id),
+                loaded.Guild.DiscoveredEnemyIds.OrderBy(id => id));
 
             var loadedAdv = Assert.Single(loaded.Guild.adventurers);
             Assert.Equal(adv.id, loadedAdv.id);

@@ -24,6 +24,10 @@ public class GuildManager
     public Dictionary<string, int> shopEquipmentStock = new();
     public Dictionary<string, int> shopConsumableStock = new();
     public int LastShopRefreshTurn { get; private set; }
+    readonly HashSet<string> discoveredEnemyIds = new(StringComparer.Ordinal);
+
+    /// <summary>実際の遠征で一度でも遭遇し、モンスター図鑑へ登録された敵ID。</summary>
+    public IReadOnlyCollection<string> DiscoveredEnemyIds => discoveredEnemyIds;
 
     /// <summary>プレイヤーに見せるギルドランクの表記（F〜S）。</summary>
     public string GuildRankLabel => Rank.Label(GuildRank);
@@ -96,6 +100,20 @@ public class GuildManager
         Gold = gold;
         GuildRank = Rank.Clamp(guildRank);
         GuildPoints = guildPoints;
+    }
+
+    /// <summary>敵を図鑑へ登録する。初遭遇ならtrue、登録済みならfalse。</summary>
+    public bool DiscoverEnemy(EnemyMasterData enemy) =>
+        !string.IsNullOrWhiteSpace(enemy.id) && discoveredEnemyIds.Add(enemy.id);
+
+    public bool HasDiscoveredEnemy(string enemyId) => discoveredEnemyIds.Contains(enemyId);
+
+    /// <summary>セーブデータからの復元専用。現在のマスタに存在するIDだけを渡す。</summary>
+    public void RestoreDiscoveredEnemies(IEnumerable<string> enemyIds)
+    {
+        discoveredEnemyIds.Clear();
+        foreach (var id in enemyIds.Where(id => !string.IsNullOrWhiteSpace(id)))
+            discoveredEnemyIds.Add(id);
     }
 
     /// <summary>

@@ -8,6 +8,10 @@ namespace GuildSimulator.Core.Systems.Quest;
 
 public class QuestProgressor
 {
+    readonly GuildManager? guild;
+
+    public QuestProgressor(GuildManager? guild = null) => this.guild = guild;
+
     public void AdvanceOnePhase(QuestRun q, int currentTurn)
     {
         int phase = q.currentPhase + 1;
@@ -53,6 +57,16 @@ public class QuestProgressor
                         : $"敵遭遇：{enemyTpl.unitName}(脅威度{Rank.Label(enemyTpl.Threat)})";
 
                     var enemyMembers = CreateEnemyMembers(enemyTpl);
+                    var newlyDiscovered = enemyMembers
+                        .Where(enemy => enemy != null)
+                        .Select(enemy => enemy!.master)
+                        .DistinctBy(enemy => enemy.id)
+                        .Where(enemy => guild?.DiscoverEnemy(enemy) == true)
+                        .Select(enemy => enemy.baseName)
+                        .ToList();
+                    if (newlyDiscovered.Count > 0)
+                        q.logs.Add($"  エリア {phase}: モンスター図鑑に「{string.Join("」「", newlyDiscovered)}」を登録");
+
                     var advI = q.formation.Cast<IUnitMember?>().ToArray();
                     var enemyI = enemyMembers.Cast<IUnitMember?>().ToArray();
 

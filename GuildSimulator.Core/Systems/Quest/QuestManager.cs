@@ -28,7 +28,7 @@ public class QuestManager
     public int BoardExpireTurns = 7;
 
     readonly GuildManager guild;
-    readonly QuestProgressor progressor = new();
+    readonly QuestProgressor progressor;
     readonly QuestRewardService rewardService = new();
     readonly HashSet<string> busyIds = new();
 
@@ -38,7 +38,11 @@ public class QuestManager
     readonly HashSet<string> discoveredClueIds = new();
     readonly HashSet<string> selectedBranchIds = new();
 
-    public QuestManager(GuildManager guild) => this.guild = guild;
+    public QuestManager(GuildManager guild)
+    {
+        this.guild = guild;
+        progressor = new QuestProgressor(guild);
+    }
 
     public bool IsAdventurerBusy(string id) => busyIds.Contains(id);
     public bool HasPendingChoices => activeQuests.Any(q => q.HasPendingChoice);
