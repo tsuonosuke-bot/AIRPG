@@ -1,7 +1,7 @@
 [
   {
     "id": "class_warrior",
-    "className": "戦士",
+    "className": "斧戦士",
     "vitGrowth": 0.3,
     "mentGrowth": 0.1,
     "strGrowth": 0.5,
@@ -68,7 +68,7 @@
   },
   {
     "id": "class_Steelcoat",
-    "className": "甲冑兵",
+    "className": "守護兵",
     "vitGrowth": 0.5,
     "mentGrowth": 0.3,
     "strGrowth": 0.5,
@@ -257,7 +257,7 @@
   },
   {
     "id": "class_Archer",
-    "className": "アーチャー",
+    "className": "狩人",
     "vitGrowth": 0.25,
     "mentGrowth": 0.15,
     "strGrowth": 0.3,
@@ -320,7 +320,7 @@
   },
   {
     "id": "class_Healer",
-    "className": "治療師",
+    "className": "神官",
     "vitGrowth": 0.1,
     "mentGrowth": 0.5,
     "strGrowth": 0.0,
@@ -387,7 +387,7 @@
   },
   {
     "id": "class_Sorcerer",
-    "className": "ソーサラー",
+    "className": "魔術師",
     "vitGrowth": 0.15,
     "mentGrowth": 0.35,
     "strGrowth": 0.0,
@@ -440,6 +440,183 @@
       },
       {
         "skillId": "skill_fireMastery_lv5",
+        "requiredClearCount": 88
+      }
+    ]
+  },
+  {
+    "id": "class_MartialArtist",
+    "className": "武道家",
+    "vitGrowth": 0.25,
+    "mentGrowth": 0.2,
+    "strGrowth": 0.35,
+    "intGrowth": 0.0,
+    "agiGrowth": 0.3,
+    "classSkills": [
+      {
+        "skillId": "skill_martialArts_lv1",
+        "requiredClearCount": 0
+      },
+      {
+        "skillId": "skill_clothMastery_lv1",
+        "requiredClearCount": 3
+      },
+      {
+        "skillId": "skill_martialArts_lv2",
+        "requiredClearCount": 7
+      },
+      {
+        "skillId": "skill_swiftStep_lv1",
+        "requiredClearCount": 12
+      },
+      {
+        "skillId": "skill_martialArts_lv3",
+        "requiredClearCount": 18
+      },
+      {
+        "skillId": "skill_willpower_lv1",
+        "requiredClearCount": 25
+      },
+      {
+        "skillId": "skill_toughBody_lv1",
+        "requiredClearCount": 33
+      },
+      {
+        "skillId": "skill_sureStrike_lv1",
+        "requiredClearCount": 42
+      },
+      {
+        "skillId": "skill_martialArts_lv4",
+        "requiredClearCount": 52
+      },
+      {
+        "skillId": "skill_swiftStep_lv2",
+        "requiredClearCount": 63
+      },
+      {
+        "skillId": "skill_willpower_lv2",
+        "requiredClearCount": 75
+      },
+      {
+        "skillId": "skill_martialArts_lv5",
+        "requiredClearCount": 88
+      }
+    ]
+  },
+  {
+    "id": "class_Warder",
+    "className": "結界師",
+    "vitGrowth": 0.25,
+    "mentGrowth": 0.3,
+    "strGrowth": 0.0,
+    "intGrowth": 0.4,
+    "agiGrowth": 0.15,
+    "classSkills": [
+      {
+        "skillId": "skill_earthMastery_lv1",
+        "requiredClearCount": 0
+      },
+      {
+        "skillId": "skill_clothMastery_lv1",
+        "requiredClearCount": 3
+      },
+      {
+        "skillId": "skill_earthMastery_lv2",
+        "requiredClearCount": 7
+      },
+      {
+        "skillId": "skill_wardEnchant_lv1",
+        "requiredClearCount": 12
+      },
+      {
+        "skillId": "skill_earthMastery_lv3",
+        "requiredClearCount": 18
+      },
+      {
+        "skillId": "skill_clothMastery_lv2",
+        "requiredClearCount": 25
+      },
+      {
+        "skillId": "skill_guardian_lv1",
+        "requiredClearCount": 33
+      },
+      {
+        "skillId": "skill_willpower_lv1",
+        "requiredClearCount": 42
+      },
+      {
+        "skillId": "skill_earthMastery_lv4",
+        "requiredClearCount": 52
+      },
+      {
+        "skillId": "skill_wardEnchant_lv2",
+        "requiredClearCount": 63
+      },
+      {
+        "skillId": "skill_guardian_lv2",
+        "requiredClearCount": 75
+      },
+      {
+        "skillId": "skill_earthMastery_lv5",
+        "requiredClearCount": 88
+      }
+    ]
+  },
+  {
+    "id": "class_Caravaner",
+    "className": "隊商人",
+    "vitGrowth": 0.2,
+    "mentGrowth": 0.2,
+    "strGrowth": 0.25,
+    "intGrowth": 0.2,
+    "agiGrowth": 0.25,
+    "classSkills": [
+      {
+        "skillId": "skill_bowMastery_lv1",
+        "requiredClearCount": 0
+      },
+      {
+        "skillId": "skill_lightArmorMastery_lv1",
+        "requiredClearCount": 3
+      },
+      {
+        "skillId": "skill_bowMastery_lv2",
+        "requiredClearCount": 7
+      },
+      {
+        "skillId": "skill_porter_lv1",
+        "requiredClearCount": 12
+      },
+      {
+        "skillId": "skill_bowMastery_lv3",
+        "requiredClearCount": 18
+      },
+      {
+        "skillId": "skill_haggle_lv1",
+        "requiredClearCount": 25
+      },
+      {
+        "skillId": "skill_mentor_lv1",
+        "requiredClearCount": 33
+      },
+      {
+        "skillId": "skill_porter_lv2",
+        "requiredClearCount": 42
+      },
+      {
+        "skillId": "skill_bowMastery_lv4",
+        "requiredClearCount": 52
+      },
+      {
+        "skillId": "skill_haggle_lv2",
+        "requiredClearCount": 63
+      },
+      {
+        "skillId": "skill_mentor_lv2",
+        "requiredClearCount": 75
+      },
+      {
+        "skillId": "skill_bowMastery_lv5",
         "requiredClearCount": 88
       }
     ]

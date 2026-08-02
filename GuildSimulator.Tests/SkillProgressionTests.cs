@@ -107,6 +107,52 @@ public class SkillProgressionTests
     }
 
     [Fact]
+    public void ApprovedClassRosterAndNewSignatureTreesArePresent()
+    {
+        var db = Load();
+        var expectedNames = new Dictionary<string, string>
+        {
+            ["class_warrior"] = "斧戦士",
+            ["class_Steelcoat"] = "守護兵",
+            ["class_Swordman"] = "剣士",
+            ["class_Rogue"] = "盗賊",
+            ["class_Archer"] = "狩人",
+            ["class_Healer"] = "神官",
+            ["class_Sorcerer"] = "魔術師",
+            ["class_MartialArtist"] = "武道家",
+            ["class_Warder"] = "結界師",
+            ["class_Caravaner"] = "隊商人",
+        };
+
+        Assert.Equal(expectedNames.Count, db.classes.Count);
+        foreach (var (id, name) in expectedNames)
+            Assert.Equal(name, db.classes[id].className);
+
+        AssertSignatureTree(db.classes["class_MartialArtist"], "martial_arts");
+        AssertSignatureTree(db.classes["class_Warder"], "mastery_earth");
+        AssertSignatureTree(db.classes["class_Caravaner"], "mastery_bow");
+
+        foreach (var id in new[] { "class_MartialArtist", "class_Warder", "class_Caravaner" })
+        {
+            var cls = db.classes[id];
+            float growthTotal = cls.vitGrowth + cls.mentGrowth + cls.strGrowth
+                + cls.intGrowth + cls.agiGrowth;
+            Assert.Equal(1.1f, growthTotal, 3);
+            Assert.Equal(new[] { 0, 3, 7, 12, 18, 25, 33, 42, 52, 63, 75, 88 },
+                cls.classSkills.Select(e => e.requiredClearCount).ToArray());
+        }
+    }
+
+    static void AssertSignatureTree(ClassMasterData cls, string family)
+    {
+        var levels = cls.classSkills
+            .Where(e => e.Skill?.family == family)
+            .Select(e => e.Skill!.level)
+            .ToArray();
+        Assert.Equal(new[] { 1, 2, 3, 4, 5 }, levels);
+    }
+
+    [Fact]
     public void TieredSkillsAreNamedByLevelAndNeverByTheOldSuffix()
     {
         var db = Load();

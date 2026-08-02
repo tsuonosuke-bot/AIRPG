@@ -54,7 +54,7 @@ public class LevelGrowthTests
     [Fact]
     public void GrowthIsAboutHalfOfWhatTwoLevelsUsedToGive()
     {
-        // 旧仕様は5能力を独立抽選していて、戦士/ヒューマンで毎レベル約2.35点伸びていた。
+        // 旧仕様は5能力を独立抽選していて、斧戦士/ヒューマンで毎レベル約2.35点伸びていた。
         // レベル差だけでキャラの優劣が決まらないよう、1点に絞ってある。
         Assert.Equal(1, AdventurerData.StatPointsPerLevel);
     }
@@ -69,7 +69,7 @@ public class LevelGrowthTests
         const int trials = 4000;
         for (int i = 0; i < trials; i++)
         {
-            // ソーサラー/エルフは知力に大きく寄っている（int +0.50 / +0.15）。
+            // 魔術師/エルフは知力に大きく寄っている（int +0.50 / +0.15）。
             var a = Make(db.classes["class_Sorcerer"], db.races["Race_Elf"]);
             var before = (a.vitality, a.mental, a.strength, a.agility, a.intelligence);
             a.AddExperience(a.RequiredExpForNextLevel, out _);

@@ -172,7 +172,7 @@ public static class BattleResolver
                 else
                 {
                     // 物理か魔法かは能力値の大小ではなく武器そのもので決まる。
-                    // 魔道士が剣を持てば剣で殴り、戦士が杖を持てば魔法が飛ぶ。
+                    // 魔術師が剣を持てば剣で殴り、斧戦士が杖を持てば魔法が飛ぶ。
                     bool isMagic = actor.IsMagicAttack;
 
                     // 武器クラスの個性は「得物そのもの」＋「スキル・遺物の補正」。
@@ -342,7 +342,7 @@ public static class BattleResolver
             }
 
             // 士気は「押し込まれた分だけ」削れる。回復で押し返せた分は勘定に入らないので、
-            // 治療師がHPを保っている限り士気も保たれ、優勢なまま突然逃げ出すことはない。
+            // 神官がHPを保っている限り士気も保たれ、優勢なまま突然逃げ出すことはない。
             int netHpLoss = partyHpAtRoundStart - SumCurrentHp(advSide);
             int lost = morale.DrainFromDamage(netHpLoss, partyMaxHp);
             if (partyDowned > 0)
