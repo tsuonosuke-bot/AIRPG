@@ -541,7 +541,9 @@ public static class HelpScreen
         Ui.Header(AdventurerSectionTitle);
         Ui.WriteLine("  ・冒険者          : 雇用して編成に加える。クエストで経験値を得てレベルアップする。");
         Ui.WriteLine($"  ・冒険者ランク    : {Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。「格上クエストの正規クリア数」と");
-        Ui.WriteLine("                      「累積の適正クエスト正規クリア数」の両方を満たすと1つ上がる。");
+        Ui.WriteLine("                      「累積の適正クエスト正規クリア数」の両方を満たすと**昇格可能**になる。");
+        Ui.WriteLine("                      条件を満たしても自動では上がらず、冒険者一覧で「昇格させる」を選ぶ。");
+        Ui.WriteLine($"                      昇格時の報酬は全能力値+{AdventurerData.RankUpStatGain}と現在職業の習熟度+{AdventurerData.RankUpMasteryGain}（と維持費増）。");
         Ui.WriteLine("                      同ランク以下のクエストは格上には数えないが、適正帯なら累積には載る。");
         Ui.WriteLine("                      昇格条件（格上／累積適正）:");
         for (int r = Rank.Min; r < Rank.Max; r++)

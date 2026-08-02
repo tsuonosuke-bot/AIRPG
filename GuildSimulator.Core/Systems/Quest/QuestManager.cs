@@ -261,7 +261,9 @@ public class QuestManager
                             important: true,
                             actorName: a.name);
                     }
-                    a.RecordQuestClearForRank(q.def.rank, out _);
+                    a.RecordQuestClearForRank(q.def.rank);
+                    if (a.CanRankUp)
+                        q.logs.Add($"[昇格可能] {a.name} は {Rank.Label(a.rank)}→{Rank.Label(a.rank + 1)} の条件を満たした。冒険者一覧から昇格させられる。");
                 }
                 if (q.def.rankUpOnClear > 0)
                     guild.RankUp(q.def.rankUpOnClear, $"緊急クエスト完了: {q.def.questName}");

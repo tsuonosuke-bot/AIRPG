@@ -67,6 +67,8 @@ public static class AdventurerScreen
             string rankProgress;
             if (a.IsMaxRank)
                 rankProgress = "最高ランク";
+            else if (a.CanRankUp)
+                rankProgress = $"昇格可能 → {Rank.Label(a.rank + 1)}";
             else
             {
                 var req = a.NextRankRequirement!.Value;
@@ -124,6 +126,10 @@ public static class AdventurerScreen
             else
             {
                 options.Add(new MenuOption("e", "装備を変更する"));
+                if (a.CanRankUp)
+                    options.Add(new MenuOption("r",
+                        $"昇格させる（{Rank.Label(a.rank)}→{Rank.Label(a.rank + 1)}）",
+                        $"全能力値+{AdventurerData.RankUpStatGain}、{a.currentClass?.className ?? "職業"}習熟度+{AdventurerData.RankUpMasteryGain}。維持費も上がる。"));
                 bool classChangeUnlocked = IsClassChangeUnlocked(guild);
                 if (classChangeUnlocked)
                 {
@@ -145,6 +151,7 @@ public static class AdventurerScreen
             string input = await Ui.SelectAsync("選択", options);
             if (input == "s") { await ShowSkillDetailsAsync(a); continue; }
             if (input == "e" && a.isAlive && !busy) { await ManageEquipmentAsync(a, guild); continue; }
+            if (input == "r" && a.isAlive && !busy && a.CanRankUp) { await ConfirmRankUpAsync(a, guild); continue; }
             if (input == "c" && a.isAlive && !busy && IsClassChangeUnlocked(guild)) { await ChangeClassAsync(a, guild, db); continue; }
             if (input == "d" && !a.isAlive && !busy)
             {
@@ -326,6 +333,35 @@ public static class AdventurerScreen
         Ui.Info($"{a.name} を埋葬しました。安らかに眠れ。");
         await Ui.PauseAsync();
         return true;
+    }
+
+    static async Task ConfirmRankUpAsync(AdventurerData a, GuildManager guild)
+    {
+        Ui.BeginScreen();
+        Ui.Header($"昇格: {a.name}");
+        Ui.WriteLine($"  現在: {Rank.Label(a.rank)}");
+        Ui.WriteLine($"  昇格後: {Rank.Label(a.rank + 1)}");
+        Ui.WriteLine();
+        Ui.WriteLine($"  ・全能力値 +{AdventurerData.RankUpStatGain}");
+        if (a.currentClass != null)
+            Ui.WriteLine($"  ・{a.currentClass.className} 習熟度 +{AdventurerData.RankUpMasteryGain}");
+        int upkeepBefore = GuildManager.CalculateAdventurerUpkeep(a.level, a.rank);
+        int upkeepAfter = GuildManager.CalculateAdventurerUpkeep(a.level, a.rank + 1);
+        Ui.WriteLine($"  ・維持費 {upkeepBefore}G/T → {upkeepAfter}G/T");
+        Ui.WriteLine();
+
+        if (!await Ui.ConfirmAsync("昇格させますか？")) return;
+
+        if (!a.TryRankUp(out var result))
+        {
+            Ui.Error("昇格条件を満たしていません");
+            await Ui.PauseAsync();
+            return;
+        }
+
+        Ui.Info(result.HistoryLine());
+        guild.economyLogs.Add($"昇格: {a.name} {result.HistoryLine()}");
+        await Ui.PauseAsync();
     }
 
     static async Task ChangeClassAsync(AdventurerData a, GuildManager guild, GameMasterData db)

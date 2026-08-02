@@ -302,31 +302,123 @@ public class AdventurerData : IUnitMember
     public int RequiredClearsForNextRank => NextRankRequirement?.higherRankClears ?? 0;
 
     /// <summary>
-    /// クエストの正規クリアを昇格に反映する。
+    /// クエストの正規クリアを昇格用のカウンタに積む。昇格そのものは行わない
+    /// （プレイヤーが明示的に <see cref="TryRankUp"/> を呼ぶまで待つ）。
     ///   ・適正ランク帯のクリアは「累積の適正クリア数」に載る。昇格しても減らない。
     ///   ・格上（自分より上のランク）のクリアは「格上クリア」に載る。こちらは昇格で0に戻る。
-    /// どちらもそのランクの閾値を超えたら1段上がる。同ランク以下は格上にも載らない。
+    /// 同ランク以下は格上にも載らない。
     /// </summary>
-    public void RecordQuestClearForRank(int questRank, out int rankUps)
+    public void RecordQuestClearForRank(int questRank)
     {
-        rankUps = 0;
         // Sに達したら数えない。溜まり続けると昇格できるように見えてしまう。
         if (!isAlive || IsMaxRank) return;
 
         if (Rank.IsSuitable(questRank, rank)) suitableRankClearsTotal++;
         if (IsHigherRankQuest(questRank)) higherRankClears++;
-
-        var req = PromotionTable[rank - Rank.Min];
-        if (higherRankClears < req.higherRankClears) return;
-        if (suitableRankClearsTotal < req.suitableTotalClears) return;
-
-        higherRankClears = 0;
-        rank = Rank.Clamp(rank + 1);
-        rankUps++;
     }
 
     /// <summary>昇格に数えられるクエストか。クエストボードの目印にも使う。</summary>
     public bool IsHigherRankQuest(int questRank) => questRank > rank;
+
+    /// <summary>今すぐ昇格できる条件を満たしているか。UIの解禁判定に使う。</summary>
+    public bool CanRankUp
+    {
+        get
+        {
+            if (!isAlive || IsMaxRank) return false;
+            var req = PromotionTable[rank - Rank.Min];
+            return higherRankClears >= req.higherRankClears
+                && suitableRankClearsTotal >= req.suitableTotalClears;
+        }
+    }
+
+    /// <summary>ランクアップで一律に配る報酬。全能力+1と、その職業への習熟度加算。</summary>
+    public const int RankUpStatGain = 1;
+    public const int RankUpMasteryGain = 500;
+
+    /// <summary>
+    /// 昇格処理そのもの。<see cref="CanRankUp"/> が真のときだけ実行できる。
+    /// プレイヤー選択で呼ばれる想定で、能力+1・習熟度+500・スキル解禁までを一度に返す。
+    /// </summary>
+    public bool TryRankUp(out RankUpResult result)
+    {
+        result = default;
+        if (!CanRankUp) return false;
+
+        int previousRank = rank;
+        higherRankClears = 0;
+        rank = Rank.Clamp(rank + 1);
+
+        var grownStats = ApplyRankUpStatGains();
+        int masteryGained = 0;
+        IReadOnlyList<SkillMasterData> unlocked = Array.Empty<SkillMasterData>();
+        string? className = currentClass?.className;
+        if (currentClass != null)
+        {
+            masteryGained = RankUpMasteryGain;
+            classMasteryPoints.TryGetValue(currentClass.id, out int current);
+            classMasteryPoints[currentClass.id] = current + masteryGained;
+            unlocked = CheckClassSkillUnlock();
+        }
+
+        result = new RankUpResult(
+            PreviousRank: previousRank,
+            NewRank: rank,
+            GrownStats: grownStats,
+            StatGainPerStat: RankUpStatGain,
+            ClassName: className,
+            MasteryGained: masteryGained,
+            UnlockedSkills: unlocked);
+
+        AddHistory(result.HistoryLine());
+        return true;
+    }
+
+    IReadOnlyList<StatType> ApplyRankUpStatGains()
+    {
+        // 全能力値+1。SIZ(体格)とAPP(容姿)を含めて一律。
+        vitality += RankUpStatGain;
+        mental += RankUpStatGain;
+        strength += RankUpStatGain;
+        agility += RankUpStatGain;
+        intelligence += RankUpStatGain;
+        constitution += RankUpStatGain;
+        appearance += RankUpStatGain;
+        return new[]
+        {
+            StatType.Vitality, StatType.Mental, StatType.Strength,
+            StatType.Agility, StatType.Intelligence,
+            StatType.Constitution, StatType.Appearance,
+        };
+    }
+
+    /// <summary>
+    /// 昇格1回分の結果。プレイヤーへの通知とログの両方で使うので、
+    /// 差分そのものを持っておく（現在値からは差分が読み取れない）。
+    /// </summary>
+    public readonly record struct RankUpResult(
+        int PreviousRank,
+        int NewRank,
+        IReadOnlyList<StatType> GrownStats,
+        int StatGainPerStat,
+        string? ClassName,
+        int MasteryGained,
+        IReadOnlyList<SkillMasterData> UnlockedSkills)
+    {
+        public string HistoryLine()
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.Append($"{Rank.Label(PreviousRank)}→{Rank.Label(NewRank)} に昇格");
+            sb.Append($"、全能力値+{StatGainPerStat}");
+            if (MasteryGained > 0 && ClassName != null)
+                sb.Append($"、{ClassName}習熟度+{MasteryGained}");
+            if (UnlockedSkills.Count > 0)
+                sb.Append("、スキル「")
+                    .Append(string.Join("」「", UnlockedSkills.Select(s => s.skillName)))
+                    .Append("」を習得");
+            return sb.ToString();
+        }
+    }
 
     // ---- Exp / Level ----
     public int RequiredExpForNextLevel => 10 + (level - 1) * 5;
