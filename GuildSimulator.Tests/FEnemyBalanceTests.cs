@@ -49,6 +49,22 @@ public class FEnemyBalanceTests
         Assert.Equal(6, malfisa.master.exp);
     }
 
+    [Fact]
+    public void FEnemyPlacementsMatchTheEarlyDungeonProgression()
+    {
+        var db = MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
+
+        var thrower = db.dungeons["dungeon_meadow"].encounterTable
+            .Single(entry => entry.unitId == "unit_goblin_thrower_ambush");
+        Assert.Equal(2, thrower.weight);
+        Assert.Equal(6, thrower.minPhase);
+        Assert.Equal(0, thrower.maxPhase);
+
+        var lupusCull = db.allQuests.Single(quest => quest.id == "quest_wolf_cull");
+        Assert.Equal(lupusCull.totalPhases, lupusCull.bossPhase);
+        Assert.Equal("unit_wolf_pair", lupusCull.BossEnemy?.id);
+    }
+
     static int EffectivePv(EnemyData enemy, bool isFront)
     {
         var members = new IUnitMember?[6];

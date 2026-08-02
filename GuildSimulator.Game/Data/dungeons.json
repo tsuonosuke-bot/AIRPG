@@ -66,8 +66,8 @@
       },
       {
         "unitId": "unit_goblin_thrower_ambush",
-        "weight": 1,
-        "minPhase": 11,
+        "weight": 2,
+        "minPhase": 6,
         "maxPhase": 0
       }
     ],

@@ -197,7 +197,7 @@
     "rewardExp": 10,
     "dungeonId": "dungeon_woods",
     "bossEnemyId": "unit_wolf_pair",
-    "bossPhase": 10,
+    "bossPhase": 5,
     "bossDrops": [],
     "fixedEvents": [
       {
