@@ -68,7 +68,8 @@ public static class AdventurerScreen
                 ? "最高ランク"
                 : $"格上クリア {a.higherRankClears}/{a.RequiredClearsForNextRank} → {Rank.Label(a.rank + 1)}";
             Ui.WriteLine($"  冒険者ランク: {a.RankLabel}  ({rankProgress})");
-            Ui.WriteLine($"  維持費      : {GuildManager.CalculateAdventurerUpkeep(a.level)}G/T（Lv×{GuildManager.UpkeepGoldPerLevel}G）");
+            Ui.WriteLine($"  維持費      : {GuildManager.CalculateAdventurerUpkeep(a.level, a.rank)}G/T"
+                + $"（Lv×{GuildManager.UpkeepGoldPerLevel}G ＋ ランク昇格ぶん×{GuildManager.UpkeepGoldPerRank}G）");
             Ui.WriteLine($"  状態        : {a.ConditionSummary}");
             if (a.ConditionTitle != null)
                 Ui.Info($"  称号        : {a.ConditionTitle}");
