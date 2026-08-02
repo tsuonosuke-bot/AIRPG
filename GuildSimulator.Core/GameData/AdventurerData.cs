@@ -5,6 +5,15 @@ using GuildSimulator.Core.Systems.Guild;
 
 namespace GuildSimulator.Core.GameData;
 
+public readonly record struct ClassMasteryProgress(
+    int PointsGained,
+    int TotalPoints,
+    IReadOnlyList<SkillMasterData> UnlockedSkills)
+{
+    public static readonly ClassMasteryProgress None =
+        new(0, 0, Array.Empty<SkillMasterData>());
+}
+
 public class AdventurerData : IUnitMember
 {
     public string id = Guid.NewGuid().ToString("N");
@@ -130,8 +139,17 @@ public class AdventurerData : IUnitMember
         public ClassMasterData? ownerClass;
     }
 
-    // class clear counts
-    readonly Dictionary<string, int> classClearCounts = new();
+    // INTで加速する職業別の習熟ポイント。
+    readonly Dictionary<string, int> classMasteryPoints = new();
+
+    /// <summary>マスタの requiredClearCount 1点に相当する内部ポイント。</summary>
+    public const int MasteryPointsPerLevel = 100;
+
+    /// <summary>適正クエスト1回の基礎習熟ポイント。</summary>
+    public const int BaseMasteryPointsPerClear = 100;
+
+    /// <summary>INTによる習熟ポイント加算の上限。低INTへの減点は行わない。</summary>
+    public const int MaxIntMasteryBonus = 30;
 
     public AdventurerData(AdventurerMasterData master)
     {
@@ -204,18 +222,27 @@ public class AdventurerData : IUnitMember
     IReadOnlyList<SkillMasterData> CheckClassSkillUnlock()
     {
         if (currentClass == null) return Array.Empty<SkillMasterData>();
-        int clears = GetClassClearCount(currentClass.id);
+        int points = GetClassMasteryPoints(currentClass.id);
         var unlocked = new List<SkillMasterData>();
         foreach (var e in currentClass.classSkills)
-            if (e.Skill != null && clears >= e.requiredClearCount)
+            if (e.Skill != null && points >= RequiredMasteryPoints(e.requiredClearCount))
                 if (LearnSkill(e.Skill, currentClass)) unlocked.Add(e.Skill);
         return unlocked;
     }
 
-    int GetClassClearCount(string classId)
-        => classClearCounts.TryGetValue(classId, out var v) ? v : 0;
+    int GetClassMasteryPoints(string classId)
+        => classMasteryPoints.TryGetValue(classId, out var v) ? v : 0;
 
-    public int CurrentClassClearCount => currentClass != null ? GetClassClearCount(currentClass.id) : 0;
+    public int CurrentClassMasteryPoints =>
+        currentClass != null ? GetClassMasteryPoints(currentClass.id) : 0;
+
+    public float CurrentClassMastery => CurrentClassMasteryPoints / (float)MasteryPointsPerLevel;
+
+    public int MasteryPointsPerSuitableClear =>
+        BaseMasteryPointsPerClear + Math.Clamp(intelligence, 0, MaxIntMasteryBonus);
+
+    public static int RequiredMasteryPoints(int requiredClearCount) =>
+        Math.Max(0, requiredClearCount) * MasteryPointsPerLevel;
 
     public IReadOnlyList<SkillMasterData> ChangeClass(ClassMasterData next)
     {
@@ -228,16 +255,19 @@ public class AdventurerData : IUnitMember
     }
 
     /// <summary>
-    /// クラス習熟度は「適正ランクのクエストを正規クリアした回数」で増える。
+    /// クラス習熟度は、適正ランクのクエストを正規クリアするとINTに応じたポイントで増える。
     /// 格下では学ぶものがなく、格上すぎるクエストは連れ回されているだけなので、どちらも数えない。
     /// </summary>
-    public IReadOnlyList<SkillMasterData> OnClearQuest(int questRank)
+    public ClassMasteryProgress OnClearQuest(int questRank)
     {
-        if (!isAlive || !Rank.IsSuitable(questRank, rank)) return Array.Empty<SkillMasterData>();
-        if (currentClass == null) return Array.Empty<SkillMasterData>();
-        classClearCounts.TryGetValue(currentClass.id, out var c);
-        classClearCounts[currentClass.id] = c + 1;
-        return CheckClassSkillUnlock();
+        if (!isAlive || !Rank.IsSuitable(questRank, rank)) return ClassMasteryProgress.None;
+        if (currentClass == null) return ClassMasteryProgress.None;
+
+        int gained = MasteryPointsPerSuitableClear;
+        classMasteryPoints.TryGetValue(currentClass.id, out int current);
+        int total = current + gained;
+        classMasteryPoints[currentClass.id] = total;
+        return new ClassMasteryProgress(gained, total, CheckClassSkillUnlock());
     }
 
     /// <summary>今の自分にとって適正ランクのクエストか。冒険者詳細やクエストボードの目印に使う。</summary>
@@ -679,20 +709,20 @@ public class AdventurerData : IUnitMember
     public IReadOnlyList<(SkillMasterData skill, ClassMasterData? ownerClass)> ExportLearnedSkills()
         => learnedSkills.Select(x => (x.skill, x.ownerClass)).ToList();
 
-    public IReadOnlyDictionary<string, int> ExportClassClearCounts() => classClearCounts;
+    public IReadOnlyDictionary<string, int> ExportClassMasteryPoints() => classMasteryPoints;
 
     /// <summary>セーブデータからの復元専用。コンストラクタが自動付与したスキル・熟練度を、保存済みの内容で置き換える。</summary>
     public void RestoreProgress(
         IEnumerable<(SkillMasterData skill, ClassMasterData? ownerClass)> skills,
-        IReadOnlyDictionary<string, int> clearCounts)
+        IReadOnlyDictionary<string, int> masteryPoints)
     {
         learnedSkills.Clear();
         foreach (var (skill, ownerClass) in skills)
             learnedSkills.Add(new LearnedSkill { skill = skill, ownerClass = ownerClass });
 
-        classClearCounts.Clear();
-        foreach (var (classId, count) in clearCounts)
-            classClearCounts[classId] = count;
+        classMasteryPoints.Clear();
+        foreach (var (classId, points) in masteryPoints)
+            classMasteryPoints[classId] = points;
 
         MarkDirty();
     }

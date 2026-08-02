@@ -230,6 +230,53 @@ public class CliPresentationTests
         Assert.DoesNotContain("ステータス・装備変化:\r\n── Enterで続ける", text);
     }
 
+    [Fact]
+    public async Task SkillChoiceEventShowsThreeSkillsAndTheSelectedMembersLearningState()
+    {
+        var skills = new[]
+        {
+            new SkillMasterData { id = "skill_choice_1", skillName = "野営の知恵" },
+            new SkillMasterData { id = "skill_choice_2", skillName = "危険察知" },
+            new SkillMasterData { id = "skill_choice_3", skillName = "獣道歩き" },
+        };
+        var choice = new QuestChoiceEventMasterData
+        {
+            id = "event_choice_ui",
+            title = "森渡りの教え",
+            description = "三つの技から一つを選ぶ。",
+            options = skills.Select(skill => new QuestChoiceOptionData
+            {
+                text = $"「{skill.skillName}」を学ぶ",
+                resultText = "技を学んだ。",
+                effectType = QuestChoiceEffectType.AdventurerSkill,
+                targetId = skill.id,
+                targetsOneMember = true,
+                Skill = skill,
+            }).ToList(),
+        };
+        var adventurer = new AdventurerData(Master("choice", "選択者"));
+        var guild = new GuildManager(startGold: 100);
+        guild.AddAdventurer(adventurer);
+        var manager = new QuestManager(guild);
+        var run = new QuestRun(new QuestMasterData { id = "choice_ui", questName = "選択試験" }, 1)
+        {
+            pendingChoice = new PendingQuestChoice { Event = choice, createdTurn = 2 },
+        };
+        run.formation[0] = adventurer;
+
+        string text = await CaptureConsoleAsync(
+            "2\n1\n\n",
+            () => ActiveQuestScreen.HandleQuestAsync(run, manager, guild));
+
+        Assert.Contains("1. 「野営の知恵」を学ぶ", text);
+        Assert.Contains("2. 「危険察知」を学ぶ", text);
+        Assert.Contains("3. 「獣道歩き」を学ぶ", text);
+        Assert.Contains("選んだ隊員がスキル「危険察知」を習得", text);
+        Assert.Contains("「危険察知」未習得", text);
+        Assert.Contains(skills[1], adventurer.AllLearnedSkills);
+        Assert.Null(run.pendingChoice);
+    }
+
     static async Task<string> CaptureConsoleAsync(string inputText, Func<Task> action)
     {
         var originalIn = Console.In;

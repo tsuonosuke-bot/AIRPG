@@ -35,6 +35,8 @@ public class SaveLoadTests
         var adv = new AdventurerData(advMaster);
         guild.AddAdventurer(adv);
         adv.AddExperience(150, out _);   // レベルアップさせて経験値・レベルの復元を確認する
+        var mastery = adv.OnClearQuest(adv.rank);
+        Assert.True(mastery.PointsGained > 0);
         adv.RecordExpedition("過去の調査", "撤退");
         adv.injuries.Add(new AdventurerInjury
         {
@@ -122,6 +124,7 @@ public class SaveLoadTests
             Assert.Equal(adv.level, loadedAdv.level);
             Assert.Equal(adv.experience, loadedAdv.experience);
             Assert.Equal(adv.vitality, loadedAdv.vitality);
+            Assert.Equal(adv.CurrentClassMasteryPoints, loadedAdv.CurrentClassMasteryPoints);
             Assert.Equal(adv.expeditionCount, loadedAdv.expeditionCount);
             Assert.Equal(adv.retreatCount, loadedAdv.retreatCount);
             Assert.Equal(adv.adventureHistory, loadedAdv.adventureHistory);

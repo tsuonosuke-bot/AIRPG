@@ -223,6 +223,7 @@ public static class MasterLoader
                     out var optEquip, out var optItem, out var optSkill);
                 resolvedOption.Equipment = optEquip;
                 resolvedOption.Consumable = optItem;
+                resolvedOption.Skill = optSkill;
 
                 foreach (var oc in option.outcomes ?? new())
                 {

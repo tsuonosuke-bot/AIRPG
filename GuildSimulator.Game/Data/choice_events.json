@@ -316,5 +316,63 @@
         "value": 0
       }
     ]
+  },
+  {
+    "id": "event_forest_lore",
+    "title": "森渡りの教え",
+    "description": "年老いた狩人が道行きを助ける三つの技を示した。教えを受けられるのは一人だけだ。",
+    "weight": 3,
+    "options": [
+      {
+        "text": "「野営の知恵」を学ぶ",
+        "resultText": "火と寝床の扱いを学び、より深く体を休められるようになった。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_campWisdom",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「危険察知」を学ぶ",
+        "resultText": "周囲のわずかな違和感から罠を見抜く勘を身につけた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_dangerSense",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「獣道歩き」を学ぶ",
+        "resultText": "敵の気配を避けて森を抜ける足運びを身につけた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_trailcraft",
+        "targetsOneMember": true
+      }
+    ]
+  },
+  {
+    "id": "event_ruin_tablets",
+    "title": "残響する石版",
+    "description": "古い石版に三つの心得が刻まれている。読み解き、会得できるのは一人だけだ。",
+    "weight": 3,
+    "options": [
+      {
+        "text": "「古物鑑定」を会得する",
+        "resultText": "古い品の価値を見抜く観察眼を得た。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_antiqueEye",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「魔除けの作法」を会得する",
+        "resultText": "邪気を遠ざける身のこなしを会得した。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_wardingRite",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「沈着」を会得する",
+        "resultText": "異様な光景にも心を乱さない術を会得した。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_composure",
+        "targetsOneMember": true
+      }
+    ]
   }
 ]

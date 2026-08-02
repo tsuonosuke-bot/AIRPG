@@ -155,16 +155,22 @@ public static class AdventurerScreen
     static void ShowClassMastery(AdventurerData a)
     {
         if (a.currentClass == null) return;
-        int clears = a.CurrentClassClearCount;
-        Ui.WriteLine($"  クラス習熟度: {clears}"
-            + $"（{a.currentClass.className}で適正ランク{a.SuitableRankRangeLabel}のクエストを正規クリアした回数）");
+        int points = a.CurrentClassMasteryPoints;
+        Ui.WriteLine($"  クラス習熟度: {a.CurrentClassMastery:0.##}（{points}pt）");
+        Ui.Dim($"    {a.currentClass.className}で適正ランク{a.SuitableRankRangeLabel}を正規クリアすると"
+            + $"、現在のINT {a.intelligence}で+{a.MasteryPointsPerSuitableClear}pt");
 
         var next = a.currentClass.classSkills
-            .Where(e => e.Skill != null && e.requiredClearCount > clears)
+            .Where(e => e.Skill != null
+                && AdventurerData.RequiredMasteryPoints(e.requiredClearCount) > points)
             .OrderBy(e => e.requiredClearCount)
             .FirstOrDefault();
         if (next != null)
-            Ui.Dim($"    次のスキル: {next.Skill!.skillName}（あと{next.requiredClearCount - clears}回）");
+        {
+            int remaining = AdventurerData.RequiredMasteryPoints(next.requiredClearCount) - points;
+            int estimatedClears = (int)Math.Ceiling(remaining / (double)a.MasteryPointsPerSuitableClear);
+            Ui.Dim($"    次のスキル: {next.Skill!.skillName}（あと{remaining}pt / 現在のINTなら約{estimatedClears}回）");
+        }
         else
             Ui.Dim("    この職業のスキルはすべて習得済み");
     }

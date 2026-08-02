@@ -75,19 +75,20 @@ public class RankTests
         };
 
         adventurer.OnClearQuest(2); // E: 格下
-        Assert.Equal(0, adventurer.CurrentClassClearCount);
+        Assert.Equal(0, adventurer.CurrentClassMasteryPoints);
 
         adventurer.OnClearQuest(6); // A: 格上すぎる
-        Assert.Equal(0, adventurer.CurrentClassClearCount);
+        Assert.Equal(0, adventurer.CurrentClassMasteryPoints);
 
         adventurer.OnClearQuest(3); // D: 同ランク
         adventurer.OnClearQuest(5); // B: 適正帯の上端
-        Assert.Equal(2, adventurer.CurrentClassClearCount);
+        Assert.Equal(200, adventurer.CurrentClassMasteryPoints);
+        Assert.Equal(2f, adventurer.CurrentClassMastery);
 
         // 死者は数えない。
         adventurer.isAlive = false;
         adventurer.OnClearQuest(3);
-        Assert.Equal(2, adventurer.CurrentClassClearCount);
+        Assert.Equal(200, adventurer.CurrentClassMasteryPoints);
     }
 
     [Fact]

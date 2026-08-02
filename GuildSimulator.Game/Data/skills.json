@@ -2144,6 +2144,64 @@
     }
   },
   {
+    "id": "skill_event_campWisdom",
+    "skillName": "野営の知恵",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "restHealPercent": 10
+    }
+  },
+  {
+    "id": "skill_event_dangerSense",
+    "skillName": "危険察知",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "trapChancePercent": -10
+    }
+  },
+  {
+    "id": "skill_event_trailcraft",
+    "skillName": "獣道歩き",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "enemyEncounterChancePercent": -10
+    }
+  },
+  {
+    "id": "skill_event_antiqueEye",
+    "skillName": "古物鑑定",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "rareDropChancePercent": 10
+    }
+  },
+  {
+    "id": "skill_event_wardingRite",
+    "skillName": "魔除けの作法",
+    "scope": 0,
+    "add": {
+      "mav": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_event_composure",
+    "skillName": "沈着",
+    "scope": 0,
+    "add": {
+      "san": 10
+    },
+    "mul": {}
+  },
+  {
     "id": "skill_spendthrift",
     "skillName": "浪費癖",
     "scope": 0,

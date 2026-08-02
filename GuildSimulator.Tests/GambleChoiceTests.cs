@@ -233,4 +233,48 @@ public class GambleChoiceTests
         }
         output.WriteLine($"賭けイベント: {string.Join("、", gambles.Select(e => e.title))}");
     }
+
+    [Theory]
+    [InlineData("event_forest_lore")]
+    [InlineData("event_ruin_tablets")]
+    public void ShippedSkillChoiceEventsOfferThreeResolvedDeterministicSkills(string eventId)
+    {
+        var db = MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
+        var choice = db.choiceEvents[eventId];
+
+        Assert.Equal(3, choice.options.Count);
+        Assert.Contains(db.dungeons.Values, dungeon => dungeon.turnEndEvents.Contains(choice));
+        Assert.All(choice.options, option =>
+        {
+            Assert.True(option.targetsOneMember);
+            Assert.False(option.IsGamble);
+            Assert.Equal(QuestChoiceEffectType.AdventurerSkill, option.effectType);
+            Assert.NotNull(option.Skill);
+        });
+        Assert.Equal(3, choice.options.Select(option => option.Skill!.id).Distinct().Count());
+
+        var (qm, run, party) = Pending(choice);
+        var offeredSkill = choice.options[0].Skill!;
+        Assert.True(qm.ResolveChoice(run, 0, party[0], out var result), result);
+        Assert.Contains(offeredSkill, party[0].AllLearnedSkills);
+        Assert.DoesNotContain(offeredSkill, party[1].AllLearnedSkills);
+
+        // 同じイベントに再遭遇しても、習得済みの隊員を選んだだけで機会を失わない。
+        run.pendingChoice = new PendingQuestChoice { Event = choice, createdTurn = 3 };
+        Assert.False(qm.ResolveChoice(run, 0, party[0], out var duplicate));
+        Assert.Contains("別の隊員", duplicate);
+        Assert.NotNull(run.pendingChoice);
+
+        party[1].LearnPermanentSkill(offeredSkill);
+        Assert.False(qm.ResolveChoice(run, 0, party[0], out var saturated));
+        Assert.Contains("別のスキル", saturated);
+        Assert.NotNull(run.pendingChoice);
+
+        foreach (var skill in choice.options.Select(option => option.Skill!))
+            foreach (var member in party)
+                member.LearnPermanentSkill(skill);
+        Assert.True(qm.ResolveChoice(run, 0, party[0], out var allKnown), allKnown);
+        Assert.Contains("すでに", allKnown);
+        Assert.Null(run.pendingChoice);
+    }
 }

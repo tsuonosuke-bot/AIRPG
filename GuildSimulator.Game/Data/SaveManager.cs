@@ -148,7 +148,7 @@ public static class SaveManager
         learnedSkills = a.ExportLearnedSkills()
             .Select(x => new LearnedSkillSave { skillId = x.skill.id, ownerClassId = x.ownerClass?.id })
             .ToList(),
-        classClearCounts = new Dictionary<string, int>(a.ExportClassClearCounts()),
+        classMasteryPoints = new Dictionary<string, int>(a.ExportClassMasteryPoints()),
     };
 
     static QuestManagerSaveData ExportQuestManager(QuestManager qm) => new()
@@ -377,7 +377,7 @@ public static class SaveManager
                 skill: db.skills[ls.skillId],
                 ownerClass: ls.ownerClassId != null ? db.classes.GetValueOrDefault(ls.ownerClassId) : null))
             .ToList();
-        adv.RestoreProgress(skills, saved.classClearCounts);
+        adv.RestoreProgress(skills, saved.classMasteryPoints);
 
         return adv;
     }

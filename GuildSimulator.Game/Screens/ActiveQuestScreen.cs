@@ -1,4 +1,5 @@
 using GuildSimulator.Core.GameData;
+using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Quest;
 using GuildSimulator.Core.Systems.Guild;
@@ -356,8 +357,7 @@ public static class ActiveQuestScreen
             .Select((option, i) => new MenuOption(
                 (i + 1).ToString(),
                 option.text,
-                // 結果が複数あるなら、賭けだと分かるようにしておく。何が起きるかは伏せる。
-                option.IsGamble ? "何が起きるかは分からない" : null))
+                ChoiceOptionDetail(option)))
             .ToList();
         foreach (var option in options)
             Ui.WriteLine($"  {option.Key}. {option.Label}"
@@ -370,7 +370,7 @@ public static class ActiveQuestScreen
         AdventurerData? target = null;
         if (chosen.targetsOneMember)
         {
-            target = await SelectMemberAsync(q);
+            target = await SelectMemberAsync(q, chosen);
             if (target == null) return;   // 対象選びをやめたら選択自体を保留に戻す
         }
 
@@ -387,7 +387,18 @@ public static class ActiveQuestScreen
     /// 効果を受ける隊員を1人選ばせる。結果の抽選は選んだ後に行われるので、
     /// プレイヤーは「誰に賭けるか」だけを決めることになる。
     /// </summary>
-    static async Task<AdventurerData?> SelectMemberAsync(QuestRun q)
+    static string? ChoiceOptionDetail(QuestChoiceOptionData option)
+    {
+        // 結果が複数あるなら、賭けだと分かるようにしておく。何が起きるかは伏せる。
+        if (option.IsGamble) return "何が起きるかは分からない";
+        if (option.Skill != null)
+            return $"選んだ隊員がスキル「{option.Skill.skillName}」を習得";
+        return null;
+    }
+
+    static async Task<AdventurerData?> SelectMemberAsync(
+        QuestRun q,
+        QuestChoiceOptionData option)
     {
         var members = q.EnumerateMembers().Where(a => a.isAlive).ToList();
         if (members.Count == 0)
@@ -398,12 +409,16 @@ public static class ActiveQuestScreen
         }
 
         Ui.WriteLine();
+        SkillMasterData? offeredSkill = option.Skill;
         var entries = members
             .Select((a, i) => new MenuOption(
                 (i + 1).ToString(),
                 $"{a.name} Lv{a.level} ランク{a.RankLabel}",
                 $"{a.ClassAndRace}  HP {a.CombatHp}/{a.CombatHpMax}  "
-                    + $"VIT{a.vitality} MEN{a.mental} STR{a.strength} AGI{a.agility} INT{a.intelligence}",
+                    + $"VIT{a.vitality} MEN{a.mental} STR{a.strength} AGI{a.agility} INT{a.intelligence}"
+                    + (offeredSkill == null ? "" : a.AllLearnedSkills.Contains(offeredSkill)
+                        ? $"  「{offeredSkill.skillName}」習得済み"
+                        : $"  「{offeredSkill.skillName}」未習得"),
                 Ui.RarityStyle(a.master.rarity)))
             .ToList();
 

@@ -53,10 +53,34 @@ public class ClassSkillAcquisitionTests
         var report = Assert.Single(run.reportEvents, entry => entry.title == "スキル習得");
         Assert.True(report.important);
         Assert.Equal(adventurer.name, report.actorName);
-        Assert.Contains("通知職習熟度 1", report.detail);
+        Assert.Contains("通知職習熟度 1.1", report.detail);
 
         manager.AdvanceAll(currentTurn: 3);
         Assert.Single(run.reportEvents, entry => entry.title == "スキル習得");
+    }
+
+    [Theory]
+    [InlineData(-5, 100)]
+    [InlineData(0, 100)]
+    [InlineData(4, 104)]
+    [InlineData(15, 115)]
+    [InlineData(30, 130)]
+    [InlineData(40, 130)]
+    public void SuitableClearAwardsBasePointsPlusIntWithAThirtyPointCap(
+        int intelligence,
+        int expectedPoints)
+    {
+        var cls = new ClassMasterData { id = "class_int", className = "知性試験職" };
+        var adventurer = new AdventurerData(Master("int", "測定者", cls))
+        {
+            intelligence = intelligence,
+        };
+
+        var progress = adventurer.OnClearQuest(Rank.Min);
+
+        Assert.Equal(expectedPoints, progress.PointsGained);
+        Assert.Equal(expectedPoints, progress.TotalPoints);
+        Assert.Equal(expectedPoints, adventurer.CurrentClassMasteryPoints);
     }
 
     static AdventurerMasterData Master(string id, string name, ClassMasterData cls) => new()

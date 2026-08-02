@@ -238,13 +238,19 @@ public class QuestManager
                 q.clearProgressApplied = true;
                 foreach (var a in q.EnumerateMembers())
                 {
-                    var unlockedSkills = a.OnClearQuest(q.def.rank);
-                    if (unlockedSkills.Count > 0)
+                    var mastery = a.OnClearQuest(q.def.rank);
+                    if (mastery.PointsGained > 0)
                     {
-                        string names = string.Join("」「", unlockedSkills.Select(skill => skill.skillName));
+                        string className = a.currentClass?.className ?? "職業";
+                        q.logs.Add($"[職業習熟] {a.name} {className} +{mastery.PointsGained}pt"
+                            + $"（合計 {mastery.TotalPoints}pt / 習熟度 {mastery.TotalPoints / (float)AdventurerData.MasteryPointsPerLevel:0.##}）");
+                    }
+                    if (mastery.UnlockedSkills.Count > 0)
+                    {
+                        string names = string.Join("」「", mastery.UnlockedSkills.Select(skill => skill.skillName));
                         string className = a.currentClass?.className ?? "職業";
                         string message = $"{a.name}がスキル「{names}」を習得"
-                            + $"（{className}習熟度 {a.CurrentClassClearCount}）";
+                            + $"（{className}習熟度 {a.CurrentClassMastery:0.##}）";
                         q.logs.Add($"[スキル習得] {message}");
                         q.AddReportEvent(
                             currentTurn,
@@ -354,6 +360,30 @@ public class QuestManager
                 result = "この選択には、生存している隊員を1人指定してください";
                 return false;
             }
+        }
+
+        // 結果が確定しているスキル選択では、習得済みの隊員を選んで機会を失わせない。
+        // ギャンブル型は結果がまだ分からないため、従来どおり解決後に重複を報告する。
+        if (!option.IsGamble && option.Skill != null
+            && target != null && target.AllLearnedSkills.Contains(option.Skill))
+        {
+            var livingMembers = q.EnumerateMembers().Where(member => member.isAlive).ToList();
+            if (livingMembers.Any(member => !member.AllLearnedSkills.Contains(option.Skill)))
+            {
+                result = $"{target.name} はすでに「{option.Skill.skillName}」を身につけています。別の隊員を選んでください";
+                return false;
+            }
+
+            bool hasLearnableAlternative = pending.Event.options
+                .Where(candidate => !candidate.IsGamble && candidate.Skill != null)
+                .Any(candidate => livingMembers.Any(member =>
+                    !member.AllLearnedSkills.Contains(candidate.Skill!)));
+            if (hasLearnableAlternative)
+            {
+                result = $"「{option.Skill.skillName}」は全員が習得済みです。別のスキルを選んでください";
+                return false;
+            }
+            // 全候補を全員が習得済みなら、再発したイベントで進行不能にならないよう解決を許可する。
         }
 
         var outcome = PickOutcome(option);

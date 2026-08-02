@@ -20,6 +20,7 @@ public class QuestChoiceOptionData
     public string targetId = "";
     public EquipmentMasterData? Equipment { get; set; }
     public ConsumableMasterData? Consumable { get; set; }
+    public SkillMasterData? Skill { get; set; }
 
     /// <summary>
     /// 実行前にプレイヤーがパーティから1人選ぶ。
@@ -42,7 +43,7 @@ public class QuestChoiceOptionData
             {
                 weight = 1, effectType = effectType, value = value,
                 targetId = targetId, resultText = "",
-                Equipment = Equipment, Consumable = Consumable,
+                Equipment = Equipment, Consumable = Consumable, Skill = Skill,
             },
         };
 

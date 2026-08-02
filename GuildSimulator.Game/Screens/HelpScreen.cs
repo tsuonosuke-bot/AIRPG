@@ -441,14 +441,16 @@ public static class HelpScreen
         Ui.WriteLine("     隊列も生死も関係なく、その遠征に誰を出したかだけで決まる。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 習得条件 ── クラス習熟度");
-        Ui.WriteLine("     職業スキルは経験値やレベルではなく「その職業での正規クリア回数（クラス習熟度）」で開く。");
+        Ui.WriteLine("     職業スキルは経験値やレベルではなく、その職業の「クラス習熟度」で開く。");
+        Ui.WriteLine("     習熟ポイント100ptが習熟度1。必要習熟度×100ptに達するとスキルを習得する。");
         Ui.WriteLine("     一覧の各スキルには必要な習熟度が決まっていて、0のものは職業に就いた瞬間に手に入る。");
         Ui.WriteLine();
-        Ui.WriteLine("     習熟度が1つ増えるのは、次をすべて満たしたときだけ。");
+        Ui.WriteLine("     習熟ポイントが入るのは、次をすべて満たしたときだけ。");
         Ui.WriteLine("       ・そのクエストに参加していること");
         Ui.WriteLine("       ・クエストを正規クリアすること（撤退・全滅では増えない）");
         Ui.WriteLine("       ・帰還時に生存していること");
         Ui.WriteLine("       ・クエストが、その冒険者にとって適正ランクであること");
+        Ui.WriteLine("     1回の獲得量は 100＋INT（上限130）pt。INTが低くても100ptを下回らない。");
         Ui.WriteLine();
         Ui.WriteLine("  ■ 適正ランクとは");
         Ui.WriteLine($"     自分と同じランクから、{Rank.SuitableRangeAbove}つ上までのクエスト。");

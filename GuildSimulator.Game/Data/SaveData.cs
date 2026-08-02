@@ -7,7 +7,7 @@ namespace GuildSimulator.Game.Data;
 
 public class SaveGameData
 {
-    public int saveVersion = 7;
+    public int saveVersion = 8;
     public int currentTurn = 1;
     public GuildSaveData guild = new();
     public QuestManagerSaveData questManager = new();
@@ -75,7 +75,7 @@ public class AdventurerSaveData
     public List<InjurySaveData> injuries = new();
     public List<ScarSaveData> scars = new();
     public List<LearnedSkillSave> learnedSkills = new();
-    public Dictionary<string, int> classClearCounts = new();
+    public Dictionary<string, int> classMasteryPoints = new();
 }
 
 public class InjurySaveData
