@@ -103,7 +103,7 @@ public static class HelpScreen
     {
         Ui.BeginScreen();
         Ui.Header("クエスト");
-        Ui.WriteLine("  ・難易度（★）    : クエストボードで受注前に確認できる。戦闘率・罠率・敵レベル帯の目安。");
+        Ui.WriteLine("  ・難易度          : クエストボードで受注前に確認できる。戦闘率・罠率・敵の脅威度の目安。");
         Ui.WriteLine($"  ・クエストランク  : {Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。ギルドランク以下のものだけが掲示される。");
         Ui.WriteLine("                      冒険者ランクと突き合わせて「適正ランク」かどうかも決まり、");
         Ui.WriteLine("                      適正ランクを正規クリアするとクラス習熟度が増える（ヘルプ8を参照）。");
@@ -112,8 +112,11 @@ public static class HelpScreen
         Ui.WriteLine("  ・緊急クエスト    : 通常枠とは別枠に掲示される特別なクエスト。昇格試験もこれに含まれる。");
         Ui.WriteLine("  ・昇格試験        : 必要ギルドポイントを満たすと出現する一度きりのクエスト。");
         Ui.WriteLine("                      クリアするとギルドランクが上がる（撤退・全滅ではランクは上がらない）。");
+        Ui.WriteLine("  ・編成相対評価    : 人数・平均認定ランク・最大脅威・負傷状態から、現在の編成を相対評価する目安。");
+        Ui.WriteLine("                      装備や敵との相性、乱数は含まないため、勝敗を保証するものではない。");
         Ui.WriteLine("  ・遠征方針        : 出発時に「生還優先」か「依頼達成優先」を選ぶ。");
-        Ui.WriteLine("                      生還優先では損耗が危険域に入る前に撤退し、依頼達成優先では任務を続行する。");
+        Ui.WriteLine($"                      生還優先はパーティHP{BattleResolver.SurvivalPartyHpPercent}%以下、または誰かが{BattleResolver.SurvivalMemberHpPercent}%以下で撤退する。");
+        Ui.WriteLine("                      依頼達成優先は行動可能な限り続行するため、戦闘不能・死亡のリスクが高い。");
         Ui.WriteLine("  ・物語クエスト    : 調査で得た手掛かりによって次の依頼が掲示される一度きりのクエスト。");
         Ui.WriteLine("                      発見した内容はメインメニューの「J. 調査記録」で確認できる。");
         Ui.WriteLine("  ・撤退            : 士気が尽きるとパーティは自動的に撤退する。基本報酬は無しになるが、");
@@ -537,6 +540,7 @@ public static class HelpScreen
         Ui.WriteLine("                      同ランク以下のクエストは何本こなしても昇格には数えない。");
         Ui.WriteLine("                      死亡した冒険者は蘇生できない。");
         Ui.WriteLine("  ・負傷            : 戦闘不能から生還すると裂傷・骨折・深い傷・心的外傷などが残ることがある。");
+        Ui.WriteLine($"                      帰還時死亡率は重症度により{AdventurerData.MinorTraumaFatalityPercent}%/{AdventurerData.MajorTraumaFatalityPercent}%/{AdventurerData.CriticalTraumaFatalityPercent}%、壊滅時はさらに+{AdventurerData.PartyWipeFatalityBonusPercent}%。");
         Ui.WriteLine("                      負傷中でも出発できるが能力が下がる。出発させずターンを進めると1Tぶん休養する。");
         Ui.WriteLine("  ・医療院          : 休養時の回復を早め、帰還時死亡率と完治時に後遺症が残る確率を下げる。");
         Ui.WriteLine("  ・傷痕・後遺症    : 重傷の完治時に残る恒久効果。能力補正と固有称号を持ち、セーブにも記録される。");

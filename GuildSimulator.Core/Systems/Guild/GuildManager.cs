@@ -7,7 +7,7 @@ namespace GuildSimulator.Core.Systems.Guild;
 public class GuildManager
 {
     public const int GuildBaseUpkeepGoldPerTurn = 10;
-    public const int UpkeepGoldPerLevel = 3;
+    public const int UpkeepGoldPerLevel = 1;
 
     /// <summary>認定ランクが1つ上がるごとに増える賃金。レアリティは維持費に関係させない。</summary>
     public const int UpkeepGoldPerRank = 15;

@@ -6,6 +6,8 @@ namespace GuildSimulator.Core.Systems.Battle;
 
 public static class BattleResolver
 {
+    public const int SurvivalPartyHpPercent = 50;
+    public const int SurvivalMemberHpPercent = 25;
     public class Result
     {
         public bool adventurersRetreated;
@@ -336,14 +338,7 @@ public static class BattleResolver
             // 士気切れは方針に関わらず上の撤退ロジックが担うため、ここでは損耗（HP）だけで判断する。
             if (policy == ExpeditionPolicy.SurvivalFirst && AnyAlive(advSide) && AnyAlive(enemySide))
             {
-                int aliveMaxHp = advSide
-                    .Where(a => a != null && a.IsAlive)
-                    .Sum(a => Math.Max(1, a!.CombatHpMax));
-                int aliveCurrentHp = SumCurrentHp(advSide);
-                bool partyBadlyHurt = aliveMaxHp > 0 && (float)aliveCurrentHp / aliveMaxHp <= 0.60f;
-                bool memberInDanger = advSide
-                    .Any(a => a != null && a.IsAlive && HpRate(a) <= 0.30f);
-                if (partyBadlyHurt || memberInDanger)
+                if (ShouldSurvivalFirstRetreat(advSide))
                 {
                     logs.Add($"  Phase {phase}: 生還優先の命令に従い、損耗が危険域へ達する前に撤退した");
                     res.adventurersRetreated = true;
@@ -364,6 +359,24 @@ public static class BattleResolver
         res.retreatReason = ExpeditionRetreatReason.BattleStalemate;
         res.rounds = round;
         return res;
+    }
+
+    /// <summary>
+    /// 生還優先の撤退線。生存者の合計HPが50%以下、または誰か1人が25%以下なら撤退する。
+    /// 整数比較にして、ちょうど閾値に達した場合も確実に撤退させる。
+    /// </summary>
+    public static bool ShouldSurvivalFirstRetreat(IEnumerable<IUnitMember?> party)
+    {
+        var alive = party.Where(member => member != null && member.IsAlive).Select(member => member!).ToList();
+        if (alive.Count == 0) return false;
+
+        int partyMaxHp = alive.Sum(member => Math.Max(1, member.CombatHpMax));
+        int partyCurrentHp = alive.Sum(member => Math.Max(0, member.CombatHp));
+        bool partyBadlyHurt = partyCurrentHp * 100 <= partyMaxHp * SurvivalPartyHpPercent;
+        bool memberInDanger = alive.Any(member =>
+            Math.Max(0, member.CombatHp) * 100
+            <= Math.Max(1, member.CombatHpMax) * SurvivalMemberHpPercent);
+        return partyBadlyHurt || memberInDanger;
     }
 
     static bool ShouldUseSmokeBomb(

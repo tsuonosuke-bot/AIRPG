@@ -121,12 +121,10 @@ public class QuestRewardService
             q.def.rewardExp * rate * (1f + q.expRewardBonusPercent / 100f) * partySkills.ExpMultiplier);
         var members = q.formation.Where(x => x != null).ToList();
         int memberCount = members.Count;
-        int share = memberCount > 0 ? totalExp / memberCount : 0;
-        int remainder = memberCount > 0 ? totalExp % memberCount : 0;
         for (int i = 0; i < memberCount; i++)
         {
             var a = members[i]!;
-            int questExp = share + (i < remainder ? 1 : 0);
+            int questExp = ExperienceRewardSplitter.ShareFor(totalExp, memberCount, i);
             int levelBefore = a.level;
             a.AddExperience(questExp, out var ups, out var grownStats);
             string levelUpText = ups > 0

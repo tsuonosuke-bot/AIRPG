@@ -133,7 +133,12 @@ public class WeaponIdentityTests
         Assert.NotEmpty(allyFacedAv);
         Assert.True(allyFacedAv.First() > allyFacedAv.Last(),
             $"斧が削った装甲が仲間の攻撃に反映されていない（AV{allyFacedAv.First()}→{allyFacedAv.Last()}）");
-        Assert.Equal(allyFacedAv.First() - QudCombat.MAX_ARMOR_SHRED, allyFacedAv.Last());
+        // 仲間の初撃より前に斧が装甲を削ることもあるため、初撃から上限ぶん下がるとは限らない。
+        // 上限到達は AnAxeStripsArmourForTheWholePartyButOnlyUpToTheCap で別に検証する。
+        Assert.InRange(
+            allyFacedAv.First() - allyFacedAv.Last(),
+            1,
+            QudCombat.MAX_ARMOR_SHRED);
     }
 
     [Fact]

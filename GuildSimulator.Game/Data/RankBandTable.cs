@@ -109,25 +109,25 @@ public static class RankBandTable
     /// <summary>脅威度(1〜7 = F〜S)ごとの敵の帯。</summary>
     static readonly Dictionary<int, EnemyBand> _enemies = new()
     {
-        [1] = new(new(7, 30), new(0, 2), new(2, 9), new(-1, 3), new(12, 20)),
-        [2] = new(new(20, 42), new(0, 5), new(4, 6), new(0, 4), new(16, 26)),
-        [3] = new(new(25, 70), new(0, 8), new(3, 6), new(0, 6), new(20, 32)),
-        [4] = new(new(32, 90), new(1, 12), new(0, 8), new(1, 7), new(28, 42)),
-        [5] = new(new(50, 120), new(2, 14), new(3, 10), new(2, 9), new(30, 46)),
-        [6] = new(new(80, 160), new(3, 16), new(4, 11), new(3, 11), new(32, 50)),
-        [7] = new(new(120, 220), new(4, 18), new(5, 12), new(4, 13), new(38, 60)),
+        [1] = new(new(7, 30), new(0, 2), new(2, 9), new(-1, 3), new(3, 6)),
+        [2] = new(new(20, 42), new(0, 5), new(4, 6), new(0, 4), new(7, 10)),
+        [3] = new(new(25, 70), new(0, 8), new(3, 6), new(0, 6), new(11, 16)),
+        [4] = new(new(32, 90), new(1, 12), new(0, 8), new(1, 7), new(16, 24)),
+        [5] = new(new(50, 120), new(2, 14), new(3, 10), new(2, 9), new(28, 30)),
+        [6] = new(new(80, 160), new(3, 16), new(4, 11), new(3, 11), new(34, 38)),
+        [7] = new(new(120, 220), new(4, 18), new(5, 12), new(4, 13), new(45, 70)),
     };
 
     /// <summary>クエストランク(1〜7 = F〜S)ごとの報酬の帯。</summary>
     static readonly Dictionary<int, QuestBand> _quests = new()
     {
-        [1] = new(new(100, 300), new(300, 600), new(8, 80), new(5, 12)),
-        [2] = new(new(600, 1500), new(600, 1100), new(15, 120), new(12, 18)),
-        [3] = new(new(1500, 3500), new(1100, 1800), new(25, 150), new(16, 24)),
-        [4] = new(new(3000, 6500), new(2000, 3000), new(40, 220), new(20, 30)),
-        [5] = new(new(5000, 11000), new(2600, 3700), new(60, 300), new(25, 35)),
-        [6] = new(new(8000, 16000), new(3000, 4300), new(80, 400), new(30, 40)),
-        [7] = new(new(12000, 22000), new(4200, 6000), new(100, 500), new(35, 45)),
+        [1] = new(new(100, 300), new(10, 45), new(8, 80), new(5, 12)),
+        [2] = new(new(600, 1500), new(40, 100), new(15, 120), new(12, 18)),
+        [3] = new(new(1500, 3500), new(100, 150), new(25, 150), new(16, 24)),
+        [4] = new(new(3000, 6500), new(150, 220), new(40, 220), new(20, 30)),
+        [5] = new(new(5000, 11000), new(220, 300), new(60, 300), new(25, 35)),
+        [6] = new(new(8000, 16000), new(300, 400), new(80, 400), new(30, 40)),
+        [7] = new(new(12000, 22000), new(400, 550), new(100, 500), new(35, 45)),
     };
 
     /// <summary>

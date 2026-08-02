@@ -104,16 +104,22 @@ public class QuestProgressor
                             q.logs.Add($"  Phase {phase}: ボス撃破！");
                             AddChest(q, TreasureChestKind.Boss, phase);
                         }
-                        foreach (var a in q.formation)
+                        var participants = q.formation
+                            .Where(a => a != null && a.isAlive && !a.isIncapacitated)
+                            .Select(a => a!)
+                            .ToList();
+                        for (int participantIndex = 0; participantIndex < participants.Count; participantIndex++)
                         {
-                            if (a == null || !a.isAlive || a.isIncapacitated) continue;
+                            var a = participants[participantIndex];
+                            int earnedExp = ExperienceRewardSplitter.ShareFor(
+                                totalExp, participants.Count, participantIndex);
                             int levelBefore = a.level;
-                            if (a.AddExperience(totalExp, out var ups, out var grownStats))
+                            if (a.AddExperience(earnedExp, out var ups, out var grownStats))
                             {
                                 string levelUpText = ups > 0
                                     ? $"（レベルアップ {levelBefore}lv→{a.level}lv、{QuestManager.FormatGrownStats(grownStats)}）"
                                     : "";
-                                q.logs.Add($"  {a.name} 経験値 +{totalExp}{levelUpText}");
+                                q.logs.Add($"  {a.name} 経験値 +{earnedExp}{levelUpText}");
                             }
                         }
                         RollEnemyDrops(q, enemyMembers, phase);

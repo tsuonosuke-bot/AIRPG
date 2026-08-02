@@ -11,19 +11,19 @@ namespace GuildSimulator.Tests;
 public class EconomyAndRecruitmentTests
 {
     [Theory]
-    [InlineData(1, 3)]
-    [InlineData(3, 9)]
-    [InlineData(10, 30)]
-    public void UpkeepIsThreeGoldPerCurrentLevel(int level, int expected)
+    [InlineData(1, 1)]
+    [InlineData(3, 3)]
+    [InlineData(10, 10)]
+    public void UpkeepIsOneGoldPerCurrentLevel(int level, int expected)
     {
         Assert.Equal(expected, GuildManager.CalculateAdventurerUpkeep(level));
     }
 
     [Theory]
-    [InlineData(1, 1, 3)]
-    [InlineData(1, 2, 18)]
-    [InlineData(1, 7, 93)]
-    [InlineData(10, 3, 60)]
+    [InlineData(1, 1, 1)]
+    [InlineData(1, 2, 16)]
+    [InlineData(1, 7, 91)]
+    [InlineData(10, 3, 40)]
     public void UpkeepAddsFifteenGoldPerAdventurerRank(int level, int rank, int expected)
     {
         Assert.Equal(expected, GuildManager.CalculateAdventurerUpkeep(level, rank));
@@ -48,12 +48,12 @@ public class EconomyAndRecruitmentTests
         var guild = new GuildManager();
         guild.AddAdventurer(adventurer);
 
-        Assert.Equal(3, guild.AdventurerUpkeepPerTurn);
+        Assert.Equal(1, guild.AdventurerUpkeepPerTurn);
 
         adventurer.rank = 3;
 
-        Assert.Equal(33, guild.AdventurerUpkeepPerTurn);
-        Assert.Equal(43, guild.BaseUpkeepPerTurn);
+        Assert.Equal(31, guild.AdventurerUpkeepPerTurn);
+        Assert.Equal(41, guild.BaseUpkeepPerTurn);
     }
 
     [Fact]
@@ -63,13 +63,13 @@ public class EconomyAndRecruitmentTests
         var guild = new GuildManager();
         guild.AddAdventurer(adventurer);
 
-        Assert.Equal(3, guild.AdventurerUpkeepPerTurn);
-        Assert.Equal(13, guild.BaseUpkeepPerTurn);
+        Assert.Equal(1, guild.AdventurerUpkeepPerTurn);
+        Assert.Equal(11, guild.BaseUpkeepPerTurn);
 
         adventurer.level = 2;
 
-        Assert.Equal(6, guild.AdventurerUpkeepPerTurn);
-        Assert.Equal(16, guild.BaseUpkeepPerTurn);
+        Assert.Equal(2, guild.AdventurerUpkeepPerTurn);
+        Assert.Equal(12, guild.BaseUpkeepPerTurn);
     }
 
     [Fact]
@@ -90,9 +90,9 @@ public class EconomyAndRecruitmentTests
         guild.AddAdventurer(new AdventurerData(Master("a", level: 1)));
         guild.AddAdventurer(new AdventurerData(Master("b", level: 1)));
 
-        Assert.Equal(20, guild.EffectiveUpkeepPerTurn);
-        Assert.Equal(-10, guild.EstimateNetAfterUpkeep(rewardGold: 30, turns: 2));
-        Assert.Equal(20, guild.EstimateNetAfterUpkeep(rewardGold: 60, turns: 2));
+        Assert.Equal(12, guild.EffectiveUpkeepPerTurn);
+        Assert.Equal(6, guild.EstimateNetAfterUpkeep(rewardGold: 30, turns: 2));
+        Assert.Equal(36, guild.EstimateNetAfterUpkeep(rewardGold: 60, turns: 2));
     }
 
     [Theory]

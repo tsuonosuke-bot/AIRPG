@@ -181,8 +181,10 @@ public static class QuestBoardScreen
         Ui.WriteLine();
         string key = await Ui.SelectAsync("遠征方針", new[]
         {
-            new MenuOption("1", "生還優先", "損耗（HP）が危険域へ入る前に撤退する"),
-            new MenuOption("2", "依頼達成優先", "行動可能な限り任務を続行する"),
+            new MenuOption("1", "生還優先",
+                $"パーティHP{BattleResolver.SurvivalPartyHpPercent}%以下、または誰かが{BattleResolver.SurvivalMemberHpPercent}%以下で撤退する"),
+            new MenuOption("2", "依頼達成優先",
+                "行動可能な限り任務を続行する。戦闘不能者が出るほど帰還時の死亡リスクが高まる"),
             new MenuOption("0", "受注をやめる", Style: TextStyle.Dim),
         });
         return key switch
@@ -274,6 +276,13 @@ public static class QuestBoardScreen
         Ui.WriteLine($"  クエスト難易度: {diff.label}（スコア{diff.score:0}）  敵の脅威度: {diff.EnemyThreatRange}");
         if (diff.hasBoss)
             Ui.WriteLine($"  ボス: 脅威度{diff.BossThreatLabel}");
+        var assessment = DungeonDifficulty.EvaluateParty(def, members);
+        string assessmentText = $"  編成相対評価: {assessment.Label}"
+            + $"（人数 {assessment.MemberCount}/{assessment.RecommendedSize}人目安、"
+            + $"平均認定{assessment.AverageRankLabel}/最大脅威{assessment.TargetThreatLabel}）";
+        if (assessment.Score < 0) Ui.Warn(assessmentText);
+        else Ui.Info(assessmentText);
+        Ui.Dim("    ※人数・認定ランク・負傷状態による目安。装備や相性、乱数で結果は変わります");
         // 士気の格上ショックは「敵の脅威度 － 味方の認定ランク」で決まる。編成前に気づけるようにする。
         int avgRank = (int)Math.Round(members.Average(a => (double)a.rank));
         if (avgRank < diff.enemyThreatMax)

@@ -543,6 +543,31 @@ public class AdventurerData : IUnitMember
         pendingInjurySeverity = Math.Max(pendingInjurySeverity, Math.Clamp(severity, 1, 3));
     }
 
+    public const int MinorTraumaFatalityPercent = 10;
+    public const int MajorTraumaFatalityPercent = 20;
+    public const int CriticalTraumaFatalityPercent = 35;
+    public const int PartyWipeFatalityBonusPercent = 25;
+
+    /// <summary>
+    /// 帰還時の死亡率。戦闘不能の重症度に壊滅補正を加え、医療院の救命補正を最後に差し引く。
+    /// 乱数を含めず純粋に計算することで、画面説明と実処理が同じ数値を参照できるようにする。
+    /// </summary>
+    public static int CalculateFatalityPercent(
+        int severity,
+        bool partyWiped,
+        int fatalityReductionPercent)
+    {
+        int clampedSeverity = Math.Clamp(severity, 1, 3);
+        int fatality = clampedSeverity switch
+        {
+            1 => MinorTraumaFatalityPercent,
+            2 => MajorTraumaFatalityPercent,
+            _ => CriticalTraumaFatalityPercent,
+        };
+        if (partyWiped) fatality += PartyWipeFatalityBonusPercent;
+        return Math.Clamp(fatality - Math.Max(0, fatalityReductionPercent), 0, 95);
+    }
+
     /// <summary>帰還時に戦闘不能の結果を確定する。医療院の生存補正は死亡率から直接差し引く。</summary>
     public TraumaResolution ResolvePendingTrauma(bool partyWiped, int fatalityReductionPercent)
     {
@@ -550,9 +575,7 @@ public class AdventurerData : IUnitMember
             return new TraumaResolution(false, null, null, "負傷判定なし");
 
         int severity = Math.Clamp(Math.Max(1, pendingInjurySeverity), 1, 3);
-        int fatality = severity switch { 1 => 5, 2 => 15, _ => 30 };
-        if (partyWiped) fatality += 20;
-        fatality = Math.Clamp(fatality - Math.Max(0, fatalityReductionPercent), 0, 95);
+        int fatality = CalculateFatalityPercent(severity, partyWiped, fatalityReductionPercent);
 
         isIncapacitated = false;
         pendingInjurySeverity = 0;

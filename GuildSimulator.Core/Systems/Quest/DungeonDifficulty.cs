@@ -1,3 +1,4 @@
+using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
 
@@ -9,6 +10,19 @@ namespace GuildSimulator.Core.Systems.Quest;
 /// </summary>
 public static class DungeonDifficulty
 {
+    public sealed record PartyAssessment(
+        string Label,
+        int RecommendedSize,
+        int MemberCount,
+        int AverageRank,
+        int TargetThreat,
+        int InjuredCount,
+        int Score)
+    {
+        public string TargetThreatLabel => Rank.Label(TargetThreat);
+        public string AverageRankLabel => Rank.Label(AverageRank);
+    }
+
     public class Rating
     {
         public double score;         // 難易度の総合スコア（下限なし、段階数に縛られない目安値）
@@ -89,5 +103,54 @@ public static class DungeonDifficulty
             _ => "過酷",
         };
         return r;
+    }
+
+    /// <summary>
+    /// クエスト固有の難易度とは別に、現在の編成が十分かを人数・認定ランク・負傷から評価する。
+    /// 数値を隠した勝率予測にはせず、何を根拠にした目安かを画面で説明できる値を返す。
+    /// </summary>
+    public static PartyAssessment EvaluateParty(
+        QuestMasterData quest,
+        IReadOnlyCollection<AdventurerData> members)
+    {
+        var difficulty = Evaluate(quest);
+        int recommendedSize = difficulty.score switch
+        {
+            < 26 => 2,
+            < 34 => 3,
+            < 42 => 4,
+            _ => 5,
+        };
+
+        int memberCount = members.Count;
+        int averageRank = memberCount == 0
+            ? Rank.Min
+            : Rank.Clamp((int)Math.Round(members.Average(member => (double)member.rank)));
+        int targetThreat = Math.Max(
+            quest.rank,
+            Math.Max(difficulty.enemyThreatMax, difficulty.hasBoss ? difficulty.bossThreat : Rank.Min));
+        targetThreat = Rank.Clamp(targetThreat);
+        int injuredCount = members.Count(member => member.IsInjured);
+
+        int sizeGap = memberCount - recommendedSize;
+        int score = Math.Clamp(sizeGap, -2, 2)
+            + Math.Clamp(averageRank - targetThreat, -2, 2)
+            - Math.Min(2, injuredCount);
+        string label = score switch
+        {
+            <= -3 => "非常に危険",
+            <= -1 => "不利",
+            <= 1 => "適正",
+            _ => "有利",
+        };
+
+        return new PartyAssessment(
+            label,
+            recommendedSize,
+            memberCount,
+            averageRank,
+            targetThreat,
+            injuredCount,
+            score);
     }
 }
