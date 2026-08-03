@@ -149,7 +149,7 @@ public static class HelpScreen
         Ui.WriteLine("  ・回復            : 治療用の武器を持つ者は、味方のHPが7割を切ると攻撃の代わりに手当てをする。");
         Ui.WriteLine($"                      回復量は回復値×{BattleResolver.HEAL_SCALE:0.#}（1d20の出目20ならさらに×{BattleResolver.HEAL_CRIT_SCALE:0.#}、出目1は失敗）。");
         Ui.WriteLine("  ・状態異常        : 毒・出血・火傷はラウンド冒頭に継続ダメージ、凍結は次の行動を失う。");
-        Ui.WriteLine("                      火傷は継続ダメージに加えてAV/mAVも下げる。");
+        Ui.WriteLine("                      火傷は継続ダメージに加えてAV/mAVも下げる。凍えはDV、魔力減衰はmPVを下げる。");
         Ui.WriteLine("                      獣の牙=出血、炎=火傷、闇=毒、水=凍結の付与機会を持つ。戦闘終了時に解除される。");
         Ui.WriteLine("  ・一時バフ        : 土の武器は守勢（AV/mAV/DV）、風は攻勢（PV/mPV/命中）、光の治療は再生を与える。");
         Ui.WriteLine("                      バフも戦闘終了時に解除され、同じ効果は重複せず強い値と長い残り時間で更新される。");

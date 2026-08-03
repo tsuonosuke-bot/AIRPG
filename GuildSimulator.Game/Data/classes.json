@@ -360,7 +360,7 @@
         "requiredClearCount": 3300
       },
       {
-        "skillId": "skill_waterMastery_lv1",
+        "skillId": "skill_sanctuary_lv1",
         "requiredClearCount": 4200
       },
       {
@@ -376,7 +376,7 @@
         "requiredClearCount": 6300
       },
       {
-        "skillId": "skill_waterMastery_lv2",
+        "skillId": "skill_sanctuary_lv2",
         "requiredClearCount": 7500
       },
       {
@@ -387,12 +387,12 @@
   },
   {
     "id": "class_Sorcerer",
-    "className": "魔術師",
+    "className": "炎魔導士",
     "vitGrowth": 0.15,
     "mentGrowth": 0.35,
     "strGrowth": 0.0,
-    "intGrowth": 0.5,
-    "agiGrowth": 0.1,
+    "intGrowth": 0.4,
+    "agiGrowth": 0.2,
     "classSkills": [
       {
         "skillId": "skill_fireMastery_lv1",
@@ -419,7 +419,7 @@
         "requiredClearCount": 2500
       },
       {
-        "skillId": "skill_darkMastery_lv1",
+        "skillId": "skill_blazeSoul_lv1",
         "requiredClearCount": 3300
       },
       {
@@ -435,7 +435,7 @@
         "requiredClearCount": 6300
       },
       {
-        "skillId": "skill_darkMastery_lv2",
+        "skillId": "skill_flameChorus_lv1",
         "requiredClearCount": 7500
       },
       {
@@ -505,12 +505,12 @@
   },
   {
     "id": "class_Warder",
-    "className": "結界師",
+    "className": "土魔導士",
     "vitGrowth": 0.25,
-    "mentGrowth": 0.3,
+    "mentGrowth": 0.4,
     "strGrowth": 0.0,
     "intGrowth": 0.4,
-    "agiGrowth": 0.15,
+    "agiGrowth": 0.1,
     "classSkills": [
       {
         "skillId": "skill_earthMastery_lv1",
@@ -617,6 +617,183 @@
       },
       {
         "skillId": "skill_bowMastery_lv5",
+        "requiredClearCount": 8800
+      }
+    ]
+  },
+  {
+    "id": "class_WaterMage",
+    "className": "水魔導士",
+    "vitGrowth": 0.15,
+    "mentGrowth": 0.4,
+    "strGrowth": 0.0,
+    "intGrowth": 0.4,
+    "agiGrowth": 0.15,
+    "classSkills": [
+      {
+        "skillId": "skill_waterMastery_lv1",
+        "requiredClearCount": 0
+      },
+      {
+        "skillId": "skill_clothMastery_lv1",
+        "requiredClearCount": 300
+      },
+      {
+        "skillId": "skill_waterMastery_lv2",
+        "requiredClearCount": 700
+      },
+      {
+        "skillId": "skill_manaFlow_lv1",
+        "requiredClearCount": 1200
+      },
+      {
+        "skillId": "skill_waterMastery_lv3",
+        "requiredClearCount": 1800
+      },
+      {
+        "skillId": "skill_clothMastery_lv2",
+        "requiredClearCount": 2500
+      },
+      {
+        "skillId": "skill_frostbind_lv1",
+        "requiredClearCount": 3300
+      },
+      {
+        "skillId": "skill_manaFlow_lv2",
+        "requiredClearCount": 4200
+      },
+      {
+        "skillId": "skill_waterMastery_lv4",
+        "requiredClearCount": 5200
+      },
+      {
+        "skillId": "skill_frostbind_lv2",
+        "requiredClearCount": 6300
+      },
+      {
+        "skillId": "skill_manaFlow_lv3",
+        "requiredClearCount": 7500
+      },
+      {
+        "skillId": "skill_waterMastery_lv5",
+        "requiredClearCount": 8800
+      }
+    ]
+  },
+  {
+    "id": "class_WindMage",
+    "className": "風魔導士",
+    "vitGrowth": 0.1,
+    "mentGrowth": 0.3,
+    "strGrowth": 0.0,
+    "intGrowth": 0.4,
+    "agiGrowth": 0.3,
+    "classSkills": [
+      {
+        "skillId": "skill_windMastery_lv1",
+        "requiredClearCount": 0
+      },
+      {
+        "skillId": "skill_clothMastery_lv1",
+        "requiredClearCount": 300
+      },
+      {
+        "skillId": "skill_windMastery_lv2",
+        "requiredClearCount": 700
+      },
+      {
+        "skillId": "skill_swiftStep_lv1",
+        "requiredClearCount": 1200
+      },
+      {
+        "skillId": "skill_windMastery_lv3",
+        "requiredClearCount": 1800
+      },
+      {
+        "skillId": "skill_clothMastery_lv2",
+        "requiredClearCount": 2500
+      },
+      {
+        "skillId": "skill_manaFlow_lv1",
+        "requiredClearCount": 3300
+      },
+      {
+        "skillId": "skill_swiftStep_lv2",
+        "requiredClearCount": 4200
+      },
+      {
+        "skillId": "skill_windMastery_lv4",
+        "requiredClearCount": 5200
+      },
+      {
+        "skillId": "skill_manaFlow_lv2",
+        "requiredClearCount": 6300
+      },
+      {
+        "skillId": "skill_swiftStep_lv3",
+        "requiredClearCount": 7500
+      },
+      {
+        "skillId": "skill_windMastery_lv5",
+        "requiredClearCount": 8800
+      }
+    ]
+  },
+  {
+    "id": "class_DarkMage",
+    "className": "闇魔導士",
+    "vitGrowth": 0.3,
+    "mentGrowth": 0.2,
+    "strGrowth": 0.0,
+    "intGrowth": 0.5,
+    "agiGrowth": 0.1,
+    "classSkills": [
+      {
+        "skillId": "skill_darkMastery_lv1",
+        "requiredClearCount": 0
+      },
+      {
+        "skillId": "skill_clothMastery_lv1",
+        "requiredClearCount": 300
+      },
+      {
+        "skillId": "skill_darkMastery_lv2",
+        "requiredClearCount": 700
+      },
+      {
+        "skillId": "skill_stealth_lv1",
+        "requiredClearCount": 1200
+      },
+      {
+        "skillId": "skill_darkMastery_lv3",
+        "requiredClearCount": 1800
+      },
+      {
+        "skillId": "skill_clothMastery_lv2",
+        "requiredClearCount": 2500
+      },
+      {
+        "skillId": "skill_deepCut_lv1",
+        "requiredClearCount": 3300
+      },
+      {
+        "skillId": "skill_precision_lv1",
+        "requiredClearCount": 4200
+      },
+      {
+        "skillId": "skill_darkMastery_lv4",
+        "requiredClearCount": 5200
+      },
+      {
+        "skillId": "skill_deepCut_lv2",
+        "requiredClearCount": 6300
+      },
+      {
+        "skillId": "skill_stealth_lv2",
+        "requiredClearCount": 7500
+      },
+      {
+        "skillId": "skill_darkMastery_lv5",
         "requiredClearCount": 8800
       }
     ]

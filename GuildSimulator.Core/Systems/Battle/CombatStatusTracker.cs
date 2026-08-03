@@ -22,6 +22,8 @@ public sealed class CombatStatusTracker
         CombatStatusType.Burning,
         CombatStatusType.Poisoned,
         CombatStatusType.Bleeding,
+        CombatStatusType.Chilled,
+        CombatStatusType.ManaSapped,
     };
 
     public bool Apply(
@@ -119,6 +121,12 @@ public sealed class CombatStatusTracker
                     stats.mav += potency;
                     stats.dv += potency;
                     break;
+                case CombatStatusType.Chilled:
+                    stats.dv -= potency;
+                    break;
+                case CombatStatusType.ManaSapped:
+                    stats.mpv -= potency;
+                    break;
             }
         }
         return stats;
@@ -214,6 +222,8 @@ public sealed class CombatStatusTracker
         CombatStatusType.Regenerating => "再生",
         CombatStatusType.Empowered => "攻勢",
         CombatStatusType.Guarded => "守勢",
+        CombatStatusType.Chilled => "凍え",
+        CombatStatusType.ManaSapped => "魔力減衰",
         _ => type.ToString(),
     };
 }
