@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "seed": 24680,
+  "runs": 30,
+  "scenarios": [
+    {
+      "id": "f-to-e-natural-growth",
+      "name": "Fから育成してEへ進む",
+      "type": "campaign",
+      "partyIds": ["adv_0001", "adv_0002", "adv_0003", "adv_0004"],
+      "questIds": [
+        "quest_slime_cull",
+        "quest_raven_nuisance",
+        "quest_goblin_slayer",
+        "quest_wolf_cull",
+        "quest_wolf_pack_hunt",
+        "quest_spider_nest_clear",
+        "quest_promotion_1",
+        "quest_caravan_escort",
+        "quest_poison_spider_cull",
+        "quest_ranpos_cull"
+      ],
+      "policy": "ObjectiveFirst",
+      "startingGold": 5000,
+      "startingGuildRank": 1,
+      "maxTurns": 50,
+      "maxGatherExtensions": 3,
+      "autoRankUp": true,
+      "continueOnFailure": false
+    },
+    {
+      "id": "e-prepared-party",
+      "name": "育成済みEパーティの基準戦闘",
+      "type": "battle",
+      "partyLevel": 5,
+      "partyRank": 2,
+      "party": [
+        {
+          "id": "adv_0001",
+          "equipment": {
+            "RightHand": "eq_sword_02",
+            "Body": "eq_leather_01"
+          }
+        },
+        { "id": "adv_0002" },
+        { "id": "adv_0003" },
+        { "id": "adv_0004" }
+      ],
+      "enemyUnitId": "unit_goblin_line",
+      "policy": "ObjectiveFirst"
+    }
+  ]
+}

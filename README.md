@@ -124,6 +124,33 @@ dotnet run --project GuildSimulator.Cli -- --validate-master
 .\tools\balance-lab.cmd --compare outputs\balance-lab\baseline.json
 ```
 
+育成済みパーティは `partyLevel` / `partyRank` で全員の初期状態を指定できます。
+メンバーごとの差や装備を指定するときは `partyIds` の代わりに `party` を使います。
+
+```json
+"partyLevel": 5,
+"partyRank": 2,
+"party": [
+  {
+    "id": "adv_0001",
+    "equipment": {
+      "RightHand": "eq_sword_02",
+      "Body": "eq_leather_01"
+    }
+  },
+  { "id": "adv_0002", "level": 4, "rank": 2 }
+]
+```
+
+`type: "campaign"` は同じパーティ・資金・経験値・負傷状態をクエスト間で持ち越します。
+`autoRankUp` を有効にすると、昇格条件を満たした冒険者を各クエスト後に自動昇格させます。
+結果JSONの `campaignSteps` には各クエストへの到達率、到達者ベースのクリア率、
+開始・終了時の平均レベル／ランクが出力されます。
+
+```powershell
+.\tools\balance-lab.cmd --config GuildSimulator.Balance\scenarios\f-to-e-campaign.json
+```
+
 既定シナリオは `GuildSimulator.Balance/scenarios/default.json`、結果は
 `outputs/balance-lab/balance-report.json` と同名CSVです。Excelマスタを再出力すると、結果が「バランスレポート」シートへ取り込まれます。
 

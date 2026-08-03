@@ -47,7 +47,8 @@ public sealed class BalanceRunner(GameMasterData db)
             {
                 "battle" => RunBattle(scenario, runs, scenarioSeed),
                 "quest" => RunQuest(scenario, runs, scenarioSeed),
-                _ => throw new InvalidDataException($"{scenario.id}: type must be battle or quest."),
+                "campaign" => RunCampaign(scenario, runs, scenarioSeed),
+                _ => throw new InvalidDataException($"{scenario.id}: type must be battle, quest, or campaign."),
             };
 
             var previous = baseline?.scenarios.FirstOrDefault(x =>
@@ -63,33 +64,84 @@ public sealed class BalanceRunner(GameMasterData db)
     {
         if (string.IsNullOrWhiteSpace(scenario.id))
             throw new InvalidDataException("Every scenario needs an id.");
-        if (scenario.partyIds.Count == 0 || scenario.partyIds.Count > 6)
-            throw new InvalidDataException($"{scenario.id}: partyIds must contain 1 to 6 adventurers.");
-        foreach (var id in scenario.partyIds)
-            if (!adventurers.ContainsKey(id))
-                throw new InvalidDataException($"{scenario.id}: unknown adventurer '{id}'.");
-        if (scenario.type.Equals("battle", StringComparison.OrdinalIgnoreCase)
-            && !db.enemyUnits.ContainsKey(scenario.enemyUnitId))
+        if (scenario.party.Count > 0 && scenario.partyIds.Count > 0)
+            throw new InvalidDataException($"{scenario.id}: use either party or partyIds, not both.");
+
+        var members = PartyMembers(scenario).ToList();
+        if (members.Count == 0 || members.Count > 6)
+            throw new InvalidDataException($"{scenario.id}: party must contain 1 to 6 adventurers.");
+        if (members.Select(x => x.id).Distinct(StringComparer.OrdinalIgnoreCase).Count() != members.Count)
+            throw new InvalidDataException($"{scenario.id}: party contains duplicate adventurer ids.");
+
+        ValidateLevel(scenario.partyLevel, 0, $"{scenario.id}: partyLevel");
+        ValidateRank(scenario.partyRank, 0, $"{scenario.id}: partyRank");
+        ValidateRank(scenario.startingGuildRank, 0, $"{scenario.id}: startingGuildRank");
+        foreach (var member in members)
+        {
+            if (!adventurers.TryGetValue(member.id, out var master))
+                throw new InvalidDataException($"{scenario.id}: unknown adventurer '{member.id}'.");
+            ValidateLevel(member.level, master.defaultLevel, $"{scenario.id}: {member.id}.level");
+            ValidateRank(member.rank, master.defaultRank, $"{scenario.id}: {member.id}.rank");
+            int effectiveLevel = member.level > 0 ? member.level : scenario.partyLevel;
+            int effectiveRank = member.rank > 0 ? member.rank : scenario.partyRank;
+            ValidateLevel(effectiveLevel, master.defaultLevel, $"{scenario.id}: {member.id} effective level");
+            ValidateRank(effectiveRank, master.defaultRank, $"{scenario.id}: {member.id} effective rank");
+            foreach (var (slotName, equipmentId) in member.equipment)
+            {
+                if (!Enum.TryParse<EquipSlot>(slotName, true, out var slot))
+                    throw new InvalidDataException($"{scenario.id}: {member.id} has unknown equipment slot '{slotName}'.");
+                if (string.IsNullOrWhiteSpace(equipmentId)) continue;
+                if (!db.equipment.TryGetValue(equipmentId, out var item))
+                    throw new InvalidDataException($"{scenario.id}: {member.id} has unknown equipment '{equipmentId}'.");
+                if (!item.CanEquipTo(slot))
+                    throw new InvalidDataException($"{scenario.id}: {equipmentId} cannot be equipped in {slot}.");
+            }
+        }
+
+        string type = scenario.type.ToLowerInvariant();
+        if (type == "battle" && !db.enemyUnits.ContainsKey(scenario.enemyUnitId))
             throw new InvalidDataException($"{scenario.id}: unknown enemy unit '{scenario.enemyUnitId}'.");
-        if (scenario.type.Equals("quest", StringComparison.OrdinalIgnoreCase)
-            && !quests.ContainsKey(scenario.questId))
+        if (type == "quest" && !quests.ContainsKey(scenario.questId))
             throw new InvalidDataException($"{scenario.id}: unknown quest '{scenario.questId}'.");
+        if (type == "campaign")
+        {
+            if (scenario.questIds.Count == 0)
+                throw new InvalidDataException($"{scenario.id}: campaign questIds must not be empty.");
+            foreach (var questId in scenario.questIds)
+                if (!quests.ContainsKey(questId))
+                    throw new InvalidDataException($"{scenario.id}: unknown campaign quest '{questId}'.");
+        }
+        if (type is not ("battle" or "quest" or "campaign"))
+            throw new InvalidDataException($"{scenario.id}: type must be battle, quest, or campaign.");
         if (scenario.maxTurns <= 0)
             throw new InvalidDataException($"{scenario.id}: maxTurns must be greater than 0.");
+        _ = ParsePolicy(scenario.policy, scenario.id);
+    }
+
+    static void ValidateLevel(int value, int minimum, string field)
+    {
+        if (value < 0 || value > 100 || (value > 0 && value < minimum))
+            throw new InvalidDataException($"{field} must be 0 or {Math.Max(1, minimum)}..100.");
+    }
+
+    static void ValidateRank(int value, int minimum, string field)
+    {
+        if (value < 0 || value > Rank.Max || (value > 0 && value < minimum))
+            throw new InvalidDataException($"{field} must be 0 or {Math.Max(Rank.Min, minimum)}..{Rank.Max}.");
     }
 
     BalanceScenarioResult RunBattle(BalanceScenario scenario, int runs, int seed)
     {
         int wins = 0, retreats = 0, failures = 0;
         long rounds = 0;
-        double hpPercent = 0;
+        double hpPercent = 0, endingLevel = 0, endingRank = 0;
         var enemyTemplate = db.enemyUnits[scenario.enemyUnitId];
         var policy = ParsePolicy(scenario.policy, scenario.id);
 
         for (int runIndex = 0; runIndex < runs; runIndex++)
         {
             using var random = GameRandom.UseSeed(unchecked(seed + runIndex));
-            var party = CreateParty(scenario.partyIds);
+            var party = CreateParty(scenario);
             var enemies = enemyTemplate.Formation
                 .Take(6)
                 .Select(master => master == null ? null : new EnemyData(master))
@@ -112,6 +164,8 @@ public sealed class BalanceRunner(GameMasterData db)
             if (failed) failures++;
             rounds += result.rounds;
             hpPercent += RemainingHpPercent(party);
+            endingLevel += PartyAverage(party, x => x.level);
+            endingRank += PartyAverage(party, x => x.rank);
         }
 
         return new BalanceScenarioResult
@@ -127,6 +181,8 @@ public sealed class BalanceRunner(GameMasterData db)
             failureRatePercent = Rate(failures, runs),
             meanRounds = Mean(rounds, runs),
             meanRemainingHpPercent = Mean(hpPercent, runs),
+            meanEndingLevel = Mean(endingLevel, runs),
+            meanEndingRank = Mean(endingRank, runs),
         };
     }
 
@@ -134,73 +190,31 @@ public sealed class BalanceRunner(GameMasterData db)
     {
         int clears = 0, retreats = 0, failures = 0, bankruptcies = 0;
         long turns = 0, gatherExtensions = 0, chests = 0;
-        double hpPercent = 0, goldDelta = 0;
+        double hpPercent = 0, goldDelta = 0, endingLevel = 0, endingRank = 0;
         var quest = quests[scenario.questId];
-        var policy = ParsePolicy(scenario.policy, scenario.id);
 
         for (int runIndex = 0; runIndex < runs; runIndex++)
         {
             using var random = GameRandom.UseSeed(unchecked(seed + runIndex));
-            var guild = new GuildManager(scenario.startingGold, quest.rank);
-            var party = CreateParty(scenario.partyIds);
+            int guildRank = scenario.startingGuildRank > 0 ? scenario.startingGuildRank : quest.rank;
+            var guild = new GuildManager(scenario.startingGold, guildRank);
+            var party = CreateParty(scenario);
             foreach (var member in party.Where(x => x != null)) guild.AddAdventurer(member!);
             var manager = new QuestManager(guild);
-            if (!manager.TryStartQuest(quest, party, 1, out var error, policy: policy))
-                throw new InvalidOperationException($"{scenario.id}: quest could not start: {error}");
-            var questRun = manager.activeQuests.Single();
-            int elapsed = 0;
-            bool bankrupt = false;
-            bool terminalStateCaptured = false;
-            double terminalHpPercent = 0;
-            int terminalChestCount = 0;
+            int currentTurn = 1;
+            var play = PlayQuest(scenario, quest, manager, guild, party, ref currentTurn);
 
-            for (int turn = 2; turn <= scenario.maxTurns + 1; turn++)
-            {
-                elapsed++;
-                manager.AdvanceAll(turn);
-                guild.PayUpkeepForAll(turn);
-                bankrupt |= guild.Gold <= 0;
-
-                if (questRun.HasPendingChoice)
-                {
-                    var option = questRun.pendingChoice!.Event.options[0];
-                    var target = option.targetsOneMember
-                        ? questRun.EnumerateMembers().FirstOrDefault(x => x.isAlive)
-                        : null;
-                    if (!manager.ResolveChoice(questRun, 0, target, out var choiceError))
-                        throw new InvalidOperationException($"{scenario.id}: choice could not resolve: {choiceError}");
-                }
-                if (questRun.HasGatherDecision)
-                {
-                    bool continueSearch = questRun.gatherExtensions < scenario.maxGatherExtensions;
-                    if (!manager.ResolveGatherDecision(questRun, continueSearch, out var gatherError))
-                        throw new InvalidOperationException($"{scenario.id}: gather decision could not resolve: {gatherError}");
-                }
-                if (questRun.CanComplete || questRun.failed)
-                {
-                    terminalHpPercent = RemainingHpPercent(party);
-                    terminalChestCount = questRun.chests.Count;
-                    terminalStateCaptured = true;
-                    manager.FinalizeQuest(questRun);
-                    break;
-                }
-            }
-
-            if (!terminalStateCaptured)
-            {
-                terminalHpPercent = RemainingHpPercent(party);
-                terminalChestCount = questRun.chests.Count;
-            }
-            if (!questRun.rewarded && (questRun.CanComplete || questRun.failed)) manager.FinalizeQuest(questRun);
-            if (questRun.IsCleared) clears++;
-            if (questRun.retreated) retreats++;
-            if (questRun.failed || (!questRun.rewarded && !questRun.IsCleared && !questRun.retreated)) failures++;
-            if (bankrupt) bankruptcies++;
-            turns += elapsed;
-            gatherExtensions += questRun.gatherExtensions;
-            chests += terminalChestCount;
-            hpPercent += terminalHpPercent;
+            if (play.Run.IsCleared) clears++;
+            if (play.Run.retreated) retreats++;
+            if (play.IsFailure) failures++;
+            if (play.Bankrupt) bankruptcies++;
+            turns += play.Turns;
+            gatherExtensions += play.Run.gatherExtensions;
+            chests += play.Chests;
+            hpPercent += play.HpPercent;
             goldDelta += guild.Gold - scenario.startingGold;
+            endingLevel += PartyAverage(party, x => x.level);
+            endingRank += PartyAverage(party, x => x.rank);
         }
 
         return new BalanceScenarioResult
@@ -220,14 +234,221 @@ public sealed class BalanceRunner(GameMasterData db)
             meanGoldDelta = Mean(goldDelta, runs),
             meanGatherExtensions = Mean(gatherExtensions, runs),
             meanChests = Mean(chests, runs),
+            meanEndingLevel = Mean(endingLevel, runs),
+            meanEndingRank = Mean(endingRank, runs),
         };
     }
 
-    AdventurerData?[] CreateParty(IEnumerable<string> ids)
+    BalanceScenarioResult RunCampaign(BalanceScenario scenario, int runs, int seed)
     {
-        var party = ids.Select(id => (AdventurerData?)new AdventurerData(adventurers[id])).ToArray();
+        int clears = 0, retreats = 0, failures = 0, bankruptcies = 0;
+        long turns = 0, completedSteps = 0;
+        double hpPercent = 0, goldDelta = 0, endingLevel = 0, endingRank = 0;
+        var stepStats = scenario.questIds.Select(id => new CampaignStepAccumulator(quests[id])).ToList();
+
+        for (int runIndex = 0; runIndex < runs; runIndex++)
+        {
+            using var random = GameRandom.UseSeed(unchecked(seed + runIndex));
+            int guildRank = scenario.startingGuildRank > 0
+                ? scenario.startingGuildRank
+                : quests[scenario.questIds[0]].rank;
+            var guild = new GuildManager(scenario.startingGold, guildRank);
+            var party = CreateParty(scenario);
+            foreach (var member in party.Where(x => x != null)) guild.AddAdventurer(member!);
+            var manager = new QuestManager(guild);
+            int currentTurn = 1;
+            int clearedCount = 0;
+            bool anyRetreat = false, anyFailure = false, bankrupt = false;
+            double terminalHp = 100;
+
+            for (int stepIndex = 0; stepIndex < scenario.questIds.Count; stepIndex++)
+            {
+                // A fixed campaign formation cannot depart while it still contains a dead member.
+                // The next quest is therefore not reached; callers can model replacement with a new campaign.
+                if (party.Any(x => x != null && !x.isAlive))
+                {
+                    anyFailure = true;
+                    break;
+                }
+                var stats = stepStats[stepIndex];
+                double startingLevel = PartyAverage(party, x => x.level);
+                double startingRank = PartyAverage(party, x => x.rank);
+                stats.Reached++;
+                stats.StartingLevel += startingLevel;
+                stats.StartingRank += startingRank;
+
+                var play = PlayQuest(scenario, stats.Quest, manager, guild, party, ref currentTurn);
+
+                turns += play.Turns;
+                terminalHp = play.HpPercent;
+                bankrupt |= play.Bankrupt;
+                if (play.Run.IsCleared)
+                {
+                    stats.Clears++;
+                    clearedCount++;
+                    if (scenario.autoRankUp)
+                        AutoRankUp(party);
+                }
+                else if (play.Run.retreated)
+                {
+                    stats.Retreats++;
+                    anyRetreat = true;
+                }
+                else
+                {
+                    stats.Failures++;
+                    anyFailure = true;
+                }
+
+                stats.EndingLevel += PartyAverage(party, x => x.level);
+                stats.EndingRank += PartyAverage(party, x => x.rank);
+                if (!play.Run.IsCleared && !scenario.continueOnFailure) break;
+                if (play.IsFailure && !play.Run.rewarded) break;
+                if (!party.Any(x => x != null && x.isAlive)) break;
+            }
+
+            bool campaignCleared = clearedCount == scenario.questIds.Count;
+            if (campaignCleared) clears++;
+            else if (anyFailure) failures++;
+            else if (anyRetreat) retreats++;
+            else failures++;
+            if (bankrupt) bankruptcies++;
+            completedSteps += clearedCount;
+            hpPercent += terminalHp;
+            goldDelta += guild.Gold - scenario.startingGold;
+            endingLevel += PartyAverage(party, x => x.level);
+            endingRank += PartyAverage(party, x => x.rank);
+        }
+
+        return new BalanceScenarioResult
+        {
+            id = scenario.id,
+            name = DisplayName(scenario),
+            type = "campaign",
+            runs = runs,
+            seed = seed,
+            winRatePercent = Rate(clears, runs),
+            clearRatePercent = Rate(clears, runs),
+            retreatRatePercent = Rate(retreats, runs),
+            failureRatePercent = Rate(failures, runs),
+            bankruptcyRatePercent = Rate(bankruptcies, runs),
+            meanTurns = Mean(turns, runs),
+            meanRemainingHpPercent = Mean(hpPercent, runs),
+            meanGoldDelta = Mean(goldDelta, runs),
+            meanEndingLevel = Mean(endingLevel, runs),
+            meanEndingRank = Mean(endingRank, runs),
+            meanCompletedSteps = Mean(completedSteps, runs),
+            campaignSteps = stepStats.Select(x => x.Result(runs)).ToList(),
+        };
+    }
+
+    QuestPlayResult PlayQuest(
+        BalanceScenario scenario,
+        QuestMasterData quest,
+        QuestManager manager,
+        GuildManager guild,
+        AdventurerData?[] party,
+        ref int currentTurn)
+    {
+        var policy = ParsePolicy(scenario.policy, scenario.id);
+        if (!manager.TryStartQuest(quest, party, currentTurn, out var error, policy: policy))
+            throw new InvalidOperationException($"{scenario.id}: quest '{quest.id}' could not start: {error}");
+        var questRun = manager.activeQuests.Single();
+        int elapsed = 0;
+        bool bankrupt = false, captured = false;
+        double terminalHp = 0;
+        int terminalChests = 0;
+
+        for (int i = 0; i < scenario.maxTurns; i++)
+        {
+            currentTurn++;
+            elapsed++;
+            manager.AdvanceAll(currentTurn);
+            guild.PayUpkeepForAll(currentTurn);
+            bankrupt |= guild.Gold <= 0;
+
+            if (questRun.HasPendingChoice)
+            {
+                var option = questRun.pendingChoice!.Event.options[0];
+                var target = option.targetsOneMember
+                    ? questRun.EnumerateMembers().FirstOrDefault(x => x.isAlive)
+                    : null;
+                if (!manager.ResolveChoice(questRun, 0, target, out var choiceError))
+                    throw new InvalidOperationException($"{scenario.id}: choice could not resolve: {choiceError}");
+            }
+            if (questRun.HasGatherDecision)
+            {
+                bool continueSearch = questRun.gatherExtensions < scenario.maxGatherExtensions;
+                if (!manager.ResolveGatherDecision(questRun, continueSearch, out var gatherError))
+                    throw new InvalidOperationException($"{scenario.id}: gather decision could not resolve: {gatherError}");
+            }
+            if (questRun.CanComplete || questRun.failed)
+            {
+                terminalHp = RemainingHpPercent(party);
+                terminalChests = questRun.chests.Count;
+                captured = true;
+                manager.FinalizeQuest(questRun);
+                break;
+            }
+        }
+
+        if (!captured)
+        {
+            terminalHp = RemainingHpPercent(party);
+            terminalChests = questRun.chests.Count;
+        }
+        if (!questRun.rewarded && (questRun.CanComplete || questRun.failed))
+            manager.FinalizeQuest(questRun);
+        bool failure = questRun.failed
+            || (!questRun.rewarded && !questRun.IsCleared && !questRun.retreated);
+        return new QuestPlayResult(questRun, elapsed, bankrupt, terminalHp, terminalChests, failure);
+    }
+
+    AdventurerData?[] CreateParty(BalanceScenario scenario)
+    {
+        var party = PartyMembers(scenario).Select(spec =>
+        {
+            var member = new AdventurerData(adventurers[spec.id]);
+            int targetLevel = spec.level > 0 ? spec.level : scenario.partyLevel;
+            while (targetLevel > 0 && member.level < targetLevel)
+                member.AddExperience(member.RequiredExpForNextLevel, out _);
+
+            int targetRank = spec.rank > 0 ? spec.rank : scenario.partyRank;
+            while (targetRank > 0 && member.rank < targetRank)
+            {
+                var requirement = member.NextRankRequirement!.Value;
+                member.higherRankClears = requirement.higherRankClears;
+                member.suitableRankClearsTotal = Math.Max(
+                    member.suitableRankClearsTotal, requirement.suitableTotalClears);
+                if (!member.TryRankUp(out _))
+                    throw new InvalidOperationException($"Could not promote {spec.id} to rank {targetRank}.");
+            }
+
+            foreach (var (slotName, equipmentId) in spec.equipment)
+            {
+                var slot = Enum.Parse<EquipSlot>(slotName, true);
+                member.SetEquipped(slot,
+                    string.IsNullOrWhiteSpace(equipmentId) ? null : db.equipment[equipmentId]);
+            }
+            if (member.GetEquipped(EquipSlot.RightHand) is { isTwoHanded: true }
+                && member.GetEquipped(EquipSlot.LeftHand) != null)
+                throw new InvalidDataException($"{scenario.id}: {spec.id} cannot combine a two-handed weapon with left-hand equipment.");
+            return (AdventurerData?)member;
+        }).ToArray();
         Array.Resize(ref party, 6);
         return party;
+    }
+
+    static IEnumerable<BalancePartyMember> PartyMembers(BalanceScenario scenario) =>
+        scenario.party.Count > 0
+            ? scenario.party
+            : scenario.partyIds.Select(id => new BalancePartyMember { id = id });
+
+    static void AutoRankUp(IEnumerable<AdventurerData?> party)
+    {
+        foreach (var member in party.Where(x => x != null).Select(x => x!))
+            while (member.CanRankUp)
+                member.TryRankUp(out _);
     }
 
     static void InitializeCombatStats(IUnitMember?[] members, bool allies)
@@ -255,9 +476,15 @@ public sealed class BalanceRunner(GameMasterData db)
         return max <= 0 ? 0 : current / max * 100;
     }
 
-    static double Rate(long value, int runs) => Math.Round(value * 100d / runs, 4);
-    static double Mean(long value, int runs) => Math.Round(value / (double)runs, 4);
-    static double Mean(double value, int runs) => Math.Round(value / runs, 4);
+    static double PartyAverage(IEnumerable<AdventurerData?> party, Func<AdventurerData, int> selector)
+    {
+        var members = party.Where(x => x != null).Select(x => x!).ToList();
+        return members.Count == 0 ? 0 : members.Average(selector);
+    }
+
+    static double Rate(long value, int runs) => runs <= 0 ? 0 : Math.Round(value * 100d / runs, 4);
+    static double Mean(long value, int runs) => runs <= 0 ? 0 : Math.Round(value / (double)runs, 4);
+    static double Mean(double value, int runs) => runs <= 0 ? 0 : Math.Round(value / runs, 4);
 
     static BalanceScenarioDelta Delta(BalanceScenarioResult current, BalanceScenarioResult previous) => new()
     {
@@ -272,7 +499,46 @@ public sealed class BalanceRunner(GameMasterData db)
         meanGoldDelta = Round(current.meanGoldDelta - previous.meanGoldDelta),
         meanGatherExtensions = Round(current.meanGatherExtensions - previous.meanGatherExtensions),
         meanChests = Round(current.meanChests - previous.meanChests),
+        meanEndingLevel = Round(current.meanEndingLevel - previous.meanEndingLevel),
+        meanEndingRank = Round(current.meanEndingRank - previous.meanEndingRank),
+        meanCompletedSteps = Round(current.meanCompletedSteps - previous.meanCompletedSteps),
     };
 
     static double Round(double value) => Math.Round(value, 4);
+
+    sealed record QuestPlayResult(
+        QuestRun Run,
+        int Turns,
+        bool Bankrupt,
+        double HpPercent,
+        int Chests,
+        bool IsFailure);
+
+    sealed class CampaignStepAccumulator(QuestMasterData quest)
+    {
+        public QuestMasterData Quest { get; } = quest;
+        public int Reached;
+        public int Clears;
+        public int Retreats;
+        public int Failures;
+        public double StartingLevel;
+        public double EndingLevel;
+        public double StartingRank;
+        public double EndingRank;
+
+        public BalanceCampaignStepResult Result(int totalRuns) => new()
+        {
+            questId = Quest.id,
+            name = Quest.questName,
+            reachedRuns = Reached,
+            reachRatePercent = Rate(Reached, totalRuns),
+            clearRatePercent = Rate(Clears, Reached),
+            retreatRatePercent = Rate(Retreats, Reached),
+            failureRatePercent = Rate(Failures, Reached),
+            meanStartingLevel = Mean(StartingLevel, Reached),
+            meanEndingLevel = Mean(EndingLevel, Reached),
+            meanStartingRank = Mean(StartingRank, Reached),
+            meanEndingRank = Mean(EndingRank, Reached),
+        };
+    }
 }

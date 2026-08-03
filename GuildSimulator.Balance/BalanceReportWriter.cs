@@ -38,8 +38,10 @@ public static class BalanceReportWriter
             "id", "name", "type", "runs", "seed", "winRatePercent", "clearRatePercent",
             "retreatRatePercent", "failureRatePercent", "bankruptcyRatePercent", "meanRounds",
             "meanTurns", "meanRemainingHpPercent", "meanGoldDelta", "meanGatherExtensions", "meanChests",
+            "meanEndingLevel", "meanEndingRank", "meanCompletedSteps",
             "deltaWinRatePoints", "deltaClearRatePoints", "deltaRetreatRatePoints", "deltaFailureRatePoints",
-            "deltaMeanRemainingHpPoints", "deltaMeanGold",
+            "deltaMeanRemainingHpPoints", "deltaMeanGold", "deltaMeanEndingLevel", "deltaMeanEndingRank",
+            "deltaMeanCompletedSteps",
         };
         var lines = new List<string> { string.Join(",", headers) };
         foreach (var x in report.scenarios)
@@ -50,9 +52,12 @@ public static class BalanceReportWriter
                 Number(x.clearRatePercent), Number(x.retreatRatePercent), Number(x.failureRatePercent),
                 Number(x.bankruptcyRatePercent), Number(x.meanRounds), Number(x.meanTurns),
                 Number(x.meanRemainingHpPercent), Number(x.meanGoldDelta), Number(x.meanGatherExtensions),
-                Number(x.meanChests), Number(x.baselineDelta?.winRatePoints), Number(x.baselineDelta?.clearRatePoints),
+                Number(x.meanChests), Number(x.meanEndingLevel), Number(x.meanEndingRank),
+                Number(x.meanCompletedSteps), Number(x.baselineDelta?.winRatePoints), Number(x.baselineDelta?.clearRatePoints),
                 Number(x.baselineDelta?.retreatRatePoints), Number(x.baselineDelta?.failureRatePoints),
                 Number(x.baselineDelta?.meanRemainingHpPoints), Number(x.baselineDelta?.meanGoldDelta),
+                Number(x.baselineDelta?.meanEndingLevel), Number(x.baselineDelta?.meanEndingRank),
+                Number(x.baselineDelta?.meanCompletedSteps),
             };
             lines.Add(string.Join(",", values));
         }

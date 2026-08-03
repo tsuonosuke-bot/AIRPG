@@ -31,8 +31,14 @@ try
 
     Console.WriteLine($"Balance Lab: {report.scenarios.Count} scenarios / seed {report.seed}");
     foreach (var result in report.scenarios)
+    {
         Console.WriteLine($"  {result.id}: clear {result.clearRatePercent:F1}% / retreat {result.retreatRatePercent:F1}%"
             + $" / fail {result.failureRatePercent:F1}% / HP {result.meanRemainingHpPercent:F1}%");
+        foreach (var step in result.campaignSteps)
+            Console.WriteLine($"    {step.questId}: reach {step.reachRatePercent:F1}% / clear {step.clearRatePercent:F1}%"
+                + $" / level {step.meanStartingLevel:F1}->{step.meanEndingLevel:F1}"
+                + $" / rank {step.meanStartingRank:F1}->{step.meanEndingRank:F1}");
+    }
     Console.WriteLine($"JSON={Path.GetFullPath(options.OutputPath)}");
     Console.WriteLine($"CSV={Path.ChangeExtension(Path.GetFullPath(options.OutputPath), ".csv")}");
 }
