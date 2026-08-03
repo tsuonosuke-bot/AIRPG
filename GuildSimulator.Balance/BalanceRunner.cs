@@ -368,14 +368,7 @@ public sealed class BalanceRunner(GameMasterData db)
             bankrupt |= guild.Gold <= 0;
 
             if (questRun.HasPendingChoice)
-            {
-                var option = questRun.pendingChoice!.Event.options[0];
-                var target = option.targetsOneMember
-                    ? questRun.EnumerateMembers().FirstOrDefault(x => x.isAlive)
-                    : null;
-                if (!manager.ResolveChoice(questRun, 0, target, out var choiceError))
-                    throw new InvalidOperationException($"{scenario.id}: choice could not resolve: {choiceError}");
-            }
+                ResolveAutomaticChoice(scenario.id, manager, questRun);
             if (questRun.HasGatherDecision)
             {
                 bool continueSearch = questRun.gatherExtensions < scenario.maxGatherExtensions;
@@ -402,6 +395,26 @@ public sealed class BalanceRunner(GameMasterData db)
         bool failure = questRun.failed
             || (!questRun.rewarded && !questRun.IsCleared && !questRun.retreated);
         return new QuestPlayResult(questRun, elapsed, bankrupt, terminalHp, terminalChests, failure);
+    }
+
+    static void ResolveAutomaticChoice(string scenarioId, QuestManager manager, QuestRun questRun)
+    {
+        var pending = questRun.pendingChoice
+            ?? throw new InvalidOperationException($"{scenarioId}: choice is no longer pending.");
+        string lastError = "no usable option";
+        for (int optionIndex = 0; optionIndex < pending.Event.options.Count; optionIndex++)
+        {
+            var option = pending.Event.options[optionIndex];
+            if (!option.targetsOneMember)
+            {
+                if (manager.ResolveChoice(questRun, optionIndex, null, out lastError)) return;
+                continue;
+            }
+
+            foreach (var target in questRun.EnumerateMembers().Where(x => x.isAlive))
+                if (manager.ResolveChoice(questRun, optionIndex, target, out lastError)) return;
+        }
+        throw new InvalidOperationException($"{scenarioId}: choice could not resolve: {lastError}");
     }
 
     AdventurerData?[] CreateParty(BalanceScenario scenario)
