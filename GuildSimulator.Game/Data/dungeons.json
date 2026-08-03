@@ -162,7 +162,7 @@
   },
   {
     "id": "dungeon_woods",
-    "dungeonName": "森林外縁",
+    "dungeonName": "流れる森",
     "eventTable": {
       "EnemyEncounter": 6,
       "Nothing": 6,
@@ -181,55 +181,55 @@
         "unitId": "unit_goblin_group",
         "weight": 2,
         "minPhase": 1,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_goblin_scouts",
         "weight": 2,
         "minPhase": 6,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_goblin_warband",
         "weight": 1,
         "minPhase": 11,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_wolf_pair",
         "weight": 4,
         "minPhase": 2,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_wolf_pack",
         "weight": 2,
         "minPhase": 6,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_spider_single",
         "weight": 4,
         "minPhase": 1,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_spider_nest",
         "weight": 2,
         "minPhase": 7,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_bee_swarm",
         "weight": 3,
         "minPhase": 6,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_treant_single",
         "weight": 1,
         "minPhase": 11,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_treant_grove",
@@ -241,25 +241,25 @@
         "unitId": "unit_goblin_soldier_patrol",
         "weight": 2,
         "minPhase": 11,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_poison_spider_lair",
         "weight": 2,
         "minPhase": 8,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_mage_wolf_pack",
         "weight": 2,
         "minPhase": 11,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_wight_cortege",
         "weight": 1,
         "minPhase": 14,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_ice_ghoul_lone",
@@ -271,40 +271,70 @@
         "unitId": "unit_goblin_pair",
         "weight": 3,
         "minPhase": 6,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_spider_and_bees",
         "weight": 2,
         "minPhase": 8,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_mage_wolf_alone",
         "weight": 1,
         "minPhase": 11,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_goblin_line",
         "weight": 2,
         "minPhase": 12,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_mage_wolf_hunt",
         "weight": 2,
         "minPhase": 13,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_wight_alone",
         "weight": 1,
         "minPhase": 14,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_wight_pair",
+        "weight": 1,
+        "minPhase": 16,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_kernos_lone",
+        "weight": 3,
+        "minPhase": 16,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_kernos_thralls",
+        "weight": 2,
+        "minPhase": 18,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wolf_pack",
+        "weight": 2,
+        "minPhase": 16,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_treant_grove",
+        "weight": 2,
+        "minPhase": 19,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_spider_nest",
         "weight": 1,
         "minPhase": 16,
         "maxPhase": 0
@@ -967,133 +997,6 @@
       "ev_ancient_altar",
       "ev_cursed_spring",
       "event_ruin_tablets"
-    ]
-  },
-  {
-    "id": "dungeon_deep_woods",
-    "dungeonName": "森林深部",
-    "eventTable": {
-      "EnemyEncounter": 7,
-      "Nothing": 5,
-      "Trap": 3,
-      "Treasure": 3,
-      "Heal": 1
-    },
-    "encounterTable": [
-      {
-        "unitId": "unit_kernos_lone",
-        "weight": 3,
-        "minPhase": 1,
-        "maxPhase": 0
-      },
-      {
-        "unitId": "unit_kernos_thralls",
-        "weight": 2,
-        "minPhase": 3,
-        "maxPhase": 0
-      },
-      {
-        "unitId": "unit_wolf_pack",
-        "weight": 2,
-        "minPhase": 1,
-        "maxPhase": 0
-      },
-      {
-        "unitId": "unit_treant_grove",
-        "weight": 2,
-        "minPhase": 4,
-        "maxPhase": 0
-      },
-      {
-        "unitId": "unit_spider_nest",
-        "weight": 1,
-        "minPhase": 1,
-        "maxPhase": 0
-      }
-    ],
-    "treasureTable": [
-      {
-        "type": 2,
-        "gold": 25,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 45,
-        "weight": 3,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 70,
-        "weight": 1,
-        "unique": false
-      },
-      {
-        "type": 1,
-        "equipmentId": "eq_chain_01",
-        "weight": 1,
-        "unique": false
-      },
-      {
-        "type": 1,
-        "equipmentId": "eq_axe_02",
-        "weight": 2,
-        "unique": false
-      },
-      {
-        "type": 1,
-        "equipmentId": "eq_spear_02",
-        "weight": 2,
-        "unique": false
-      },
-      {
-        "type": 0,
-        "relicId": "relic_whetstone",
-        "weight": 1,
-        "unique": true
-      },
-      {
-        "type": 0,
-        "relicId": "relic_ironheart",
-        "weight": 1,
-        "unique": true
-      },
-      {
-        "type": 0,
-        "relicId": "relic_eggs",
-        "weight": 1,
-        "unique": true
-      },
-      {
-        "type": 3,
-        "skillId": "skill_windMastery_lv1",
-        "weight": 1,
-        "unique": true
-      },
-      {
-        "type": 3,
-        "skillId": "skill_wardEnchant_lv1",
-        "weight": 1,
-        "unique": true
-      },
-      {
-        "type": 3,
-        "skillId": "skill_martialArts_lv2",
-        "weight": 1,
-        "unique": true
-      }
-    ],
-    "turnEndEventIds": [
-      "event_abandoned_camp",
-      "event_forked_path",
-      "event_mysterious_shrine",
-      "event_looted_caravan",
-      "event_hidden_cache",
-      "ev_old_swordsman",
-      "ev_ancient_altar",
-      "event_forest_lore"
     ]
   },
   {
