@@ -2495,7 +2495,7 @@
   },
   {
     "id": "skill_venomFang_lv1",
-    "skillName": "毒牙",
+    "skillName": "毒牙 Lv1",
     "family": "venom_fang",
     "level": 1,
     "scope": 0,
@@ -2516,7 +2516,7 @@
   },
   {
     "id": "skill_venomFang_lv2",
-    "skillName": "突然変異の毒牙",
+    "skillName": "毒牙 Lv2",
     "family": "venom_fang",
     "level": 2,
     "scope": 0,

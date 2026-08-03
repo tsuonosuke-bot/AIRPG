@@ -1,3 +1,4 @@
+using GuildSimulator.Core.MasterData;
 using GuildSimulator.Game.Data;
 using Xunit;
 
@@ -15,10 +16,12 @@ public class EUnitVarietyTests
     static int MaxThreat(EnemyUnitTemplate unit) =>
         unit.Formation.Where(e => e != null).Select(e => e!.threat).DefaultIfEmpty(0).Max();
 
+    // Formation は MasterLoader が埋める実体リスト（formationIds は生JSONの文字列のままで
+    // 読み込み後に使われない。参照するとテストが常に空扱いになる）。
     static (int front, int back) Shape(EnemyUnitTemplate unit)
     {
-        int front = unit.formationIds.Take(3).Count(id => !string.IsNullOrEmpty(id));
-        int back = unit.formationIds.Skip(3).Count(id => !string.IsNullOrEmpty(id));
+        int front = unit.Formation.Take(3).Count(e => e != null);
+        int back = unit.Formation.Skip(3).Count(e => e != null);
         return (front, back);
     }
 
@@ -27,7 +30,7 @@ public class EUnitVarietyTests
     {
         var db = Load();
         var line = db.enemyUnits["unit_goblin_line"];
-        var ids = line.formationIds.Where(id => !string.IsNullOrEmpty(id)).ToList();
+        var ids = line.Formation.Where(e => e != null).Select(e => e!.id).ToList();
         // ゴブリン正規軍：兵士2 + 射手 + 魔導士。ゴブリンの3職を1隊に揃えた顔役。
         Assert.Equal(2, ids.Count(id => id == "enemy_goblin_soldier"));
         Assert.Contains("enemy_goblin_archer", ids);

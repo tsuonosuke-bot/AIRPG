@@ -398,20 +398,28 @@
         "resultText": "「話が分かるじゃねえか」──野盗の顔役が笑った。",
         "effectType": "None",
         "value": 0,
+        "targetsOneMember": true,
         "outcomes": [
           {
-            "weight": 30,
+            "weight": 25,
             "effectType": "Gold",
             "value": 40,
             "targetId": "",
             "resultText": "「近道を教えといてやる」と、金貨と地図を投げてよこした。"
           },
           {
-            "weight": 25,
+            "weight": 20,
             "effectType": "Morale",
             "value": 12,
             "targetId": "",
             "resultText": "顔役は快活に手を叩き、荒くれた仲間を下がらせた。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "",
+            "resultText": "顔役に気に入られ、腕っぷしの鍛え方を直々に教わった。"
           },
           {
             "weight": 20,
@@ -421,7 +429,7 @@
             "resultText": "交渉は決裂した。数発の刃を交わし、なんとか押し通った。"
           },
           {
-            "weight": 15,
+            "weight": 10,
             "effectType": "Gold",
             "value": -80,
             "targetId": "",
@@ -456,23 +464,31 @@
         "resultText": "腰の物に手を掛けると、男の目が変わった。",
         "effectType": "None",
         "value": 0,
+        "targetsOneMember": true,
         "outcomes": [
           {
-            "weight": 30,
+            "weight": 25,
             "effectType": "Gold",
             "value": 90,
             "targetId": "",
             "resultText": "怯えた男は路銀と装備を置いて逃げていった。"
           },
           {
-            "weight": 20,
+            "weight": 15,
             "effectType": "Equipment",
             "value": 1,
             "targetId": "eq_buckler_01",
             "resultText": "「持って行ってくれ」と男は荷を投げ、駆け去った。"
           },
           {
-            "weight": 25,
+            "weight": 15,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "",
+            "resultText": "怯えた男の隙を突いて機先を制し、身のこなしが一段鋭くなった。"
+          },
+          {
+            "weight": 20,
             "effectType": "DamagePercent",
             "value": 10,
             "targetId": "",
@@ -525,23 +541,31 @@
         "resultText": "見張りの叫び声で、街道の空気が変わった。",
         "effectType": "None",
         "value": 0,
+        "targetsOneMember": true,
         "outcomes": [
           {
-            "weight": 35,
+            "weight": 30,
             "effectType": "Gold",
             "value": 60,
             "targetId": "",
             "resultText": "追ってきた野盗を返り討ちにし、落とし物を漁った。"
           },
           {
-            "weight": 30,
+            "weight": 15,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "",
+            "resultText": "追っ手をあしらう立ち回りに、思わぬ手応えを得た。"
+          },
+          {
+            "weight": 25,
             "effectType": "DamagePercent",
             "value": 12,
             "targetId": "",
             "resultText": "背後から矢を受けながら、なんとか街道を駆け抜けた。"
           },
           {
-            "weight": 20,
+            "weight": 15,
             "effectType": "Morale",
             "value": -10,
             "targetId": "",
