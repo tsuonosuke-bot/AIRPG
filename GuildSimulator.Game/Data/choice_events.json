@@ -374,5 +374,188 @@
         "targetsOneMember": true
       }
     ]
+  },
+  {
+    "id": "event_bandit_toll",
+    "title": "野盗の通行料",
+    "description": "街道を塞いだ数名の野盗が「通行料」を寄越せと凄んでいる。剣の柄に手を掛けたまま、こちらの人数を数えている。",
+    "weight": 4,
+    "options": [
+      {
+        "text": "言い値を払って通してもらう",
+        "resultText": "銀貨を数枚握らせ、一行は速やかに街道を進んだ。",
+        "effectType": "Gold",
+        "value": -60
+      },
+      {
+        "text": "剣を抜き、追い返す",
+        "resultText": "こちらの装備を見て、野盗はいったん退いた。斬り合いのぶん、いくらか傷を負った。",
+        "effectType": "DamagePercent",
+        "value": 12
+      },
+      {
+        "text": "顔役と話をつける",
+        "resultText": "「話が分かるじゃねえか」──野盗の顔役が笑った。",
+        "effectType": "None",
+        "value": 0,
+        "outcomes": [
+          {
+            "weight": 30,
+            "effectType": "Gold",
+            "value": 40,
+            "targetId": "",
+            "resultText": "「近道を教えといてやる」と、金貨と地図を投げてよこした。"
+          },
+          {
+            "weight": 25,
+            "effectType": "Morale",
+            "value": 12,
+            "targetId": "",
+            "resultText": "顔役は快活に手を叩き、荒くれた仲間を下がらせた。"
+          },
+          {
+            "weight": 20,
+            "effectType": "DamagePercent",
+            "value": 15,
+            "targetId": "",
+            "resultText": "交渉は決裂した。数発の刃を交わし、なんとか押し通った。"
+          },
+          {
+            "weight": 15,
+            "effectType": "Gold",
+            "value": -80,
+            "targetId": "",
+            "resultText": "口先で嵌められ、腰の袋を丸ごと引ったくられた。"
+          },
+          {
+            "weight": 10,
+            "effectType": "Morale",
+            "value": -18,
+            "targetId": "",
+            "resultText": "薄笑いを浮かべた顔役は、こちらの弱みを見透かして去った。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "event_bandit_deserter_dealer",
+    "title": "脱走兵の売人",
+    "description": "元・王国兵らしい男が、荷車の陰から装備を売りつけようとしている。由来は聞かないでほしい、と目で語っている。",
+    "weight": 3,
+    "options": [
+      {
+        "text": "掘り出し物を買う",
+        "resultText": "使い込まれた鎖帷子と引き換えに、路銀を渡した。",
+        "effectType": "Equipment",
+        "value": 1,
+        "targetId": "eq_chain_01"
+      },
+      {
+        "text": "追い剥ぎと見て凄む",
+        "resultText": "腰の物に手を掛けると、男の目が変わった。",
+        "effectType": "None",
+        "value": 0,
+        "outcomes": [
+          {
+            "weight": 30,
+            "effectType": "Gold",
+            "value": 90,
+            "targetId": "",
+            "resultText": "怯えた男は路銀と装備を置いて逃げていった。"
+          },
+          {
+            "weight": 20,
+            "effectType": "Equipment",
+            "value": 1,
+            "targetId": "eq_buckler_01",
+            "resultText": "「持って行ってくれ」と男は荷を投げ、駆け去った。"
+          },
+          {
+            "weight": 25,
+            "effectType": "DamagePercent",
+            "value": 10,
+            "targetId": "",
+            "resultText": "男の仲間が物陰から矢を放った。追い散らしたが浅くない傷を負った。"
+          },
+          {
+            "weight": 15,
+            "effectType": "Morale",
+            "value": -12,
+            "targetId": "",
+            "resultText": "男は無言のまま消え、こちらだけが街道に取り残された。"
+          },
+          {
+            "weight": 10,
+            "effectType": "AdventurerDamage",
+            "value": 30,
+            "targetId": "",
+            "resultText": "隠し持っていた短剣で不意を突かれた。一人が深く斬られた。"
+          }
+        ]
+      },
+      {
+        "text": "関わらず先を急ぐ",
+        "resultText": "面倒事は避けて街道を進んだ。",
+        "effectType": "Morale",
+        "value": 6
+      }
+    ]
+  },
+  {
+    "id": "event_bandit_lookout_spotted",
+    "title": "野盗の見張りを発見",
+    "description": "街道を見下ろす岩陰に、まだこちらに気づいていない見張りが二人いる。手筈を決めるなら今のうちだ。",
+    "weight": 3,
+    "options": [
+      {
+        "text": "気づかれる前に迂回する",
+        "resultText": "回り道になったが、無傷で街道を抜けた。",
+        "effectType": "Morale",
+        "value": 8
+      },
+      {
+        "text": "静かに近づいて仕留める",
+        "resultText": "急襲は決まった。手練れの立ち回りに、若手が学びを得た。",
+        "effectType": "Experience",
+        "value": 30
+      },
+      {
+        "text": "そのまま突破する",
+        "resultText": "見張りの叫び声で、街道の空気が変わった。",
+        "effectType": "None",
+        "value": 0,
+        "outcomes": [
+          {
+            "weight": 35,
+            "effectType": "Gold",
+            "value": 60,
+            "targetId": "",
+            "resultText": "追ってきた野盗を返り討ちにし、落とし物を漁った。"
+          },
+          {
+            "weight": 30,
+            "effectType": "DamagePercent",
+            "value": 12,
+            "targetId": "",
+            "resultText": "背後から矢を受けながら、なんとか街道を駆け抜けた。"
+          },
+          {
+            "weight": 20,
+            "effectType": "Morale",
+            "value": -10,
+            "targetId": "",
+            "resultText": "追撃を振り切るのに走り通しで、一行は疲弊した。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerDamage",
+            "value": 25,
+            "targetId": "",
+            "resultText": "殿を務めた一人が矢を受け、深い傷を負った。"
+          }
+        ]
+      }
+    ]
   }
 ]

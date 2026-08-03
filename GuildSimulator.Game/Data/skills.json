@@ -2492,5 +2492,144 @@
       "mav": 2
     },
     "mul": {}
+  },
+  {
+    "id": "skill_venomFang_lv1",
+    "skillName": "毒牙",
+    "family": "venom_fang",
+    "level": 1,
+    "scope": 0,
+    "requireUnarmed": true,
+    "add": {
+      "pv": 1
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Poisoned",
+        "target": "Enemy",
+        "chancePercent": 40,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
+  },
+  {
+    "id": "skill_venomFang_lv2",
+    "skillName": "突然変異の毒牙",
+    "family": "venom_fang",
+    "level": 2,
+    "scope": 0,
+    "requireUnarmed": true,
+    "add": {
+      "pv": 2,
+      "toHit": 1
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Poisoned",
+        "target": "Enemy",
+        "chancePercent": 55,
+        "durationRounds": 4,
+        "potency": 5
+      }
+    ]
+  },
+  {
+    "id": "skill_arcaneFang",
+    "skillName": "魔牙",
+    "scope": 0,
+    "requireUnarmed": true,
+    "add": {
+      "mpv": 2,
+      "toHit": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_frostFang",
+    "skillName": "氷牙",
+    "scope": 0,
+    "requireUnarmed": true,
+    "add": {
+      "mpv": 2,
+      "mav": 1
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Stunned",
+        "target": "Enemy",
+        "chancePercent": 20,
+        "durationRounds": 2,
+        "potency": 0
+      }
+    ]
+  },
+  {
+    "id": "skill_graveChill",
+    "skillName": "生気吸い",
+    "scope": 0,
+    "add": {
+      "mav": 2
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Regenerating",
+        "target": "Self",
+        "chancePercent": 45,
+        "durationRounds": 2,
+        "potency": 4
+      }
+    ]
+  },
+  {
+    "id": "skill_acidBody",
+    "skillName": "酸の体",
+    "scope": 0,
+    "add": {
+      "armorShred": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_ironJaw",
+    "skillName": "鉄喰らいの顎",
+    "scope": 0,
+    "add": {
+      "armorShred": 3
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_sporeBurst",
+    "skillName": "毒胞子",
+    "scope": 0,
+    "backOnly": true,
+    "add": {
+      "mav": 2
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Poisoned",
+        "target": "Enemy",
+        "chancePercent": 45,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
+  },
+  {
+    "id": "skill_skyDive",
+    "skillName": "急降下",
+    "scope": 0,
+    "add": {
+      "toHit": 2,
+      "critRange": 1
+    },
+    "mul": {}
   }
 ]

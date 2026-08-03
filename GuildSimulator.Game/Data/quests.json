@@ -319,12 +319,12 @@
     "grantedClueIds": [
       "clue_resonant_vein"
     ],
-    "rank": 2,
-    "totalPhases": 10,
+    "rank": 3,
+    "totalPhases": 18,
     "phasesPerTurn": 5,
-    "rewardGold": 360,
-    "rewardGuildPoints": 40,
-    "rewardExp": 50,
+    "rewardGold": 1800,
+    "rewardGuildPoints": 70,
+    "rewardExp": 105,
     "dungeonId": "dungeon_mine",
     "bossEnemyId": "",
     "bossPhase": 0,
@@ -334,42 +334,42 @@
   {
     "id": "quest_iron_ore",
     "questName": "鉄鉱石の採掘",
-    "rank": 2,
-    "totalPhases": 14,
+    "rank": 3,
+    "totalPhases": 20,
     "phasesPerTurn": 5,
-    "rewardGold": 200,
-    "rewardGuildPoints": 40,
-    "rewardExp": 45,
+    "rewardGold": 2200,
+    "rewardGuildPoints": 80,
+    "rewardExp": 115,
     "dungeonId": "dungeon_mine",
     "bossEnemyId": "",
     "bossPhase": 0,
     "gatherItemName": "鉄鉱石",
-    "gatherTargetCount": 30,
-    "gatherMinPerEvent": 2,
-    "gatherMaxPerEvent": 5,
+    "gatherTargetCount": 57,
+    "gatherMinPerEvent": 3,
+    "gatherMaxPerEvent": 6,
     "gatherChance": 0.7,
-    "gatherGoldPerItem": 14,
+    "gatherGoldPerItem": 12,
     "bossDrops": [],
     "fixedEvents": []
   },
   {
     "id": "quest_cave_mushroom",
     "questName": "洞窟茸の採取",
-    "rank": 2,
-    "totalPhases": 11,
+    "rank": 3,
+    "totalPhases": 17,
     "phasesPerTurn": 5,
-    "rewardGold": 180,
-    "rewardGuildPoints": 32,
-    "rewardExp": 40,
+    "rewardGold": 1700,
+    "rewardGuildPoints": 60,
+    "rewardExp": 100,
     "dungeonId": "dungeon_mine",
     "bossEnemyId": "",
     "bossPhase": 0,
     "gatherItemName": "洞窟茸",
-    "gatherTargetCount": 20,
+    "gatherTargetCount": 37,
     "gatherMinPerEvent": 2,
-    "gatherMaxPerEvent": 4,
+    "gatherMaxPerEvent": 5,
     "gatherChance": 0.7,
-    "gatherGoldPerItem": 18,
+    "gatherGoldPerItem": 17,
     "bossDrops": [],
     "fixedEvents": []
   },
@@ -377,11 +377,11 @@
     "id": "quest_caravan_escort",
     "questName": "隊商護衛",
     "rank": 2,
-    "totalPhases": 12,
+    "totalPhases": 14,
     "phasesPerTurn": 5,
-    "rewardGold": 500,
-    "rewardGuildPoints": 50,
-    "rewardExp": 55,
+    "rewardGold": 1000,
+    "rewardGuildPoints": 60,
+    "rewardExp": 70,
     "dungeonId": "dungeon_highway",
     "bossEnemyId": "",
     "bossPhase": 0,
@@ -407,9 +407,9 @@
     "rank": 2,
     "totalPhases": 15,
     "phasesPerTurn": 5,
-    "rewardGold": 560,
-    "rewardGuildPoints": 90,
-    "rewardExp": 65,
+    "rewardGold": 1100,
+    "rewardGuildPoints": 100,
+    "rewardExp": 80,
     "dungeonId": "dungeon_highway",
     "bossEnemyId": "unit_bandit_boss",
     "bossPhase": 15,
@@ -478,11 +478,11 @@
     "id": "quest_crypt_seal",
     "questName": "墓所の封印調査",
     "rank": 3,
-    "totalPhases": 12,
+    "totalPhases": 17,
     "phasesPerTurn": 5,
-    "rewardGold": 1000,
-    "rewardGuildPoints": 60,
-    "rewardExp": 115,
+    "rewardGold": 1800,
+    "rewardGuildPoints": 70,
+    "rewardExp": 120,
     "dungeonId": "dungeon_crypt",
     "bossEnemyId": "",
     "bossPhase": 0,
@@ -493,20 +493,20 @@
     "id": "quest_grave_moss",
     "questName": "屍蝋苔の採取",
     "rank": 3,
-    "totalPhases": 15,
+    "totalPhases": 18,
     "phasesPerTurn": 5,
-    "rewardGold": 400,
-    "rewardGuildPoints": 50,
-    "rewardExp": 100,
+    "rewardGold": 1900,
+    "rewardGuildPoints": 60,
+    "rewardExp": 110,
     "dungeonId": "dungeon_crypt",
     "bossEnemyId": "",
     "bossPhase": 0,
     "gatherItemName": "屍蝋苔",
-    "gatherTargetCount": 33,
+    "gatherTargetCount": 34,
     "gatherMinPerEvent": 2,
-    "gatherMaxPerEvent": 5,
+    "gatherMaxPerEvent": 4,
     "gatherChance": 0.7,
-    "gatherGoldPerItem": 30,
+    "gatherGoldPerItem": 18,
     "bossDrops": [],
     "fixedEvents": []
   },
@@ -514,14 +514,14 @@
     "id": "quest_bone_lord",
     "questName": "骸の王討伐",
     "rank": 3,
-    "totalPhases": 18,
+    "totalPhases": 20,
     "phasesPerTurn": 5,
-    "rewardGold": 1600,
-    "rewardGuildPoints": 300,
+    "rewardGold": 2800,
+    "rewardGuildPoints": 150,
     "rewardExp": 150,
     "dungeonId": "dungeon_crypt",
     "bossEnemyId": "unit_bone_lord",
-    "bossPhase": 18,
+    "bossPhase": 20,
     "bossDrops": [
       {
         "type": 0,
@@ -540,7 +540,7 @@
     ],
     "fixedEvents": [
       {
-        "phase": 18,
+        "phase": 20,
         "type": 2
       }
     ]
@@ -549,11 +549,11 @@
     "id": "quest_deep_woods_scout",
     "questName": "森林深部の偵察",
     "rank": 2,
-    "totalPhases": 12,
+    "totalPhases": 14,
     "phasesPerTurn": 5,
-    "rewardGold": 300,
-    "rewardGuildPoints": 30,
-    "rewardExp": 55,
+    "rewardGold": 900,
+    "rewardGuildPoints": 55,
+    "rewardExp": 70,
     "dungeonId": "dungeon_deep_woods",
     "bossEnemyId": "",
     "bossPhase": 0,
@@ -566,8 +566,8 @@
     "rank": 2,
     "totalPhases": 16,
     "phasesPerTurn": 5,
-    "rewardGold": 700,
-    "rewardGuildPoints": 140,
+    "rewardGold": 1300,
+    "rewardGuildPoints": 120,
     "rewardExp": 95,
     "dungeonId": "dungeon_deep_woods",
     "bossEnemyId": "unit_kernos_beast",
@@ -610,36 +610,36 @@
     "grantedClueIds": [
       "clue_old_city_sigil"
     ],
-    "rank": 2,
-    "totalPhases": 14,
+    "rank": 3,
+    "totalPhases": 18,
     "phasesPerTurn": 5,
-    "rewardGold": 300,
-    "rewardGuildPoints": 30,
-    "rewardExp": 65,
+    "rewardGold": 2000,
+    "rewardGuildPoints": 70,
+    "rewardExp": 110,
     "dungeonId": "dungeon_old_city",
     "bossEnemyId": "",
     "bossPhase": 0,
     "gatherItemName": "錆びた遺物の欠片",
-    "gatherTargetCount": 21,
-    "gatherMinPerEvent": 1,
-    "gatherMaxPerEvent": 4,
+    "gatherTargetCount": 40,
+    "gatherMinPerEvent": 2,
+    "gatherMaxPerEvent": 5,
     "gatherChance": 0.7,
-    "gatherGoldPerItem": 20,
+    "gatherGoldPerItem": 17,
     "bossDrops": [],
     "fixedEvents": []
   },
   {
     "id": "quest_old_city_garrison",
     "questName": "旧市街守備隊殲滅",
-    "rank": 2,
-    "totalPhases": 16,
+    "rank": 3,
+    "totalPhases": 20,
     "phasesPerTurn": 5,
-    "rewardGold": 760,
-    "rewardGuildPoints": 150,
-    "rewardExp": 100,
+    "rewardGold": 2600,
+    "rewardGuildPoints": 140,
+    "rewardExp": 130,
     "dungeonId": "dungeon_old_city",
     "bossEnemyId": "unit_goblin_garrison",
-    "bossPhase": 16,
+    "bossPhase": 20,
     "bossDrops": [
       {
         "type": 0,
@@ -658,7 +658,252 @@
     ],
     "fixedEvents": [
       {
-        "phase": 16,
+        "phase": 20,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_poison_spider_cull",
+    "questName": "毒蜘蛛の巣穴掃討",
+    "rank": 2,
+    "totalPhases": 13,
+    "phasesPerTurn": 5,
+    "rewardGold": 1000,
+    "rewardGuildPoints": 80,
+    "rewardExp": 75,
+    "dungeonId": "dungeon_woods",
+    "bossEnemyId": "unit_poison_spider_lair",
+    "bossPhase": 13,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 300,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_dagger_02",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.4
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 13,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_ranpos_cull",
+    "questName": "草原のラプトル駆除",
+    "rank": 2,
+    "totalPhases": 14,
+    "phasesPerTurn": 5,
+    "rewardGold": 1100,
+    "rewardGuildPoints": 80,
+    "rewardExp": 80,
+    "dungeonId": "dungeon_meadow",
+    "bossEnemyId": "unit_ranpos_pack",
+    "bossPhase": 14,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 350,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leather_01",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.5
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 14,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_bandit_raiders",
+    "questName": "街道の襲撃者討伐",
+    "rank": 2,
+    "totalPhases": 15,
+    "phasesPerTurn": 5,
+    "rewardGold": 1200,
+    "rewardGuildPoints": 95,
+    "rewardExp": 85,
+    "dungeonId": "dungeon_highway",
+    "bossEnemyId": "unit_bandit_raiders",
+    "bossPhase": 15,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 380,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_axe_02",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.4
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 15,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_poison_fang",
+    "questName": "毒牙のルプス討伐",
+    "rank": 3,
+    "totalPhases": 18,
+    "phasesPerTurn": 5,
+    "rewardGold": 2200,
+    "rewardGuildPoints": 115,
+    "rewardExp": 125,
+    "dungeonId": "dungeon_woods",
+    "bossEnemyId": "unit_poison_fang_pack",
+    "bossPhase": 18,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 600,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_fang",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.6
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 18,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_ranpos_alpha",
+    "questName": "群れの主・アルファ討伐",
+    "rank": 3,
+    "totalPhases": 19,
+    "phasesPerTurn": 5,
+    "rewardGold": 2400,
+    "rewardGuildPoints": 125,
+    "rewardExp": 130,
+    "dungeonId": "dungeon_meadow",
+    "bossEnemyId": "unit_ranpos_alpha_pack",
+    "bossPhase": 19,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 700,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_spear_02",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.5
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 19,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_wyvern_scout",
+    "questName": "飛竜の目撃調査",
+    "rank": 3,
+    "totalPhases": 17,
+    "phasesPerTurn": 5,
+    "rewardGold": 2600,
+    "rewardGuildPoints": 130,
+    "rewardExp": 140,
+    "dungeonId": "dungeon_meadow",
+    "bossEnemyId": "unit_wyvern_lesser",
+    "bossPhase": 17,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 900,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_bow_02",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.4
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 17,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_mine_brood",
+    "questName": "岩喰いの巣の殲滅",
+    "rank": 3,
+    "totalPhases": 19,
+    "phasesPerTurn": 5,
+    "rewardGold": 2300,
+    "rewardGuildPoints": 120,
+    "rewardExp": 125,
+    "dungeonId": "dungeon_mine",
+    "bossEnemyId": "unit_rock_eater_swarm",
+    "bossPhase": 19,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 650,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_ironplate_01",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.4
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 19,
         "type": 2
       }
     ]

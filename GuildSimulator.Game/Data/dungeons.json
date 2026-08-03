@@ -69,6 +69,36 @@
         "weight": 2,
         "minPhase": 6,
         "maxPhase": 0
+      },
+      {
+        "unitId": "unit_acid_slime_pair",
+        "weight": 3,
+        "minPhase": 8,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_ranpos_pack",
+        "weight": 3,
+        "minPhase": 11,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wyvern_lesser",
+        "weight": 1,
+        "minPhase": 14,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_acid_slime_swarm",
+        "weight": 2,
+        "minPhase": 10,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_ranpos_hunt",
+        "weight": 3,
+        "minPhase": 9,
+        "maxPhase": 0
       }
     ],
     "treasureTable": [
@@ -126,7 +156,8 @@
       "event_forked_path",
       "event_mysterious_shrine",
       "event_looted_caravan",
-      "event_forest_lore"
+      "event_forest_lore",
+      "event_bandit_lookout_spotted"
     ]
   },
   {
@@ -210,6 +241,72 @@
         "unitId": "unit_goblin_soldier_patrol",
         "weight": 2,
         "minPhase": 11,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_poison_spider_lair",
+        "weight": 2,
+        "minPhase": 8,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_mage_wolf_pack",
+        "weight": 2,
+        "minPhase": 11,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wight_cortege",
+        "weight": 1,
+        "minPhase": 14,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_ice_ghoul_lone",
+        "weight": 1,
+        "minPhase": 18,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_goblin_pair",
+        "weight": 3,
+        "minPhase": 6,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_spider_and_bees",
+        "weight": 2,
+        "minPhase": 8,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_mage_wolf_alone",
+        "weight": 1,
+        "minPhase": 11,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_goblin_line",
+        "weight": 2,
+        "minPhase": 12,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_mage_wolf_hunt",
+        "weight": 2,
+        "minPhase": 13,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wight_alone",
+        "weight": 1,
+        "minPhase": 14,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wight_pair",
+        "weight": 1,
+        "minPhase": 16,
         "maxPhase": 0
       }
     ],
@@ -317,7 +414,8 @@
       "event_mysterious_shrine",
       "event_looted_caravan",
       "ev_old_swordsman",
-      "event_forest_lore"
+      "event_forest_lore",
+      "event_bandit_lookout_spotted"
     ]
   },
   {
@@ -365,6 +463,42 @@
         "unitId": "unit_goblin_scouts",
         "weight": 2,
         "minPhase": 2,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_deserter_patrol",
+        "weight": 3,
+        "minPhase": 4,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_bandit_hawks",
+        "weight": 3,
+        "minPhase": 6,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_bandit_raiders",
+        "weight": 2,
+        "minPhase": 8,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_goblin_pair",
+        "weight": 2,
+        "minPhase": 5,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_bandit_back_line",
+        "weight": 2,
+        "minPhase": 10,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_highway_coalition",
+        "weight": 2,
+        "minPhase": 12,
         "maxPhase": 0
       }
     ],
@@ -458,7 +592,10 @@
       "event_abandoned_camp",
       "event_forked_path",
       "event_looted_caravan",
-      "event_hidden_cache"
+      "event_hidden_cache",
+      "event_bandit_toll",
+      "event_bandit_deserter_dealer",
+      "event_bandit_lookout_spotted"
     ]
   },
   {
@@ -491,19 +628,19 @@
         "maxPhase": 0
       },
       {
-        "unitId": "unit_kobold_patrol",
+        "unitId": "unit_rock_eater_pair",
         "weight": 4,
         "minPhase": 2,
         "maxPhase": 0
       },
       {
-        "unitId": "unit_kobold_crew",
+        "unitId": "unit_mine_infestation",
         "weight": 3,
         "minPhase": 5,
         "maxPhase": 0
       },
       {
-        "unitId": "unit_kobold_warband",
+        "unitId": "unit_mine_brood",
         "weight": 2,
         "minPhase": 9,
         "maxPhase": 0
@@ -524,6 +661,12 @@
         "unitId": "unit_golem_single",
         "weight": 1,
         "minPhase": 12,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_rock_eater_swarm",
+        "weight": 1,
+        "minPhase": 14,
         "maxPhase": 0
       }
     ],
@@ -679,6 +822,24 @@
         "unitId": "unit_shadow_pair",
         "weight": 1,
         "minPhase": 13,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wight_alone",
+        "weight": 2,
+        "minPhase": 5,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_undead_column",
+        "weight": 3,
+        "minPhase": 8,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wight_pair",
+        "weight": 2,
+        "minPhase": 12,
         "maxPhase": 0
       }
     ],
@@ -968,6 +1129,18 @@
         "unitId": "unit_goblin_scouts",
         "weight": 2,
         "minPhase": 1,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_goblin_line",
+        "weight": 3,
+        "minPhase": 1,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_highway_coalition",
+        "weight": 2,
+        "minPhase": 4,
         "maxPhase": 0
       }
     ],

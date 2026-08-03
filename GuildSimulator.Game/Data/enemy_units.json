@@ -151,7 +151,7 @@
       "enemy_goblin",
       "enemy_goblin",
       "enemy_goblin_archer",
-      "enemy_goblin_shaman",
+      "enemy_goblin_mage",
       null
     ]
   },
@@ -235,7 +235,7 @@
       "enemy_goblin",
       "enemy_goblin",
       "enemy_goblin_archer",
-      "enemy_goblin_shaman",
+      "enemy_goblin_mage",
       "enemy_goblin_archer"
     ]
   },
@@ -367,7 +367,7 @@
       "enemy_bandit",
       "enemy_bandit",
       "enemy_bandit_archer",
-      "enemy_goblin_shaman",
+      "enemy_bandit_hexer",
       null
     ]
   },
@@ -420,11 +420,11 @@
     ]
   },
   {
-    "id": "unit_kobold_patrol",
-    "unitName": "コボルトの巡回",
+    "id": "unit_rock_eater_pair",
+    "unitName": "岩喰い虫の群れ",
     "formationIds": [
-      "enemy_kobold",
-      "enemy_kobold",
+      "enemy_rock_eater",
+      "enemy_rock_eater",
       null,
       null,
       null,
@@ -432,26 +432,26 @@
     ]
   },
   {
-    "id": "unit_kobold_crew",
-    "unitName": "コボルトの採掘班",
+    "id": "unit_mine_infestation",
+    "unitName": "坑道の巣食い",
     "formationIds": [
-      "enemy_kobold_digger",
-      "enemy_kobold",
-      "enemy_kobold",
-      "enemy_kobold_shaman",
+      "enemy_rock_eater",
+      "enemy_rock_eater",
       null,
+      "enemy_cave_sporecap",
+      "enemy_cave_sporecap",
       null
     ]
   },
   {
-    "id": "unit_kobold_warband",
-    "unitName": "コボルトの戦列",
+    "id": "unit_mine_brood",
+    "unitName": "岩喰いの巣",
     "formationIds": [
-      "enemy_kobold_digger",
-      "enemy_kobold_digger",
-      "enemy_kobold",
-      "enemy_kobold_shaman",
-      "enemy_kobold_shaman",
+      "enemy_rock_eater_queen",
+      "enemy_rock_eater",
+      "enemy_rock_eater",
+      "enemy_cave_sporecap",
+      "enemy_cave_sporecap",
       null
     ]
   },
@@ -496,9 +496,9 @@
     "unitName": "坑道の守り手",
     "formationIds": [
       "enemy_stone_golem",
-      "enemy_kobold_digger",
-      "enemy_kobold_digger",
-      "enemy_kobold_shaman",
+      "enemy_rock_eater_queen",
+      "enemy_rock_eater",
+      "enemy_cave_sporecap",
       "enemy_mine_wraith",
       null
     ]
@@ -597,6 +597,306 @@
       "enemy_necromancer",
       "enemy_skeleton_archer",
       "enemy_skeleton_archer"
+    ]
+  },
+  {
+    "id": "unit_poison_spider_lair",
+    "unitName": "毒蜘蛛の巣穴",
+    "formationIds": [
+      "enemy_giant_spider",
+      "enemy_poison_spider",
+      "enemy_poison_spider",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_mage_wolf_pack",
+    "unitName": "魔狼混じりの群れ",
+    "formationIds": [
+      "enemy_forest_wolf",
+      "enemy_forest_wolf",
+      "enemy_mage_wolf",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_poison_fang_pack",
+    "unitName": "毒牙のルプスとその群れ",
+    "formationIds": [
+      "enemy_poison_fang",
+      "enemy_forest_wolf",
+      "enemy_forest_wolf",
+      "enemy_mage_wolf",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_wight_cortege",
+    "unitName": "ワイトと骸骨兵",
+    "formationIds": [
+      "enemy_wight",
+      "enemy_skeleton",
+      "enemy_skeleton",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_ice_ghoul_lone",
+    "unitName": "アイスグール",
+    "formationIds": [
+      "enemy_ice_ghoul",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_acid_slime_pair",
+    "unitName": "アシッドスライム2匹",
+    "formationIds": [
+      "enemy_slime_acid",
+      "enemy_slime_acid",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_ranpos_pack",
+    "unitName": "ランポスの群れ",
+    "formationIds": [
+      "enemy_ranpos",
+      "enemy_ranpos",
+      "enemy_ranpos",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_ranpos_alpha_pack",
+    "unitName": "ランポス・アルファの群れ",
+    "formationIds": [
+      "enemy_ranpos_alpha",
+      "enemy_ranpos",
+      "enemy_ranpos",
+      "enemy_ranpos",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_wyvern_lesser",
+    "unitName": "レッサーワイバーン",
+    "formationIds": [
+      "enemy_wyvern_lesser",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_bandit_raiders",
+    "unitName": "野盗の襲撃隊",
+    "formationIds": [
+      "enemy_bandit_bruiser",
+      "enemy_bandit_bruiser",
+      "enemy_bandit_cutthroat",
+      "enemy_bandit_hexer",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_bandit_hawks",
+    "unitName": "狩り鷹の斥候",
+    "formationIds": [
+      "enemy_bandit_cutthroat",
+      null,
+      null,
+      "enemy_bandit_hawk",
+      "enemy_bandit_hawk",
+      null
+    ]
+  },
+  {
+    "id": "unit_deserter_patrol",
+    "unitName": "元王国兵の巡回",
+    "formationIds": [
+      "enemy_deserter",
+      "enemy_deserter",
+      "enemy_bandit",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_rock_eater_swarm",
+    "unitName": "岩喰いの女王とその巣",
+    "formationIds": [
+      "enemy_rock_eater_queen",
+      "enemy_rock_eater",
+      "enemy_rock_eater",
+      "enemy_cave_sporecap",
+      "enemy_cave_sporecap",
+      null
+    ]
+  },
+  {
+    "id": "unit_goblin_line",
+    "unitName": "ゴブリンの戦列",
+    "formationIds": [
+      "enemy_goblin_soldier",
+      "enemy_goblin_soldier",
+      null,
+      "enemy_goblin_archer",
+      "enemy_goblin_mage",
+      null
+    ]
+  },
+  {
+    "id": "unit_goblin_pair",
+    "unitName": "ゴブリン兵士と射手",
+    "formationIds": [
+      "enemy_goblin_soldier",
+      null,
+      null,
+      "enemy_goblin_archer",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_mage_wolf_alone",
+    "unitName": "メイジルプス",
+    "formationIds": [
+      "enemy_mage_wolf",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_wight_alone",
+    "unitName": "彷徨うワイト",
+    "formationIds": [
+      "enemy_wight",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_spider_and_bees",
+    "unitName": "蜘蛛と蜂の巣",
+    "formationIds": [
+      "enemy_giant_spider",
+      "enemy_poison_spider",
+      null,
+      "enemy_killer_bee",
+      "enemy_killer_bee",
+      null
+    ]
+  },
+  {
+    "id": "unit_mage_wolf_hunt",
+    "unitName": "魔狼と毒蜘蛛の待ち伏せ",
+    "formationIds": [
+      "enemy_mage_wolf",
+      "enemy_poison_spider",
+      "enemy_poison_spider",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_wight_pair",
+    "unitName": "ワイト2体",
+    "formationIds": [
+      "enemy_wight",
+      "enemy_wight",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_undead_column",
+    "unitName": "不死者の隊列",
+    "formationIds": [
+      "enemy_wight",
+      "enemy_skeleton",
+      null,
+      "enemy_skeleton_archer",
+      "enemy_skeleton_archer",
+      null
+    ]
+  },
+  {
+    "id": "unit_ranpos_hunt",
+    "unitName": "ランポスの狩り組",
+    "formationIds": [
+      "enemy_ranpos",
+      "enemy_ranpos",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_acid_slime_swarm",
+    "unitName": "アシッド混じりの群体",
+    "formationIds": [
+      "enemy_slime_acid",
+      "enemy_slime",
+      "enemy_slime",
+      "enemy_slime",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_bandit_back_line",
+    "unitName": "野盗の後衛陣",
+    "formationIds": [
+      null,
+      null,
+      null,
+      "enemy_bandit_hexer",
+      "enemy_bandit_hexer",
+      "enemy_bandit_archer"
+    ]
+  },
+  {
+    "id": "unit_highway_coalition",
+    "unitName": "街道の連合",
+    "formationIds": [
+      "enemy_bandit",
+      "enemy_bandit_cutthroat",
+      "enemy_goblin_soldier",
+      "enemy_goblin_archer",
+      null,
+      null
     ]
   }
 ]
