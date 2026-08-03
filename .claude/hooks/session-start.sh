@@ -6,8 +6,11 @@ if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
 fi
 
 if ! dotnet --list-sdks 2>/dev/null | grep -q "^8\."; then
-  apt-get update -qq
-  apt-get install -y dotnet-sdk-8.0
+  if ! { apt-get update -qq && apt-get install -y dotnet-sdk-8.0; }; then
+    curl -fsSL https://dot.net/v1/dotnet-install.sh \
+      | bash -s -- --channel 8.0 --install-dir /usr/share/dotnet
+    ln -sf /usr/share/dotnet/dotnet /usr/local/bin/dotnet
+  fi
 fi
 
 {
