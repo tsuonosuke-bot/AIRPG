@@ -87,6 +87,18 @@
         "weight": 1,
         "minPhase": 14,
         "maxPhase": 0
+      },
+      {
+        "unitId": "unit_acid_slime_swarm",
+        "weight": 2,
+        "minPhase": 10,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_ranpos_hunt",
+        "weight": 3,
+        "minPhase": 9,
+        "maxPhase": 0
       }
     ],
     "treasureTable": [
@@ -253,6 +265,48 @@
         "unitId": "unit_ice_ghoul_lone",
         "weight": 1,
         "minPhase": 18,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_goblin_pair",
+        "weight": 3,
+        "minPhase": 6,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_spider_and_bees",
+        "weight": 2,
+        "minPhase": 8,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_mage_wolf_alone",
+        "weight": 1,
+        "minPhase": 11,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_goblin_line",
+        "weight": 2,
+        "minPhase": 12,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_mage_wolf_hunt",
+        "weight": 2,
+        "minPhase": 13,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wight_alone",
+        "weight": 1,
+        "minPhase": 14,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wight_pair",
+        "weight": 1,
+        "minPhase": 16,
         "maxPhase": 0
       }
     ],
@@ -427,6 +481,24 @@
         "unitId": "unit_bandit_raiders",
         "weight": 2,
         "minPhase": 8,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_goblin_pair",
+        "weight": 2,
+        "minPhase": 5,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_bandit_back_line",
+        "weight": 2,
+        "minPhase": 10,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_highway_coalition",
+        "weight": 2,
+        "minPhase": 12,
         "maxPhase": 0
       }
     ],
@@ -751,6 +823,24 @@
         "weight": 1,
         "minPhase": 13,
         "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wight_alone",
+        "weight": 2,
+        "minPhase": 5,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_undead_column",
+        "weight": 3,
+        "minPhase": 8,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wight_pair",
+        "weight": 2,
+        "minPhase": 12,
+        "maxPhase": 0
       }
     ],
     "treasureTable": [
@@ -1039,6 +1129,18 @@
         "unitId": "unit_goblin_scouts",
         "weight": 2,
         "minPhase": 1,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_goblin_line",
+        "weight": 3,
+        "minPhase": 1,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_highway_coalition",
+        "weight": 2,
+        "minPhase": 4,
         "maxPhase": 0
       }
     ],
