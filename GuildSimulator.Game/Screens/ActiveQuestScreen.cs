@@ -310,7 +310,7 @@ public static class ActiveQuestScreen
                 .Select((trait, i) => new MenuOption(
                     (i + 1).ToString(),
                     trait.traitName,
-                    DescribeTrait(trait),
+                    DescribeTrait(trait, offer.Adventurer),
                     trait.IsPureUpgrade ? TextStyle.Info : TextStyle.Normal))
                 .ToList();
             foreach (var option in options)
@@ -327,12 +327,17 @@ public static class ActiveQuestScreen
         q.pendingTraitOffers.Clear();
     }
 
-    static string DescribeTrait(TraitMasterData trait)
+    /// <summary>
+    /// 選択肢の効果表示。数値は<b>その隊員の型から見た値</b>で出す。
+    /// 物理型にしか効かない数値を術者の選択肢に並べても意味がないため。
+    /// </summary>
+    static string DescribeTrait(TraitMasterData trait, AdventurerData adventurer)
     {
-        var drawbacks = trait.Drawbacks;
-        return drawbacks.Count == 0
+        if (trait.Skill == null) return trait.description;
+        var effect = TraitAnalysis.Evaluate(trait.Skill, TraitSystem.LensOf(adventurer));
+        return effect.Drawbacks.Count == 0
             ? $"{trait.description} ／ 代償なし"
-            : $"{trait.description} ／ 代償: {string.Join("、", drawbacks)}";
+            : $"{trait.description} ／ 代償: {string.Join("、", effect.Drawbacks)}";
     }
 
     static void ShowExpeditionReport(QuestRun q)

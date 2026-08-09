@@ -70,12 +70,28 @@ public static class TraitSystem
         return offers;
     }
 
-    /// <summary>まだ提示しておらず、条件を満たし、効果をまだ持っていない特性か。</summary>
+    /// <summary>
+    /// いま何で戦っている者か。特性は担い手の型ごとに意味が変わるので、
+    /// 型に合わない特性は最初から候補に出さない。
+    ///
+    /// 判定は<b>今この瞬間の得物</b>で行う。杖に持ち替えた戦士には物理特性が出なくなるが、
+    /// すでに身につけた特性は失われない（覚えたスキルが職業を変えても残るのと同じ扱い）。
+    /// </summary>
+    public static TraitLens LensOf(AdventurerData adventurer)
+    {
+        var weapon = adventurer.Weapon;
+        if (weapon == null) return TraitLens.Physical;   // 素手は物理
+        if (weapon.IsHealWeapon) return TraitLens.Heal;
+        return weapon.IsMagicWeapon ? TraitLens.Magic : TraitLens.Physical;
+    }
+
+    /// <summary>まだ提示しておらず、条件を満たし、担い手の型に合っていて、まだ持っていない特性か。</summary>
     public static bool IsEligible(AdventurerData adventurer, TraitMasterData trait)
     {
         if (trait.Skill == null) return false;
         if (adventurer.offeredTraitIds.Contains(trait.id)) return false;
         if (adventurer.AllLearnedSkills.Contains(trait.Skill)) return false;
+        if (!trait.Builds.Contains(LensOf(adventurer))) return false;
         return trait.IsMetBy(adventurer.records);
     }
 

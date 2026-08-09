@@ -102,6 +102,10 @@ public static class MasterLoader
             if (db.skills.TryGetValue(t.skillId, out var traitSkill)) td.Skill = traitSkill;
             else Unresolved(db, "traits.json", t.id, "skillId", t.skillId);
 
+            // 空なら全型。担い手の型ごとに意味が変わるので、絞るときだけ書く。
+            foreach (var lens in t.builds ?? new())
+                if (!td.builds.Contains(lens)) td.builds.Add(lens);
+
             foreach (var r in t.requirements ?? new())
                 td.requirements.Add(new TraitRequirementData
                 {
@@ -612,7 +616,7 @@ public static class MasterLoader
     record TraitRequirementJson(ExpeditionRecordType record, int atLeast);
     record TraitJson(string id, string traitName, string skillId,
         string? description, string? awakenText, string? flavorText,
-        List<TraitRequirementJson>? requirements);
+        List<TraitRequirementJson>? requirements, List<TraitLens>? builds);
 
     record StoryClueJson(string id, string title, string? description);
 

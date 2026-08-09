@@ -243,12 +243,25 @@ public static class MasterValidator
 
             if (trait.Skill == null) continue; // 未解決IDは unresolvedRefs 側で報告済み
 
-            if (trait.IsPureUpgrade && !trait.RequiresRisk)
-                errors.Add($"{trait.id}: 欠点のない特性はリスク記録"
-                    + $"（{string.Join("／", ExpeditionRecordTypes.All
-                        .Where(ExpeditionRecordTypes.IsRisk)
-                        .Select(ExpeditionRecordTypes.DisplayName))}）"
-                    + "を解禁条件に含めてください。素直な強化の代価は先払いにする設計です");
+            // 「代償は先払い」は担い手の型ごとに成り立っていなければならない。
+            // 物理前提で書いた欠点は術者にはタダになり（リスクなしの純粋強化）、
+            // 物理前提の利点は術者には消える（代償だけの罰則）。宣言した型それぞれで検査する。
+            foreach (var lens in trait.Builds)
+            {
+                var effect = TraitAnalysis.Evaluate(trait.Skill, lens);
+                string who = TraitAnalysis.LensName(lens);
+
+                if (effect.Benefits.Count == 0)
+                    errors.Add($"{trait.id}: {who}型には利点が1つも残りません"
+                        + "（その型を builds から外すか、その型に効く数値を足してください）");
+
+                if (effect.Drawbacks.Count == 0 && !trait.RequiresRisk)
+                    errors.Add($"{trait.id}: {who}型には代償がないのにリスク記録を要求していません"
+                        + $"（リスク記録は {string.Join("／", ExpeditionRecordTypes.All
+                            .Where(ExpeditionRecordTypes.IsRisk)
+                            .Select(ExpeditionRecordTypes.DisplayName))}）。"
+                        + "素直な強化の代価は先払いにする設計です");
+            }
 
             // 同じ family は最上位1つしか効かない。職業マスタリーと family を共有すると
             // 特性がマスタリーを黙って押しのけるので、名前空間の衝突をここで止める。

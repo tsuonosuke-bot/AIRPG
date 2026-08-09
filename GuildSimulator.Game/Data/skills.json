@@ -2868,5 +2868,93 @@
       "dv": 1
     },
     "mul": {}
+  },
+  {
+    "id": "skill_trait_arcane_weight",
+    "skillName": "魔の手応え",
+    "family": "trait_arcane_weight",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "mpv": 1
+    },
+    "mul": {
+      "san": 0.9
+    }
+  },
+  {
+    "id": "skill_trait_casters_nerve",
+    "skillName": "術者の胆",
+    "family": "trait_casters_nerve",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "mpv": 2
+    },
+    "mul": {
+      "hp": 0.95
+    }
+  },
+  {
+    "id": "skill_trait_deathbed_chant",
+    "skillName": "死線の詠唱",
+    "family": "trait_deathbed_chant",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "mpv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_quiet_weave",
+    "skillName": "魔を編む静けさ",
+    "family": "trait_quiet_weave",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "mav": 2
+    },
+    "mul": {
+      "san": 0.88
+    }
+  },
+  {
+    "id": "skill_trait_praying_hands",
+    "skillName": "祈りの手",
+    "family": "trait_praying_hands",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "heal": 2
+    },
+    "mul": {
+      "san": 0.9
+    }
+  },
+  {
+    "id": "skill_trait_cleansing_lore",
+    "skillName": "浄めの心得",
+    "family": "trait_cleansing_lore",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {
+      "hp": 0.95
+    },
+    "battle": {
+      "cleanseOnHealChancePercent": 20
+    }
+  },
+  {
+    "id": "skill_trait_last_rites",
+    "skillName": "看取りの技",
+    "family": "trait_last_rites",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "heal": 3
+    },
+    "mul": {}
   }
 ]

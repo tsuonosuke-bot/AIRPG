@@ -1,6 +1,7 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Core.Systems.Quest;
@@ -586,13 +587,18 @@ public static class AdventurerScreen
         {
             Ui.WriteLine();
             Ui.WriteLine("  特性（遠征での戦い方から身についたもの）:");
+            var lens = TraitSystem.LensOf(adventurer);
             foreach (var trait in traits)
             {
-                var drawbacks = trait.Drawbacks;
-                string cost = drawbacks.Count == 0
+                // いま構えている得物から見た値で出す。杖に持ち替えれば物理特性は死んでいる。
+                var effect = TraitAnalysis.Evaluate(trait.Skill!, lens);
+                string cost = effect.Drawbacks.Count == 0
                     ? "代償なし"
-                    : $"代償 {string.Join("、", drawbacks)}";
-                Ui.Info($"    ・{trait.traitName}: {trait.description}（{cost}）");
+                    : $"代償 {string.Join("、", effect.Drawbacks)}";
+                string benefit = effect.Benefits.Count == 0
+                    ? $"いまの得物では効果なし（{TraitAnalysis.LensName(lens)}型）"
+                    : string.Join("、", effect.Benefits);
+                Ui.Info($"    ・{trait.traitName}: {benefit}（{cost}）");
             }
         }
 

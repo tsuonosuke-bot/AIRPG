@@ -11,6 +11,10 @@
         "record": "CritKills",
         "atLeast": 5
       }
+    ],
+    "builds": [
+      "Physical",
+      "Magic"
     ]
   },
   {
@@ -25,6 +29,9 @@
         "record": "ShieldBlocks",
         "atLeast": 15
       }
+    ],
+    "builds": [
+      "Physical"
     ]
   },
   {
@@ -39,6 +46,10 @@
         "record": "RepelledByArmor",
         "atLeast": 12
       }
+    ],
+    "builds": [
+      "Physical",
+      "Magic"
     ]
   },
   {
@@ -53,6 +64,9 @@
         "record": "LowHpRounds",
         "atLeast": 14
       }
+    ],
+    "builds": [
+      "Physical"
     ]
   },
   {
@@ -67,6 +81,9 @@
         "record": "ProtectedAlly",
         "atLeast": 6
       }
+    ],
+    "builds": [
+      "Physical"
     ]
   },
   {
@@ -81,6 +98,9 @@
         "record": "Kills",
         "atLeast": 25
       }
+    ],
+    "builds": [
+      "Physical"
     ]
   },
   {
@@ -95,6 +115,9 @@
         "record": "AlliesFellBeside",
         "atLeast": 4
       }
+    ],
+    "builds": [
+      "Physical"
     ]
   },
   {
@@ -109,6 +132,9 @@
         "record": "NearDeathRounds",
         "atLeast": 8
       }
+    ],
+    "builds": [
+      "Physical"
     ]
   },
   {
@@ -141,6 +167,9 @@
         "record": "NearDeathRounds",
         "atLeast": 5
       }
+    ],
+    "builds": [
+      "Physical"
     ]
   },
   {
@@ -169,6 +198,9 @@
         "record": "ComradesLost",
         "atLeast": 2
       }
+    ],
+    "builds": [
+      "Physical"
     ]
   },
   {
@@ -197,6 +229,9 @@
         "record": "Retreats",
         "atLeast": 4
       }
+    ],
+    "builds": [
+      "Physical"
     ]
   },
   {
@@ -211,6 +246,10 @@
         "record": "FlawlessClears",
         "atLeast": 4
       }
+    ],
+    "builds": [
+      "Physical",
+      "Magic"
     ]
   },
   {
@@ -256,6 +295,128 @@
       {
         "record": "NearDeathRounds",
         "atLeast": 4
+      }
+    ],
+    "builds": [
+      "Physical"
+    ]
+  },
+  {
+    "id": "trait_arcane_weight",
+    "traitName": "魔の手応え",
+    "skillId": "skill_trait_arcane_weight",
+    "builds": [
+      "Magic"
+    ],
+    "description": "術が相手を捉える感触を手が覚えている。そのぶん、心が少しずつ減っていく",
+    "awakenText": "の術は、もう躊躇わない",
+    "flavorText": "詠唱の最後を、いつからか省くようになった。",
+    "requirements": [
+      {
+        "record": "Kills",
+        "atLeast": 25
+      }
+    ]
+  },
+  {
+    "id": "trait_casters_nerve",
+    "traitName": "術者の胆",
+    "skillId": "skill_trait_casters_nerve",
+    "builds": [
+      "Magic"
+    ],
+    "description": "血を流しながらでも詠唱が乱れなくなる。ただし身体はもう元通りではない",
+    "awakenText": "は痛みの中でも術を編めるようになった",
+    "flavorText": "傷が痛むほど、言葉がはっきりしてくる。",
+    "requirements": [
+      {
+        "record": "LowHpRounds",
+        "atLeast": 14
+      }
+    ]
+  },
+  {
+    "id": "trait_deathbed_chant",
+    "traitName": "死線の詠唱",
+    "skillId": "skill_trait_deathbed_chant",
+    "builds": [
+      "Magic"
+    ],
+    "description": "倒れる寸前に編んだ術は、なぜかいちばん深く通る",
+    "awakenText": "は死の淵で最も強い術を知った",
+    "flavorText": "意識が遠のく直前、言葉が勝手に完成した。",
+    "requirements": [
+      {
+        "record": "NearDeathRounds",
+        "atLeast": 8
+      }
+    ]
+  },
+  {
+    "id": "trait_quiet_weave",
+    "traitName": "魔を編む静けさ",
+    "skillId": "skill_trait_quiet_weave",
+    "builds": [
+      "Magic"
+    ],
+    "description": "倒れる仲間を見慣れた心が、魔法への守りを固くする。折れやすい心と引き換えに",
+    "awakenText": "は倒れていく者を見慣れてしまった",
+    "flavorText": "悲鳴の中でも、術式だけは崩れなくなった。",
+    "requirements": [
+      {
+        "record": "AlliesFellBeside",
+        "atLeast": 4
+      }
+    ]
+  },
+  {
+    "id": "trait_praying_hands",
+    "traitName": "祈りの手",
+    "skillId": "skill_trait_praying_hands",
+    "builds": [
+      "Heal"
+    ],
+    "description": "倒れる者を見すぎた手は速くなる。そのぶん心は擦り減っている",
+    "awakenText": "の手は、考えるより先に動くようになった",
+    "flavorText": "誰が倒れたかを見る前に、もう駆け出している。",
+    "requirements": [
+      {
+        "record": "AlliesFellBeside",
+        "atLeast": 4
+      }
+    ]
+  },
+  {
+    "id": "trait_cleansing_lore",
+    "traitName": "浄めの心得",
+    "skillId": "skill_trait_cleansing_lore",
+    "builds": [
+      "Heal"
+    ],
+    "description": "手当てのついでに毒や呪いを祓えるようになる。無理が身体に残る",
+    "awakenText": "は傷の下にあるものを見るようになった",
+    "flavorText": "血を止めるだけでは足りないと、何度も学んだ。",
+    "requirements": [
+      {
+        "record": "LowHpRounds",
+        "atLeast": 14
+      }
+    ]
+  },
+  {
+    "id": "trait_last_rites",
+    "traitName": "看取りの技",
+    "skillId": "skill_trait_last_rites",
+    "builds": [
+      "Heal"
+    ],
+    "description": "連れて帰れなかった者のぶん、手当てが確かになる",
+    "awakenText": "は看取ることを覚えてしまった",
+    "flavorText": "間に合わなかった手つきを、何度も思い返している。",
+    "requirements": [
+      {
+        "record": "ComradesLost",
+        "atLeast": 2
       }
     ]
   }

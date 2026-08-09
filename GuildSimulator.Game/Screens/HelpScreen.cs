@@ -548,32 +548,43 @@ public static class HelpScreen
 
         Ui.WriteLine();
         Ui.WriteLine("  ■ 特性と解禁条件（◆は命を危険に晒した記録）");
+        Ui.WriteLine("     戦闘の計算は物理と魔法で経路が分かれていて、回復役はそもそも攻撃判定を通らない。");
+        Ui.WriteLine("     そのため特性にも「誰に効くか」があり、いま構えている得物に合うものだけが候補に出る。");
+        Ui.WriteLine("     杖に持ち替えれば物理の特性は出なくなるが、すでに身につけた特性は失われない。");
 
-        ShowTraitGroup(db, "諸刃 ── 利点と欠点を併せ持つ", pure: false);
-        ShowTraitGroup(db, "純粋強化 ── 代償を先払いした者だけに現れる", pure: true);
+        // 担い手の型ごとに並べる。同じ記録から、物理・魔法・回復で別の特性が生えることがある。
+        foreach (var lens in TraitAnalysis.AllLenses)
+            ShowTraitsFor(db, lens);
     }
 
-    static void ShowTraitGroup(GameMasterData db, string heading, bool pure)
+    static void ShowTraitsFor(GameMasterData db, TraitLens lens)
     {
         var traits = db.traits.Values
-            .Where(t => t.Skill != null && t.IsPureUpgrade == pure)
+            .Where(t => t.Skill != null && t.Builds.Contains(lens))
+            .OrderBy(t => t.IsPureUpgrade ? 1 : 0)
             .ToList();
         if (traits.Count == 0) return;
 
         Ui.WriteLine();
-        Ui.WriteLine($"     ● {heading}");
+        Ui.WriteLine($"     ● {TraitAnalysis.LensName(lens)}型が身につけられる特性");
         foreach (var trait in traits)
         {
-            var drawbacks = trait.Drawbacks;
-            string cost = drawbacks.Count == 0
+            // 効果と代償は、この型から見たときの値で出す。
+            // 物理型にしか効かない数値を術者の欄に並べても意味がないため。
+            var effect = TraitAnalysis.Evaluate(trait.Skill!, lens);
+            string cost = effect.Drawbacks.Count == 0
                 ? "代償なし"
-                : $"代償 {string.Join("、", drawbacks)}";
-            Ui.WriteLine($"        {Ui.PadWide(trait.traitName, 14)}{trait.description}（{cost}）");
+                : $"代償 {string.Join("、", effect.Drawbacks)}";
+            string shared = trait.Builds.Count > 1
+                ? $"［{string.Join("・", trait.Builds.Select(TraitAnalysis.LensName))}共通］"
+                : "";
+            Ui.WriteLine($"        {Ui.PadWide(trait.traitName, 14)}{trait.description}（{cost}）{shared}");
 
             string conditions = string.Join("　かつ　", trait.requirements.Select(r =>
                 (ExpeditionRecordTypes.IsRisk(r.record) ? "◆" : "")
                 + $"{ExpeditionRecordTypes.DisplayName(r.record)} {r.atLeast}"));
-            Ui.Dim($"        {Ui.PadWide("", 14)}解禁: {conditions}");
+            Ui.Dim($"        {Ui.PadWide("", 14)}解禁: {conditions}"
+                + $"　効果: {string.Join("、", effect.Benefits)}");
         }
     }
 
@@ -611,7 +622,8 @@ public static class HelpScreen
         Ui.WriteLine("                      候補が出るのはクエスト帰還時。身につけられるのは1つだけで、");
         Ui.WriteLine("                      選ばなかった候補は二度と現れない。");
         Ui.WriteLine("                      特性は原則として諸刃で、利点と欠点を併せ持つ。");
-        Ui.WriteLine("                      欠点のない特性は、瀕死・戦闘不能・仲間の死線をくぐった記録からしか生えない。");
+        Ui.WriteLine("                      欠点のない特性は、瀕死・戦闘不能・全滅・仲間の喪失をくぐった記録からしか生えない。");
+        Ui.WriteLine("                      候補は構えている得物に合うものだけ（物理／魔法／回復で別の特性が生える）。");
         Ui.WriteLine("                      いま何をどれだけくぐってきたかは、冒険者詳細の「くぐってきたもの」で確認できる。");
         Ui.WriteLine("                      どの特性が何をどれだけ要求するかは、この節の末尾に一覧がある。");
         Ui.WriteLine("  ・装備            : 商店で購入・売却し、冒険者一覧画面で着せ替えできる。");

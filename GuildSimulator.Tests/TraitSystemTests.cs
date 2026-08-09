@@ -126,11 +126,13 @@ public class TraitSystemTests
     public void ValidatorAcceptsAPureUpgradePaidForWithRisk()
     {
         var db = Load();
+        // どの型でも意味が通る数値にする。物理専用の数値で全型向けに宣言すると、
+        // 「術者には利点がない」で別のエラーになってしまう。
         var earned = new SkillMasterData
         {
             id = "skill_trait_earned", skillName = "身銭を切った",
             family = "trait_earned", level = 1,
-            add = new StatBlock { pv = 3 },
+            add = new StatBlock { emergencyHeal = 6 },
         };
         db.skills[earned.id] = earned;
         db.traits["trait_earned"] = Trait(
@@ -147,17 +149,126 @@ public class TraitSystemTests
         {
             id = "s1", add = new StatBlock { critPv = 1, threatWeight = 25 },
         };
-        Assert.NotEmpty(TraitAnalysis.DescribeDrawbacks(threatened));
+        Assert.NotEmpty(TraitAnalysis.Evaluate(threatened, null).Drawbacks);
 
         var weakened = new SkillMasterData
         {
             id = "s2", add = new StatBlock { pv = 1 },
             mul = new StatMultiplier { hp = 1f, san = 0.9f, heal = 1f },
         };
-        Assert.NotEmpty(TraitAnalysis.DescribeDrawbacks(weakened));
+        Assert.NotEmpty(TraitAnalysis.Evaluate(weakened, null).Drawbacks);
 
         var clean = new SkillMasterData { id = "s3", add = new StatBlock { emergencyHeal = 8 } };
-        Assert.Empty(TraitAnalysis.DescribeDrawbacks(clean));
+        Assert.Empty(TraitAnalysis.Evaluate(clean, null).Drawbacks);
+    }
+
+    // ---- 担い手の型 ----
+
+    [Fact]
+    public void PhysicalOnlyNumbersAreDeadWeightForCasters()
+    {
+        // pv・背水PV・弱った敵へのPV は魔法攻撃の経路に乗らない（BattleResolver が magic で分岐する）。
+        var brawn = new SkillMasterData
+        {
+            id = "s", add = new StatBlock { pv = 2 },
+            battle = new SkillBattleEffect { lowHpThresholdPercent = 50, lowHpPv = 2 },
+        };
+
+        Assert.NotEmpty(TraitAnalysis.Evaluate(brawn, TraitLens.Physical).Benefits);
+        Assert.Empty(TraitAnalysis.Evaluate(brawn, TraitLens.Magic).Benefits);
+        Assert.Empty(TraitAnalysis.Evaluate(brawn, TraitLens.Heal).Benefits);
+    }
+
+    [Fact]
+    public void ADrawbackThatCostsOneBuildNothingIsNoDrawbackForThatBuild()
+    {
+        // これが「引き際を知る」で起きていた穴。術者にとって PV-1 はタダなので、
+        // リスクを払わない純粋強化が成立してしまっていた。
+        var free = new SkillMasterData { id = "s", add = new StatBlock { dv = 1, pv = -1 } };
+
+        Assert.NotEmpty(TraitAnalysis.Evaluate(free, TraitLens.Physical).Drawbacks);
+        Assert.Empty(TraitAnalysis.Evaluate(free, TraitLens.Magic).Drawbacks);
+        Assert.NotEmpty(TraitAnalysis.Evaluate(free, TraitLens.Magic).Benefits);
+    }
+
+    [Fact]
+    public void ValidatorRejectsATraitThatIsAllCostForOneOfItsBuilds()
+    {
+        var db = Load();
+        var lopsided = new SkillMasterData
+        {
+            id = "skill_trait_lopsided", skillName = "片手落ち",
+            family = "trait_lopsided", level = 1,
+            add = new StatBlock { pv = 2 },
+            mul = new StatMultiplier { hp = 1f, san = 0.9f, heal = 1f },
+        };
+        db.skills[lopsided.id] = lopsided;
+        var trait = Trait("trait_lopsided", lopsided, (ExpeditionRecordType.Kills, 5));
+        trait.builds.Add(TraitLens.Physical);
+        trait.builds.Add(TraitLens.Magic);   // 術者には士気の代償だけが残る
+        db.traits[trait.id] = trait;
+
+        var errors = MasterValidator.Validate(db);
+        Assert.Contains(errors, e => e.Contains("trait_lopsided") && e.Contains("魔法型")
+            && e.Contains("利点が1つも残りません"));
+    }
+
+    [Fact]
+    public void ValidatorRejectsAFreeLunchForOneOfItsBuilds()
+    {
+        var db = Load();
+        var free = new SkillMasterData
+        {
+            id = "skill_trait_freeride", skillName = "ただ乗り",
+            family = "trait_freeride", level = 1,
+            add = new StatBlock { dv = 1, pv = -1 },
+        };
+        db.skills[free.id] = free;
+        var trait = Trait("trait_freeride", free, (ExpeditionRecordType.Retreats, 4));
+        trait.builds.Add(TraitLens.Physical);
+        trait.builds.Add(TraitLens.Magic);   // 術者には PV-1 がタダ
+        db.traits[trait.id] = trait;
+
+        var errors = MasterValidator.Validate(db);
+        Assert.Contains(errors, e => e.Contains("trait_freeride") && e.Contains("魔法型")
+            && e.Contains("代償がない"));
+    }
+
+    [Fact]
+    public void OffersRespectWhatTheAdventurerIsHolding()
+    {
+        var physicalSkill = new SkillMasterData { id = "sp", family = "fp", level = 1 };
+        var magicSkill = new SkillMasterData { id = "sm", family = "fm", level = 1 };
+        var physical = Trait("t_phys", physicalSkill, (ExpeditionRecordType.Kills, 1));
+        physical.builds.Add(TraitLens.Physical);
+        var magic = Trait("t_magic", magicSkill, (ExpeditionRecordType.Kills, 1));
+        magic.builds.Add(TraitLens.Magic);
+        var both = new[] { physical, magic };
+
+        var caster = new AdventurerData(Master());
+        caster.records.Add(ExpeditionRecordType.Kills, 10);
+        caster.SetEquipped(EquipSlot.RightHand, new EquipmentMasterData
+        {
+            id = "staff", displayName = "杖", attackKind = AttackKind.Magic, isTwoHanded = true,
+        });
+
+        var offer = Assert.Single(TraitSystem.BuildOffers(new[] { caster }, both));
+        Assert.Equal(TraitLens.Magic, TraitSystem.LensOf(caster));
+        Assert.Same(magic, Assert.Single(offer.Candidates));
+    }
+
+    [Fact]
+    public void EveryBuildHasSomethingToEarn()
+    {
+        // どの型にも特性が用意されていること。術者や回復役が育成から取り残されないための下限。
+        var db = Load();
+        foreach (var lens in TraitAnalysis.AllLenses)
+        {
+            var forLens = db.traits.Values.Where(t => t.Builds.Contains(lens)).ToList();
+            Assert.True(forLens.Count >= 3,
+                $"{TraitAnalysis.LensName(lens)}型の特性が{forLens.Count}件しかありません");
+            Assert.Contains(forLens, t => t.IsPureUpgrade && t.RequiresRisk);
+        }
     }
 
     // ---- 開花の判定 ----
@@ -533,9 +644,9 @@ public class TraitSystemTests
                         text);
             }
 
-            // 諸刃と純粋強化を分けて並べることで、設計規則そのものを読ませている。
-            Assert.Contains("諸刃", text);
-            Assert.Contains("純粋強化", text);
+            // 担い手の型ごとに並べることで、「誰に何が生えるか」を読ませている。
+            foreach (var lens in TraitAnalysis.AllLenses)
+                Assert.Contains($"{TraitAnalysis.LensName(lens)}型が身につけられる特性", text);
         }
     }
 
