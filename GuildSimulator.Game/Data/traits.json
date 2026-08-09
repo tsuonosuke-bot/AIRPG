@@ -142,5 +142,121 @@
         "atLeast": 5
       }
     ]
+  },
+  {
+    "id": "trait_lone_shadow",
+    "traitName": "孤影",
+    "skillId": "skill_trait_lone_shadow",
+    "description": "一人で動くことに身体が慣れ、身のこなしが軽くなる。隊の中では浮く",
+    "awakenText": "は誰も当てにしなくなった",
+    "flavorText": "背中を預ける相手を、もう探さない。",
+    "requirements": [
+      {
+        "record": "SoloClears",
+        "atLeast": 3
+      }
+    ]
+  },
+  {
+    "id": "trait_mourning",
+    "traitName": "弔い",
+    "skillId": "skill_trait_mourning",
+    "description": "失った者のぶんまで刃が鋭くなる。そのぶん心は擦り減っている",
+    "awakenText": "は背負うものが増えた",
+    "flavorText": "連れて帰れなかった顔が、剣を振るたびによぎる。",
+    "requirements": [
+      {
+        "record": "ComradesLost",
+        "atLeast": 2
+      }
+    ]
+  },
+  {
+    "id": "trait_renown",
+    "traitName": "英名",
+    "skillId": "skill_trait_renown",
+    "description": "主を討った名が隊を奮い立たせる。同時に、敵はまずこの首を狙ってくる",
+    "awakenText": "の名が知れ渡った",
+    "flavorText": "名を呼ばれて振り向くと、刃が飛んでくるようになった。",
+    "requirements": [
+      {
+        "record": "BossKills",
+        "atLeast": 3
+      }
+    ]
+  },
+  {
+    "id": "trait_knows_when",
+    "traitName": "引き際を知る",
+    "skillId": "skill_trait_knows_when",
+    "description": "退くべき時が読めるようになり、罠も避ける。踏み込みは鈍くなる",
+    "awakenText": "は退くことを恥じなくなった",
+    "flavorText": "生きて帰ることのほうが難しいと、何度も学んだ。",
+    "requirements": [
+      {
+        "record": "Retreats",
+        "atLeast": 4
+      }
+    ]
+  },
+  {
+    "id": "trait_unscarred_pride",
+    "traitName": "無傷の驕り",
+    "skillId": "skill_trait_unscarred_pride",
+    "description": "危なげなく勝ってきた自信が手元を冴えさせる。痛みへの備えは薄い",
+    "awakenText": "は負ける姿を思い描けなくなった",
+    "flavorText": "まだ一度も、担がれて帰ったことがない。",
+    "requirements": [
+      {
+        "record": "FlawlessClears",
+        "atLeast": 4
+      }
+    ]
+  },
+  {
+    "id": "trait_life_in_death",
+    "traitName": "死中に活",
+    "skillId": "skill_trait_life_in_death",
+    "description": "全滅の底を見た者の勘。倒れる兆しを先に掴み、身をかわす",
+    "awakenText": "は隊が消える瞬間を見た",
+    "flavorText": "全員が倒れた場所から、どうやって戻ったのか覚えていない。",
+    "requirements": [
+      {
+        "record": "QuestsFailed",
+        "atLeast": 2
+      }
+    ]
+  },
+  {
+    "id": "trait_only_one_back",
+    "traitName": "唯一の生還者",
+    "skillId": "skill_trait_only_one_back",
+    "description": "ただ一人で戻った者は、もう滅多なことでは折れない",
+    "awakenText": "はただ一人で門をくぐった",
+    "flavorText": "六人で出て、一人で帰った。報告書は自分が書いた。",
+    "requirements": [
+      {
+        "record": "SoleSurvivor",
+        "atLeast": 1
+      }
+    ]
+  },
+  {
+    "id": "trait_stands_alone",
+    "traitName": "独り立ち",
+    "skillId": "skill_trait_stands_alone",
+    "description": "独力で死線を越えた者の膂力と足運び",
+    "awakenText": "は誰の助けもなく生きて帰った",
+    "flavorText": "助けを呼んでも、誰も来ない場所で戦い方を覚えた。",
+    "requirements": [
+      {
+        "record": "SoloClears",
+        "atLeast": 2
+      },
+      {
+        "record": "NearDeathRounds",
+        "atLeast": 4
+      }
+    ]
   }
 ]

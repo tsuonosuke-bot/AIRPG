@@ -24,6 +24,15 @@ public enum ExpeditionRecordType
     /// <summary>同じ戦闘で味方が目の前で戦闘不能になった回数。</summary>
     AlliesFellBeside = 2,
 
+    /// <summary>全滅した遠征に加わっていた回数。</summary>
+    QuestsFailed = 3,
+
+    /// <summary>同じ遠征で仲間を死なせた人数の累計（戦闘不能ではなく、実際の死）。</summary>
+    ComradesLost = 4,
+
+    /// <summary>自分だけが生きて帰った回数。</summary>
+    SoleSurvivor = 5,
+
     // ---- 通常記録 ----
     // 日々の戦い方の蓄積。ここだけを条件にできるのは、欠点を併せ持つ「諸刃」の特性だけ。
 
@@ -44,6 +53,18 @@ public enum ExpeditionRecordType
 
     /// <summary>自分の攻撃が1回も貫通せず、装甲に弾かれた回数。</summary>
     RepelledByArmor = 15,
+
+    /// <summary>単独でクエストを正規クリアした回数。</summary>
+    SoloClears = 16,
+
+    /// <summary>ボスを討ち取った遠征から生きて帰った回数。</summary>
+    BossKills = 17,
+
+    /// <summary>撤退して帰った回数。</summary>
+    Retreats = 18,
+
+    /// <summary>誰ひとり戦闘不能にならずにクリアした遠征の回数。</summary>
+    FlawlessClears = 19,
 }
 
 public static class ExpeditionRecordTypes
@@ -53,22 +74,37 @@ public static class ExpeditionRecordTypes
         ExpeditionRecordType.NearDeathRounds,
         ExpeditionRecordType.TimesDowned,
         ExpeditionRecordType.AlliesFellBeside,
+        ExpeditionRecordType.QuestsFailed,
+        ExpeditionRecordType.ComradesLost,
+        ExpeditionRecordType.SoleSurvivor,
         ExpeditionRecordType.LowHpRounds,
         ExpeditionRecordType.Kills,
         ExpeditionRecordType.CritKills,
         ExpeditionRecordType.ProtectedAlly,
         ExpeditionRecordType.ShieldBlocks,
         ExpeditionRecordType.RepelledByArmor,
+        ExpeditionRecordType.SoloClears,
+        ExpeditionRecordType.BossKills,
+        ExpeditionRecordType.Retreats,
+        ExpeditionRecordType.FlawlessClears,
     };
 
     /// <summary>
     /// 命を危険へ晒したことを示す記録か。欠点のない特性はこの記録を条件に含めなければならない。
     /// 「素直な見返りが欲しければ、先に代価を払っていること」という設計判断そのもの。
     /// </summary>
+    /// <remarks>
+    /// 失敗と喪失もここに入る。全滅を潜ったことと仲間を失ったことは、
+    /// 瀕死で立ち続けたことと同じかそれ以上に高くついた経験なので、
+    /// 素直な見返りの代価として認める。
+    /// </remarks>
     public static bool IsRisk(ExpeditionRecordType type) => type is
         ExpeditionRecordType.NearDeathRounds
         or ExpeditionRecordType.TimesDowned
-        or ExpeditionRecordType.AlliesFellBeside;
+        or ExpeditionRecordType.AlliesFellBeside
+        or ExpeditionRecordType.QuestsFailed
+        or ExpeditionRecordType.ComradesLost
+        or ExpeditionRecordType.SoleSurvivor;
 
     public static string DisplayName(ExpeditionRecordType type) => type switch
     {
@@ -81,6 +117,13 @@ public static class ExpeditionRecordTypes
         ExpeditionRecordType.ProtectedAlly => "味方を庇った回数",
         ExpeditionRecordType.ShieldBlocks => "盾で受けた回数",
         ExpeditionRecordType.RepelledByArmor => "装甲に弾かれた回数",
+        ExpeditionRecordType.QuestsFailed => "全滅した遠征の回数",
+        ExpeditionRecordType.ComradesLost => "死なせた仲間の人数",
+        ExpeditionRecordType.SoleSurvivor => "唯一の生還者になった回数",
+        ExpeditionRecordType.SoloClears => "単独でやり遂げた依頼",
+        ExpeditionRecordType.BossKills => "ボスを討ち取った回数",
+        ExpeditionRecordType.Retreats => "撤退して帰った回数",
+        ExpeditionRecordType.FlawlessClears => "誰も倒れずに終えた依頼",
         _ => type.ToString(),
     };
 
@@ -96,6 +139,13 @@ public static class ExpeditionRecordTypes
         ExpeditionRecordType.ProtectedAlly => $"{count}度、仲間の前に身体を割り込ませた",
         ExpeditionRecordType.ShieldBlocks => $"{count}度、盾で衝撃を受け止めた",
         ExpeditionRecordType.RepelledByArmor => $"{count}度、渾身の一撃を装甲に弾かれた",
+        ExpeditionRecordType.QuestsFailed => $"{count}度、隊が全滅する場に居合わせた",
+        ExpeditionRecordType.ComradesLost => $"{count}人の仲間を連れて帰れなかった",
+        ExpeditionRecordType.SoleSurvivor => $"{count}度、ただ一人だけ帰ってきた",
+        ExpeditionRecordType.SoloClears => $"{count}件の依頼を、たった一人でやり遂げた",
+        ExpeditionRecordType.BossKills => $"{count}体の主を討ち取って生還した",
+        ExpeditionRecordType.Retreats => $"{count}度、引き返すほうを選んだ",
+        ExpeditionRecordType.FlawlessClears => $"{count}件の依頼を、誰ひとり倒れさせずに終えた",
         _ => $"{DisplayName(type)}: {count}",
     };
 }
@@ -162,6 +212,10 @@ public sealed class ExpeditionRecorder
         if (member is not AdventurerData adventurer) return;
         For(adventurer.id).Add(type, amount);
     }
+
+    /// <summary>参照専用の読み取り。<see cref="For"/> と違い、空のエントリを作らない。</summary>
+    public int Count(string adventurerId, ExpeditionRecordType type) =>
+        byAdventurerId.TryGetValue(adventurerId, out var record) ? record[type] : 0;
 
     /// <summary>味方側の全員に同じ記録を1つずつ加える（味方が倒れた瞬間の目撃など）。</summary>
     public void AddToAll(IEnumerable<IUnitMember?> members, ExpeditionRecordType type, int amount = 1)

@@ -666,6 +666,10 @@ public class QuestManager
         foreach (var a in q.EnumerateMembers())
             a.RecordExpedition(q.def.questName, expeditionResult);
 
+        // 依頼の結末そのものを記録に落とす。死亡判定を通したあとでなければ
+        // 「連れて帰れなかった仲間」が数えられないので、順序を入れ替えてはいけない。
+        ExpeditionOutcomeRecorder.Record(q);
+
         // 遠征での身の置き方を生涯記録へ合流させ、そこで特性の開花を判定する。
         // 撤退でも全滅でも数える——どう戦ったかは、依頼を果たせたかどうかとは別の話なので。
         foreach (var a in q.EnumerateMembers())

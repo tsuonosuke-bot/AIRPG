@@ -365,6 +365,128 @@ public class TraitSystemTests
         Assert.True(adv.records.IsEmpty);
     }
 
+    // ---- 依頼の結末そのものを数える ----
+
+    /// <summary>
+    /// 戦闘フックが数えるのはラウンド単位の出来事だが、こちらは「1本の依頼がどう終わったか」。
+    /// 記録の粒度が違うだけで行き先は同じなので、特性の条件からは区別なく引ける。
+    /// </summary>
+    public class Outcomes
+    {
+        static QuestRun Run(int memberCount, out List<AdventurerData> members)
+        {
+            var quest = new QuestMasterData { id = "q", totalPhases = 5, phasesPerTurn = 1 };
+            var run = new QuestRun(quest, startedTurn: 1);
+            members = new List<AdventurerData>();
+            for (int i = 0; i < memberCount; i++)
+            {
+                var adv = new AdventurerData(Master($"a{i}", $"隊員{i}"));
+                members.Add(adv);
+                run.formation[i] = adv;
+            }
+            return run;
+        }
+
+        [Fact]
+        public void SoloClearsCountOnlyWhenOneMemberFinishesTheJob()
+        {
+            var solo = Run(1, out var alone);
+            solo.completed = true;
+            ExpeditionOutcomeRecorder.Record(solo);
+            Assert.Equal(1, solo.recorder.Count(alone[0].id, ExpeditionRecordType.SoloClears));
+
+            var pair = Run(2, out var two);
+            pair.completed = true;
+            ExpeditionOutcomeRecorder.Record(pair);
+            Assert.Equal(0, pair.recorder.Count(two[0].id, ExpeditionRecordType.SoloClears));
+        }
+
+        [Fact]
+        public void FailingAQuestIsRecordedForEveryoneWhoWasThere()
+        {
+            var run = Run(3, out var members);
+            run.failed = true;
+            ExpeditionOutcomeRecorder.Record(run);
+
+            foreach (var member in members)
+                Assert.Equal(1, run.recorder.Count(member.id, ExpeditionRecordType.QuestsFailed));
+        }
+
+        [Fact]
+        public void LostComradesAreCountedForTheSurvivorsNotForTheDead()
+        {
+            var run = Run(3, out var members);
+            members[1].isAlive = false;
+            members[2].isAlive = false;
+            run.completed = true;
+            ExpeditionOutcomeRecorder.Record(run);
+
+            Assert.Equal(2, run.recorder.Count(members[0].id, ExpeditionRecordType.ComradesLost));
+            Assert.Equal(0, run.recorder.Count(members[1].id, ExpeditionRecordType.ComradesLost));
+        }
+
+        [Fact]
+        public void SoleSurvivorNeedsComradesToHaveBeenLost()
+        {
+            var wiped = Run(3, out var members);
+            members[1].isAlive = false;
+            members[2].isAlive = false;
+            ExpeditionOutcomeRecorder.Record(wiped);
+            Assert.Equal(1, wiped.recorder.Count(members[0].id, ExpeditionRecordType.SoleSurvivor));
+
+            // 最初から一人で出た遠征は「唯一の生還者」ではない。失う仲間がいない。
+            var solo = Run(1, out var alone);
+            solo.completed = true;
+            ExpeditionOutcomeRecorder.Record(solo);
+            Assert.Equal(0, solo.recorder.Count(alone[0].id, ExpeditionRecordType.SoleSurvivor));
+        }
+
+        [Fact]
+        public void FlawlessClearsRequireThatNobodyWentDownAllExpedition()
+        {
+            var clean = Run(2, out var untouched);
+            clean.completed = true;
+            ExpeditionOutcomeRecorder.Record(clean);
+            Assert.Equal(1, clean.recorder.Count(untouched[0].id, ExpeditionRecordType.FlawlessClears));
+
+            // 帰還時には戦闘不能が負傷へ解決済みなので、道中で倒れたかは戦闘記録から見る。
+            var bloodied = Run(2, out var hurt);
+            bloodied.completed = true;
+            bloodied.recorder.For(hurt[1].id).Add(ExpeditionRecordType.TimesDowned);
+            ExpeditionOutcomeRecorder.Record(bloodied);
+            Assert.Equal(0, bloodied.recorder.Count(hurt[0].id, ExpeditionRecordType.FlawlessClears));
+        }
+
+        [Fact]
+        public void BossKillsAndRetreatsAreRecordedFromTheRunState()
+        {
+            var boss = Run(2, out var slayers);
+            boss.completed = true;
+            boss.bossDefeated = true;
+            ExpeditionOutcomeRecorder.Record(boss);
+            Assert.Equal(1, boss.recorder.Count(slayers[0].id, ExpeditionRecordType.BossKills));
+
+            var pulled = Run(2, out var cautious);
+            pulled.retreated = true;
+            ExpeditionOutcomeRecorder.Record(pulled);
+            Assert.Equal(1, pulled.recorder.Count(cautious[0].id, ExpeditionRecordType.Retreats));
+            Assert.Equal(0, pulled.recorder.Count(cautious[0].id, ExpeditionRecordType.BossKills));
+        }
+
+        [Fact]
+        public void TheDeadEarnNoClearCredit()
+        {
+            var run = Run(2, out var members);
+            members[1].isAlive = false;
+            run.completed = true;
+            run.bossDefeated = true;
+            ExpeditionOutcomeRecorder.Record(run);
+
+            Assert.Equal(0, run.recorder.Count(members[1].id, ExpeditionRecordType.BossKills));
+            Assert.Equal(1, run.recorder.Count(members[0].id, ExpeditionRecordType.BossKills));
+        }
+    }
+
     // ---- ヘルプへの掲載 ----
 
     /// <summary>

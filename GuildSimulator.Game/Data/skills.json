@@ -2763,5 +2763,110 @@
       "protectAllyHpPercent": 50,
       "protectChancePercent": 30
     }
+  },
+  {
+    "id": "skill_trait_lone_shadow",
+    "skillName": "孤影",
+    "family": "trait_lone_shadow",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "dv": 2
+    },
+    "mul": {
+      "san": 0.9
+    }
+  },
+  {
+    "id": "skill_trait_mourning",
+    "skillName": "弔い",
+    "family": "trait_mourning",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "pv": 1,
+      "toHit": 1
+    },
+    "mul": {
+      "san": 0.85
+    }
+  },
+  {
+    "id": "skill_trait_renown",
+    "skillName": "英名",
+    "family": "trait_renown",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "threatWeight": 25
+    },
+    "mul": {
+      "san": 1.15
+    }
+  },
+  {
+    "id": "skill_trait_knows_when",
+    "skillName": "引き際を知る",
+    "family": "trait_knows_when",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "dv": 1,
+      "pv": -1
+    },
+    "mul": {},
+    "expedition": {
+      "trapChancePercent": -20
+    }
+  },
+  {
+    "id": "skill_trait_unscarred_pride",
+    "skillName": "無傷の驕り",
+    "family": "trait_unscarred_pride",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "toHit": 1
+    },
+    "mul": {
+      "hp": 0.95
+    }
+  },
+  {
+    "id": "skill_trait_life_in_death",
+    "skillName": "死中に活",
+    "family": "trait_life_in_death",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "emergencyHeal": 6,
+      "dv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_only_one_back",
+    "skillName": "唯一の生還者",
+    "family": "trait_only_one_back",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "dv": 1
+    },
+    "mul": {
+      "san": 1.2
+    }
+  },
+  {
+    "id": "skill_trait_stands_alone",
+    "skillName": "独り立ち",
+    "family": "trait_stands_alone",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "pv": 1,
+      "dv": 1
+    },
+    "mul": {}
   }
 ]
