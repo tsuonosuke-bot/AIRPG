@@ -1,6 +1,7 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems;
 using GuildSimulator.Core.Systems.Quest;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Game.Presentation;
@@ -153,6 +154,7 @@ public static class ActiveQuestScreen
                 qm.FinalizeQuest(q);
                 ShowCompletionSummary(q, guild, before, "壊滅");
                 await Ui.PauseAsync();
+                await ResolveTraitOffersAsync(q);
             }
             return;
         }
@@ -171,6 +173,7 @@ public static class ActiveQuestScreen
                 qm.FinalizeQuest(q);
                 ShowCompletionSummary(q, guild, before, "撤退");
                 await Ui.PauseAsync();
+                await ResolveTraitOffersAsync(q);
             }
             return;
         }
@@ -181,6 +184,7 @@ public static class ActiveQuestScreen
         qm.FinalizeQuest(q);
         ShowCompletionSummary(q, guild, settlementBefore, "成功");
         await Ui.PauseAsync();
+        await ResolveTraitOffersAsync(q);
     }
 
     static SettlementSnapshot CaptureSettlement(GuildManager guild, QuestRun q) => new(
@@ -254,6 +258,10 @@ public static class ActiveQuestScreen
         if (!hasGrowth && q.startingLevels.Count > 0)
             Ui.Dim("    レベルアップなし");
 
+        // 開花そのものはこの後の専用画面で選ばせる。ここでは誰に何かが起きたかだけ知らせる。
+        foreach (var offer in q.pendingTraitOffers)
+            Ui.Info($"    ★ {offer.AwakenLine}");
+
         if (q.discoveredClueIds.Count > 0)
         {
             Ui.WriteLine("  新たな手掛かり:");
@@ -275,6 +283,57 @@ public static class ActiveQuestScreen
     }
 
     static string Signed(int value) => value > 0 ? $"+{value}" : value.ToString();
+
+    /// <summary>
+    /// 帰還時に開花した特性を選ばせる。
+    ///
+    /// レベルアップの能力成長は選べないが、こちらは選べる。何が選択肢に並ぶかは
+    /// 「その冒険者が実際にどう戦ってきたか」が決めるので、賭けではなく積み重ねの決算になる。
+    /// 特性は原則として諸刃で、欠点のない特性は瀕死や戦闘不能を潜った者にしか現れない。
+    /// </summary>
+    static async Task ResolveTraitOffersAsync(QuestRun q)
+    {
+        if (q.pendingTraitOffers.Count == 0) return;
+
+        foreach (var offer in q.pendingTraitOffers.ToList())
+        {
+            Ui.BeginScreen();
+            Ui.Header("特性の開花");
+            Ui.Info($"  ★ {offer.AwakenLine}");
+            if (!string.IsNullOrWhiteSpace(offer.RecordLine))
+                Ui.Dim($"     {offer.RecordLine}");
+            Ui.WriteLine();
+            Ui.Warn("  身につけられるのは1つだけです。選ばなかった特性は二度と現れません");
+            Ui.WriteLine();
+
+            var options = offer.Candidates
+                .Select((trait, i) => new MenuOption(
+                    (i + 1).ToString(),
+                    trait.traitName,
+                    DescribeTrait(trait),
+                    trait.IsPureUpgrade ? TextStyle.Info : TextStyle.Normal))
+                .ToList();
+            foreach (var option in options)
+                Ui.WriteLine($"  {option.Key}. {option.Label}（{option.Detail}）");
+
+            int? pick = await Ui.SelectIndexAsync("何を身につけさせる？", options, "見送る");
+            string result = pick == null
+                ? TraitSystem.Decline(offer)
+                : TraitSystem.Accept(offer, offer.Candidates[pick.Value - 1]);
+            Ui.Info($"  {result}");
+            await Ui.PauseAsync();
+        }
+
+        q.pendingTraitOffers.Clear();
+    }
+
+    static string DescribeTrait(TraitMasterData trait)
+    {
+        var drawbacks = trait.Drawbacks;
+        return drawbacks.Count == 0
+            ? $"{trait.description} ／ 代償なし"
+            : $"{trait.description} ／ 代償: {string.Join("、", drawbacks)}";
+    }
 
     static void ShowExpeditionReport(QuestRun q)
     {

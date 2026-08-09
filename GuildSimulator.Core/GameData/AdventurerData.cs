@@ -43,6 +43,19 @@ public class AdventurerData : IUnitMember
     public List<AdventurerInjury> injuries = new();
     public List<AdventurerScar> scars = new();
 
+    /// <summary>
+    /// 生涯にわたる遠征記録。特性の解禁条件はここを見る。
+    /// レベルアップの成長を絞ってあるぶん、キャラクターの個性はこちらの蓄積から生まれる。
+    /// </summary>
+    public ExpeditionRecord records = new();
+
+    /// <summary>
+    /// 一度でも選択肢として提示した特性のID。習得したものも、見送ったものも入る。
+    /// <b>提示は1つの特性につき生涯1度きり</b>で、選ばなかった特性は二度と現れない。
+    /// 毎クエスト同じ問いを繰り返さないためと、その場の選択に重みを持たせるための両方。
+    /// </summary>
+    public List<string> offeredTraitIds = new();
+
     public RaceMasterData? race;
     public ClassMasterData? currentClass;
 
@@ -832,6 +845,14 @@ public class AdventurerData : IUnitMember
         foreach (var (classId, points) in masteryPoints)
             classMasteryPoints[classId] = points;
 
+        MarkDirty();
+    }
+
+    /// <summary>特性の開花を冒険者の記録へ残す。傷痕と同じ扱いで、その人物の来歴になる。</summary>
+    public void RecordTraitAwakening(MasterData.TraitMasterData trait)
+    {
+        string flavor = string.IsNullOrWhiteSpace(trait.flavorText) ? "" : $" {trait.flavorText}";
+        AddHistory($"特性「{trait.traitName}」が開花した。{flavor}".TrimEnd());
         MarkDirty();
     }
 

@@ -2631,5 +2631,137 @@
       "critRange": 1
     },
     "mul": {}
+  },
+  {
+    "id": "skill_trait_bloodscent",
+    "skillName": "血の匂い",
+    "family": "trait_bloodscent",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "critPv": 1,
+      "threatWeight": 25
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_stone_stance",
+    "skillName": "石の構え",
+    "family": "trait_stone_stance",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "av": 1,
+      "dv": -1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_gap_eye",
+    "skillName": "隙を見る目",
+    "family": "trait_gap_eye",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "autoPenetrate": 12,
+      "toHit": -1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_reckless",
+    "skillName": "捨て身",
+    "family": "trait_reckless",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {
+      "hp": 0.95
+    },
+    "battle": {
+      "lowHpThresholdPercent": 50,
+      "lowHpPv": 2
+    }
+  },
+  {
+    "id": "skill_trait_shield_oath",
+    "skillName": "盾の誓い",
+    "family": "trait_shield_oath",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "threatWeight": 20
+    },
+    "mul": {},
+    "battle": {
+      "protectAllyHpPercent": 45,
+      "protectChancePercent": 25
+    }
+  },
+  {
+    "id": "skill_trait_killing_habit",
+    "skillName": "殺し慣れ",
+    "family": "trait_killing_habit",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "pv": 1
+    },
+    "mul": {
+      "san": 0.9
+    }
+  },
+  {
+    "id": "skill_trait_hollow_eyes",
+    "skillName": "虚ろな目",
+    "family": "trait_hollow_eyes",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {
+      "san": 0.88
+    },
+    "battle": {
+      "afflictedTargetPv": 2
+    }
+  },
+  {
+    "id": "skill_trait_unyielding",
+    "skillName": "不屈",
+    "family": "trait_unyielding",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "battle": {
+      "lowHpThresholdPercent": 40,
+      "lowHpPv": 2
+    }
+  },
+  {
+    "id": "skill_trait_deathwalker",
+    "skillName": "死線を歩む者",
+    "family": "trait_deathwalker",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "emergencyHeal": 8
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_last_bulwark",
+    "skillName": "最後の砦",
+    "family": "trait_last_bulwark",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "blockChance": 5
+    },
+    "mul": {},
+    "battle": {
+      "protectAllyHpPercent": 50,
+      "protectChancePercent": 30
+    }
   }
 ]

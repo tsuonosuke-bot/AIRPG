@@ -87,7 +87,8 @@ public class QuestProgressor
                         q.morale,
                         q.policy,
                         q.ConsumableCombatBonusFor,
-                        q.emergencyRetreatHpPercent);
+                        q.emergencyRetreatHpPercent,
+                        q.recorder);
 
                     bool advWiped = !q.formation.Any(a => a != null && a.isAlive && !a.isIncapacitated);
                     bool enemyWiped = !enemyMembers.Any(e => e != null && e.isAlive);

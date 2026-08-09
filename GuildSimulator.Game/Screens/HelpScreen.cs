@@ -50,7 +50,7 @@ public static class HelpScreen
                 case "6": await ShowStatsAsync(); break;
                 case "7": await ShowWeaponClassesAsync(db); break;
                 case "8": await ShowMasteryAsync(db); break;
-                case "9": await ShowAdventurerAsync(); break;
+                case "9": await ShowAdventurerAsync(db); break;
                 default: return;
             }
         }
@@ -535,7 +535,30 @@ public static class HelpScreen
         _ => "防具",
     };
 
-    static async Task ShowAdventurerAsync()
+    /// <summary>
+    /// 存在する特性の一覧。マスタから組み立てるので、traits.json に足したものは自動でここに並ぶ。
+    /// 解禁に必要な記録の「種類」までは見せるが、必要な「数」は伏せる
+    /// （数を出すと、特性を狙って作業する遊び方を誘ってしまうため）。
+    /// </summary>
+    static void ShowTraitCatalog(GameMasterData db)
+    {
+        if (db.traits.Count == 0) return;
+        Ui.WriteLine();
+        Ui.WriteLine("  ある特性:");
+        foreach (var trait in db.traits.Values.OrderBy(t => t.RequiresRisk ? 1 : 0))
+        {
+            var drawbacks = trait.Drawbacks;
+            string cost = drawbacks.Count == 0
+                ? "代償なし"
+                : $"代償 {string.Join("、", drawbacks)}";
+            string from = string.Join("・", trait.requirements
+                .Select(r => ExpeditionRecordTypes.DisplayName(r.record)));
+            Ui.WriteLine($"    ・{trait.traitName}: {trait.description}（{cost}）");
+            Ui.Dim($"        ← {from}");
+        }
+    }
+
+    static async Task ShowAdventurerAsync(GameMasterData db)
     {
         Ui.BeginScreen();
         Ui.Header(AdventurerSectionTitle);
@@ -563,6 +586,14 @@ public static class HelpScreen
         Ui.WriteLine("                      負傷中でも出発できるが能力が下がる。出発させずターンを進めると1Tぶん休養する。");
         Ui.WriteLine("  ・医療院          : 休養時の回復を早め、帰還時死亡率と完治時に後遺症が残る確率を下げる。");
         Ui.WriteLine("  ・傷痕・後遺症    : 重傷の完治時に残る恒久効果。能力補正と固有称号を持ち、セーブにも記録される。");
+        Ui.WriteLine("  ・特性            : 遠征での戦い方そのものから生える恒久効果。レベルアップの能力成長は選べないが、");
+        Ui.WriteLine("                      特性はプレイヤーが選ぶ。何が候補に並ぶかは、その冒険者が実際にどう戦ってきたかで決まる。");
+        Ui.WriteLine("                      候補が出るのはクエスト帰還時。身につけられるのは1つだけで、");
+        Ui.WriteLine("                      選ばなかった候補は二度と現れない。");
+        Ui.WriteLine("                      特性は原則として諸刃で、利点と欠点を併せ持つ。");
+        Ui.WriteLine("                      欠点のない特性は、瀕死・戦闘不能・仲間の死線をくぐった記録からしか生えない。");
+        Ui.WriteLine("                      冒険者詳細の「くぐってきたもの」で記録を確認できる（解禁に必要な数は伏せてある）。");
+        ShowTraitCatalog(db);
         Ui.WriteLine("                      人物詳細では経歴・性格・動機・得意分野と、直近の遠征履歴を確認できる。");
         Ui.WriteLine("  ・装備            : 商店で購入・売却し、冒険者一覧画面で着せ替えできる。");
         Ui.WriteLine("  ・レアリティ      : コモン、アンコモン、レア、ユニーク、レジェンドの順に希少。");

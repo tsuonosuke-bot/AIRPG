@@ -103,6 +103,7 @@ public static class AdventurerScreen
             ShowSkillSummary(a);
             ShowClassMastery(a);
             ShowConditions(a);
+            ShowTraitsAndRecords(a, db);
             Ui.WriteLine();
             ShowProfile(a);
             Ui.WriteLine();
@@ -568,6 +569,48 @@ public static class AdventurerScreen
         if (!hasChange)
             Ui.Dim("    数値と装備効果に変化はありません");
         await Ui.PauseAsync();
+    }
+
+    /// <summary>
+    /// 身につけた特性と、それを生んだ遠征記録。
+    ///
+    /// <b>解禁に必要な数はあえて出さない。</b> 出すと「あと3回わざと瀕死になる」という遊び方を
+    /// 誘ってしまい、特性が「戦った結果」ではなく「作業の報酬」になるため。
+    /// ここに並べるのはあくまで、その冒険者がくぐってきたものの記録。
+    /// </summary>
+    static void ShowTraitsAndRecords(AdventurerData adventurer, GameMasterData db)
+    {
+        var learned = adventurer.AllLearnedSkills.ToHashSet();
+        var traits = db.traits.Values
+            .Where(t => t.Skill != null && learned.Contains(t.Skill))
+            .ToList();
+
+        if (traits.Count > 0)
+        {
+            Ui.WriteLine();
+            Ui.WriteLine("  特性（遠征での戦い方から身についたもの）:");
+            foreach (var trait in traits)
+            {
+                var drawbacks = trait.Drawbacks;
+                string cost = drawbacks.Count == 0
+                    ? "代償なし"
+                    : $"代償 {string.Join("、", drawbacks)}";
+                Ui.Info($"    ・{trait.traitName}: {trait.description}（{cost}）");
+            }
+        }
+
+        if (adventurer.records.IsEmpty) return;
+
+        Ui.WriteLine();
+        Ui.WriteLine("  くぐってきたもの:");
+        foreach (var type in ExpeditionRecordTypes.All)
+        {
+            int count = adventurer.records[type];
+            if (count <= 0) continue;
+            string mark = ExpeditionRecordTypes.IsRisk(type) ? "◆" : "・";
+            Ui.Dim($"    {mark}{ExpeditionRecordTypes.DisplayName(type)}: {count}");
+        }
+        Ui.Dim("    ◆は命を危険に晒した記録。素直な強化の特性はここからしか生えない");
     }
 
     static void ShowConditions(AdventurerData adventurer)

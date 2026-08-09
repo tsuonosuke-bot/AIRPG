@@ -1,0 +1,146 @@
+[
+  {
+    "id": "trait_bloodscent",
+    "traitName": "血の匂い",
+    "skillId": "skill_trait_bloodscent",
+    "description": "会心の一撃がさらに深く入る。ただし返り血の匂いが敵を引き寄せる",
+    "awakenText": "は急所の位置を手が覚えてしまった",
+    "flavorText": "斬るべき場所が、見る前に分かるようになった。",
+    "requirements": [
+      {
+        "record": "CritKills",
+        "atLeast": 5
+      }
+    ]
+  },
+  {
+    "id": "trait_stone_stance",
+    "traitName": "石の構え",
+    "skillId": "skill_trait_stone_stance",
+    "description": "受けに慣れた身体は硬い。そのぶん足は前ほど動かない",
+    "awakenText": "は打たれることを恐れなくなった",
+    "flavorText": "退がるより、受けたほうが早いと知った。",
+    "requirements": [
+      {
+        "record": "ShieldBlocks",
+        "atLeast": 15
+      }
+    ]
+  },
+  {
+    "id": "trait_gap_eye",
+    "traitName": "隙を見る目",
+    "skillId": "skill_trait_gap_eye",
+    "description": "装甲の継ぎ目を突けるようになる。大振りは減り、当たりそのものは荒くなる",
+    "awakenText": "は力任せを捨てた",
+    "flavorText": "何度も弾かれて、ようやく鎧の縫い目が見えてきた。",
+    "requirements": [
+      {
+        "record": "RepelledByArmor",
+        "atLeast": 12
+      }
+    ]
+  },
+  {
+    "id": "trait_reckless",
+    "traitName": "捨て身",
+    "skillId": "skill_trait_reckless",
+    "description": "手傷を負ってからが本番になる。ただし身体はもう元通りではない",
+    "awakenText": "は痛みを勘定に入れなくなった",
+    "flavorText": "血を流しているほうが、かえって手元が定まる。",
+    "requirements": [
+      {
+        "record": "LowHpRounds",
+        "atLeast": 14
+      }
+    ]
+  },
+  {
+    "id": "trait_shield_oath",
+    "traitName": "盾の誓い",
+    "skillId": "skill_trait_shield_oath",
+    "description": "傷ついた味方を庇うようになる。庇うということは、的が増えるということ",
+    "awakenText": "は誰かの前に立つ癖がついた",
+    "flavorText": "考えるより先に、足が半歩前に出る。",
+    "requirements": [
+      {
+        "record": "ProtectedAlly",
+        "atLeast": 6
+      }
+    ]
+  },
+  {
+    "id": "trait_killing_habit",
+    "traitName": "殺し慣れ",
+    "skillId": "skill_trait_killing_habit",
+    "description": "手が仕留め方を覚えている。そのぶん、心が少しずつ減っていく",
+    "awakenText": "の手は、もう躊躇わない",
+    "flavorText": "止めを刺すとき、以前のような重さを感じなくなった。",
+    "requirements": [
+      {
+        "record": "Kills",
+        "atLeast": 25
+      }
+    ]
+  },
+  {
+    "id": "trait_hollow_eyes",
+    "traitName": "虚ろな目",
+    "skillId": "skill_trait_hollow_eyes",
+    "description": "弱った相手を追い詰めることに躊躇いがなくなる。折れやすい心と引き換えに",
+    "awakenText": "は倒れていく者を見慣れてしまった",
+    "flavorText": "誰かが崩れ落ちる音に、もう手が止まらない。",
+    "requirements": [
+      {
+        "record": "AlliesFellBeside",
+        "atLeast": 4
+      }
+    ]
+  },
+  {
+    "id": "trait_unyielding",
+    "traitName": "不屈",
+    "skillId": "skill_trait_unyielding",
+    "description": "追い詰められるほど攻撃が重くなる",
+    "awakenText": "は死線を越えた",
+    "flavorText": "膝は、折れなかった。",
+    "requirements": [
+      {
+        "record": "NearDeathRounds",
+        "atLeast": 8
+      }
+    ]
+  },
+  {
+    "id": "trait_deathwalker",
+    "traitName": "死線を歩む者",
+    "skillId": "skill_trait_deathwalker",
+    "description": "深手を負った瞬間に、身体が勝手に手当てを始める",
+    "awakenText": "は倒れ方を知っている",
+    "flavorText": "一度死にかけた者は、二度目の兆しに早く気づく。",
+    "requirements": [
+      {
+        "record": "TimesDowned",
+        "atLeast": 2
+      }
+    ]
+  },
+  {
+    "id": "trait_last_bulwark",
+    "traitName": "最後の砦",
+    "skillId": "skill_trait_last_bulwark",
+    "description": "自分が死にかけていても味方の前に立ち、受けが硬くなる",
+    "awakenText": "は最後まで退かなかった",
+    "flavorText": "自分の血だまりの中で、それでも半歩前に出た。",
+    "requirements": [
+      {
+        "record": "ProtectedAlly",
+        "atLeast": 5
+      },
+      {
+        "record": "NearDeathRounds",
+        "atLeast": 5
+      }
+    ]
+  }
+]

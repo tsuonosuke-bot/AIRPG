@@ -150,6 +150,8 @@ public static class SaveManager
             .Select(x => new LearnedSkillSave { skillId = x.skill.id, ownerClassId = x.ownerClass?.id })
             .ToList(),
         classMasteryPoints = new Dictionary<string, int>(a.ExportClassMasteryPoints()),
+        expeditionRecords = a.records.Entries.ToDictionary(x => x.Key, x => x.Value),
+        offeredTraitIds = new List<string>(a.offeredTraitIds),
     };
 
     static QuestManagerSaveData ExportQuestManager(QuestManager qm) => new()
@@ -211,6 +213,9 @@ public static class SaveManager
         chests = q.chests
             .Select(c => new TreasureChestSave { kind = c.kind, foundPhase = c.foundPhase })
             .ToList(),
+        expeditionRecords = q.recorder.Entries.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value.Entries.ToDictionary(x => x.Key, x => x.Value)),
         gatheredCount = q.gatheredCount,
         gatherDecisionPending = q.gatherDecisionPending,
         gatherDecisionTurn = q.gatherDecisionTurn,
@@ -291,7 +296,7 @@ public static class SaveManager
             guild.RestoreBurialRecords(data.guild.burialRecords.Select(b =>
                 new BurialRecord(b.name, b.level, b.classAndRace, b.buriedTurn, b.expeditionCount, b.successCount)));
 
-        var questManager = new QuestManager(guild);
+        var questManager = new QuestManager(guild) { traitCatalog = db.traits.Values.ToList() };
         var board = data.questManager.questBoard
             .Where(e => questById.ContainsKey(e.questId))
             .Select(e => new QuestBoardEntry(questById[e.questId], e.postedTurn))
@@ -353,7 +358,12 @@ public static class SaveManager
                 scarChancePercent = Math.Clamp(injury.scarChancePercent, 0, 100),
             }).ToList(),
             scars = (saved.scars ?? new()).Select(scar => new AdventurerScar { type = scar.type }).ToList(),
+            offeredTraitIds = new List<string>(saved.offeredTraitIds ?? new()),
         };
+
+        // 特性システム導入前のセーブには記録が無い。空のまま読み込み、以後の遠征から数え始める。
+        foreach (var (type, amount) in saved.expeditionRecords ?? new())
+            adv.records.Add(type, amount);
 
         // スロットベース装備の復元（v4以降）。無ければ旧形式からマイグレーション。
         foreach (var slot in EquipService.AllSlots)
@@ -437,6 +447,13 @@ public static class SaveManager
             });
         run.discoveredClueIds.AddRange(saved.discoveredClueIds ?? new());
         run.usedConsumableIds.AddRange(saved.usedConsumableIds);
+
+        foreach (var (adventurerId, counts) in saved.expeditionRecords ?? new())
+        {
+            var record = run.recorder.For(adventurerId);
+            foreach (var (type, amount) in counts)
+                record.Add(type, amount);
+        }
         if (!string.IsNullOrEmpty(saved.pendingChoiceEventId)
             && db.choiceEvents.TryGetValue(saved.pendingChoiceEventId, out var pendingEvent))
             run.pendingChoice = new PendingQuestChoice

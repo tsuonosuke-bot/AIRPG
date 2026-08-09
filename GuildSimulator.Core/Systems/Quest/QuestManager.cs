@@ -27,6 +27,12 @@ public class QuestManager
     /// <summary>受注されないまま掲示され続けた枠を差し替えるまでのターン数。</summary>
     public int BoardExpireTurns = 7;
 
+    /// <summary>
+    /// 特性のマスタ。帰還時の開花判定に使う。設定されていなければ特性は一切開花しないので、
+    /// マスタを読み込んだホスト側が起動時とロード時に渡す。
+    /// </summary>
+    public IReadOnlyList<TraitMasterData> traitCatalog = Array.Empty<TraitMasterData>();
+
     readonly GuildManager guild;
     readonly QuestProgressor progressor;
     readonly QuestRewardService rewardService = new();
@@ -659,6 +665,13 @@ public class QuestManager
         string expeditionResult = q.completed ? "成功" : q.retreated ? "撤退" : "失敗";
         foreach (var a in q.EnumerateMembers())
             a.RecordExpedition(q.def.questName, expeditionResult);
+
+        // 遠征での身の置き方を生涯記録へ合流させ、そこで特性の開花を判定する。
+        // 撤退でも全滅でも数える——どう戦ったかは、依頼を果たせたかどうかとは別の話なので。
+        foreach (var a in q.EnumerateMembers())
+            if (q.recorder.Entries.TryGetValue(a.id, out var earned))
+                a.records.MergeFrom(earned);
+        q.pendingTraitOffers = TraitSystem.BuildOffers(q.EnumerateMembers(), traitCatalog);
 
         // ギルドに帰還した生存メンバーは全快させる（死亡者は蘇生しない）。
         foreach (var a in q.EnumerateMembers())

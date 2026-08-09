@@ -34,6 +34,18 @@ public class QuestRun
     public Dictionary<string, int> startingLevels = new();
     public int guildUpkeepAtStart;
 
+    /// <summary>
+    /// この遠征のあいだの隊員の身の置き方。帰還時に冒険者の生涯記録へ合流し、
+    /// そこで特性の解禁条件と突き合わせる。
+    /// </summary>
+    public ExpeditionRecorder recorder = new();
+
+    /// <summary>
+    /// 帰還時に開花した特性の選択待ち。プレイヤーが選ぶか見送るまで残り、
+    /// 完了サマリーがこれを読んで選択肢を出す。
+    /// </summary>
+    public List<Systems.TraitOffer> pendingTraitOffers = new();
+
     // 道中で手に入れた未開封の宝箱。帰還後に開けて中身を抽選する（全滅時は失う）。
     public List<TreasureChest> chests = new();
 

@@ -1,4 +1,6 @@
 using GuildSimulator.Core;
+using GuildSimulator.Core.GameData;
+using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Battle;
 
@@ -210,6 +212,64 @@ public static class MasterValidator
                 errors.Add($"{clue.id}: titleが空です");
         }
 
+        ValidateTraits(db, errors);
+
         return errors;
+    }
+
+    /// <summary>
+    /// 特性の設計判断をデータ検査として固定する。
+    ///
+    /// 芯は「<b>代償は先払い</b>」。特性は原則として利点と欠点を併せ持つ諸刃であり、
+    /// 欠点のない素直な強化を出してよいのは、リスク記録（瀕死・戦闘不能・仲間の死線）を
+    /// 解禁条件に含めているときだけ。欠点の有無は宣言ではなくスキルの数値そのものから
+    /// 導いている（<see cref="TraitAnalysis"/>）ので、数値だけ書き換えて規則をすり抜けることはできない。
+    /// </summary>
+    static void ValidateTraits(GameMasterData db, List<string> errors)
+    {
+        var byFamily = new Dictionary<string, string>();
+
+        foreach (var trait in db.traits.Values)
+        {
+            if (string.IsNullOrWhiteSpace(trait.id))
+            {
+                errors.Add("traits.json: idが空の項目があります");
+                continue;
+            }
+            if (string.IsNullOrWhiteSpace(trait.traitName))
+                errors.Add($"{trait.id}: traitNameが空です");
+            if (trait.requirements.Count == 0)
+                errors.Add($"{trait.id}: requirementsが空です（条件のない特性は永久に開花しません）");
+
+            if (trait.Skill == null) continue; // 未解決IDは unresolvedRefs 側で報告済み
+
+            if (trait.IsPureUpgrade && !trait.RequiresRisk)
+                errors.Add($"{trait.id}: 欠点のない特性はリスク記録"
+                    + $"（{string.Join("／", ExpeditionRecordTypes.All
+                        .Where(ExpeditionRecordTypes.IsRisk)
+                        .Select(ExpeditionRecordTypes.DisplayName))}）"
+                    + "を解禁条件に含めてください。素直な強化の代価は先払いにする設計です");
+
+            // 同じ family は最上位1つしか効かない。職業マスタリーと family を共有すると
+            // 特性がマスタリーを黙って押しのけるので、名前空間の衝突をここで止める。
+            string family = trait.Skill.family;
+            if (string.IsNullOrWhiteSpace(family))
+            {
+                errors.Add($"{trait.id}: 特性のスキル {trait.Skill.id} には固有のfamilyを付けてください");
+                continue;
+            }
+            if (byFamily.TryGetValue(family, out string? owner))
+                errors.Add($"{trait.id}: family '{family}' が {owner} と重複しています"
+                    + "（同じfamilyは最上位1つしか効きません）");
+            else
+                byFamily[family] = trait.id;
+
+            foreach (var other in db.skills.Values)
+            {
+                if (other == trait.Skill || other.family != family) continue;
+                errors.Add($"{trait.id}: family '{family}' を特性以外のスキル {other.id} と共有しています");
+                break;
+            }
+        }
     }
 }

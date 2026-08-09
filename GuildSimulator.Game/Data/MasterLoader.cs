@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Battle;
@@ -10,6 +11,10 @@ namespace GuildSimulator.Game.Data;
 public class GameMasterData
 {
     public Dictionary<string, SkillMasterData> skills = new();
+
+    /// <summary>遠征での戦い方から生える特性。効果の実体は <see cref="skills"/> のスキル。</summary>
+    public Dictionary<string, TraitMasterData> traits = new();
+
     public Dictionary<string, ClassMasterData> classes = new();
     public Dictionary<string, RaceMasterData> races = new();
     public Dictionary<string, EquipmentMasterData> equipment = new();
@@ -43,7 +48,7 @@ public static class MasterLoader
     /// <summary>マスタJSONのファイル名一覧。読み込み順は <see cref="Load"/> 内の依存関係に従う。</summary>
     public static readonly IReadOnlyList<string> DataFileNames = new[]
     {
-        "skills.json", "classes.json", "races.json", "equipment.json", "consumables.json",
+        "skills.json", "traits.json", "classes.json", "races.json", "equipment.json", "consumables.json",
         "relics.json", "facilities.json", "enemies.json", "choice_events.json", "enemy_units.json",
         "dungeons.json", "clues.json", "quests.json", "adventurers.json",
     };
@@ -81,6 +86,29 @@ public static class MasterLoader
                 onHitStatuses = ParseCombatStatuses(s.onHitStatuses),
             };
             db.skills[s.id] = sd;
+        }
+
+        // 特性は効果の実体をスキルへ委ねているので、必ずスキルの後に読む。
+        var traits = Load<List<TraitJson>>(readJson, "traits.json");
+        foreach (var t in traits)
+        {
+            var td = new TraitMasterData
+            {
+                id = t.id, traitName = t.traitName, skillId = t.skillId,
+                description = t.description ?? "",
+                awakenText = t.awakenText ?? "",
+                flavorText = t.flavorText ?? "",
+            };
+            if (db.skills.TryGetValue(t.skillId, out var traitSkill)) td.Skill = traitSkill;
+            else Unresolved(db, "traits.json", t.id, "skillId", t.skillId);
+
+            foreach (var r in t.requirements ?? new())
+                td.requirements.Add(new TraitRequirementData
+                {
+                    record = r.record,
+                    atLeast = Math.Max(1, r.atLeast),
+                });
+            db.traits[t.id] = td;
         }
 
         var classes = Load<List<ClassJson>>(readJson, "classes.json");
@@ -580,6 +608,11 @@ public static class MasterLoader
         Dictionary<string, int>? eventTable, List<EncounterEntryJson>? encounterTable,
         List<RewardEntryJson>? treasureTable,
         List<string>? turnEndEventIds, float? turnEndEventChance);
+
+    record TraitRequirementJson(ExpeditionRecordType record, int atLeast);
+    record TraitJson(string id, string traitName, string skillId,
+        string? description, string? awakenText, string? flavorText,
+        List<TraitRequirementJson>? requirements);
 
     record StoryClueJson(string id, string title, string? description);
 

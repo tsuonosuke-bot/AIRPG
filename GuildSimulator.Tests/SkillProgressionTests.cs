@@ -174,10 +174,17 @@ public class SkillProgressionTests
     public void TieredSkillsAreNamedByLevelAndNeverByTheOldSuffix()
     {
         var db = Load();
+        // 特性のスキルも family を持つが、段階ではなく「重ねがけ防止の名前空間」として使っている。
+        // 段階名（〜 Lv2）を名乗るのは職業マスタリーのような多段スキルだけ。
+        var traitSkillIds = db.traits.Values
+            .Select(t => t.skillId)
+            .ToHashSet();
+
         foreach (var s in db.skills.Values)
         {
             Assert.DoesNotContain("・極", s.skillName);
             if (string.IsNullOrEmpty(s.family)) continue;
+            if (traitSkillIds.Contains(s.id)) continue;
             Assert.True(s.level > 0, $"{s.id} に level がない");
             Assert.EndsWith($" Lv{s.level}", s.skillName);
         }
@@ -209,6 +216,9 @@ public class SkillProgressionTests
         foreach (var q in db.allQuests)
             foreach (var e in q.bossDrops)
                 if (e.Skill != null) referenced.Add(e.Skill.id);
+        // 特性は職業からではなく、遠征記録の蓄積から手に入る入手経路。
+        foreach (var t in db.traits.Values)
+            referenced.Add(t.skillId);
 
         var orphans = db.skills.Values
             .Where(s => !referenced.Contains(s.id))

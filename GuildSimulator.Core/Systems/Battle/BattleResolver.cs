@@ -51,7 +51,8 @@ public static class BattleResolver
         MoraleState morale,
         ExpeditionPolicy policy = ExpeditionPolicy.ObjectiveFirst,
         Func<IUnitMember, StatBlock>? temporaryStatBonus = null,
-        int emergencyRetreatHpPercent = 0)
+        int emergencyRetreatHpPercent = 0,
+        ExpeditionRecorder? recorder = null)
     {
         var res = new Result();
         int actions = 0;
@@ -93,6 +94,9 @@ public static class BattleResolver
                 res.rounds = round;
                 return res;
             }
+            // 身の置き方を数える。倒したかどうかではなく、どれだけ削られたまま立っていたか。
+            RecordStandingGround(advSide, recorder);
+
             int moraleRecovery = morale.Restore(AppearanceSystem.BattleMoralePerRound(advSide));
             if (moraleRecovery > 0)
                 logs.Add($"  エリア {phase}: 隊員の華やかな存在感で士気 +{moraleRecovery}（{morale.Current}/{morale.Max}）");
@@ -199,7 +203,7 @@ public static class BattleResolver
                         var target = PickTarget(enemySideArr, statsByMember);
                         if (target == null) return;
                         target = TryProtectTarget(
-                            target, enemySideArr, statsByMember, logs, phase);
+                            target, enemySideArr, statsByMember, logs, phase, recorder);
                         var targetStats = statsByMember[target];
 
                         var conditionalPv = magic
@@ -234,13 +238,15 @@ public static class BattleResolver
                             && QudCombat.RollBlock(shield.blockChance + targetStats.blockChance))
                         {
                             shieldBlocked = true;
+                            recorder?.Add(target, ExpeditionRecordType.ShieldBlocks);
                             // 高位の盾術は「受けたうえで完全に殺す」。相手のPVがいくつでも通らない。
                             if (QudCombat.RollBlockNegate(targetStats.blockNegate))
                             {
                                 logs.Add($"  エリア {phase}: {actor.Name}→{target.Name} {swingTag}{target.Name}は{shield.displayName}で完全に受けきった ダメージなし");
                                 if (TryCounterattack(
                                         target, actor, enemySideArr, allySideArr,
-                                        statsByMember, armorShredded, statuses, round, logs, phase))
+                                        statsByMember, armorShredded, statuses, round, logs, phase,
+                                        advSide, recorder))
                                     if (entry.isAdvSide) partyDowned++;
                                 return;
                             }
@@ -265,11 +271,14 @@ public static class BattleResolver
 
                         if (dealt.penetrations == 0)
                         {
+                            // 弾かれた経験も財産になる。力任せをやめて隙を探すようになるのはここから。
+                            recorder?.Add(actor, ExpeditionRecordType.RepelledByArmor);
                             logs.Add($"  エリア {phase}: {actor.Name}→{target.Name} {swingTag}{tag}（{roll}、{judge}） 装甲に弾かれた ダメージなし");
                             if (shieldBlocked
                                 && TryCounterattack(
                                     target, actor, enemySideArr, allySideArr,
-                                    statsByMember, armorShredded, statuses, round, logs, phase))
+                                    statsByMember, armorShredded, statuses, round, logs, phase,
+                                    advSide, recorder))
                                 if (entry.isAdvSide) partyDowned++;
                         }
                         else
@@ -290,7 +299,16 @@ public static class BattleResolver
                             if (check.critical) severity++;
                             if (dealt.damage - hpBefore >= Math.Max(1, target.CombatHpMax / 5)) severity++;
                             SetCombatDown(target, severity, logs, phase);
-                            if (!entry.isAdvSide) partyDowned++;
+                            if (entry.isAdvSide)
+                            {
+                                recorder?.Add(actor, ExpeditionRecordType.Kills);
+                                if (check.critical) recorder?.Add(actor, ExpeditionRecordType.CritKills);
+                            }
+                            else
+                            {
+                                RecordComradeFell(advSide, target, recorder);
+                                partyDowned++;
+                            }
                         }
                         else if (dealt.damage > 0)
                         {
@@ -515,7 +533,8 @@ public static class BattleResolver
         IUnitMember?[] defendingSide,
         IReadOnlyDictionary<IUnitMember, StatBlock> statsByMember,
         List<string> logs,
-        int phase)
+        int phase,
+        ExpeditionRecorder? recorder = null)
     {
         IUnitMember? protector = null;
         SkillMasterData? source = null;
@@ -547,8 +566,42 @@ public static class BattleResolver
             || !RollPercent(source.battle.protectChancePercent))
             return originalTarget;
 
+        recorder?.Add(protector, ExpeditionRecordType.ProtectedAlly);
         logs.Add($"  エリア {phase}: {protector.Name}が{originalTarget.Name}を庇った（{source.skillName}）");
         return protector;
+    }
+
+    /// <summary>
+    /// ラウンド頭の身の置き方を数える。HP率だけを見るので、殴り勝っているかどうかとは無関係に
+    /// 「削られたまま踏みとどまっていた時間」が積み上がる。
+    /// </summary>
+    static void RecordStandingGround(IUnitMember?[] advSide, ExpeditionRecorder? recorder)
+    {
+        if (recorder == null) return;
+        foreach (var member in advSide)
+        {
+            if (member == null || !member.IsAlive || member.CombatHpMax <= 0) continue;
+            int hp = Math.Max(0, member.CombatHp);
+            if (hp * 4 <= member.CombatHpMax)
+                recorder.Add(member, ExpeditionRecordType.NearDeathRounds);
+            if (hp * 2 <= member.CombatHpMax)
+                recorder.Add(member, ExpeditionRecordType.LowHpRounds);
+        }
+    }
+
+    /// <summary>味方が倒れた瞬間を、本人と、それを見ていた生存者の双方に刻む。</summary>
+    static void RecordComradeFell(
+        IUnitMember?[] advSide, IUnitMember fallen, ExpeditionRecorder? recorder)
+    {
+        if (recorder == null) return;
+        recorder.Add(fallen, ExpeditionRecordType.TimesDowned);
+        foreach (var member in advSide)
+        {
+            if (member == null || member == fallen) continue;
+            // まだ立っている者だけが「見ていた」。同じ攻撃で共に崩れた者には刻まない。
+            if (!member.IsAlive || member.CombatHp <= 0) continue;
+            recorder.Add(member, ExpeditionRecordType.AlliesFellBeside);
+        }
     }
 
     /// <summary>処刑人と背水の、攻撃対象・現在HPを見て初めて決まる物理PV。</summary>
@@ -593,7 +646,9 @@ public static class BattleResolver
         CombatStatusTracker statuses,
         int currentRound,
         List<string> logs,
-        int phase)
+        int phase,
+        IUnitMember?[]? advSide = null,
+        ExpeditionRecorder? recorder = null)
     {
         if (!defender.IsAlive || !attacker.IsAlive || defender.Weapon == null
             || defender.IsMagicAttack || defender.Weapon.IsHealWeapon)
@@ -642,6 +697,7 @@ public static class BattleResolver
         attacker.CombatHp -= dealt.damage;
         if (dealt.penetrations == 0)
         {
+            recorder?.Add(defender, ExpeditionRecordType.RepelledByArmor);
             logs.Add($"  エリア {phase}: {defender.Name}→{attacker.Name} 反撃（{source}）は装甲に弾かれた");
             return false;
         }
@@ -658,6 +714,10 @@ public static class BattleResolver
         {
             int severity = check.critical ? 2 : 1;
             SetCombatDown(attacker, severity, logs, phase);
+            recorder?.Add(defender, ExpeditionRecordType.Kills);
+            if (check.critical) recorder?.Add(defender, ExpeditionRecordType.CritKills);
+            if (advSide != null && advSide.Contains(attacker))
+                RecordComradeFell(advSide, attacker, recorder);
             return true;
         }
 

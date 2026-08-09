@@ -38,7 +38,7 @@ public static class GameLoop
     {
         // ---- 初期化 ----
         var guild = new GuildManager(startGold: StartingGold, startRank: 1);
-        var questManager = new QuestManager(guild);
+        var questManager = new QuestManager(guild) { traitCatalog = db.traits.Values.ToList() };
 
         int currentTurn = 1;
         questManager.FillBoard(db.allQuests, currentTurn);

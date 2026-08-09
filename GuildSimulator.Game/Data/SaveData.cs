@@ -1,3 +1,4 @@
+using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.Models;
 
 namespace GuildSimulator.Game.Data;
@@ -77,6 +78,12 @@ public class AdventurerSaveData
     public List<ScarSaveData> scars = new();
     public List<LearnedSkillSave> learnedSkills = new();
     public Dictionary<string, int> classMasteryPoints = new();
+
+    /// <summary>生涯の遠征記録。特性の解禁条件が参照する。</summary>
+    public Dictionary<ExpeditionRecordType, int> expeditionRecords = new();
+
+    /// <summary>提示済みの特性ID。習得したものも見送ったものも含む（再提示しないため）。</summary>
+    public List<string> offeredTraitIds = new();
 }
 
 public class InjurySaveData
@@ -156,6 +163,12 @@ public class QuestRunSaveData
     public Dictionary<string, int> targetMpvBonusByAdventurerId = new();
     public string pendingChoiceEventId = "";
     public int pendingChoiceCreatedTurn;
+
+    /// <summary>
+    /// この遠征でここまでに積んだ隊員ごとの記録（冒険者ID → 記録）。
+    /// 帰還時に生涯記録へ合流するので、途中セーブで失うと特性の開花が遅れる。
+    /// </summary>
+    public Dictionary<string, Dictionary<ExpeditionRecordType, int>> expeditionRecords = new();
 }
 
 public class ExpeditionEventSave
