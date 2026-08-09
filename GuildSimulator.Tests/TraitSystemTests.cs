@@ -6,7 +6,10 @@ using GuildSimulator.Core.Systems;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Core.Systems.Quest;
+using GuildSimulator.Cli;
 using GuildSimulator.Game.Data;
+using GuildSimulator.Game.Presentation;
+using GuildSimulator.Game.Screens;
 using Xunit;
 
 namespace GuildSimulator.Tests;
@@ -360,6 +363,58 @@ public class TraitSystemTests
             new List<string>(), turn: 1, phase: 1, morale: new MoraleState(100));
 
         Assert.True(adv.records.IsEmpty);
+    }
+
+    // ---- ヘルプへの掲載 ----
+
+    /// <summary>
+    /// ヘルプの「特性と解禁条件」。職業スキルの解禁習熟度と同じように、
+    /// 特性も何をどれだけ積めば開くのかをプレイヤーが読めなければならない。
+    /// </summary>
+    [Collection("Console presentation")]
+    public class HelpCatalog
+    {
+        [Fact]
+        public async Task HelpListsEveryTraitWithItsUnlockThresholds()
+        {
+            string dataDir = Path.Combine(AppContext.BaseDirectory, "Data");
+            var db = MasterLoader.Load(dataDir);
+
+            var originalIn = Console.In;
+            var originalOut = Console.Out;
+            // 「9=冒険者の節」→ PauseAsync を抜ける → 「0=戻る」
+            using var input = new StringReader("9\n\n0\n");
+            using var output = new StringWriter();
+            string text;
+            try
+            {
+                Console.SetIn(input);
+                Console.SetOut(output);
+                Ui.Use(new ConsoleGameIo());
+                await HelpScreen.ShowAsync(db);
+                text = output.ToString();
+            }
+            finally
+            {
+                Console.SetIn(originalIn);
+                Console.SetOut(originalOut);
+            }
+
+            Assert.Contains("特性と解禁条件", text);
+
+            foreach (var trait in db.traits.Values)
+            {
+                Assert.Contains(trait.traitName, text);
+                foreach (var requirement in trait.requirements)
+                    Assert.Contains(
+                        $"{ExpeditionRecordTypes.DisplayName(requirement.record)} {requirement.atLeast}",
+                        text);
+            }
+
+            // 諸刃と純粋強化を分けて並べることで、設計規則そのものを読ませている。
+            Assert.Contains("諸刃", text);
+            Assert.Contains("純粋強化", text);
+        }
     }
 
     // ---- 遠征記録から生涯記録への合流 ----

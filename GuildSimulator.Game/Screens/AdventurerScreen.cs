@@ -573,10 +573,7 @@ public static class AdventurerScreen
 
     /// <summary>
     /// 身につけた特性と、それを生んだ遠征記録。
-    ///
-    /// <b>解禁に必要な数はあえて出さない。</b> 出すと「あと3回わざと瀕死になる」という遊び方を
-    /// 誘ってしまい、特性が「戦った結果」ではなく「作業の報酬」になるため。
-    /// ここに並べるのはあくまで、その冒険者がくぐってきたものの記録。
+    /// 解禁に必要な数はヘルプの「特性と解禁条件」に並べてあるので、ここでは現在値だけを出す。
     /// </summary>
     static void ShowTraitsAndRecords(AdventurerData adventurer, GameMasterData db)
     {

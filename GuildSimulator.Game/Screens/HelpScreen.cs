@@ -536,25 +536,44 @@ public static class HelpScreen
     };
 
     /// <summary>
-    /// 存在する特性の一覧。マスタから組み立てるので、traits.json に足したものは自動でここに並ぶ。
-    /// 解禁に必要な記録の「種類」までは見せるが、必要な「数」は伏せる
-    /// （数を出すと、特性を狙って作業する遊び方を誘ってしまうため）。
+    /// 存在する特性と、その解禁条件の一覧。マスタから組み立てるので、
+    /// traits.json に足したものは自動でここに並ぶ。
+    ///
+    /// 諸刃と純粋強化を分けて並べるのは、「欠点のない特性はリスク記録からしか生えない」という
+    /// 規則そのものを一覧の形で読ませるため。◆はリスク記録。
     /// </summary>
     static void ShowTraitCatalog(GameMasterData db)
     {
         if (db.traits.Count == 0) return;
+
         Ui.WriteLine();
-        Ui.WriteLine("  ある特性:");
-        foreach (var trait in db.traits.Values.OrderBy(t => t.RequiresRisk ? 1 : 0))
+        Ui.WriteLine("  ■ 特性と解禁条件（◆は命を危険に晒した記録）");
+
+        ShowTraitGroup(db, "諸刃 ── 利点と欠点を併せ持つ", pure: false);
+        ShowTraitGroup(db, "純粋強化 ── 代償を先払いした者だけに現れる", pure: true);
+    }
+
+    static void ShowTraitGroup(GameMasterData db, string heading, bool pure)
+    {
+        var traits = db.traits.Values
+            .Where(t => t.Skill != null && t.IsPureUpgrade == pure)
+            .ToList();
+        if (traits.Count == 0) return;
+
+        Ui.WriteLine();
+        Ui.WriteLine($"     ● {heading}");
+        foreach (var trait in traits)
         {
             var drawbacks = trait.Drawbacks;
             string cost = drawbacks.Count == 0
                 ? "代償なし"
                 : $"代償 {string.Join("、", drawbacks)}";
-            string from = string.Join("・", trait.requirements
-                .Select(r => ExpeditionRecordTypes.DisplayName(r.record)));
-            Ui.WriteLine($"    ・{trait.traitName}: {trait.description}（{cost}）");
-            Ui.Dim($"        ← {from}");
+            Ui.WriteLine($"        {Ui.PadWide(trait.traitName, 14)}{trait.description}（{cost}）");
+
+            string conditions = string.Join("　かつ　", trait.requirements.Select(r =>
+                (ExpeditionRecordTypes.IsRisk(r.record) ? "◆" : "")
+                + $"{ExpeditionRecordTypes.DisplayName(r.record)} {r.atLeast}"));
+            Ui.Dim($"        {Ui.PadWide("", 14)}解禁: {conditions}");
         }
     }
 
@@ -586,15 +605,15 @@ public static class HelpScreen
         Ui.WriteLine("                      負傷中でも出発できるが能力が下がる。出発させずターンを進めると1Tぶん休養する。");
         Ui.WriteLine("  ・医療院          : 休養時の回復を早め、帰還時死亡率と完治時に後遺症が残る確率を下げる。");
         Ui.WriteLine("  ・傷痕・後遺症    : 重傷の完治時に残る恒久効果。能力補正と固有称号を持ち、セーブにも記録される。");
+        Ui.WriteLine("                      人物詳細では経歴・性格・動機・得意分野と、直近の遠征履歴を確認できる。");
         Ui.WriteLine("  ・特性            : 遠征での戦い方そのものから生える恒久効果。レベルアップの能力成長は選べないが、");
         Ui.WriteLine("                      特性はプレイヤーが選ぶ。何が候補に並ぶかは、その冒険者が実際にどう戦ってきたかで決まる。");
         Ui.WriteLine("                      候補が出るのはクエスト帰還時。身につけられるのは1つだけで、");
         Ui.WriteLine("                      選ばなかった候補は二度と現れない。");
         Ui.WriteLine("                      特性は原則として諸刃で、利点と欠点を併せ持つ。");
         Ui.WriteLine("                      欠点のない特性は、瀕死・戦闘不能・仲間の死線をくぐった記録からしか生えない。");
-        Ui.WriteLine("                      冒険者詳細の「くぐってきたもの」で記録を確認できる（解禁に必要な数は伏せてある）。");
-        ShowTraitCatalog(db);
-        Ui.WriteLine("                      人物詳細では経歴・性格・動機・得意分野と、直近の遠征履歴を確認できる。");
+        Ui.WriteLine("                      いま何をどれだけくぐってきたかは、冒険者詳細の「くぐってきたもの」で確認できる。");
+        Ui.WriteLine("                      どの特性が何をどれだけ要求するかは、この節の末尾に一覧がある。");
         Ui.WriteLine("  ・装備            : 商店で購入・売却し、冒険者一覧画面で着せ替えできる。");
         Ui.WriteLine("  ・レアリティ      : コモン、アンコモン、レア、ユニーク、レジェンドの順に希少。");
         Ui.WriteLine("  ・消費アイテム    : 出発前に最大2個選び、出発時に消費してクエスト中だけ効果を得る。");
@@ -608,6 +627,9 @@ public static class HelpScreen
         {
             Ui.WriteLine("  ・恒常的な強化    : ギルド全体に常時掛かる強化は「施設」に一本化されている。");
         }
+
+        // 一覧は箇条書きを全部出しきってから並べる（項目の途中に表を挟むと続きが読めなくなる）。
+        ShowTraitCatalog(db);
         await Ui.PauseAsync();
     }
 }
