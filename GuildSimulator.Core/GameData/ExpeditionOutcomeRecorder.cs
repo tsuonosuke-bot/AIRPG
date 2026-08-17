@@ -51,7 +51,9 @@ public static class ExpeditionOutcomeRecorder
 
             if (members.Count == 1)
                 record.Add(ExpeditionRecordType.SoloClears);
-            if (run.bossDefeated)
+            // 主討伐は同行者全員の実績ではない。ボス編成の最後の1体へとどめを刺し、
+            // かつ本人が依頼を完遂して生還した場合だけ数える。
+            if (run.bossDefeated && member.id == run.bossFinisherAdventurerId)
                 record.Add(ExpeditionRecordType.BossKills);
             if (nobodyFell)
                 record.Add(ExpeditionRecordType.FlawlessClears);

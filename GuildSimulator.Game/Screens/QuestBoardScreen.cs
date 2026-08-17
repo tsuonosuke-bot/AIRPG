@@ -11,6 +11,8 @@ namespace GuildSimulator.Game.Screens;
 
 public static class QuestBoardScreen
 {
+    sealed record QuestObjective(string TypeLabel, string Summary, string Detail);
+
     public static async Task ShowAsync(QuestManager questManager, GuildManager guild, int currentTurn)
     {
         while (true)
@@ -38,14 +40,16 @@ public static class QuestBoardScreen
                 string story = q.isStoryQuest ? " [物語]" : "";
                 int estTurns = (int)Math.Ceiling((double)q.totalPhases / q.phasesPerTurn);
                 var diff = DungeonDifficulty.Evaluate(q);
+                var objective = DescribeObjective(q);
 
                 // 一覧は一目で比較できる要点だけにする。詳細はタップ後の確認画面で見せる。
-                string summary = $"難易度 {diff.label}（スコア{diff.score:0}）  基本報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}"
+                string summary = $"達成条件: {objective.Summary}　危険度目安: {DifficultyLabel(diff)}"
+                    + $"\n基本報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}"
                     + $"　掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン";
 
                 entries.Add(new MenuOption(
                     (i + 1).ToString(),
-                    $"【{Rank.Label(q.rank)}】{q.questName}  所要:{estTurns}T{emg}{story}",
+                    $"【{Rank.Label(q.rank)}】【{objective.TypeLabel}】{q.questName}  所要:{estTurns}T{emg}{story}",
                     summary,
                     q.isEmergencyQuest ? TextStyle.Warn : TextStyle.Normal));
             }
@@ -65,23 +69,29 @@ public static class QuestBoardScreen
         var q = e.quest;
         int estTurns = (int)Math.Ceiling((double)q.totalPhases / q.phasesPerTurn);
         var diff = DungeonDifficulty.Evaluate(q);
+        var objective = DescribeObjective(q);
         string emg = q.isEmergencyQuest ? " [緊急]" : "";
         string story = q.isStoryQuest ? " [物語]" : "";
 
         Ui.BeginScreen();
-        Ui.Header($"【{Rank.Label(q.rank)}】{q.questName}{emg}{story}");
+        Ui.Header($"【{Rank.Label(q.rank)}】【{objective.TypeLabel}】{q.questName}{emg}{story}");
         if (!string.IsNullOrWhiteSpace(q.clientName))
             Ui.WriteLine($"  依頼人: {q.clientName}");
         if (!string.IsNullOrWhiteSpace(q.description))
             Ui.WriteLine($"  {q.description}");
         Ui.WriteLine();
-        Ui.WriteLine($"  所要: {estTurns}ターン　難易度 {diff.label}（スコア{diff.score:0}）");
+        Ui.WriteLine($"  種別: {objective.TypeLabel}");
+        Ui.WriteLine($"  達成条件: {objective.Detail}", TextStyle.Info);
+        Ui.WriteLine($"  所要目安: {estTurns}ターン（予定{q.totalPhases}エリア）");
+        Ui.WriteLine($"  依頼ランク: {Rank.Label(q.rank)}　危険度目安: {DifficultyLabel(diff)}");
+        Ui.Dim("    危険度の順: 楽勝 < 軽め < 標準 < 危険 < 過酷");
         Ui.WriteLine($"  基本報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
         if (q.IsGatherQuest)
-            Ui.WriteLine($"  採取: {q.gatherItemName} x{q.gatherTargetCount}"
-                + $"（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還"
-                + $" / {q.totalPhases}エリアで足りなければ延長か撤退を選ぶ）");
-        string bossInfo = diff.hasBoss ? $"  ボス:{diff.BossThreatLabel}/{diff.bossMemberCount}体" : "";
+            Ui.WriteLine($"  採取ルール: 目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還"
+                + $" / {q.totalPhases}エリアで足りなければ延長か撤退を選ぶ");
+        string bossInfo = diff.hasBoss
+            ? $"  討伐対象脅威:{diff.BossThreatLabel}（最終エリアで確定戦闘）"
+            : "";
         Ui.WriteLine($"  場所: {q.Dungeon?.dungeonName ?? "？"}  通常遭遇:{diff.EnemyThreatSummary}"
             + $"  編成:{diff.EnemyFormationSummary}  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
         // 習熟度は適正ランクのクエストでしか増えない。誰を出せば伸びるのかを受注前に見せる。
@@ -280,7 +290,7 @@ public static class QuestBoardScreen
             formation.Cast<IUnitMember?>());
         Ui.WriteLine($"  最高APP: {maxAppearance}   名声ボーナス: +{fameBonus}%"
             + $"   戦闘中の士気回復: +{battleMorale}/ラウンド");
-        Ui.WriteLine($"  クエスト難易度: {diff.label}（スコア{diff.score:0}）  通常遭遇: {diff.EnemyThreatSummary}"
+        Ui.WriteLine($"  クエスト危険度: {DifficultyLabel(diff)}  通常遭遇: {diff.EnemyThreatSummary}"
             + $"  編成: {diff.EnemyFormationSummary}");
         if (diff.hasBoss)
             Ui.WriteLine($"  ボス: 脅威度{diff.BossThreatLabel} / {diff.bossMemberCount}体（確定戦闘）");
@@ -317,4 +327,56 @@ public static class QuestBoardScreen
         if (injured.Count > 0)
             Ui.Warn($"  ⚠ 負傷者を編成中: {string.Join("、", injured.Select(a => a.name))}（負傷補正を含む戦力です）");
     }
+
+    static QuestObjective DescribeObjective(QuestMasterData q)
+    {
+        if (q.IsGatherQuest)
+        {
+            string itemName = string.IsNullOrWhiteSpace(q.gatherItemName) ? "採取物" : q.gatherItemName;
+            return new(
+                "採取",
+                $"{itemName}×{q.gatherTargetCount}",
+                $"{itemName}×{q.gatherTargetCount}を採取");
+        }
+
+        if (q.BossEnemy != null)
+        {
+            var members = q.BossEnemy.Formation
+                .Where(member => member != null)
+                .Select(member => member!)
+                .ToList();
+            if (members.Count == 0)
+            {
+                string unitName = string.IsNullOrWhiteSpace(q.BossEnemy.unitName)
+                    ? "指定された敵"
+                    : q.BossEnemy.unitName;
+                return new("討伐", unitName, $"{unitName}を討伐");
+            }
+
+            var targetGroups = members
+                .GroupBy(member => member.id)
+                .Select(group => new
+                {
+                    Name = string.IsNullOrWhiteSpace(group.First().baseName)
+                        ? "名称不明の敵"
+                        : group.First().baseName,
+                    Count = group.Count(),
+                })
+                .ToList();
+            string targets = string.Join("、", targetGroups.Select(target => $"{target.Name}×{target.Count}"));
+            return new(
+                "討伐",
+                $"{targets}（計{members.Count}体）",
+                $"{targets}（合計{members.Count}体）を討伐");
+        }
+
+        string location = q.Dungeon?.dungeonName ?? "目的地";
+        return new(
+            "踏破",
+            $"{location}・{q.totalPhases}エリア",
+            $"{location}を{q.totalPhases}エリア踏破");
+    }
+
+    static string DifficultyLabel(DungeonDifficulty.Rating difficulty)
+        => $"{difficulty.label}（5段階中{difficulty.level}）";
 }

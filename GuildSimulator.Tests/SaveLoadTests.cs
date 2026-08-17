@@ -93,6 +93,8 @@ public class SaveLoadTests
         run.battleExpBonusPercent = 50;
         run.guaranteedNonEmptyChestCount = 1;
         run.emergencyRetreatHpPercent = 25;
+        run.bossDefeated = true;
+        run.bossFinisherAdventurerId = adv.id;
         run.targetPvBonusByAdventurerId[adv.id] = 1;
         run.targetMpvBonusByAdventurerId[adv.id] = 2;
         run.RecordLevelGrowth(adv.id, new[] { StatType.Vitality, StatType.Agility });
@@ -108,6 +110,9 @@ public class SaveLoadTests
         try
         {
             SaveManager.Save(tmpPath, guild, questManager, currentTurn: 5, recruitCandidates);
+            string savedJson = File.ReadAllText(tmpPath);
+            Assert.Contains("bossFinisherAdventurerId", savedJson);
+            Assert.Contains(adv.id, savedJson);
             var loaded = SaveManager.Load(tmpPath, db);
 
             Assert.Equal(5, loaded.CurrentTurn);
@@ -173,6 +178,8 @@ public class SaveLoadTests
             Assert.Equal(50, loadedRun.battleExpBonusPercent);
             Assert.Equal(1, loadedRun.guaranteedNonEmptyChestCount);
             Assert.Equal(25, loadedRun.emergencyRetreatHpPercent);
+            Assert.True(loadedRun.bossDefeated);
+            Assert.Equal(adv.id, loadedRun.bossFinisherAdventurerId);
             Assert.Equal(1, loadedRun.targetPvBonusByAdventurerId[adv.id]);
             Assert.Equal(2, loadedRun.targetMpvBonusByAdventurerId[adv.id]);
             Assert.Contains(consumable.id, loadedRun.usedConsumableIds);

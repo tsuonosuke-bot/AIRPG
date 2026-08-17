@@ -397,6 +397,8 @@ public class QuestRewardTests
         new QuestProgressor().AdvanceOnePhase(run, currentTurn: 1);
 
         Assert.True(run.bossDefeated);
+        Assert.Equal(hero.id, run.bossFinisherAdventurerId);
+        Assert.Contains(run.logs, line => line.Contains($"とどめ: {hero.name}"));
         return run;
     }
 }

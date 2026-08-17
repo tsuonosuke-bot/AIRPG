@@ -14,6 +14,12 @@ public static class BattleResolver
         public bool adventurersRetreated;
         public ExpeditionRetreatReason retreatReason;
         public int rounds;
+
+        /// <summary>
+        /// 敵側の最後の生存者へとどめを刺した冒険者ID。
+        /// ボス編成を全滅させた場合は、そのまま主討伐の本人判定に使える。
+        /// </summary>
+        public string finishingAdventurerId = "";
     }
 
     // 戦闘の解決は Caves of Qud に倣う（計算そのものは QudCombat を参照）。
@@ -87,8 +93,27 @@ public static class BattleResolver
             round++;
             int partyHpAtRoundStart = SumCurrentHp(advSide);
             int partyDowned = 0;
-            partyDowned += statuses.ProcessRoundStart(advSide, round, logs, phase);
-            statuses.ProcessRoundStart(enemySide, round, logs, phase);
+            partyDowned += statuses.ProcessRoundStart(
+                advSide,
+                round,
+                logs,
+                phase,
+                (_, fallen) => RecordComradeFell(advSide, fallen, recorder));
+            statuses.ProcessRoundStart(
+                enemySide,
+                round,
+                logs,
+                phase,
+                (source, _) =>
+                {
+                    // 冒険者以外の継続ダメージが最後なら、直前の撃破者を持ち越さない。
+                    // ボス編成の「最後の1体」を誰が倒したかだけが主討伐の本人になる。
+                    res.finishingAdventurerId = source is AdventurerData finisher
+                        ? finisher.id
+                        : "";
+                    if (source is AdventurerData adventurer)
+                        recorder?.Add(adventurer, ExpeditionRecordType.Kills);
+                });
             if (!AnyAlive(advSide) || !AnyAlive(enemySide))
             {
                 res.rounds = round;
@@ -167,7 +192,14 @@ public static class BattleResolver
                             logs.Add($"  エリア {phase}: {actor.Name}→{healTarget.Name} {healTag} +{healAmt}（1d20={healRoll}）（{healTarget.CombatHp}/{healTarget.CombatHpMax}）");
                             var regen = CombatStatusDefaults.OnHeal(actor.Weapon);
                             if (regen != null)
-                                statuses.Apply(healTarget, regen, actor.Weapon!.displayName, round, logs, phase);
+                                statuses.Apply(
+                                    healTarget,
+                                    regen,
+                                    actor.Weapon!.displayName,
+                                    round,
+                                    logs,
+                                    phase,
+                                    actor);
                             TryCleanseOnHeal(
                                 actor, healTarget, entry.slot, statuses, logs, phase);
                         }
@@ -247,7 +279,12 @@ public static class BattleResolver
                                         target, actor, enemySideArr, allySideArr,
                                         statsByMember, armorShredded, statuses, round, logs, phase,
                                         advSide, recorder))
-                                    if (entry.isAdvSide) partyDowned++;
+                                {
+                                    if (entry.isAdvSide)
+                                        partyDowned++;
+                                    else if (target is AdventurerData finisher)
+                                        res.finishingAdventurerId = finisher.id;
+                                }
                                 return;
                             }
                             av += shield.blockAv;
@@ -279,7 +316,12 @@ public static class BattleResolver
                                     target, actor, enemySideArr, allySideArr,
                                     statsByMember, armorShredded, statuses, round, logs, phase,
                                     advSide, recorder))
-                                if (entry.isAdvSide) partyDowned++;
+                            {
+                                if (entry.isAdvSide)
+                                    partyDowned++;
+                                else if (target is AdventurerData finisher)
+                                    res.finishingAdventurerId = finisher.id;
+                            }
                         }
                         else
                         {
@@ -303,6 +345,8 @@ public static class BattleResolver
                             {
                                 recorder?.Add(actor, ExpeditionRecordType.Kills);
                                 if (check.critical) recorder?.Add(actor, ExpeditionRecordType.CritKills);
+                                if (actor is AdventurerData finisher)
+                                    res.finishingAdventurerId = finisher.id;
                             }
                             else
                             {
@@ -748,16 +792,16 @@ public static class BattleResolver
         switch (effect.target)
         {
             case CombatStatusTarget.Self:
-                statuses.Apply(actor, effect, sourceName, currentRound, logs, phase);
+                statuses.Apply(actor, effect, sourceName, currentRound, logs, phase, actor);
                 break;
             case CombatStatusTarget.Allies:
                 foreach (var ally in allies.Where(m => m != null && m.IsAlive).Select(m => m!))
-                    statuses.Apply(ally, effect, sourceName, currentRound, logs, phase);
+                    statuses.Apply(ally, effect, sourceName, currentRound, logs, phase, actor);
                 break;
             default:
                 var target = hitTarget ?? PickRandomAlive(enemies);
                 if (target != null)
-                    statuses.Apply(target, effect, sourceName, currentRound, logs, phase);
+                    statuses.Apply(target, effect, sourceName, currentRound, logs, phase, actor);
                 break;
         }
     }

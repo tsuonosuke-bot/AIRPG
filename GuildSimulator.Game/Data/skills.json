@@ -2805,6 +2805,32 @@
     }
   },
   {
+    "id": "skill_trait_boss_footwork",
+    "skillName": "巨影の間合い",
+    "family": "trait_boss_footwork",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "dv": 1
+    },
+    "mul": {
+      "hp": 0.95
+    }
+  },
+  {
+    "id": "skill_trait_trophy_eye",
+    "skillName": "戦利眼",
+    "family": "trait_trophy_eye",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "rareDropChancePercent": 10,
+      "trapChancePercent": 10
+    }
+  },
+  {
     "id": "skill_trait_knows_when",
     "skillName": "引き際を知る",
     "family": "trait_knows_when",

@@ -218,6 +218,34 @@
     ]
   },
   {
+    "id": "trait_boss_footwork",
+    "traitName": "巨影の間合い",
+    "skillId": "skill_trait_boss_footwork",
+    "description": "巨体の予兆を読み、紙一重でかわす。ただし一撃を受けたときの余裕を失う",
+    "awakenText": "は巨影の間合いを見切った",
+    "flavorText": "三つの主と渡り合い、巨体が動くより先に踏み出すようになった。",
+    "requirements": [
+      {
+        "record": "BossKills",
+        "atLeast": 3
+      }
+    ]
+  },
+  {
+    "id": "trait_trophy_eye",
+    "traitName": "戦利眼",
+    "skillId": "skill_trait_trophy_eye",
+    "description": "希少な戦利品を嗅ぎ当てるが、獲物に気を取られて罠を踏みやすい",
+    "awakenText": "は主の亡骸から価値を嗅ぎ分けるようになった",
+    "flavorText": "大物の骸を見れば、どこに価値ある素材が残るか分かる。足元への注意は薄れた。",
+    "requirements": [
+      {
+        "record": "BossKills",
+        "atLeast": 3
+      }
+    ]
+  },
+  {
     "id": "trait_knows_when",
     "traitName": "引き際を知る",
     "skillId": "skill_trait_knows_when",

@@ -10,6 +10,12 @@ public sealed class CombatStatusInstance
     public int Potency { get; set; }
     public int ExpiresAfterRound { get; set; }
     public string SourceName { get; set; } = "";
+
+    /// <summary>
+    /// この状態で採用中の威力を付与した本人。継続ダメージがとどめになったとき、
+    /// 表示名ではなく実際の冒険者へ撃破記録を返すために保持する。
+    /// </summary>
+    public IUnitMember? SourceMember { get; set; }
 }
 
 /// <summary>戦闘ごとに生成され、戦闘終了と同時に破棄される状態効果の管理器。</summary>
@@ -32,7 +38,8 @@ public sealed class CombatStatusTracker
         string sourceName,
         int currentRound,
         List<string> logs,
-        int phase)
+        int phase,
+        IUnitMember? sourceMember = null)
     {
         if (!target.IsAlive) return false;
         int chance = Math.Clamp(application.chancePercent, 0, 100);
@@ -52,9 +59,15 @@ public sealed class CombatStatusTracker
             state = new CombatStatusInstance { Type = application.type };
             byType[application.type] = state;
         }
-        state!.Potency = Math.Max(state.Potency, Math.Max(0, application.potency));
+        int incomingPotency = Math.Max(0, application.potency);
+        bool adoptsIncomingSource = !refreshed || incomingPotency >= state!.Potency;
+        state.Potency = Math.Max(state.Potency, incomingPotency);
         state.ExpiresAfterRound = Math.Max(state.ExpiresAfterRound, expires);
-        state.SourceName = sourceName;
+        if (adoptsIncomingSource)
+        {
+            state.SourceName = sourceName;
+            state.SourceMember = sourceMember;
+        }
 
         string action = refreshed ? "延長" : "付与";
         logs.Add($"  エリア {phase}: {target.Name} に{DisplayName(application.type)}を{action}"
@@ -132,12 +145,16 @@ public sealed class CombatStatusTracker
         return stats;
     }
 
-    /// <summary>ラウンド冒頭の継続回復・継続ダメージを処理し、戦闘不能者数を返す。</summary>
+    /// <summary>
+    /// ラウンド冒頭の継続回復・継続ダメージを処理し、戦闘不能者数を返す。
+    /// 継続ダメージがとどめになった場合は、付与者と倒れた者をコールバックへ渡す。
+    /// </summary>
     public int ProcessRoundStart(
         IEnumerable<IUnitMember?> side,
         int round,
         List<string> logs,
-        int phase)
+        int phase,
+        Action<IUnitMember?, IUnitMember>? onDowned = null)
     {
         int downed = 0;
         foreach (var member in side.Where(m => m != null && m.IsAlive).Select(m => m!))
@@ -166,6 +183,7 @@ public sealed class CombatStatusTracker
                 if (member.CombatHp <= 0)
                 {
                     SetCombatDown(member, severity: 1, logs, phase);
+                    onDowned?.Invoke(dot.SourceMember, member);
                     downed++;
                 }
             }

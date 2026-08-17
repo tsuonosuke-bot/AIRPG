@@ -290,6 +290,37 @@ public class TraitSystemTests
     }
 
     [Fact]
+    public void ThreeBossFinishesOfferThreeDistinctTraits()
+    {
+        var db = Load();
+        var adventurer = new AdventurerData(Master());
+        adventurer.records.Add(ExpeditionRecordType.BossKills, 2);
+
+        Assert.Empty(TraitSystem.BuildOffers(new[] { adventurer }, db.traits.Values));
+
+        adventurer.records.Add(ExpeditionRecordType.BossKills);
+        var offer = Assert.Single(TraitSystem.BuildOffers(
+            new[] { adventurer }, db.traits.Values));
+        var candidates = offer.Candidates.Select(trait => trait.id).ToHashSet();
+
+        Assert.Equal(3, candidates.Count);
+        Assert.True(candidates.SetEquals(
+            new[]
+            {
+                "trait_renown",
+                "trait_boss_footwork",
+                "trait_trophy_eye",
+            }));
+        Assert.All(offer.Candidates, trait =>
+        {
+            Assert.Contains(trait.requirements, requirement =>
+                requirement.record == ExpeditionRecordType.BossKills
+                && requirement.atLeast == 3);
+            Assert.All(TraitAnalysis.AllLenses, lens => Assert.Contains(lens, trait.Builds));
+        });
+    }
+
+    [Fact]
     public void EveryRequirementMustBeMetNotJustOne()
     {
         var skill = new SkillMasterData { id = "s", family = "f", level = 1 };
@@ -569,13 +600,15 @@ public class TraitSystemTests
         }
 
         [Fact]
-        public void BossKillsAndRetreatsAreRecordedFromTheRunState()
+        public void BossKillCountsOnlyForTheSurvivingFinisher()
         {
             var boss = Run(2, out var slayers);
             boss.completed = true;
             boss.bossDefeated = true;
+            boss.bossFinisherAdventurerId = slayers[1].id;
             ExpeditionOutcomeRecorder.Record(boss);
-            Assert.Equal(1, boss.recorder.Count(slayers[0].id, ExpeditionRecordType.BossKills));
+            Assert.Equal(0, boss.recorder.Count(slayers[0].id, ExpeditionRecordType.BossKills));
+            Assert.Equal(1, boss.recorder.Count(slayers[1].id, ExpeditionRecordType.BossKills));
 
             var pulled = Run(2, out var cautious);
             pulled.retreated = true;
@@ -591,10 +624,11 @@ public class TraitSystemTests
             members[1].isAlive = false;
             run.completed = true;
             run.bossDefeated = true;
+            run.bossFinisherAdventurerId = members[1].id;
             ExpeditionOutcomeRecorder.Record(run);
 
             Assert.Equal(0, run.recorder.Count(members[1].id, ExpeditionRecordType.BossKills));
-            Assert.Equal(1, run.recorder.Count(members[0].id, ExpeditionRecordType.BossKills));
+            Assert.Equal(0, run.recorder.Count(members[0].id, ExpeditionRecordType.BossKills));
         }
     }
 

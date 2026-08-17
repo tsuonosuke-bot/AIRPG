@@ -258,10 +258,10 @@ public static class GameLoop
     static void NextTurn(GuildManager guild, QuestManager questManager, ref int currentTurn)
     {
         currentTurn++;
-        int summaryTurn = currentTurn;
         var snapshots = questManager.activeQuests.ToDictionary(
             q => q,
-            q => (Phase: q.currentPhase, Hp: q.unitHpCurrent, Morale: q.morale.Current, LogCount: q.logs.Count));
+            q => (Phase: q.currentPhase, Hp: q.unitHpCurrent, Morale: q.morale.Current,
+                ReportCount: q.reportEvents.Count));
 
         questManager.AdvanceAll(currentTurn);
         var recoveryMessages = guild.AdvanceRecovery(
@@ -278,23 +278,13 @@ public static class GameLoop
         foreach (var q in questManager.activeQuests)
         {
             if (!snapshots.TryGetValue(q, out var before)) continue;
-
-            string status = q.failed ? "全員戦闘不能"
-                : q.retreated ? "撤退"
-                : q.CanComplete ? "完了可能"
-                : "進行中";
-            Ui.WriteLine($"  ◆ {q.def.questName}  {status}");
-            Ui.WriteLine($"      エリア {before.Phase} → {q.currentPhase}/{q.def.totalPhases}"
-                + $"   HP {before.Hp} → {q.unitHpCurrent}/{q.unitHpMax}"
-                + $"   士気 {before.Morale} → {q.morale.Current}/{q.morale.Max}");
-
-            var eventSummaries = q.logs
-                .Skip(before.LogCount)
-                .Where(log => log.StartsWith($"[Turn {summaryTurn}] エリア ") && log.Contains('/'))
-                .TakeLast(3)
-                .ToList();
-            foreach (var log in eventSummaries)
-                Ui.WriteQuestLog($"      {log}");
+            TurnSummaryRenderer.Write(
+                q,
+                before.Phase,
+                before.Hp,
+                before.Morale,
+                before.ReportCount);
+            Ui.WriteLine();
         }
     }
 

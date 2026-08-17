@@ -133,6 +133,7 @@ public class QuestRunSaveData
     public bool rewarded;
     public bool completed;
     public bool bossDefeated;
+    public string bossFinisherAdventurerId = "";
     public bool baseRewardsApplied;
     public bool clearProgressApplied;
     public string?[] formationAdventurerIds = new string?[6];

@@ -117,7 +117,11 @@ public class QuestProgressor
                         if (isBoss)
                         {
                             q.bossDefeated = true;
-                            q.logs.Add($"  エリア {phase}: ボス撃破！");
+                            q.bossFinisherAdventurerId = result.finishingAdventurerId;
+                            var finisher = q.formation.FirstOrDefault(
+                                adventurer => adventurer?.id == q.bossFinisherAdventurerId);
+                            string finisherText = finisher == null ? "" : $"（とどめ: {finisher.name}）";
+                            q.logs.Add($"  エリア {phase}: ボス撃破！{finisherText}");
                             AddChest(q, TreasureChestKind.Boss, phase);
                         }
                         var participants = q.formation

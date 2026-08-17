@@ -30,6 +30,7 @@ public static class DungeonDifficulty
     {
         public double score;         // 難易度の総合スコア（下限なし、段階数に縛られない目安値）
         public string label = "";
+        public int level;            // 表示用の危険度段階（1=楽勝〜5=過酷）
         public float combatChance;   // 1エリアあたりの敵遭遇率 0..1
         public float trapChance;     // 1エリアあたりの罠率 0..1
         public int enemyThreatMin;
@@ -158,13 +159,13 @@ public static class DungeonDifficulty
           + r.enemyThreatTypical * 3.0
           + (r.hasBoss ? 8 : 0);
 
-        r.label = r.score switch
+        (r.level, r.label) = r.score switch
         {
-            < 18 => "楽勝",
-            < 26 => "軽め",
-            < 34 => "標準",
-            < 42 => "危険",
-            _ => "過酷",
+            < 18 => (1, "楽勝"),
+            < 26 => (2, "軽め"),
+            < 34 => (3, "標準"),
+            < 42 => (4, "危険"),
+            _ => (5, "過酷"),
         };
         return r;
     }

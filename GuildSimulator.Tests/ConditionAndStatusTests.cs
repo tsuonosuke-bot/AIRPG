@@ -64,6 +64,100 @@ public class ConditionAndStatusTests
     }
 
     [Fact]
+    public void DamageOverTimeReportsTheAdventurerWhoDealtTheFinalBlow()
+    {
+        var source = Adventurer();
+        var victim = new EnemyData(new EnemyMasterData
+        {
+            id = "dot_target",
+            baseName = "毒の標的",
+        })
+        {
+            CombatHpMax = 10,
+            CombatHp = 10,
+        };
+        var tracker = new CombatStatusTracker();
+        var logs = new List<string>();
+        IUnitMember? creditedSource = null;
+        IUnitMember? defeated = null;
+
+        Assert.True(tracker.Apply(
+            victim,
+            Status(CombatStatusType.Poisoned, potency: 100),
+            "毒試験",
+            currentRound: 1,
+            logs,
+            phase: 1,
+            sourceMember: source));
+
+        int downed = tracker.ProcessRoundStart(
+            new IUnitMember?[] { victim },
+            round: 1,
+            logs: logs,
+            phase: 1,
+            onDowned: (killer, target) =>
+            {
+                creditedSource = killer;
+                defeated = target;
+            });
+
+        Assert.Equal(1, downed);
+        Assert.Same(source, creditedSource);
+        Assert.Same(victim, defeated);
+        Assert.False(victim.isAlive);
+    }
+
+    [Fact]
+    public void WeakerDamageOverTimeRefreshDoesNotStealFinalBlowCredit()
+    {
+        var strongerSource = Adventurer();
+        var weakerSource = Adventurer();
+        var victim = new EnemyData(new EnemyMasterData
+        {
+            id = "dot_refresh_target",
+            baseName = "毒の標的",
+        })
+        {
+            CombatHpMax = 10,
+            CombatHp = 10,
+        };
+        var tracker = new CombatStatusTracker();
+        var logs = new List<string>();
+        IUnitMember? creditedSource = null;
+
+        Assert.True(tracker.Apply(
+            victim,
+            Status(CombatStatusType.Poisoned, potency: 100),
+            "強い毒",
+            currentRound: 1,
+            logs,
+            phase: 1,
+            sourceMember: strongerSource));
+        Assert.True(tracker.Apply(
+            victim,
+            Status(CombatStatusType.Poisoned, potency: 50),
+            "弱い毒",
+            currentRound: 1,
+            logs,
+            phase: 1,
+            sourceMember: weakerSource));
+
+        var active = Assert.Single(tracker.GetActive(victim));
+        Assert.Equal(100, active.Potency);
+        Assert.Same(strongerSource, active.SourceMember);
+
+        int downed = tracker.ProcessRoundStart(
+            new IUnitMember?[] { victim },
+            round: 1,
+            logs: logs,
+            phase: 1,
+            onDowned: (killer, _) => creditedSource = killer);
+
+        Assert.Equal(1, downed);
+        Assert.Same(strongerSource, creditedSource);
+    }
+
+    [Fact]
     public void KnockoutBecomesRecoverableInjuryAndCanLeaveScar()
     {
         var guild = new GuildManager();

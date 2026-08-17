@@ -23,6 +23,12 @@ public class QuestRun
     public bool rewarded;
     public bool completed;
     public bool bossDefeated;
+
+    /// <summary>
+    /// ボス編成の最後の1体へとどめを刺した冒険者。主討伐の記録は、帰還時にこの本人へだけ加算する。
+    /// </summary>
+    public string bossFinisherAdventurerId = "";
+
     public bool baseRewardsApplied;
     public bool clearProgressApplied;
 

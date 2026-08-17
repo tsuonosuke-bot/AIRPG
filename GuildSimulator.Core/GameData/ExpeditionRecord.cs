@@ -57,7 +57,7 @@ public enum ExpeditionRecordType
     /// <summary>単独でクエストを正規クリアした回数。</summary>
     SoloClears = 16,
 
-    /// <summary>ボスを討ち取った遠征から生きて帰った回数。</summary>
+    /// <summary>ボス編成へ最後の一撃を与え、その遠征から生きて帰った回数。</summary>
     BossKills = 17,
 
     /// <summary>撤退して帰った回数。</summary>
@@ -121,7 +121,7 @@ public static class ExpeditionRecordTypes
         ExpeditionRecordType.ComradesLost => "死なせた仲間の人数",
         ExpeditionRecordType.SoleSurvivor => "唯一の生還者になった回数",
         ExpeditionRecordType.SoloClears => "単独でやり遂げた依頼",
-        ExpeditionRecordType.BossKills => "ボスを討ち取った回数",
+        ExpeditionRecordType.BossKills => "ボスにとどめを刺した回数",
         ExpeditionRecordType.Retreats => "撤退して帰った回数",
         ExpeditionRecordType.FlawlessClears => "誰も倒れずに終えた依頼",
         _ => type.ToString(),
