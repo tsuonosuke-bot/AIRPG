@@ -454,6 +454,7 @@ public class QuestManager
                 {
                     int levelBefore = a.level;
                     a.AddExperience(outcome.value, out int levelUps, out var grownStats);
+                    if (levelUps > 0) q.RecordLevelGrowth(a.id, grownStats);
                     changes.Add($"{a.name} 経験値+{outcome.value}"
                         + (levelUps > 0
                             ? $"（レベルアップ {levelBefore}lv→{a.level}lv、{FormatGrownStats(grownStats)}）"

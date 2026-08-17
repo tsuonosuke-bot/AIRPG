@@ -32,6 +32,7 @@ public class QuestRun
     public List<string> discoveredClueIds = new();
     public ExpeditionPolicy policy = ExpeditionPolicy.ObjectiveFirst;
     public Dictionary<string, int> startingLevels = new();
+    public Dictionary<string, List<StatType>> levelGrowthsByAdventurerId = new();
     public int guildUpkeepAtStart;
 
     /// <summary>
@@ -142,6 +143,20 @@ public class QuestRun
     {
         for (int i = 0; i < formation.Length; i++)
             if (formation[i] != null) yield return formation[i]!;
+    }
+
+    /// <summary>この遠征中のレベルアップで伸びた能力を、帰還時の成長表示用に集約する。</summary>
+    public void RecordLevelGrowth(string adventurerId, IEnumerable<StatType> grownStats)
+    {
+        var growths = grownStats.ToList();
+        if (growths.Count == 0) return;
+
+        if (!levelGrowthsByAdventurerId.TryGetValue(adventurerId, out var recorded))
+        {
+            recorded = new List<StatType>();
+            levelGrowthsByAdventurerId[adventurerId] = recorded;
+        }
+        recorded.AddRange(growths);
     }
 
     // 個人HPの合算（表示用）。実体は各formationメンバーのCombatHp/CombatHpMax。

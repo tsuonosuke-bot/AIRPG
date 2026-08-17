@@ -197,6 +197,9 @@ public static class SaveManager
         discoveredClueIds = new List<string>(q.discoveredClueIds),
         policy = q.policy,
         startingLevels = new Dictionary<string, int>(q.startingLevels),
+        levelGrowthsByAdventurerId = q.levelGrowthsByAdventurerId.ToDictionary(
+            entry => entry.Key,
+            entry => new List<StatType>(entry.Value)),
         guildUpkeepAtStart = q.guildUpkeepAtStart,
         pendingLoot = q.pendingLoot.Select(e => new PendingLootSave
         {
@@ -414,6 +417,9 @@ public static class SaveManager
             clearProgressApplied = saved.clearProgressApplied,
             policy = saved.policy,
             startingLevels = new Dictionary<string, int>(saved.startingLevels),
+            levelGrowthsByAdventurerId = (saved.levelGrowthsByAdventurerId ?? new()).ToDictionary(
+                entry => entry.Key,
+                entry => new List<StatType>(entry.Value)),
             guildUpkeepAtStart = saved.guildUpkeepAtStart,
             gatheredCount = saved.gatheredCount,
             gatherDecisionPending = saved.gatherDecisionPending,

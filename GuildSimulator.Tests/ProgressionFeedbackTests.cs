@@ -35,6 +35,27 @@ public sealed class ProgressionFeedbackTests
     }
 
     [Fact]
+    public void QuestRewardRecordsTheAbilityGrowthForTheCompletionReport()
+    {
+        var guild = new GuildManager();
+        var adventurer = Adventurer("quest-growth", "帰還成長確認");
+        var run = new QuestRun(new QuestMasterData
+        {
+            id = "growth-report",
+            rewardExp = adventurer.RequiredExpForNextLevel,
+        }, startedTurn: 1);
+        run.formation[0] = adventurer;
+
+        new QuestRewardService().ApplyBaseRewards(run, guild, "[完了]");
+
+        var grownStat = Assert.Single(run.levelGrowthsByAdventurerId[adventurer.id]);
+        Assert.Equal(2, adventurer.level);
+        Assert.Contains(
+            $"{AdventurerData.StatDisplayName(grownStat)}+1",
+            QuestManager.FormatGrownStats(run.levelGrowthsByAdventurerId[adventurer.id]));
+    }
+
+    [Fact]
     public void PublishedOverweightPenaltiesMatchFinalCombatStats()
     {
         _ = new GuildManager();

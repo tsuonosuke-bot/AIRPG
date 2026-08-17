@@ -141,6 +141,7 @@ public class QuestRunSaveData
     public List<string> discoveredClueIds = new();
     public ExpeditionPolicy policy = ExpeditionPolicy.ObjectiveFirst;
     public Dictionary<string, int> startingLevels = new();
+    public Dictionary<string, List<StatType>> levelGrowthsByAdventurerId = new();
     public int guildUpkeepAtStart;
     public List<PendingLootSave> pendingLoot = new();
     public List<TreasureChestSave> chests = new();

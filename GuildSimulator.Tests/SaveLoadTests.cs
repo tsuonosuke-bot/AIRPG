@@ -95,6 +95,7 @@ public class SaveLoadTests
         run.emergencyRetreatHpPercent = 25;
         run.targetPvBonusByAdventurerId[adv.id] = 1;
         run.targetMpvBonusByAdventurerId[adv.id] = 2;
+        run.RecordLevelGrowth(adv.id, new[] { StatType.Vitality, StatType.Agility });
         run.usedConsumableIds.Add(consumable.id);
         var choiceEvent = db.choiceEvents.Values.First();
         run.pendingChoice = new PendingQuestChoice { Event = choiceEvent, createdTurn = 5 };
@@ -150,6 +151,9 @@ public class SaveLoadTests
             Assert.DoesNotContain(loadedRun.logs, log => log.Contains("Phase") || log.Contains("フェーズ"));
             Assert.Same(loadedAdv, loadedRun.formation[0]);   // 編成の参照は復元済みadventurerと一致する
             Assert.Equal(run.startingLevels, loadedRun.startingLevels);
+            Assert.Equal(
+                run.levelGrowthsByAdventurerId[adv.id],
+                loadedRun.levelGrowthsByAdventurerId[adv.id]);
             Assert.Equal(run.guildUpkeepAtStart, loadedRun.guildUpkeepAtStart);
             Assert.Equal(ExpeditionPolicy.SurvivalFirst, loadedRun.policy);
             Assert.True(loadedRun.retreated);

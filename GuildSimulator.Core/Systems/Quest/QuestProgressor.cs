@@ -133,6 +133,7 @@ public class QuestProgressor
                             int levelBefore = a.level;
                             if (a.AddExperience(earnedExp, out var ups, out var grownStats))
                             {
+                                if (ups > 0) q.RecordLevelGrowth(a.id, grownStats);
                                 string levelUpText = ups > 0
                                     ? $"（レベルアップ {levelBefore}lv→{a.level}lv、{QuestManager.FormatGrownStats(grownStats)}）"
                                     : "";

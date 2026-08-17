@@ -48,6 +48,12 @@ public class CliPresentationTests
         run.formation[1] = casualty;
         run.startingLevels[survivor.id] = survivor.level;
         run.startingLevels[casualty.id] = casualty.level;
+        Assert.True(survivor.AddExperience(
+            survivor.RequiredExpForNextLevel,
+            out var levelUps,
+            out var grownStats));
+        Assert.Equal(1, levelUps);
+        run.RecordLevelGrowth(survivor.id, grownStats);
         manager.RestoreState(new(), new() { run }, Array.Empty<string>());
 
         var originalIn = Console.In;
@@ -75,6 +81,9 @@ public class CliPresentationTests
         Assert.Contains("結果: 撤退", text);
         Assert.Contains("生還優先の方針", text);
         Assert.DoesNotContain("士気が尽き", text);
+        Assert.Contains(
+            $"生還者: Lv1 → Lv2（{AdventurerData.FormatGrownStats(grownStats)}）",
+            text);
         Assert.Empty(manager.activeQuests);
     }
 

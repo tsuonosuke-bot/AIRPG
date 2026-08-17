@@ -253,7 +253,11 @@ public static class ActiveQuestScreen
             }
             if (member.level <= startLevel) continue;
             hasGrowth = true;
-            Ui.Info($"    {member.name}: Lv{startLevel} → Lv{member.level}");
+            string statGrowth = q.levelGrowthsByAdventurerId.TryGetValue(member.id, out var grownStats)
+                && grownStats.Count > 0
+                    ? $"（{QuestManager.FormatGrownStats(grownStats)}）"
+                    : "";
+            Ui.Info($"    {member.name}: Lv{startLevel} → Lv{member.level}{statGrowth}");
         }
         if (!hasGrowth && q.startingLevels.Count > 0)
             Ui.Dim("    レベルアップなし");
