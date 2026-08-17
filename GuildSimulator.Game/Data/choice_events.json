@@ -321,7 +321,7 @@
     "id": "event_forest_lore",
     "title": "森渡りの教え",
     "description": "年老いた狩人が道行きを助ける三つの技を示した。教えを受けられるのは一人だけだ。",
-    "weight": 3,
+    "weight": 8,
     "options": [
       {
         "text": "「野営の知恵」を学ぶ",
@@ -347,10 +347,39 @@
     ]
   },
   {
+    "id": "event_roadside_lessons",
+    "title": "旅人たちの手ほどき",
+    "description": "街道脇の野営地で旅慣れた者たちと出会った。ひと休みする間、一人だけ実地の技を教わることができる。",
+    "weight": 8,
+    "options": [
+      {
+        "text": "荷造りと野営を教わる",
+        "resultText": "旅装を崩さず休む手順を覚え、短い野営でも体を休められるようになった。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_campWisdom",
+        "targetsOneMember": true
+      },
+      {
+        "text": "待ち伏せの見抜き方を教わる",
+        "resultText": "轍や草の乱れから危険を読む勘を身につけた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_dangerSense",
+        "targetsOneMember": true
+      },
+      {
+        "text": "平静を保つ呼吸法を教わる",
+        "resultText": "不意の出来事にも心を乱さず対処する呼吸を会得した。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_composure",
+        "targetsOneMember": true
+      }
+    ]
+  },
+  {
     "id": "event_ruin_tablets",
     "title": "残響する石版",
     "description": "古い石版に三つの心得が刻まれている。読み解き、会得できるのは一人だけだ。",
-    "weight": 3,
+    "weight": 8,
     "options": [
       {
         "text": "「古物鑑定」を会得する",
@@ -454,9 +483,9 @@
     "options": [
       {
         "text": "掘り出し物を買う",
-        "resultText": "使い込まれた鎖帷子と引き換えに、路銀を渡した。",
-        "effectType": "Equipment",
-        "value": 1,
+        "resultText": "男が鎖帷子を荷車から引きずり出した。",
+        "effectType": "Purchase",
+        "value": 90,
         "targetId": "eq_chain_01"
       },
       {
@@ -579,6 +608,245 @@
             "resultText": "殿を務めた一人が矢を受け、深い傷を負った。"
           }
         ]
+      }
+    ]
+  },
+  {
+    "id": "event_caravan_supply_wagon",
+    "title": "隊商の補給荷車",
+    "description": "街道を巡る隊商が荷車を止め、冒険者向けの旅道具を並べている。買った品は後便でギルドへ届けてくれるらしい。",
+    "weight": 3,
+    "options": [
+      {
+        "text": "罠外し道具を買う",
+        "resultText": "隊商主が道具一式を取り出した。",
+        "effectType": "Purchase",
+        "value": 30,
+        "targetId": "item_trap_kit"
+      },
+      {
+        "text": "野営用の薬草茶を買う",
+        "resultText": "隊商主が香りのよい茶葉を包んだ。",
+        "effectType": "Purchase",
+        "value": 45,
+        "targetId": "item_camp_herbal_tea"
+      },
+      {
+        "text": "勇気の香を買う",
+        "resultText": "隊商主が封を切って香りを確かめさせた。",
+        "effectType": "Purchase",
+        "value": 45,
+        "targetId": "item_courage_incense"
+      },
+      {
+        "text": "最近の街道事情を聞く",
+        "resultText": "安全な水場と危険な分かれ道を地図へ書き込んだ。",
+        "effectType": "Experience",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": "event_caravan_specialist_merchant",
+    "title": "遠征職人の行商隊",
+    "description": "鍛冶師や錬金術師、探索具職人が連なる小さな行商隊が、道沿いの開けた場所で休んでいる。町では手に入りにくい専門道具も積んでいる。",
+    "weight": 2,
+    "options": [
+      {
+        "text": "研磨師の黒油を買う",
+        "resultText": "職人が漏れないよう油壺を二重に包んだ。",
+        "effectType": "Purchase",
+        "value": 60,
+        "targetId": "item_sharpeners_black_oil"
+      },
+      {
+        "text": "星屑の触媒を買う",
+        "resultText": "職人が淡く光る触媒を小箱へ収めた。",
+        "effectType": "Purchase",
+        "value": 60,
+        "targetId": "item_stardust_catalyst"
+      },
+      {
+        "text": "探索者の振り子を買う",
+        "resultText": "職人が振り子の糸と錘の振れ具合を確かめて差し出した。",
+        "effectType": "Purchase",
+        "value": 65,
+        "targetId": "item_explorers_pendulum"
+      },
+      {
+        "text": "道具の手入れを見学する",
+        "resultText": "遠征道具を長持ちさせる職人の手順を全員で覚えた。",
+        "effectType": "Experience",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": "event_caravan_rare_broker",
+    "title": "特別荷の仲買人",
+    "description": "遠征者組合の鑑札を下げた仲買人が、危険な土地へ向かう者にだけ希少な道具を見せている。",
+    "weight": 1,
+    "options": [
+      {
+        "text": "不退転の角笛を買う",
+        "resultText": "仲買人が傷のない角笛を幌の奥から取り出した。",
+        "effectType": "Purchase",
+        "value": 80,
+        "targetId": "item_defiant_horn"
+      },
+      {
+        "text": "盗掘者の合鍵を買う",
+        "resultText": "仲買人が形の異なる鍵束を革袋へ収めた。",
+        "effectType": "Purchase",
+        "value": 90,
+        "targetId": "item_graverobbers_key"
+      },
+      {
+        "text": "機関の煙玉を買う",
+        "resultText": "仲買人が導火線を固定し、安全栓を確かめた。",
+        "effectType": "Purchase",
+        "value": 110,
+        "targetId": "item_mechanical_smoke_bomb"
+      },
+      {
+        "text": "代わりに危険地帯の噂を聞く",
+        "resultText": "先行した隊商の証言から、危険の兆しを見抜く心構えができた。",
+        "effectType": "Morale",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": "event_caravan_stuck_wagon",
+    "title": "泥濘の荷車",
+    "description": "車輪を取られた隊商が、荷崩れを防ぎながら荷車を街道へ戻そうとしている。",
+    "weight": 3,
+    "options": [
+      {
+        "text": "車体を持ち上げる",
+        "resultText": "車輪と荷重の扱いを学び、荷車を街道へ戻した。",
+        "effectType": "Experience",
+        "value": 10
+      },
+      {
+        "text": "作業中の周囲を警戒する",
+        "resultText": "死角を守り、隊商主から臨時の護衛料を受け取った。",
+        "effectType": "Gold",
+        "value": 25
+      },
+      {
+        "text": "切れた荷紐を結び直す",
+        "resultText": "手際を買われ、丈夫な肩紐を謝礼として譲られた。",
+        "effectType": "Equipment",
+        "value": 1,
+        "targetId": "eq_accessory_caravan_strap"
+      }
+    ]
+  },
+  {
+    "id": "event_caravan_pack_beast_panic",
+    "title": "荷駄獣の暴走",
+    "description": "雷鳴に驚いた荷駄獣が手綱を振り切り、積み荷ごと道を駆け出した。",
+    "weight": 2,
+    "options": [
+      {
+        "text": "一人で手綱へ飛びつく",
+        "resultText": "選んだ一人が、駆ける荷駄獣へ飛びついた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 25,
+            "effectType": "AdventurerStatUp",
+            "targetId": "Agility",
+            "value": 1,
+            "resultText": "暴れる脚をかわし、鮮やかに手綱を取った。"
+          },
+          {
+            "weight": 50,
+            "effectType": "None",
+            "value": 0,
+            "resultText": "必死にしがみつき、どうにか荷駄獣を止めた。"
+          },
+          {
+            "weight": 25,
+            "effectType": "AdventurerDamage",
+            "value": 20,
+            "resultText": "道を引きずられ、深い擦り傷を負った。"
+          }
+        ]
+      },
+      {
+        "text": "一行で誘導路を作る",
+        "resultText": "声を合わせて誘導し、誰も傷つけず荷駄獣を鎮めた。",
+        "effectType": "Morale",
+        "value": 10
+      },
+      {
+        "text": "散った積み荷を回収する",
+        "resultText": "荷を残らず拾い集め、隊商主から謝礼を受け取った。",
+        "effectType": "Gold",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": "event_caravan_ambush",
+    "title": "襲撃された商隊",
+    "description": "破れた幌と散乱した木箱のそばで、生き残った商人たちが身を寄せている。襲撃者はまだ近くにいるかもしれない。",
+    "weight": 2,
+    "options": [
+      {
+        "text": "頼まれた積み荷を救出する",
+        "resultText": "商人の頼みを受け、周囲を警戒しながら散らばった荷へ近づいた。",
+        "effectType": "None",
+        "value": 0,
+        "outcomes": [
+          {
+            "weight": 35,
+            "effectType": "Treasure",
+            "value": 1,
+            "resultText": "無傷の荷箱を取り戻し、謝礼として別の荷箱を一つ託された。"
+          },
+          {
+            "weight": 25,
+            "effectType": "Consumable",
+            "value": 1,
+            "targetId": "item_trap_kit",
+            "resultText": "工具箱を取り戻し、礼として道具一式を分けてもらった。"
+          },
+          {
+            "weight": 20,
+            "effectType": "Gold",
+            "value": 25,
+            "resultText": "金庫を取り戻し、商人から謝礼の路銀を受け取った。"
+          },
+          {
+            "weight": 10,
+            "effectType": "DamagePercent",
+            "value": 15,
+            "resultText": "潜んでいた襲撃者の矢を受け、荷を捨てて退いた。"
+          },
+          {
+            "weight": 10,
+            "effectType": "Morale",
+            "value": -12,
+            "resultText": "積み荷の下から犠牲者を見つけ、一行は言葉を失った。"
+          }
+        ]
+      },
+      {
+        "text": "負傷した商人を手当てする",
+        "resultText": "互いの傷を処置し、隊商の備蓄薬も分けてもらった。",
+        "effectType": "HealPercent",
+        "value": 15
+      },
+      {
+        "text": "生存者を次の宿駅まで護送する",
+        "resultText": "次の宿駅で後続の隊商へ引き渡すまで守り抜き、一行は役目を果たした。",
+        "effectType": "Morale",
+        "value": 10
       }
     ]
   }

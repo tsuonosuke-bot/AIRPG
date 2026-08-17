@@ -31,6 +31,10 @@ public static class FacilitySystem
     public static float GetGrowthRateBonus() =>
         (_facilities?.Sum(f => f.growthRateBonusPercent) ?? 0) / 100f;
 
+    /// <summary>掲示板に追加で確保する新人向けFランク依頼枠。</summary>
+    public static int GetNoviceQuestBoardBonus() =>
+        _facilities?.Sum(f => Math.Max(0, f.noviceQuestBoardBonus)) ?? 0;
+
     /// <summary>毎ターンの雇入れ候補の最低人数。</summary>
     public static int GetRecruitMinBonus() =>
         _facilities?.Sum(f => f.recruitMinBonus) ?? 0;

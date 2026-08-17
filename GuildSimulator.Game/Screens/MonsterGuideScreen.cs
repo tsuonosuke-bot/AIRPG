@@ -58,6 +58,11 @@ public static class MonsterGuideScreen
 
         Ui.BeginScreen();
         Ui.Header($"モンスター図鑑：{enemy.Name}");
+        if (!string.IsNullOrWhiteSpace(master.description))
+        {
+            Ui.WriteLine($"  生態  : {master.description}");
+            Ui.WriteLine();
+        }
         Ui.WriteLine($"  脅威度: {Rank.Label(enemy.Threat)}   EXP: {master.exp}   想定配置: {(snapshot.IsBack ? "後衛" : "前衛")}");
         Ui.WriteLine($"  能力値: VIT:{master.vitality} MEN:{master.mental} STR:{master.strength} "
             + $"AGI:{master.agility} INT:{master.intelligence} SIZ:{master.constitution}");
@@ -80,6 +85,24 @@ public static class MonsterGuideScreen
         else
             Ui.WriteLine($"  スキル: {string.Join("、", enemy.Skills.Select(skill => skill.skillName))}");
 
+        var visibleDrops = master.dropTable
+            .Where(drop => !RelicSystem.IsFrozenRelicReward(drop))
+            .ToList();
+        if (visibleDrops.Count == 0)
+        {
+            Ui.Dim("  希少ドロップ: なし");
+        }
+        else
+        {
+            Ui.WriteLine("  希少ドロップ:");
+            foreach (var drop in visibleDrops)
+            {
+                string chance = $"{Math.Clamp(drop.chance, 0f, 1f) * 100f:0.#}%";
+                Ui.WriteLine($"    ・{RewardDescription.DescribeLoot(drop)}"
+                    + $"{RewardDescription.DescribeQuantity(drop)}{DropRarityLabel(drop)} / 基礎{chance}");
+            }
+        }
+
         await Ui.PauseAsync();
     }
 
@@ -97,6 +120,12 @@ public static class MonsterGuideScreen
             enemy.MaxStatBonus,
             flatPv);
         return new MonsterSnapshot(enemy, stats, pv, isBack);
+    }
+
+    static string DropRarityLabel(RewardEntryData drop)
+    {
+        Rarity? rarity = drop.Equipment?.rarity ?? drop.Consumable?.rarity;
+        return rarity.HasValue ? $" [{Ui.RarityLabel(rarity.Value)}]" : "";
     }
 
     static string Signed(int value) => value >= 0 ? $"+{value}" : value.ToString();

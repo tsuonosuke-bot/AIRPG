@@ -219,16 +219,37 @@ public class GambleChoiceTests
 
             foreach (var option in ev.options.Where(o => o.IsGamble))
             {
-                Assert.True(option.targetsOneMember, $"{ev.id}: 賭けの選択肢に対象指定がない");
                 Assert.True(option.outcomes.Sum(o => o.weight) > 0);
-                // 良い結果と悪い結果の両方がなければ賭けにならない。
-                Assert.Contains(option.outcomes, o =>
-                    o.effectType == QuestChoiceEffectType.AdventurerStatUp
-                    || o.effectType == QuestChoiceEffectType.AdventurerSkill);
-                Assert.Contains(option.outcomes, o =>
-                    o.effectType == QuestChoiceEffectType.AdventurerStatDown
-                    || o.effectType == QuestChoiceEffectType.AdventurerDamage
-                    || o.effectType == QuestChoiceEffectType.Morale);
+                if (option.targetsOneMember)
+                {
+                    // 個人の賭けは、恒久的な幸運と個人が負う危険の両方を持つ。
+                    Assert.Contains(option.outcomes, o =>
+                        o.effectType == QuestChoiceEffectType.AdventurerStatUp
+                        || o.effectType == QuestChoiceEffectType.AdventurerSkill);
+                    Assert.Contains(option.outcomes, o =>
+                        o.effectType == QuestChoiceEffectType.AdventurerStatDown
+                        || o.effectType == QuestChoiceEffectType.AdventurerDamage
+                        || o.effectType == QuestChoiceEffectType.Morale && o.value < 0);
+                }
+                else
+                {
+                    // 積み荷の捜索など、パーティ全体で引き受けるリスクも同じ結果表で表せる。
+                    Assert.DoesNotContain(option.outcomes, o => o.effectType is
+                        QuestChoiceEffectType.AdventurerStatUp
+                        or QuestChoiceEffectType.AdventurerStatDown
+                        or QuestChoiceEffectType.AdventurerSkill
+                        or QuestChoiceEffectType.AdventurerDamage);
+                    Assert.Contains(option.outcomes, o => o.effectType is
+                        QuestChoiceEffectType.Experience
+                        or QuestChoiceEffectType.Equipment
+                        or QuestChoiceEffectType.Consumable
+                        or QuestChoiceEffectType.Treasure
+                        || o.effectType == QuestChoiceEffectType.Gold && o.value > 0
+                        || o.effectType == QuestChoiceEffectType.Morale && o.value > 0);
+                    Assert.Contains(option.outcomes, o => o.effectType == QuestChoiceEffectType.DamagePercent
+                        || o.effectType == QuestChoiceEffectType.Gold && o.value < 0
+                        || o.effectType == QuestChoiceEffectType.Morale && o.value < 0);
+                }
             }
         }
         output.WriteLine($"賭けイベント: {string.Join("、", gambles.Select(e => e.title))}");

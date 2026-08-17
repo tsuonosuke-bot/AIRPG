@@ -66,6 +66,12 @@ public enum QuestChoiceEffectType
 
     /// <summary>選んだ1人に最大HPの value% のダメージ。1未満にはならない。</summary>
     AdventurerDamage,
+
+    /// <summary>
+    /// 道中の商人から targetId の装備または消耗品を購入する。
+    /// value は提示価格。既存セーブとの互換性を保つため列挙値は末尾に追加する。
+    /// </summary>
+    Purchase,
 }
 
 /// <summary>ギルドマスターが出発前に与える遠征の優先方針。</summary>

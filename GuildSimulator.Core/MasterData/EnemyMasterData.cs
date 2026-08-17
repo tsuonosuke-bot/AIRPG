@@ -4,6 +4,8 @@ public class EnemyMasterData
 {
     public string id = "";
     public string baseName = "";
+    /// <summary>モンスター図鑑に表示する生態・外見の説明。</summary>
+    public string description = "";
     public int exp;
 
     /// <summary>

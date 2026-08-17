@@ -57,14 +57,15 @@
   {
     "id": "fac_training_hall_01",
     "displayName": "訓練所",
-    "description": "冒険者のレベルアップ時の能力成長率を高める。",
+    "description": "新人向けの安全な依頼枠を確保し、冒険者のレベルアップ時に追加成長する確率も高める。",
     "buildCostGold": 500,
     "upkeepGoldPerTurn": 18,
     "requiredGuildRank": 2,
     "questBoardBonus": 0,
     "shopLevelBonus": 0,
     "restHealBonusPercent": 0,
-    "growthRateBonusPercent": 5,
+    "growthRateBonusPercent": 15,
+    "noviceQuestBoardBonus": 1,
     "recruitMinBonus": 0
   },
   {

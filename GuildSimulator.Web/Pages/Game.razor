@@ -85,7 +85,7 @@ else
                         @foreach (var option in group)
                         {
                             <button type="button"
-                                    class="option @StyleClass(option.Style)"
+                                    class="option @StyleClass(option.Style) @RoleClass(option.Role)"
                                     @onclick="() => Choose(option.Key)">
                                 <span class="option-label">@option.Label</span>
                                 @if (!string.IsNullOrWhiteSpace(option.Detail))
@@ -190,6 +190,13 @@ else
         TextStyle.Error => "s-error",
         TextStyle.Accent => "s-accent",
         _ => "s-normal",
+    };
+
+    static string RoleClass(MenuRole role) => role switch
+    {
+        MenuRole.Primary => "role-primary",
+        MenuRole.Danger => "role-danger",
+        _ => "",
     };
 
     public void Dispose() => _io.StateChanged -= OnIoStateChanged;

@@ -37,7 +37,7 @@
   },
   {
     "id": "unit_raven_pair",
-    "unitName": "大鴉のつがい",
+    "unitName": "コルヴスのつがい",
     "formationIds": [
       "enemy_raven",
       null,
@@ -49,7 +49,7 @@
   },
   {
     "id": "unit_raven_flock",
-    "unitName": "大鴉の群れ",
+    "unitName": "コルヴスの群れ",
     "formationIds": [
       "enemy_raven",
       "enemy_raven",
@@ -61,7 +61,7 @@
   },
   {
     "id": "unit_rabbit_pack",
-    "unitName": "角兎の群れ",
+    "unitName": "アルミラージの群れ",
     "formationIds": [
       "enemy_horned_rabbit",
       "enemy_horned_rabbit",
@@ -288,14 +288,26 @@
     ]
   },
   {
+    "id": "unit_kernos_trial",
+    "unitName": "双角王と怒れる木立",
+    "formationIds": [
+      "enemy_kernos",
+      "enemy_kernos",
+      "enemy_treant",
+      "enemy_treant",
+      null,
+      null
+    ]
+  },
+  {
     "id": "unit_kernos_beast",
-    "unitName": "ケルノスビースト",
+    "unitName": "ケルノスビーストの眷属群",
     "formationIds": [
       "enemy_kernos_beast",
-      null,
-      null,
-      null,
-      null,
+      "enemy_kernos",
+      "enemy_kernos",
+      "enemy_treant",
+      "enemy_treant",
       null
     ]
   },
@@ -376,11 +388,11 @@
     "unitName": "野盗頭とその一味",
     "formationIds": [
       "enemy_bandit_boss",
-      "enemy_bandit",
-      "enemy_bandit",
+      "enemy_bandit_bruiser",
+      "enemy_bandit_bruiser",
+      "enemy_bandit_hexer",
       "enemy_bandit_archer",
-      "enemy_bandit_archer",
-      null
+      "enemy_bandit_archer"
     ]
   },
   {
@@ -426,6 +438,18 @@
       "enemy_rock_eater",
       "enemy_rock_eater",
       null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_rock_eater_queen_guard",
+    "unitName": "岩喰いの女王と護衛",
+    "formationIds": [
+      "enemy_rock_eater_queen",
+      "enemy_rock_eater",
+      "enemy_rock_eater",
       null,
       null,
       null
@@ -592,11 +616,11 @@
     "unitName": "骸の王とその廷臣",
     "formationIds": [
       "enemy_bone_lord",
-      "enemy_ghoul",
-      "enemy_ghoul",
+      "enemy_shadow_beast",
+      "enemy_shadow_beast",
       "enemy_necromancer",
       "enemy_skeleton_archer",
-      "enemy_skeleton_archer"
+      "enemy_ice_ghoul"
     ]
   },
   {
@@ -895,6 +919,30 @@
       "enemy_bandit_cutthroat",
       "enemy_goblin_soldier",
       "enemy_goblin_archer",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_forest_hopper_pair",
+    "unitName": "フォレストホッパー2匹",
+    "formationIds": [
+      "enemy_forest_hopper",
+      "enemy_forest_hopper",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_aptos_herd",
+    "unitName": "アプトスの群れ",
+    "formationIds": [
+      "enemy_aptos",
+      "enemy_aptos",
+      "enemy_aptos",
+      null,
       null,
       null
     ]

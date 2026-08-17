@@ -68,33 +68,14 @@ public static class GameLoop
             ShowEconomyForecast(guild, upkeepPerTurn);
             Ui.WriteLine();
 
-            var menu = new List<MenuOption>
-            {
-                new MenuOption("1", "クエストボード", Group: "クエスト"),
-                new MenuOption("2", "進行中クエスト", Group: "クエスト"),
-                new MenuOption("3", "一覧・装備管理", Group: "冒険者"),
-                new MenuOption("4", "雇う", Group: "冒険者"),
-                new MenuOption("5", "倉庫", Group: "ギルド資産"),
-                new MenuOption("6", "商店", Group: "ギルド資産"),
-            };
-            // 凍結中は遺物一覧そのものを出さない。同じグループの並びは崩さない。
-            if (GameFeatures.RelicsEnabled)
-                menu.Add(new MenuOption("7", "遺物一覧", Group: "ギルド資産"));
-            menu.AddRange(new[]
-            {
-                new MenuOption("F", "施設", Group: "ギルド資産"),
-                new MenuOption("8", "経済ログ", Group: "ギルド管理"),
-                new MenuOption("B", "埋葬記録", Group: "ギルド管理"),
-                new MenuOption("J", "調査記録", Group: "ギルド管理"),
-                new MenuOption("M", "モンスター図鑑", Group: "ギルド管理"),
-                new MenuOption("T", "戦闘シミュレーター", Group: "ギルド管理"),
-                new MenuOption("H", "ヘルプ・用語集", Group: "ギルド管理"),
-                // 同じグループは連続させる（グループ見出しは切り替わりでしか出さないため）。
-                new MenuOption("9", "ターンを進める", Group: "ターン操作"),
-                new MenuOption("0", "ゲーム終了", Style: TextStyle.Dim, Group: "ターン操作"),
-                new MenuOption("S", "セーブする", Group: "セーブデータ"),
-                new MenuOption("L", "ロードする", Group: "セーブデータ"),
-            });
+            int projectedAfterUpkeep = guild.Gold - upkeepPerTurn;
+            int pendingDecisionCount = questManager.activeQuests.Count(NeedsDecision);
+            var menu = MainMenuBuilder.BuildMain(
+                currentTurn,
+                upkeepPerTurn,
+                projectedAfterUpkeep,
+                pendingDecisionCount,
+                GameFeatures.RelicsEnabled);
 
             string input = await Ui.SelectAsync("選択", menu);
 
@@ -113,20 +94,16 @@ public static class GameLoop
                     if (GameFeatures.RelicsEnabled) await RelicScreen.ShowAsync(guild);
                     break;
                 case "F": await FacilityScreen.ShowAsync(db, guild); break;
-                case "8": await ShowEconomyLogAsync(guild); break;
-                case "B": await BurialScreen.ShowAsync(guild); break;
-                case "J": await StoryJournalScreen.ShowAsync(db, questManager); break;
-                case "M": await MonsterGuideScreen.ShowAsync(db, guild); break;
-                case "T": await BattleSimScreen.ShowAsync(db, guild); break;
-                case "H": await HelpScreen.ShowAsync(db); break;
+                case "G":
+                    await ShowGuildManagementMenuAsync(db, guild, questManager);
+                    break;
                 case "9":
-                    if (questManager.HasPendingDecisions)
+                    if (pendingDecisionCount > 0)
                     {
                         Ui.Warn("指示待ちのクエストがあります。すべて決定するまで次のターンへ進めません");
                         await ShowPendingChoicesAsync(questManager, guild);
                         break;
                     }
-                    int projectedAfterUpkeep = guild.Gold - upkeepPerTurn;
                     if (projectedAfterUpkeep <= 0
                         && !await Ui.ConfirmAsync(
                             $"次の維持費支払い後は {projectedAfterUpkeep}Gです。完了報酬がなければ破産します。ターンを進めますか？"))
@@ -141,7 +118,11 @@ public static class GameLoop
                     if (guild.Gold <= 0)
                         return await ShowGameOverAsync(currentTurn);
                     break;
-                case "0": Ui.WriteLine("ゲーム終了"); return false;
+                case "0":
+                    if (!await Ui.ConfirmAsync("ゲームを終了しますか？セーブしていない進行状況は失われます。"))
+                        break;
+                    Ui.WriteLine("ゲーム終了");
+                    return false;
                 case "S":
                     await DoSaveAsync(saveStore, guild, questManager, currentTurn, recruitCandidates);
                     break;
@@ -155,6 +136,30 @@ public static class GameLoop
                         recruitCandidates = loaded.RecruitCandidates;
                     }
                     break;
+            }
+        }
+    }
+
+    static async Task ShowGuildManagementMenuAsync(
+        GameMasterData db,
+        GuildManager guild,
+        QuestManager questManager)
+    {
+        while (true)
+        {
+            Ui.BeginScreen();
+            Ui.Header("ギルド管理");
+            string input = await Ui.SelectAsync("選択", MainMenuBuilder.BuildGuildManagement());
+
+            switch (input.Trim().ToUpperInvariant())
+            {
+                case "8": await ShowEconomyLogAsync(guild); break;
+                case "B": await BurialScreen.ShowAsync(guild); break;
+                case "J": await StoryJournalScreen.ShowAsync(db, questManager); break;
+                case "M": await MonsterGuideScreen.ShowAsync(db, guild); break;
+                case "T": await BattleSimScreen.ShowAsync(db, guild); break;
+                case "H": await HelpScreen.ShowAsync(db); break;
+                case "0": return;
             }
         }
     }
@@ -243,10 +248,12 @@ public static class GameLoop
 
     static async Task ShowPendingChoicesAsync(QuestManager qm, GuildManager guild)
     {
-        foreach (var q in qm.activeQuests
-                     .Where(q => q.HasPendingChoice || q.HasGatherDecision).ToList())
+        foreach (var q in qm.activeQuests.Where(NeedsDecision).ToList())
             await ActiveQuestScreen.HandleQuestAsync(q, qm, guild);
     }
+
+    static bool NeedsDecision(QuestRun quest) =>
+        quest.HasPendingChoice || quest.HasGatherDecision;
 
     static void NextTurn(GuildManager guild, QuestManager questManager, ref int currentTurn)
     {

@@ -100,6 +100,7 @@ public static class FacilityScreen
         if (f.shopLevelBonus != 0) parts.Add($"商店レベル+{f.shopLevelBonus}");
         if (f.restHealBonusPercent != 0) parts.Add($"休息回復量+{f.restHealBonusPercent}%");
         if (f.growthRateBonusPercent != 0) parts.Add($"成長率+{f.growthRateBonusPercent}%");
+        if (f.noviceQuestBoardBonus != 0) parts.Add($"新人向けF依頼枠+{f.noviceQuestBoardBonus}");
         if (f.recruitMinBonus != 0) parts.Add($"雇入れ候補の最低人数+{f.recruitMinBonus}");
         if (f.injuryRecoveryBonus != 0) parts.Add($"休養時の負傷回復+{f.injuryRecoveryBonus}/T");
         if (f.fatalityReductionPercent != 0) parts.Add($"帰還時死亡率-{f.fatalityReductionPercent}%");

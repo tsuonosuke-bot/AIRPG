@@ -74,6 +74,23 @@ public class MonsterGuideTests
         Assert.DoesNotContain("マルフィサ", text);
     }
 
+    [Fact]
+    public async Task GuideShowsMonsterDropNameRarityAndBaseChance()
+    {
+        var db = MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
+        var guild = new GuildManager(startGold: 100);
+        guild.DiscoverEnemy(db.enemies["enemy_slime"]);
+
+        string text = await CaptureConsoleAsync(
+            "1\n\n0\n",
+            () => MonsterGuideScreen.ShowAsync(db, guild));
+
+        Assert.Contains("希少ドロップ", text);
+        Assert.Contains("粘核の指輪", text);
+        Assert.Contains("アンコモン", text);
+        Assert.Contains("基礎1.5%", text);
+    }
+
     static async Task<string> CaptureConsoleAsync(string inputText, Func<Task> action)
     {
         var originalIn = Console.In;

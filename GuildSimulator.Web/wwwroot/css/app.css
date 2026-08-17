@@ -126,8 +126,63 @@ html, body {
     cursor: pointer;
 }
 
+button.option.role-primary {
+    flex: 1 1 100%;
+    width: 100%;
+    background: rgb(111 195 232 / 12%);
+    border-color: rgb(111 195 232 / 65%);
+    box-shadow: inset 0 0 0 1px rgb(111 195 232 / 8%);
+}
+
+button.option.role-primary .option-label {
+    color: var(--accent);
+}
+
+button.option.role-danger {
+    background: rgb(239 107 107 / 6%);
+    border-color: rgb(239 107 107 / 28%);
+}
+
+button.option.role-danger .option-label {
+    color: #d98b8b;
+}
+
+@media (hover: hover) {
+    .option:hover {
+        background: #262d3e;
+        border-color: #3c465c;
+    }
+
+    button.option.role-primary:hover {
+        background: rgb(111 195 232 / 18%);
+        border-color: rgb(111 195 232 / 85%);
+    }
+
+    button.option.role-danger:hover {
+        background: rgb(239 107 107 / 10%);
+        border-color: rgb(239 107 107 / 40%);
+    }
+}
+
+.option:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+button.option.role-danger:focus-visible {
+    outline-color: var(--error);
+}
+
 .option:active {
     background: #2c3446;
+}
+
+button.option.role-primary:active {
+    background: rgb(111 195 232 / 24%);
+}
+
+button.option.role-danger:active {
+    background: rgb(239 107 107 / 15%);
 }
 
 .option-label {

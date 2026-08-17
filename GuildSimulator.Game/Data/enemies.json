@@ -16,6 +16,15 @@
     "naturalPv": 3,
     "naturalAv": 2,
     "naturalMav": 3,
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_slime_core_ring",
+        "chance": 0.015,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
     "threat": 1
   },
   {
@@ -41,7 +50,8 @@
   },
   {
     "id": "enemy_raven",
-    "baseName": "大鴉",
+    "baseName": "コルヴス",
+    "description": "濡れたような黒羽を持つ、ずる賢い鴉。人の荷を見張り、隙を見て光る物や食料を盗む。",
     "exp": 5,
     "vitality": 2,
     "mental": 2,
@@ -56,11 +66,21 @@
       "skill_flight"
     ],
     "naturalPv": 2,
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_corvus_plume",
+        "chance": 0.03,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
     "threat": 1
   },
   {
     "id": "enemy_horned_rabbit",
-    "baseName": "角兎",
+    "baseName": "アルミラージ",
+    "description": "額に一本角を持つ小型の兎型魔獣。臆病だが、追い詰められると鋭い角で一気に突進する。",
     "exp": 4,
     "vitality": 2,
     "mental": 1,
@@ -245,6 +265,15 @@
     "skillIds": [
       "skill_fireMastery_lv2"
     ],
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_goblin_ashfire_ring",
+        "chance": 0.03,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
     "naturalPv": 4,
     "threat": 2,
     "naturalAv": 1,
@@ -297,6 +326,25 @@
     "naturalPv": 3,
     "naturalAv": 2,
     "threat": 1
+  },
+  {
+    "id": "enemy_forest_hopper",
+    "baseName": "フォレストホッパー",
+    "description": "木々の間を跳び移って獲物へ襲いかかる、大型の肉食バッタ。硬い脚で幹を蹴り、死角から飛び込む。",
+    "exp": 9,
+    "vitality": 3,
+    "mental": 2,
+    "strength": 8,
+    "agility": 8,
+    "intelligence": 1,
+    "constitution": 6,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d6",
+    "skillIds": [],
+    "naturalPv": 3,
+    "naturalAv": 1,
+    "threat": 2
   },
   {
     "id": "enemy_mage_wolf",
@@ -378,6 +426,15 @@
     ],
     "naturalPv": 3,
     "naturalAv": 3,
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_venom_dagger",
+        "chance": 0.03,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
     "threat": 2
   },
   {
@@ -417,6 +474,15 @@
       "skill_axeMastery_lv2",
       "skill_battleCry_lv1"
     ],
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_kernos_warhorn_ring",
+        "chance": 0.02,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
     "naturalPv": 6,
     "naturalAv": 2,
     "threat": 5
@@ -425,10 +491,10 @@
     "id": "enemy_kernos_beast",
     "baseName": "ケルノスビースト",
     "exp": 45,
-    "vitality": 16,
+    "vitality": 18,
     "mental": 2,
     "strength": 18,
-    "agility": 3,
+    "agility": 12,
     "intelligence": 1,
     "constitution": 14,
     "defaultWeaponId": "",
@@ -440,7 +506,35 @@
     ],
     "naturalPv": 8,
     "naturalAv": 4,
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_kernos_antler",
+        "chance": 0.04,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
     "threat": 7
+  },
+  {
+    "id": "enemy_aptos",
+    "baseName": "草食竜アプトス",
+    "description": "頭と尾に棘を備えた、丈夫で大型の四足歩行草食竜。群れで暮らし、基本は臆病で攻撃性も低い。おとなしい個体は家畜化できる。",
+    "exp": 10,
+    "vitality": 4,
+    "mental": 2,
+    "strength": 6,
+    "agility": 4,
+    "intelligence": 0,
+    "constitution": 8,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d4",
+    "skillIds": [],
+    "naturalPv": 3,
+    "naturalAv": 5,
+    "threat": 2
   },
   {
     "id": "enemy_ranpos",
@@ -482,6 +576,15 @@
     ],
     "naturalPv": 4,
     "naturalAv": 3,
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_alpha_claw",
+        "chance": 0.04,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
     "threat": 3
   },
   {
@@ -505,6 +608,15 @@
     "naturalPv": 4,
     "naturalAv": 4,
     "naturalMav": 2,
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_wyvern_scale",
+        "chance": 0.04,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
     "threat": 3
   },
   {
@@ -548,7 +660,7 @@
     "id": "enemy_bandit_boss",
     "baseName": "野盗頭",
     "exp": 38,
-    "vitality": 10,
+    "vitality": 12,
     "mental": 6,
     "strength": 12,
     "agility": 8,
@@ -737,6 +849,15 @@
     ],
     "naturalPv": 5,
     "naturalAv": 6,
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_crystal_shell",
+        "chance": 0.04,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
     "threat": 3
   },
   {
@@ -987,10 +1108,10 @@
     "id": "enemy_bone_lord",
     "baseName": "骸の王",
     "exp": 70,
-    "vitality": 16,
+    "vitality": 18,
     "mental": 12,
     "strength": 14,
-    "agility": 8,
+    "agility": 14,
     "intelligence": 10,
     "constitution": 14,
     "defaultWeaponId": "eq_drop_bone",

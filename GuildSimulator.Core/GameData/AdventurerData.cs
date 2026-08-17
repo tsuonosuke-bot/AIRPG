@@ -443,6 +443,7 @@ public class AdventurerData : IUnitMember
         levelUps = 0;
         grownStats = new List<StatType>();
         if (!isAlive || amount <= 0) return false;
+        int levelBefore = level;
         experience += amount;
         while (experience >= RequiredExpForNextLevel)
         {
@@ -450,6 +451,9 @@ public class AdventurerData : IUnitMember
             grownStats.AddRange(LevelUp());
             levelUps++;
         }
+        // 戦闘経験値は詳細ログに畳まれることがあるため、成長結果を本人の履歴にも必ず残す。
+        if (levelUps > 0)
+            AddHistory($"Lv{levelBefore}→{level}、{FormatGrownStats(grownStats)}");
         return true;
     }
 
@@ -469,6 +473,24 @@ public class AdventurerData : IUnitMember
     /// 育ちの差は「どの能力に振られたか」の運と、クエスト中の出来事が作る。
     /// </summary>
     public const int StatPointsPerLevel = 1;
+
+    public static string StatDisplayName(StatType stat) => stat switch
+    {
+        StatType.Vitality => "体力",
+        StatType.Mental => "精神力",
+        StatType.Strength => "筋力",
+        StatType.Agility => "敏捷",
+        StatType.Intelligence => "知力",
+        StatType.Constitution => "体格",
+        StatType.Appearance => "容姿",
+        _ => stat.ToString(),
+    };
+
+    /// <summary>伸びた能力を「体力+1、敏捷+2」の形にまとめる。</summary>
+    public static string FormatGrownStats(IEnumerable<StatType> grownStats) =>
+        string.Join("、", grownStats
+            .GroupBy(stat => stat)
+            .Select(group => $"{StatDisplayName(group.Key)}+{group.Count()}"));
 
     List<StatType> LevelUp()
     {
@@ -580,13 +602,18 @@ public class AdventurerData : IUnitMember
     };
 
     // ---- Combat ----
-    int TotalWeight => equippedSlots.Values.Sum(e => e.weight);
+    /// <summary>現在装備している全スロットの合計重量。</summary>
+    public int TotalEquipmentWeight => equippedSlots.Values.Sum(e => e.weight);
 
     /// <summary>
     /// 担げる重さ。素の上限に、スキルで鍛えた「担ぐ余裕」を足す。
     /// 立ち位置に左右されない構えの条件だけで判定するので、隊列を組む前でも同じ値になる。
     /// </summary>
-    public int CarryLimit => constitution + (strength + vitality) / 2 + SkillCarryBonus;
+    public int CarryLimit => constitution + (strength + vitality) / 2
+        + SkillCarryBonus + EquipmentCarryBonus;
+
+    /// <summary>現在の装備から得ている積載上限ボーナス。</summary>
+    public int EquipmentCarryBonus => GetEquipmentBonus().carry;
 
     /// <summary>今の装備で有効になっているスキル由来の積載ボーナス。</summary>
     public int SkillCarryBonus
@@ -600,15 +627,24 @@ public class AdventurerData : IUnitMember
             return bonus;
         }
     }
-    float OverweightRate
+    /// <summary>積載上限を超えた重量。上限内なら0。</summary>
+    public int OverweightAmount => Math.Max(0, TotalEquipmentWeight - CarryLimit);
+
+    public float OverweightRate
     {
         get
         {
-            int over = TotalWeight - CarryLimit;
+            int over = OverweightAmount;
             if (over <= 0) return 0f;
             return Math.Clamp(over * OVERWEIGHT_RATE_PER_POINT, 0f, 1f);
         }
     }
+
+    public int OverweightDvPenalty =>
+        OverweightRate > 0f ? (int)Math.Ceiling(OVERWEIGHT_DV_PENALTY * OverweightRate) : 0;
+
+    public int OverweightToHitPenalty =>
+        OverweightRate > 0f ? (int)Math.Ceiling(OVERWEIGHT_TO_HIT_PENALTY * OverweightRate) : 0;
 
     // 能力値は直接ダメージに乗らない。体格は素肌の硬さ(AV)、精神は魔法への抵抗(mAV)、
     // 敏捷は避けやすさ(DV)と当てやすさ(命中)に変わる。攻撃側の筋力・知力はPVへ回るので、
@@ -655,11 +691,10 @@ public class AdventurerData : IUnitMember
         s.heal = hCoef > 0f ? (int)Math.Floor((s.heal + (weapon?.flatHeal ?? 0)) * hCoef) : 0;
 
         // 過積載は身のこなしを鈍らせる。装甲(AV)は担いでいる以上そのまま効くので削らない。
-        float r = OverweightRate;
-        if (r > 0f)
+        if (OverweightAmount > 0)
         {
-            s.dv -= (int)Math.Ceiling(OVERWEIGHT_DV_PENALTY * r);
-            s.toHit -= (int)Math.Ceiling(OVERWEIGHT_TO_HIT_PENALTY * r);
+            s.dv -= OverweightDvPenalty;
+            s.toHit -= OverweightToHitPenalty;
         }
         AdventurerConditionRules.ApplyModifiers(injuries, scars, ref s);
         return s;

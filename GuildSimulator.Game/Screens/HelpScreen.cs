@@ -113,8 +113,8 @@ public static class HelpScreen
         Ui.WriteLine("  ・緊急クエスト    : 通常枠とは別枠に掲示される特別なクエスト。昇格試験もこれに含まれる。");
         Ui.WriteLine("  ・昇格試験        : 必要ギルドポイントを満たすと出現する一度きりのクエスト。");
         Ui.WriteLine("                      クリアするとギルドランクが上がる（撤退・全滅ではランクは上がらない）。");
-        Ui.WriteLine("  ・編成相対評価    : 人数・平均認定ランク・最大脅威・負傷状態から、現在の編成を相対評価する目安。");
-        Ui.WriteLine("                      装備や敵との相性、乱数は含まないため、勝敗を保証するものではない。");
+        Ui.WriteLine("  ・編成相対評価    : 人数・平均認定ランク・通常遭遇の中心脅威・確定ボス・負傷状態による目安。");
+        Ui.WriteLine("                      最大脅威は遭遇見込みと分けて表示する。装備・相性・乱数は含まず、勝敗は保証しない。");
         Ui.WriteLine("  ・遠征方針        : 出発時に「生還優先」か「依頼達成優先」を選ぶ。");
         Ui.WriteLine($"                      生還優先はパーティHP{BattleResolver.SurvivalPartyHpPercent}%以下、または誰かが{BattleResolver.SurvivalMemberHpPercent}%以下で撤退する。");
         Ui.WriteLine("                      依頼達成優先は行動可能な限り続行するため、戦闘不能・死亡のリスクが高い。");

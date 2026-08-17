@@ -121,13 +121,13 @@ public static class RankBandTable
     /// <summary>クエストランク(1〜7 = F〜S)ごとの報酬の帯。</summary>
     static readonly Dictionary<int, QuestBand> _quests = new()
     {
-        [1] = new(new(100, 300), new(10, 45), new(8, 80), new(5, 12)),
-        [2] = new(new(600, 1500), new(40, 100), new(15, 120), new(12, 18)),
-        [3] = new(new(1500, 3500), new(100, 150), new(25, 150), new(16, 24)),
-        [4] = new(new(3000, 6500), new(150, 220), new(40, 220), new(20, 30)),
-        [5] = new(new(5000, 11000), new(220, 300), new(60, 300), new(25, 35)),
-        [6] = new(new(8000, 16000), new(300, 400), new(80, 400), new(30, 40)),
-        [7] = new(new(12000, 22000), new(400, 550), new(100, 500), new(35, 45)),
+        [1] = new(new(80, 240), new(10, 45), new(8, 80), new(5, 14)),
+        [2] = new(new(400, 650), new(40, 100), new(15, 120), new(12, 18)),
+        [3] = new(new(750, 1300), new(100, 150), new(25, 150), new(16, 24)),
+        [4] = new(new(1200, 2100), new(150, 220), new(40, 220), new(20, 30)),
+        [5] = new(new(1900, 3200), new(220, 300), new(60, 300), new(25, 35)),
+        [6] = new(new(2900, 4600), new(300, 400), new(80, 400), new(30, 40)),
+        [7] = new(new(4300, 6500), new(400, 550), new(100, 500), new(35, 45)),
     };
 
     /// <summary>

@@ -12,7 +12,7 @@ public class QuestRewardService
     public const float RetreatRewardRate = 0f;
 
     /// <summary>宝箱がハズレ（空っぽ）になる確率。ボスの宝箱はこの抽選を受けない。</summary>
-    public const float EmptyChestRate = 0.2f;
+    public const float EmptyChestRate = 0.1f;
 
     /// <summary>
     /// 持ち帰った宝箱を開ける。中身は開封時に抽選するので、道中では何が入っているか分からない。
@@ -58,7 +58,7 @@ public class QuestRewardService
         return contents;
     }
 
-    // 道中の宝箱はダンジョンの宝箱テーブルから1件。一定確率で空っぽ。
+    // 道中の宝箱はダンジョンの宝箱テーブルから、クエストランクに合う中身を1件。一定確率で空っぽ。
     // 所持済みの遺物は開けても捨てるだけなので抽選から外す。
     // 遺物システムの凍結中は遺物エントリを丸ごと除外し、残りの中身で抽選し直す
     // （重みの合計を取り直すので、他の中身の出やすさの比率は変わらない）。
@@ -72,6 +72,8 @@ public class QuestRewardService
 
         var candidates = table
             .Where(e => e.weight > 0
+                && q.def.rank >= e.minQuestRank
+                && q.def.rank <= e.maxQuestRank
                 && !RelicSystem.IsFrozenRelicReward(e)
                 && !IsOwnedRelic(e, guild))
             .ToList();

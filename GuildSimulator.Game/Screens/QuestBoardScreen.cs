@@ -81,9 +81,9 @@ public static class QuestBoardScreen
             Ui.WriteLine($"  採取: {q.gatherItemName} x{q.gatherTargetCount}"
                 + $"（目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還"
                 + $" / {q.totalPhases}エリアで足りなければ延長か撤退を選ぶ）");
-        string bossInfo = diff.hasBoss ? $"  ボス:脅威度{diff.BossThreatLabel}" : "";
-        Ui.WriteLine($"  場所: {q.Dungeon?.dungeonName ?? "？"}  敵の脅威度{diff.EnemyThreatRange}"
-            + $"  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
+        string bossInfo = diff.hasBoss ? $"  ボス:{diff.BossThreatLabel}/{diff.bossMemberCount}体" : "";
+        Ui.WriteLine($"  場所: {q.Dungeon?.dungeonName ?? "？"}  通常遭遇:{diff.EnemyThreatSummary}"
+            + $"  編成:{diff.EnemyFormationSummary}  戦闘{diff.combatChance * 100:0}% 罠{diff.trapChance * 100:0}%{bossInfo}");
         // 習熟度は適正ランクのクエストでしか増えない。誰を出せば伸びるのかを受注前に見せる。
         int suitableCount = availableAdvs.Count(a => a.IsSuitableQuestRank(q.rank));
         Ui.WriteLine($"  適正ランク: {Rank.SuitableAdventurerRangeLabel(q.rank)}（このランク帯の冒険者が正規クリアすると習熟度が入る）"
@@ -280,21 +280,39 @@ public static class QuestBoardScreen
             formation.Cast<IUnitMember?>());
         Ui.WriteLine($"  最高APP: {maxAppearance}   名声ボーナス: +{fameBonus}%"
             + $"   戦闘中の士気回復: +{battleMorale}/ラウンド");
-        Ui.WriteLine($"  クエスト難易度: {diff.label}（スコア{diff.score:0}）  敵の脅威度: {diff.EnemyThreatRange}");
+        Ui.WriteLine($"  クエスト難易度: {diff.label}（スコア{diff.score:0}）  通常遭遇: {diff.EnemyThreatSummary}"
+            + $"  編成: {diff.EnemyFormationSummary}");
         if (diff.hasBoss)
-            Ui.WriteLine($"  ボス: 脅威度{diff.BossThreatLabel}");
+            Ui.WriteLine($"  ボス: 脅威度{diff.BossThreatLabel} / {diff.bossMemberCount}体（確定戦闘）");
         var assessment = DungeonDifficulty.EvaluateParty(def, members);
         string assessmentText = $"  編成相対評価: {assessment.Label}"
             + $"（人数 {assessment.MemberCount}/{assessment.RecommendedSize}人目安、"
-            + $"平均認定{assessment.AverageRankLabel}/最大脅威{assessment.TargetThreatLabel}）";
+            + $"平均認定{assessment.AverageRankLabel}/評価基準{assessment.TargetThreatLabel}）";
         if (assessment.Score < 0) Ui.Warn(assessmentText);
         else Ui.Info(assessmentText);
         Ui.Dim("    ※人数・認定ランク・負傷状態による目安。装備や相性、乱数で結果は変わります");
-        // 士気の格上ショックは「敵の脅威度 － 味方の認定ランク」で決まる。編成前に気づけるようにする。
-        int avgRank = (int)Math.Round(members.Average(a => (double)a.rank));
-        if (avgRank < diff.enemyThreatMax)
-            Ui.Warn($"  ⚠ 敵の脅威度({Rank.Label(diff.enemyThreatMax)})がパーティの平均ランク({Rank.Label(avgRank)})を上回っています"
-                + "（遭遇時に士気を削られます）");
+        // 最大値だけで危険度を断定せず、通常遭遇の確率と確定ボスを分けて知らせる。
+        int avgRank = assessment.AverageRank;
+        if (assessment.OutrankedEncounterChancePercent >= 0.5f)
+        {
+            int shock = Math.Min(
+                MoraleState.ThreatGapFlatCap,
+                (diff.enemyThreatMax - avgRank) * MoraleState.ThreatGapFlat);
+            Ui.Warn($"  ⚠ 格上との通常遭遇見込み {assessment.OutrankedEncounterChancePercent:0.#}%"
+                + $"（最大{assessment.MaximumEncounterThreatLabel}、遭遇時の士気 最大-{shock}）");
+        }
+        if (diff.hasBoss && avgRank < diff.bossThreat)
+        {
+            int shock = Math.Min(
+                MoraleState.ThreatGapFlatCap,
+                (diff.bossThreat - avgRank) * MoraleState.ThreatGapFlat);
+            Ui.Warn($"  ⚠ ボス{diff.BossThreatLabel}は確定戦闘"
+                + $"（平均認定{Rank.Label(avgRank)}、遭遇時の士気 -{shock}）");
+        }
+        var overweight = members.Where(member => member.OverweightAmount > 0).ToList();
+        foreach (var member in overweight)
+            Ui.Warn($"  ⚠ {member.name} は過積載 {member.TotalEquipmentWeight}/{member.CarryLimit}"
+                + $"（命中-{member.OverweightToHitPenalty} / DV-{member.OverweightDvPenalty}）");
         var injured = members.Where(a => a.IsInjured).ToList();
         if (injured.Count > 0)
             Ui.Warn($"  ⚠ 負傷者を編成中: {string.Join("、", injured.Select(a => a.name))}（負傷補正を含む戦力です）");

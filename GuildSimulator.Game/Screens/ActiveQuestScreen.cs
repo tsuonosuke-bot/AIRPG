@@ -82,7 +82,7 @@ public static class ActiveQuestScreen
     {
         if (q.pendingChoice != null)
         {
-            await ShowChoiceAsync(q, qm);
+            await ShowChoiceAsync(q, qm, guild);
             return;
         }
         if (q.HasGatherDecision)
@@ -408,7 +408,7 @@ public static class ActiveQuestScreen
             Ui.Error(result);
     }
 
-    static async Task ShowChoiceAsync(QuestRun q, QuestManager qm)
+    static async Task ShowChoiceAsync(QuestRun q, QuestManager qm, GuildManager guild)
     {
         var pending = q.pendingChoice;
         if (pending == null) return;
@@ -421,7 +421,7 @@ public static class ActiveQuestScreen
             .Select((option, i) => new MenuOption(
                 (i + 1).ToString(),
                 option.text,
-                ChoiceOptionDetail(option)))
+                ChoiceOptionDetail(q, guild, option)))
             .ToList();
         foreach (var option in options)
             Ui.WriteLine($"  {option.Key}. {option.Label}"
@@ -451,10 +451,35 @@ public static class ActiveQuestScreen
     /// 効果を受ける隊員を1人選ばせる。結果の抽選は選んだ後に行われるので、
     /// プレイヤーは「誰に賭けるか」だけを決めることになる。
     /// </summary>
-    static string? ChoiceOptionDetail(QuestChoiceOptionData option)
+    static string? ChoiceOptionDetail(
+        QuestRun q,
+        GuildManager guild,
+        QuestChoiceOptionData option)
     {
         // 結果が複数あるなら、賭けだと分かるようにしておく。何が起きるかは伏せる。
         if (option.IsGamble) return "何が起きるかは分からない";
+        if (option.effectType == QuestChoiceEffectType.Purchase)
+        {
+            string itemName = option.Equipment?.displayName
+                ?? option.Consumable?.displayName
+                ?? "不明な商品";
+            int price = QuestManager.CalculatePurchasePrice(q, option.value);
+            int negotiation = QuestManager.PurchaseNegotiationPercent(q);
+            string negotiationNote = negotiation > 0
+                ? $" / 交渉で {negotiation}%引き"
+                : negotiation < 0
+                    ? $" / 価格補正で {-negotiation}%増し"
+                    : "";
+            string priceLabel = negotiation == 0
+                ? $"{price}G"
+                : $"提示 {option.value}G → 支払 {price}G";
+            string funds = guild.Gold > price
+                ? $"所持 {guild.Gold}G"
+                : guild.Gold == price
+                    ? $"所持 {guild.Gold}G・購入後0Gになるため不可"
+                    : $"所持 {guild.Gold}G・資金不足";
+            return $"{itemName}を購入 / {priceLabel} / {funds}{negotiationNote}";
+        }
         if (option.Skill != null)
             return $"選んだ隊員がスキル「{option.Skill.skillName}」を習得";
         return null;

@@ -10,6 +10,10 @@
     <ProjectReference Include="..\GuildSimulator.Core\GuildSimulator.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="GuildSimulator.Tests" />
+  </ItemGroup>
+
   <!-- マスタJSONは各ホスト（CLI/Web）が自分の出力先へ配置するため、ここでは配布物に含めない。 -->
   <ItemGroup>
     <None Remove="Data\*.json" />

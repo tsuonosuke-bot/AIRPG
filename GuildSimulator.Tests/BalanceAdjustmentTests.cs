@@ -82,8 +82,8 @@ public class BalanceAdjustmentTests
     [Theory]
     [InlineData("quest_raven_nuisance", 1, 1, "不利")]
     [InlineData("quest_raven_nuisance", 2, 1, "適正")]
-    [InlineData("quest_goblin_slayer", 3, 1, "不利")]
-    [InlineData("quest_wolf_pack_hunt", 2, 1, "非常に危険")]
+    [InlineData("quest_goblin_slayer", 3, 1, "適正")]
+    [InlineData("quest_wolf_pack_hunt", 2, 1, "不利")]
     public void PartyAssessmentComparesTheFormationToTheQuest(
         string questId,
         int memberCount,

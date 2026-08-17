@@ -47,6 +47,12 @@
         "maxPhase": 0
       },
       {
+        "unitId": "unit_aptos_herd",
+        "weight": 2,
+        "minPhase": 11,
+        "maxPhase": 0
+      },
+      {
         "unitId": "unit_goblin_single",
         "weight": 3,
         "minPhase": 2,
@@ -104,21 +110,151 @@
     "treasureTable": [
       {
         "type": 2,
-        "gold": 3,
+        "gold": 10,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 2,
+        "gold": 20,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 2,
+        "gold": 40,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 2,
+        "gold": 25,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 50,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 50,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_spear_01",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leathercap_01",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_accessory_camp_prayer_stone",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_spear_02",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leather_01",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_spear_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_ironplate_01",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_camp_herbal_tea",
         "weight": 3,
         "unique": false
       },
       {
-        "type": 2,
-        "gold": 5,
+        "type": 4,
+        "consumableId": "item_trap_kit",
         "weight": 2,
         "unique": false
       },
       {
-        "type": 2,
-        "gold": 10,
+        "type": 4,
+        "consumableId": "item_vital_tonic",
         "weight": 1,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 3
       },
       {
         "type": 0,
@@ -157,7 +293,10 @@
       "event_mysterious_shrine",
       "event_looted_caravan",
       "event_forest_lore",
-      "event_bandit_lookout_spotted"
+      "event_bandit_lookout_spotted",
+      "event_caravan_supply_wagon",
+      "event_caravan_stuck_wagon",
+      "event_caravan_pack_beast_panic"
     ]
   },
   {
@@ -208,6 +347,12 @@
         "maxPhase": 15
       },
       {
+        "unitId": "unit_forest_hopper_pair",
+        "weight": 2,
+        "minPhase": 11,
+        "maxPhase": 15
+      },
+      {
         "unitId": "unit_spider_single",
         "weight": 4,
         "minPhase": 1,
@@ -228,14 +373,8 @@
       {
         "unitId": "unit_treant_single",
         "weight": 1,
-        "minPhase": 11,
-        "maxPhase": 15
-      },
-      {
-        "unitId": "unit_treant_grove",
-        "weight": 1,
-        "minPhase": 16,
-        "maxPhase": 0
+        "minPhase": 19,
+        "maxPhase": 24
       },
       {
         "unitId": "unit_goblin_soldier_patrol",
@@ -312,13 +451,13 @@
       {
         "unitId": "unit_kernos_lone",
         "weight": 3,
-        "minPhase": 16,
+        "minPhase": 25,
         "maxPhase": 0
       },
       {
         "unitId": "unit_kernos_thralls",
         "weight": 2,
-        "minPhase": 18,
+        "minPhase": 27,
         "maxPhase": 0
       },
       {
@@ -331,7 +470,7 @@
         "unitId": "unit_treant_grove",
         "weight": 2,
         "minPhase": 19,
-        "maxPhase": 0
+        "maxPhase": 24
       },
       {
         "unitId": "unit_spider_nest",
@@ -343,39 +482,159 @@
     "treasureTable": [
       {
         "type": 2,
-        "gold": 5,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
         "gold": 10,
         "weight": 3,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 15,
-        "weight": 1,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
       },
       {
         "type": 2,
         "gold": 20,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 2,
+        "gold": 40,
         "weight": 1,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 2,
+        "gold": 25,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 50,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 50,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_trap_kit",
+        "weight": 2,
         "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_vital_tonic",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_explorers_pendulum",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 3
       },
       {
         "type": 1,
         "equipmentId": "eq_bow_01",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
       },
       {
         "type": 1,
         "equipmentId": "eq_wind_01",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_accessory_caravan_strap",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_bow_02",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_wind_02",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_accessory_moonsilver_charm",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_bow_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_wind_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 0,
@@ -445,7 +704,11 @@
       "event_looted_caravan",
       "ev_old_swordsman",
       "event_forest_lore",
-      "event_bandit_lookout_spotted"
+      "event_bandit_lookout_spotted",
+      "event_caravan_supply_wagon",
+      "event_caravan_stuck_wagon",
+      "event_caravan_pack_beast_panic",
+      "event_caravan_ambush"
     ]
   },
   {
@@ -535,25 +798,67 @@
     "treasureTable": [
       {
         "type": 2,
-        "gold": 20,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 35,
-        "weight": 3,
-        "unique": false
-      },
-      {
-        "type": 2,
         "gold": 25,
-        "weight": 2,
-        "unique": false
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 2,
         "gold": 50,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 50,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_courage_incense",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_trap_kit",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_lucky_coin",
         "weight": 1,
         "unique": false
       },
@@ -561,19 +866,57 @@
         "type": 1,
         "equipmentId": "eq_sword_02",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 1,
         "equipmentId": "eq_bow_02",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 1,
         "equipmentId": "eq_chain_01",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_accessory_vanguard_tassel",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_sword_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_bow_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_axe_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 0,
@@ -625,7 +968,12 @@
       "event_hidden_cache",
       "event_bandit_toll",
       "event_bandit_deserter_dealer",
-      "event_bandit_lookout_spotted"
+      "event_roadside_lessons",
+      "event_bandit_lookout_spotted",
+      "event_caravan_supply_wagon",
+      "event_caravan_specialist_merchant",
+      "event_caravan_rare_broker",
+      "event_caravan_ambush"
     ]
   },
   {
@@ -678,25 +1026,25 @@
       {
         "unitId": "unit_wraith_single",
         "weight": 2,
-        "minPhase": 6,
+        "minPhase": 17,
         "maxPhase": 0
       },
       {
         "unitId": "unit_wraith_haunt",
         "weight": 1,
-        "minPhase": 10,
+        "minPhase": 18,
         "maxPhase": 0
       },
       {
         "unitId": "unit_golem_single",
         "weight": 1,
-        "minPhase": 12,
+        "minPhase": 30,
         "maxPhase": 0
       },
       {
         "unitId": "unit_rock_eater_swarm",
         "weight": 1,
-        "minPhase": 14,
+        "minPhase": 17,
         "maxPhase": 0
       }
     ],
@@ -704,44 +1052,134 @@
       {
         "type": 2,
         "gold": 25,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 45,
         "weight": 3,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 2,
-        "gold": 70,
+        "gold": 50,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 100,
         "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 50,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_trap_kit",
+        "weight": 2,
         "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_sharpeners_black_oil",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_sage_scroll",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 1,
         "equipmentId": "eq_chain_01",
         "weight": 1,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 1,
         "equipmentId": "eq_axe_02",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 1,
         "equipmentId": "eq_spear_02",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 1,
         "equipmentId": "eq_robe_02",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_axe_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_spear_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_earth_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_accessory_blacksteel_ring",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 0,
@@ -798,7 +1236,8 @@
       "event_collapsed_vault",
       "event_hidden_cache",
       "ev_ancient_altar",
-      "event_ruin_tablets"
+      "event_ruin_tablets",
+      "event_caravan_specialist_merchant"
     ]
   },
   {
@@ -845,7 +1284,7 @@
       {
         "unitId": "unit_necro_ritual",
         "weight": 2,
-        "minPhase": 9,
+        "minPhase": 25,
         "maxPhase": 0
       },
       {
@@ -876,19 +1315,43 @@
     "treasureTable": [
       {
         "type": 2,
-        "gold": 60,
-        "weight": 5,
-        "unique": false
+        "gold": 50,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 2,
         "gold": 100,
-        "weight": 3,
-        "unique": false
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 2,
-        "gold": 160,
+        "gold": 200,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_courage_incense",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_stardust_catalyst",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_graverobbers_key",
         "weight": 1,
         "unique": false
       },
@@ -900,25 +1363,25 @@
       },
       {
         "type": 1,
-        "equipmentId": "eq_sword_02",
+        "equipmentId": "eq_sword_03",
         "weight": 1,
         "unique": false
       },
       {
         "type": 1,
-        "equipmentId": "eq_fire_02",
+        "equipmentId": "eq_fire_03",
         "weight": 2,
         "unique": false
       },
       {
         "type": 1,
-        "equipmentId": "eq_Light_02",
+        "equipmentId": "eq_Light_03",
         "weight": 2,
         "unique": false
       },
       {
         "type": 1,
-        "equipmentId": "eq_dark_01",
+        "equipmentId": "eq_dark_03",
         "weight": 2,
         "unique": false
       },
@@ -927,6 +1390,14 @@
         "equipmentId": "eq_plate_02",
         "weight": 2,
         "unique": false
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_accessory_lifebond_amber",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 0,
@@ -1050,14 +1521,50 @@
     "treasureTable": [
       {
         "type": 2,
-        "gold": 30,
-        "weight": 5,
-        "unique": false
+        "gold": 50,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 2,
-        "gold": 50,
-        "weight": 3,
+        "gold": 100,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_explorers_pendulum",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_lucky_coin",
+        "weight": 1,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_sage_scroll",
+        "weight": 1,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_graverobbers_key",
+        "weight": 1,
         "unique": false
       },
       {
@@ -1068,7 +1575,7 @@
       },
       {
         "type": 1,
-        "equipmentId": "eq_sword_02",
+        "equipmentId": "eq_sword_03",
         "weight": 2,
         "unique": false
       },
@@ -1123,7 +1630,9 @@
       "event_hidden_cache",
       "ev_ancient_altar",
       "ev_cursed_spring",
-      "event_ruin_tablets"
+      "event_ruin_tablets",
+      "event_caravan_rare_broker",
+      "event_caravan_ambush"
     ]
   }
 ]

@@ -78,6 +78,7 @@ public static class AdventurerScreen
                     + $" → {Rank.Label(a.rank + 1)}";
             }
             Ui.WriteLine($"  冒険者ランク: {a.RankLabel}  ({rankProgress})");
+            Ui.Dim($"    認定ランクは敵の脅威度と比較され、格上1段につき遭遇時の士気が最大{MoraleState.ThreatGapFlat}減る。昇格するとこの差を縮めやすい");
             Ui.WriteLine($"  維持費      : {GuildManager.CalculateAdventurerUpkeep(a.level, a.rank)}G/T"
                 + $"（Lv×{GuildManager.UpkeepGoldPerLevel}G ＋ ランク昇格ぶん×{GuildManager.UpkeepGoldPerRank}G）");
             Ui.WriteLine($"  状態        : {a.ConditionSummary}");
@@ -92,6 +93,7 @@ public static class AdventurerScreen
             int shownPv = QudCombat.EffectivePv(a.WeaponBasePv, a.AttackStatModifier, a.MaxStatBonus,
                 a.IsMagicAttack ? s.mpv : s.pv);
             Ui.WriteLine($"  貫通{(a.IsMagicAttack ? "mPV" : "PV")}:{shownPv} ダメージ:{(string.IsNullOrWhiteSpace(a.DamageDice) ? QudCombat.DEFAULT_DAMAGE_DICE : a.DamageDice)}/貫通  命中:{s.toHit:+#;-#;+0} 回復力:{s.heal}");
+            ShowCarryStatus(a, "  ");
             Ui.WriteLine();
             foreach (var slot in EquipService.AllSlots)
             {
@@ -339,6 +341,23 @@ public static class AdventurerScreen
 
     static async Task ConfirmRankUpAsync(AdventurerData a, GuildManager guild)
     {
+        var beforeStats = a.GetFinalCombatStats();
+        int beforeCarry = a.CarryLimit;
+        int rankGain = AdventurerData.RankUpStatGain;
+        int expectedCarryAfter = a.constitution + rankGain
+            + (a.strength + rankGain + a.vitality + rankGain) / 2
+            + a.SkillCarryBonus;
+        string suitableBefore = a.SuitableRankRangeLabel;
+        var learned = a.AllLearnedSkills.ToHashSet();
+        var expectedUnlocks = a.currentClass?.classSkills
+            .Where(entry => entry.Skill != null
+                && entry.requiredClearCount > a.CurrentClassMastery
+                && entry.requiredClearCount <= a.CurrentClassMastery + AdventurerData.RankUpMasteryGain
+                && !learned.Contains(entry.Skill))
+            .Select(entry => entry.Skill!)
+            .Distinct()
+            .ToList() ?? new List<SkillMasterData>();
+
         Ui.BeginScreen();
         Ui.Header($"昇格: {a.name}");
         Ui.WriteLine($"  現在: {Rank.Label(a.rank)}");
@@ -347,6 +366,11 @@ public static class AdventurerScreen
         Ui.WriteLine($"  ・全能力値 +{AdventurerData.RankUpStatGain}");
         if (a.currentClass != null)
             Ui.WriteLine($"  ・{a.currentClass.className} 習熟度 +{AdventurerData.RankUpMasteryGain}");
+        if (expectedUnlocks.Count > 0)
+            Ui.Info($"  ・習得見込み: 「{string.Join("」「", expectedUnlocks.Select(skill => skill.skillName))}」");
+        Ui.WriteLine($"  ・積載上限 {beforeCarry} → {expectedCarryAfter}");
+        Ui.WriteLine($"  ・適正クエスト {suitableBefore} → {Rank.SuitableRangeLabel(a.rank + 1)}");
+        Ui.WriteLine($"  ・敵との認定ランク差を1段縮め、格上遭遇時の士気ショックを軽減");
         int upkeepBefore = GuildManager.CalculateAdventurerUpkeep(a.level, a.rank);
         int upkeepAfter = GuildManager.CalculateAdventurerUpkeep(a.level, a.rank + 1);
         Ui.WriteLine($"  ・維持費 {upkeepBefore}G/T → {upkeepAfter}G/T");
@@ -362,6 +386,17 @@ public static class AdventurerScreen
         }
 
         Ui.Info(result.HistoryLine());
+        var afterStats = a.GetFinalCombatStats();
+        Ui.WriteLine("  実戦値の変化:");
+        bool changed = false;
+        changed |= ShowStatDelta("HP", beforeStats.hp, afterStats.hp);
+        changed |= ShowStatDelta("士気", beforeStats.san, afterStats.san);
+        changed |= ShowStatDelta("装甲AV", beforeStats.av, afterStats.av);
+        changed |= ShowStatDelta("魔装甲mAV", beforeStats.mav, afterStats.mav);
+        changed |= ShowStatDelta("回避DV", beforeStats.dv, afterStats.dv);
+        changed |= ShowStatDelta("命中", beforeStats.toHit, afterStats.toHit);
+        changed |= ShowStatDelta("積載上限", beforeCarry, a.CarryLimit);
+        if (!changed) Ui.Dim("    実戦値の段階は変わりませんでした（能力値と習熟度は上昇済み）");
         guild.economyLogs.Add($"昇格: {a.name} {result.HistoryLine()}");
         await Ui.PauseAsync();
     }
@@ -450,6 +485,7 @@ public static class AdventurerScreen
                 var item = a.GetEquipped(slot);
                 Ui.WriteLine($"  {EquipService.SlotDisplayName(slot)}: {item?.displayName ?? "なし"}");
             }
+            ShowCarryStatus(a, "  ");
             Ui.WriteLine();
 
             var slotOptions = new List<MenuOption>();
@@ -491,6 +527,7 @@ public static class AdventurerScreen
         }
 
         var beforeStats = a.GetFinalCombatStats();
+        int beforeWeight = a.TotalEquipmentWeight;
 
         int idx = 1;
         var pickable = new List<EquipmentMasterData?>();
@@ -546,6 +583,7 @@ public static class AdventurerScreen
         }
 
         var afterStats = a.GetFinalCombatStats();
+        int afterWeight = a.TotalEquipmentWeight;
         var afterEquipment = a.GetEquipped(slot);
         Ui.WriteLine();
         Ui.WriteLine("  ステータス・装備変化:");
@@ -559,6 +597,14 @@ public static class AdventurerScreen
         hasChange |= ShowStatDelta("回避DV", beforeStats.dv, afterStats.dv);
         hasChange |= ShowStatDelta("命中", beforeStats.toHit, afterStats.toHit);
         hasChange |= ShowStatDelta("回復力", beforeStats.heal, afterStats.heal);
+        if (beforeWeight != afterWeight)
+        {
+            int delta = afterWeight - beforeWeight;
+            Ui.WriteLine($"    装備重量: {beforeWeight} → {afterWeight}  {(delta > 0 ? $"▲+{delta}" : $"▼{delta}")}",
+                delta > 0 ? TextStyle.Error : TextStyle.Info);
+            hasChange = true;
+        }
+        ShowCarryStatus(a, "    ");
 
         string beforeEffect = DescribeEquippedEffect(current);
         string afterEffect = DescribeEquippedEffect(afterEquipment);
@@ -641,6 +687,18 @@ public static class AdventurerScreen
         string arrow = d > 0 ? $"▲+{d}" : $"▼{d}";
         Ui.WriteLine($"    {name,-5}: {before} → {after}  {arrow}", d > 0 ? TextStyle.Info : TextStyle.Error);
         return true;
+    }
+
+    static void ShowCarryStatus(AdventurerData adventurer, string indent)
+    {
+        string line = $"{indent}装備重量: {adventurer.TotalEquipmentWeight}/{adventurer.CarryLimit}";
+        if (adventurer.OverweightAmount <= 0)
+        {
+            Ui.WriteLine(line);
+            return;
+        }
+
+        Ui.Warn($"{line}  [過積載 +{adventurer.OverweightAmount}: 命中-{adventurer.OverweightToHitPenalty} / DV-{adventurer.OverweightDvPenalty}]");
     }
 
     static string DescribeEquippedEffect(EquipmentMasterData? item) =>

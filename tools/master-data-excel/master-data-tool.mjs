@@ -4,7 +4,7 @@ import crypto from "node:crypto";
 import { FileBlob, SpreadsheetFile, Workbook } from "@oai/artifact-tool";
 
 const command = process.argv[2] ?? "export";
-const workbookSchemaVersion = 2;
+const workbookSchemaVersion = 4;
 const scriptDir = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, "$1");
 const repoRoot = path.resolve(scriptDir, "../..");
 const dataDir = path.join(repoRoot, "GuildSimulator.Game", "Data");
@@ -42,7 +42,7 @@ const battleSkillKeys = [
 ];
 const rewardKeys = [
   "type", "relicId", "equipmentId", "skillId", "consumableId",
-  "gold", "weight", "chance", "quantity", "unique",
+  "gold", "weight", "chance", "quantity", "unique", "minQuestRank", "maxQuestRank",
 ];
 
 const readJson = async (name) =>
@@ -246,12 +246,12 @@ const sheetDefinitions = {
     keys: [
       "id", "displayName", "description", "buildCostGold", "upkeepGoldPerTurn",
       "requiredGuildRank", "questBoardBonus", "shopLevelBonus", "restHealBonusPercent",
-      "growthRateBonusPercent", "recruitMinBonus", "injuryRecoveryBonus",
+      "growthRateBonusPercent", "noviceQuestBoardBonus", "recruitMinBonus", "injuryRecoveryBonus",
       "fatalityReductionPercent", "scarPreventionPercent",
     ],
     labels: [
       "ID", "施設名", "説明", "建設費", "毎ターン維持費", "必要ギルドランク",
-      "掲示板枠加算", "商店Lv加算", "休息回復%", "成長率%", "最低採用候補加算",
+      "掲示板枠加算", "商店Lv加算", "休息回復%", "成長率%", "新人向けF依頼枠", "最低採用候補加算",
       "負傷回復加算", "死亡率軽減%", "傷痕予防%",
     ],
   },
@@ -261,13 +261,13 @@ const sheetDefinitions = {
     capacity: 180,
     unique: true,
     keys: [
-      "id", "baseName", "exp", "threat", "vitality", "mental", "strength", "agility",
+      "id", "baseName", "description", "exp", "threat", "vitality", "mental", "strength", "agility",
       "intelligence", "constitution", "defaultWeaponId", "defaultArmorId", "defaultOffHandId",
       "defaultShieldId", "naturalDamageDice", "naturalPv", "naturalAv", "naturalMav",
       "naturalAttackKind", "skillIds",
     ],
     labels: [
-      "ID", "名称", "経験値", "脅威ランク", "生命力", "精神力", "筋力", "敏捷", "知力", "体格",
+      "ID", "名称", "生態・外見", "経験値", "脅威ランク", "生命力", "精神力", "筋力", "敏捷", "知力", "体格",
       "右手装備", "防具", "左手武器", "盾", "素のダメージ", "素のPV", "素のAV", "素のMAV",
       "素の攻撃種別（Physical/Magic）", "スキルID（カンマ区切り）",
     ],
@@ -280,7 +280,7 @@ const sheetDefinitions = {
     keys: ["enemyId", "order", ...rewardKeys],
     labels: [
       "敵ID", "順序", "報酬種別", "レリックID", "装備ID", "スキルID", "道具ID",
-      "Gold", "重み", "確率", "数量", "ユニーク",
+      "Gold", "重み", "確率", "数量", "ユニーク", "最小依頼ランク", "最大依頼ランク",
     ],
   },
   choiceEvents: {
@@ -349,7 +349,7 @@ const sheetDefinitions = {
     keys: ["questId", "order", ...rewardKeys],
     labels: [
       "クエストID", "順序", "報酬種別", "レリックID", "装備ID", "スキルID",
-      "道具ID", "Gold", "重み", "確率", "数量", "ユニーク",
+      "道具ID", "Gold", "重み", "確率", "数量", "ユニーク", "最小依頼ランク", "最大依頼ランク",
     ],
   },
   questEvents: {
@@ -392,7 +392,7 @@ const sheetDefinitions = {
     keys: ["dungeonId", "order", ...rewardKeys],
     labels: [
       "ダンジョンID", "順序", "報酬種別", "レリックID", "装備ID",
-      "スキルID", "道具ID", "Gold", "重み", "確率", "数量", "ユニーク",
+      "スキルID", "道具ID", "Gold", "重み", "確率", "数量", "ユニーク", "最小依頼ランク", "最大依頼ランク",
     ],
   },
   dungeonTurnEvents: {
@@ -476,12 +476,12 @@ const makeRows = (data) => {
   const facilities = data.facilities.map((f) => [
     f.id, f.displayName, clean(f.description), f.buildCostGold, f.upkeepGoldPerTurn,
     f.requiredGuildRank, f.questBoardBonus, f.shopLevelBonus, f.restHealBonusPercent,
-    f.growthRateBonusPercent, clean(f.recruitMinBonus), clean(f.injuryRecoveryBonus),
+    f.growthRateBonusPercent, clean(f.noviceQuestBoardBonus), clean(f.recruitMinBonus), clean(f.injuryRecoveryBonus),
     clean(f.fatalityReductionPercent), clean(f.scarPreventionPercent),
   ]);
 
   const enemies = data.enemies.map((e) => [
-    e.id, e.baseName, e.exp, e.threat, e.vitality, e.mental, e.strength, e.agility,
+    e.id, e.baseName, clean(e.description), e.exp, e.threat, e.vitality, e.mental, e.strength, e.agility,
     e.intelligence, e.constitution, clean(e.defaultWeaponId), clean(e.defaultArmorId),
     clean(e.defaultOffHandId), clean(e.defaultShieldId), clean(e.naturalDamageDice),
     clean(e.naturalPv), clean(e.naturalAv), clean(e.naturalMav), clean(e.naturalAttackKind),
@@ -1040,7 +1040,7 @@ const exportWorkbook = async (providedData = null, exitWhenDone = true, renderPr
   const choiceEffectTypes = [
     "None", "Morale", "HealPercent", "DamagePercent", "Experience", "Gold", "Equipment",
     "Consumable", "Treasure", "AdventurerStatUp", "AdventurerStatDown", "AdventurerSkill",
-    "AdventurerDamage",
+    "AdventurerDamage", "Purchase",
   ];
   addValidation(sheets.choiceOptions, sheetDefinitions.choiceOptions, "effectType", choiceEffectTypes);
   addValidation(sheets.choiceOutcomes, sheetDefinitions.choiceOutcomes, "effectType", choiceEffectTypes);
@@ -1204,7 +1204,7 @@ const buildReward = (source, row) => {
   for (const key of ["relicId", "equipmentId", "skillId", "consumableId"]) {
     optionalAssign(reward, key, optionalText(source[key]));
   }
-  for (const key of ["gold", "weight", "quantity"]) {
+  for (const key of ["gold", "weight", "quantity", "minQuestRank", "maxQuestRank"]) {
     optionalAssign(reward, key, optionalNumber(source[key], key, row, true));
   }
   optionalAssign(reward, "chance", optionalNumber(source.chance, "chance", row, false));
@@ -1481,7 +1481,7 @@ const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
     };
     optionalAssign(item, "description", optionalText(x.description));
     for (const key of [
-      "recruitMinBonus", "injuryRecoveryBonus", "fatalityReductionPercent", "scarPreventionPercent",
+      "noviceQuestBoardBonus", "recruitMinBonus", "injuryRecoveryBonus", "fatalityReductionPercent", "scarPreventionPercent",
     ]) {
       optionalAssign(item, key, optionalNumber(x[key], key, row, true));
     }
@@ -1503,6 +1503,7 @@ const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
       intelligence: numberValue(x.intelligence, "intelligence", row, true),
       constitution: numberValue(x.constitution, "constitution", row, true),
     };
+    optionalAssign(item, "description", optionalText(x.description));
     item.defaultWeaponId = text(x.defaultWeaponId);
     item.defaultArmorId = text(x.defaultArmorId);
     for (const key of ["defaultOffHandId", "defaultShieldId"]) optionalAssign(item, key, optionalText(x[key]));
@@ -1614,8 +1615,20 @@ const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
   };
 
   const validateChoiceTarget = (effectType, targetId, row, label) => {
-    if (isBlank(targetId)) return;
     const normalized = text(effectType);
+    if (normalized === "Purchase" || normalized === "13") {
+      if (isBlank(targetId)) {
+        errors.push(`${label}.targetId (${row}行目): Purchaseには商品IDが必要です`);
+        return;
+      }
+      const id = text(targetId);
+      const matches = Number(equipmentIds.has(id)) + Number(consumableIds.has(id));
+      if (matches !== 1) {
+        errors.push(`${label}.targetId (${row}行目): Purchaseの商品ID「${id}」は装備または道具のどちらか1件にしてください`);
+      }
+      return;
+    }
+    if (isBlank(targetId)) return;
     if (normalized === "Equipment" || normalized === "6") {
       assertRef(equipmentIds, targetId, `${label}.targetId`, row);
     } else if (normalized === "Consumable" || normalized === "7") {
@@ -1626,9 +1639,28 @@ const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
   };
   for (const entry of rows.choiceOptions) {
     validateChoiceTarget(entry.object.effectType, entry.object.targetId, entry.row, "選択肢");
+    const normalized = text(entry.object.effectType);
+    const purchasePrice = Number(entry.object.value);
+    if ((normalized === "Purchase" || normalized === "13")
+        && (!Number.isFinite(purchasePrice) || purchasePrice <= 0)) {
+      errors.push(`選択肢.value (${entry.row}行目): Purchaseの提示価格は1以上にしてください`);
+    }
   }
   for (const entry of rows.choiceOutcomes) {
     validateChoiceTarget(entry.object.effectType, entry.object.targetId, entry.row, "選択結果");
+    const normalized = text(entry.object.effectType);
+    if (normalized === "Purchase" || normalized === "13") {
+      errors.push(`選択結果.effectType (${entry.row}行目): Purchaseはoutcomesに入れられません`);
+    }
+  }
+  for (const choiceEvent of choiceEvents) {
+    const hasPurchase = choiceEvent.options.some((option) =>
+      text(option.effectType) === "Purchase" || text(option.effectType) === "13");
+    const hasFreeAlternative = choiceEvent.options.some((option) =>
+      text(option.effectType) !== "Purchase" && text(option.effectType) !== "13");
+    if (hasPurchase && !hasFreeAlternative) {
+      errors.push(`選択イベント「${choiceEvent.id}」: Purchase以外の選択肢も1つ必要です`);
+    }
   }
 
   const dungeons = rows.dungeons.map(({ object: x, row }) => guarded(() => {

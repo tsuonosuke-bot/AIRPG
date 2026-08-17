@@ -20,9 +20,12 @@ public class QuestManager
     /// <summary>通常クエストの掲示枠数（施設による増加分を含む）。</summary>
     public int NormalBoardCapacity => BaseNormalBoardCapacity + FacilitySystem.GetQuestBoardBonus();
 
+    /// <summary>施設が通常枠とは別に確保する、新人向けFランク依頼枠。</summary>
+    public int NoviceBoardCapacity => FacilitySystem.GetNoviceQuestBoardBonus();
+
     /// <summary>通常枠とは別に掲示できる緊急クエストの最大枚数。</summary>
     public int EmergencyBoardCapacity = 1;
-    public int BoardCapacity => NormalBoardCapacity + EmergencyBoardCapacity;
+    public int BoardCapacity => NormalBoardCapacity + NoviceBoardCapacity + EmergencyBoardCapacity;
 
     /// <summary>受注されないまま掲示され続けた枠を差し替えるまでのターン数。</summary>
     public int BoardExpireTurns = 7;
@@ -77,7 +80,21 @@ public class QuestManager
         var candidates = pool.Where(IsPostable).ToList();
         var normalCandidates = candidates.Where(q => !q.isEmergencyQuest).ToList();
 
-        while (questBoard.Count(e => !e.quest.isEmergencyQuest) < NormalBoardCapacity
+        // ギルドランクが上がるほど候補総数が増え、F依頼が通常3枠の抽選から消えやすくなる。
+        // 訓練所などの新人枠は先にF依頼を確保し、その後で通常枠を全ランクから補充する。
+        var noviceCandidates = normalCandidates.Where(q => q.rank == Rank.Min).ToList();
+        while (questBoard.Count(e => !e.quest.isEmergencyQuest && e.quest.rank == Rank.Min) < NoviceBoardCapacity
+            && noviceCandidates.Count > 0)
+        {
+            int i = GameRandom.Range(0, noviceCandidates.Count);
+            var chosen = noviceCandidates[i];
+            questBoard.Add(new QuestBoardEntry(chosen, currentTurn));
+            noviceCandidates.RemoveAt(i);
+            normalCandidates.Remove(chosen);
+        }
+
+        int totalNormalCapacity = NormalBoardCapacity + NoviceBoardCapacity;
+        while (questBoard.Count(e => !e.quest.isEmergencyQuest) < totalNormalCapacity
             && normalCandidates.Count > 0)
         {
             int i = GameRandom.Range(0, normalCandidates.Count);
@@ -446,11 +463,14 @@ public class QuestManager
                 break;
             }
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Gold:
+                // F帯のイベント金額を基準に、依頼ランク相応の「見つけ物」にする。
+                // 損失も同じ倍率で動かし、ギャンブル選択肢の期待値だけが都合よく上がらないようにする。
+                int eventGold = outcome.value * QuestEventGoldMultiplier(q.def.rank);
                 q.pendingLoot.Add(new RewardEntryData
                 {
-                    type = GuildSimulator.Core.Models.RewardType.Gold, gold = outcome.value, quantity = 1,
+                    type = GuildSimulator.Core.Models.RewardType.Gold, gold = eventGold, quantity = 1,
                 });
-                detail = $"ゴールド+{outcome.value}（帰還時に加算）";
+                detail = $"ゴールド{eventGold:+#;-#;0}（帰還時に反映）";
                 break;
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Equipment:
                 if (outcome.Equipment != null)
@@ -478,6 +498,59 @@ public class QuestManager
                     detail = $"消費アイテム「{outcome.Consumable.displayName}」x{qty} 入手（帰還時に加算）";
                 }
                 break;
+            case GuildSimulator.Core.Models.QuestChoiceEffectType.Purchase:
+            {
+                string itemName = outcome.Equipment?.displayName
+                    ?? outcome.Consumable?.displayName
+                    ?? "不明な商品";
+                int price = CalculatePurchasePrice(q, outcome.value);
+                int negotiation = PurchaseNegotiationPercent(q);
+                if (outcome.Equipment == null && outcome.Consumable == null)
+                {
+                    detail = "商品を確認できず、取引を見送った";
+                }
+                else if (guild.Gold < price)
+                {
+                    result = $"資金が不足しています（必要 {price}G / 所持 {guild.Gold}G）。"
+                        + "別の商品か「見送る」を選んでください";
+                    return false;
+                }
+                else if (guild.Gold == price)
+                {
+                    result = $"購入後に0Gとなり破産するため「{itemName}」は購入できません。"
+                        + "少なくとも1Gを残してください";
+                    return false;
+                }
+                else
+                {
+                    guild.SpendGold(price, $"遠征中の購入: {itemName}");
+                    if (outcome.Equipment != null)
+                        q.pendingLoot.Add(new RewardEntryData
+                        {
+                            type = GuildSimulator.Core.Models.RewardType.Equipment,
+                            Equipment = outcome.Equipment,
+                            equipmentId = outcome.Equipment.id,
+                            quantity = 1,
+                        });
+                    else
+                        q.pendingLoot.Add(new RewardEntryData
+                        {
+                            type = GuildSimulator.Core.Models.RewardType.Consumable,
+                            Consumable = outcome.Consumable,
+                            consumableId = outcome.Consumable!.id,
+                            quantity = 1,
+                        });
+
+                    string negotiationNote = negotiation > 0
+                        ? $" / 交渉で {negotiation}%引き"
+                        : negotiation < 0
+                            ? $" / 価格補正で {-negotiation}%増し"
+                            : "";
+                    detail = $"「{itemName}」を {price}G で購入"
+                        + $"（帰還時に加算{negotiationNote}）";
+                }
+                break;
+            }
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Treasure:
             {
                 int count = Math.Max(1, outcome.value);
@@ -568,22 +641,38 @@ public class QuestManager
         return pool[GameRandom.Range(0, pool.Count)];
     }
 
-    public static string StatDisplayName(GuildSimulator.Core.Models.StatType t) => t switch
+    public static string StatDisplayName(GuildSimulator.Core.Models.StatType t) =>
+        AdventurerData.StatDisplayName(t);
+
+    /// <summary>選択イベントのGold倍率。実装済みのF〜Dは 1 / 2 / 4 倍。</summary>
+    public static int QuestEventGoldMultiplier(int questRank) => questRank switch
     {
-        GuildSimulator.Core.Models.StatType.Vitality => "体力",
-        GuildSimulator.Core.Models.StatType.Mental => "精神力",
-        GuildSimulator.Core.Models.StatType.Strength => "筋力",
-        GuildSimulator.Core.Models.StatType.Agility => "敏捷",
-        GuildSimulator.Core.Models.StatType.Intelligence => "知力",
-        GuildSimulator.Core.Models.StatType.Constitution => "体格",
-        _ => t.ToString(),
+        <= 1 => 1,
+        2 => 2,
+        3 => 4,
+        4 => 6,
+        5 => 8,
+        6 => 10,
+        _ => 12,
     };
+
+    /// <summary>
+    /// 道中取引に効く交渉補正。報酬Goldを増やす交渉術は価格を下げ、浪費癖は価格を上げる。
+    /// 複数人ぶんはパーティ効果として合算するが、価格が極端にならないよう±25%で止める。
+    /// </summary>
+    public static int PurchaseNegotiationPercent(QuestRun q) =>
+        Math.Clamp(PartySkillEffects.Of(q.formation).goldPercent, -25, 25);
+
+    /// <summary>選択肢に書かれた提示価格へ交渉補正を適用した、実際の支払額。</summary>
+    public static int CalculatePurchasePrice(QuestRun q, int listedPrice)
+    {
+        int percent = 100 - PurchaseNegotiationPercent(q);
+        return Math.Max(1, (int)Math.Ceiling(Math.Max(1, listedPrice) * percent / 100f));
+    }
 
     /// <summary>レベルアップで伸びた能力の一覧を「体力+1、敏捷+1」のように表示用にまとめる。</summary>
     public static string FormatGrownStats(IEnumerable<GuildSimulator.Core.Models.StatType> grownStats)
-        => string.Join("、", grownStats
-            .GroupBy(t => t)
-            .Select(g => $"{StatDisplayName(g.Key)}+{g.Count()}"));
+        => AdventurerData.FormatGrownStats(grownStats);
 
     public void FinalizeQuest(QuestRun q)
     {

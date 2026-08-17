@@ -204,6 +204,7 @@ public static class MasterLoader
                 requiredGuildRank = Math.Max(1, f.requiredGuildRank),
                 questBoardBonus = f.questBoardBonus, shopLevelBonus = f.shopLevelBonus,
                 restHealBonusPercent = f.restHealBonusPercent, growthRateBonusPercent = f.growthRateBonusPercent,
+                noviceQuestBoardBonus = Math.Max(0, f.noviceQuestBoardBonus),
                 recruitMinBonus = f.recruitMinBonus,
                 injuryRecoveryBonus = f.injuryRecoveryBonus,
                 fatalityReductionPercent = Math.Clamp(f.fatalityReductionPercent, 0, 100),
@@ -216,7 +217,7 @@ public static class MasterLoader
         {
             var ed = new EnemyMasterData
             {
-                id = e.id, baseName = e.baseName, exp = e.exp,
+                id = e.id, baseName = e.baseName, description = e.description ?? "", exp = e.exp,
                 threat = Rank.Clamp(e.threat),
                 vitality = e.vitality, mental = e.mental, strength = e.strength,
                 agility = e.agility, intelligence = e.intelligence, constitution = e.constitution,
@@ -437,6 +438,10 @@ public static class MasterLoader
             case QuestChoiceEffectType.AdventurerSkill:
                 db.skills.TryGetValue(targetId, out skill);
                 break;
+            case QuestChoiceEffectType.Purchase:
+                db.equipment.TryGetValue(targetId, out equipment);
+                db.consumables.TryGetValue(targetId, out consumable);
+                break;
         }
     }
 
@@ -446,6 +451,8 @@ public static class MasterLoader
         {
             type = (RewardType)re.type, gold = re.gold, weight = re.weight,
             chance = re.chance, quantity = re.quantity > 0 ? re.quantity : 1, unique = re.unique,
+            minQuestRank = re.minQuestRank <= 0 ? Rank.Min : re.minQuestRank,
+            maxQuestRank = re.maxQuestRank <= 0 ? Rank.Max : re.maxQuestRank,
             relicId = re.relicId ?? "", equipmentId = re.equipmentId ?? "",
             skillId = re.skillId ?? "", consumableId = re.consumableId ?? "",
         };
@@ -587,19 +594,21 @@ public static class MasterLoader
     record FacilityJson(string id, string displayName, string? description, int buildCostGold, int upkeepGoldPerTurn,
         int requiredGuildRank, int questBoardBonus, int shopLevelBonus, int restHealBonusPercent,
         int growthRateBonusPercent, int recruitMinBonus,
-        int injuryRecoveryBonus = 0, int fatalityReductionPercent = 0, int scarPreventionPercent = 0);
+        int injuryRecoveryBonus = 0, int fatalityReductionPercent = 0, int scarPreventionPercent = 0,
+        int noviceQuestBoardBonus = 0);
 
     record EnemyJson(string id, string baseName, int exp, int threat, int vitality, int mental, int strength,
         int agility, int intelligence, int constitution, string? defaultWeaponId, string? defaultArmorId,
         List<string>? skillIds, List<RewardEntryJson>? dropTable, string? naturalDamageDice = null,
         string? defaultOffHandId = null, string? defaultShieldId = null,
         int naturalPv = QudCombatDefaults.WeaponPv, int naturalAv = 0, int naturalMav = 0,
-        AttackKind naturalAttackKind = AttackKind.Physical);
+        AttackKind naturalAttackKind = AttackKind.Physical, string? description = null);
 
     record EnemyUnitJson(string id, string unitName, List<string?>? formationIds);
 
     record RewardEntryJson(int type, string? relicId, string? equipmentId, string? skillId,
-        string? consumableId, int gold, int weight, float chance, int quantity, bool unique);
+        string? consumableId, int gold, int weight, float chance, int quantity, bool unique,
+        int minQuestRank = Rank.Min, int maxQuestRank = Rank.Max);
 
     record ChoiceOutcomeJson(int weight, QuestChoiceEffectType effectType, int value,
         string? targetId, string? resultText);

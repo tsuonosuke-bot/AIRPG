@@ -124,6 +124,7 @@ public class QuestProgressor
                             .Where(a => a != null && a.isAlive && !a.isIncapacitated)
                             .Select(a => a!)
                             .ToList();
+                        var levelUpSummaries = new List<string>();
                         for (int participantIndex = 0; participantIndex < participants.Count; participantIndex++)
                         {
                             var a = participants[participantIndex];
@@ -136,8 +137,13 @@ public class QuestProgressor
                                     ? $"（レベルアップ {levelBefore}lv→{a.level}lv、{QuestManager.FormatGrownStats(grownStats)}）"
                                     : "";
                                 q.logs.Add($"  {a.name} 経験値 +{earnedExp}{levelUpText}");
+                                if (ups > 0)
+                                    levelUpSummaries.Add($"{a.name} Lv{levelBefore}→{a.level} {QuestManager.FormatGrownStats(grownStats)}");
                             }
                         }
+                        // ターン進行サマリーはこのイベント結果を表示するため、成長をここにも含める。
+                        if (levelUpSummaries.Count > 0)
+                            evResult += $" / 成長: {string.Join("、", levelUpSummaries)}";
                         RollEnemyDrops(q, enemyMembers, phase, partySkills);
                     }
                     break;
@@ -409,7 +415,7 @@ public class QuestProgressor
             {
                 if (RelicSystem.IsFrozenRelicReward(entry)) continue;
                 float finalChance = partySkills.EnemyDropChanceFor(entry);
-                if (finalChance <= 0f || GameRandom.NextFloat() >= finalChance) continue;
+                if (finalChance <= 0f || GameRandom.NextDropFloat() >= finalChance) continue;
                 var drop = entry.Copy();
                 q.pendingLoot.Add(drop);
                 string skillNote = Math.Abs(finalChance - entry.chance) > 0.0001f

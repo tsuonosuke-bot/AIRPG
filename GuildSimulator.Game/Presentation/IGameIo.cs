@@ -11,6 +11,14 @@ public enum TextStyle
     Accent,
 }
 
+/// <summary>選択肢の操作上の役割。ホスト側が配置や強調へ変換する。</summary>
+public enum MenuRole
+{
+    Default,
+    Primary,
+    Danger,
+}
+
 /// <summary>
 /// 選択肢1件。<see cref="Key"/> はCLIで入力する文字列であり、Webではボタンの識別子になる。
 /// </summary>
@@ -19,7 +27,8 @@ public sealed record MenuOption(
     string Label,
     string? Detail = null,
     TextStyle Style = TextStyle.Normal,
-    string? Group = null);
+    string? Group = null,
+    MenuRole Role = MenuRole.Default);
 
 /// <summary>
 /// 画面の入出力先。コンソールとブラウザで実装を差し替えることで、

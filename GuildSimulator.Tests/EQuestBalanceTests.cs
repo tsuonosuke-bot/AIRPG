@@ -41,12 +41,13 @@ public class EQuestBalanceTests
     /// 昇格試験（quest_promotion_2）だけ。
     /// </summary>
     [Fact]
-    public void MineAndOldCityQuestsAreDRankExceptPromotion()
+    public void MineAndOldCityLowRankQuestsAreDRankExceptPromotion()
     {
         var db = Load();
         foreach (var quest in db.allQuests)
         {
             if (quest.Dungeon?.id is not ("dungeon_mine" or "dungeon_old_city")) continue;
+            if (quest.rank > 3) continue;
             int expected = quest.id == "quest_promotion_2" ? 2 : 3;
             Assert.Equal(expected, quest.rank);
         }

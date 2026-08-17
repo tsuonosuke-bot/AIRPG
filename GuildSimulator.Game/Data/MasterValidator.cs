@@ -119,31 +119,52 @@ public static class MasterValidator
         }
 
         foreach (var ev in db.choiceEvents.Values)
-        foreach (var option in ev.options)
         {
-            // 結果テーブルの重みが全部0だと抽選できず、常に先頭の結果になってしまう。
-            if (option.outcomes.Count > 0 && option.outcomes.Sum(o => Math.Max(0, o.weight)) <= 0)
-                errors.Add($"{ev.id}: 選択肢「{option.text}」の結果テーブルの重みが全て0です");
+            bool hasPurchase = ev.options.Any(option =>
+                option.Outcomes.Any(outcome => outcome.effectType == QuestChoiceEffectType.Purchase));
+            if (hasPurchase && !ev.options.Any(option =>
+                    option.Outcomes.All(outcome => outcome.effectType != QuestChoiceEffectType.Purchase)))
+                errors.Add($"{ev.id}: 購入イベントには資金を使わない選択肢も1つ必要です");
 
-            foreach (var outcome in option.Outcomes)
+            foreach (var option in ev.options)
             {
-                bool needsMember = outcome.effectType is
-                    QuestChoiceEffectType.AdventurerStatUp or QuestChoiceEffectType.AdventurerStatDown
-                    or QuestChoiceEffectType.AdventurerSkill or QuestChoiceEffectType.AdventurerDamage;
-                if (needsMember && !option.targetsOneMember)
-                    errors.Add($"{ev.id}: 選択肢「{option.text}」は隊員1人に効く効果"
-                        + $"（{outcome.effectType}）を持つので targetsOneMember を true にしてください");
+                // 結果テーブルの重みが全部0だと抽選できず、常に先頭の結果になってしまう。
+                if (option.outcomes.Count > 0 && option.outcomes.Sum(o => Math.Max(0, o.weight)) <= 0)
+                    errors.Add($"{ev.id}: 選択肢「{option.text}」の結果テーブルの重みが全て0です");
 
-                if (outcome.effectType == QuestChoiceEffectType.AdventurerSkill && outcome.Skill == null)
-                    errors.Add($"{ev.id}: 選択肢「{option.text}」のスキル付与で"
-                        + $"不明なskillId '{outcome.targetId}' が指定されています");
+                if (option.outcomes.Count > 0
+                    && option.Outcomes.Any(outcome => outcome.effectType == QuestChoiceEffectType.Purchase))
+                    errors.Add($"{ev.id}: 選択肢「{option.text}」では購入をoutcomesに入れられません");
 
-                if (outcome.effectType is QuestChoiceEffectType.AdventurerStatUp
-                        or QuestChoiceEffectType.AdventurerStatDown
-                    && !string.IsNullOrEmpty(outcome.targetId)
-                    && !Enum.TryParse<StatType>(outcome.targetId, ignoreCase: true, out _))
-                    errors.Add($"{ev.id}: 選択肢「{option.text}」の能力指定 '{outcome.targetId}' が不明です"
-                        + "（空にするとランダム）");
+                foreach (var outcome in option.Outcomes)
+                {
+                    bool needsMember = outcome.effectType is
+                        QuestChoiceEffectType.AdventurerStatUp or QuestChoiceEffectType.AdventurerStatDown
+                        or QuestChoiceEffectType.AdventurerSkill or QuestChoiceEffectType.AdventurerDamage;
+                    if (needsMember && !option.targetsOneMember)
+                        errors.Add($"{ev.id}: 選択肢「{option.text}」は隊員1人に効く効果"
+                            + $"（{outcome.effectType}）を持つので targetsOneMember を true にしてください");
+
+                    if (outcome.effectType == QuestChoiceEffectType.AdventurerSkill && outcome.Skill == null)
+                        errors.Add($"{ev.id}: 選択肢「{option.text}」のスキル付与で"
+                            + $"不明なskillId '{outcome.targetId}' が指定されています");
+
+                    if (outcome.effectType == QuestChoiceEffectType.Purchase)
+                    {
+                        if (outcome.value <= 0)
+                            errors.Add($"{ev.id}: 選択肢「{option.text}」の購入価格は1G以上にしてください");
+                        if ((outcome.Equipment == null) == (outcome.Consumable == null))
+                            errors.Add($"{ev.id}: 選択肢「{option.text}」の購入対象 '{outcome.targetId}' は"
+                                + "装備または消耗品のどちらか1件に解決できる必要があります");
+                    }
+
+                    if (outcome.effectType is QuestChoiceEffectType.AdventurerStatUp
+                            or QuestChoiceEffectType.AdventurerStatDown
+                        && !string.IsNullOrEmpty(outcome.targetId)
+                        && !Enum.TryParse<StatType>(outcome.targetId, ignoreCase: true, out _))
+                        errors.Add($"{ev.id}: 選択肢「{option.text}」の能力指定 '{outcome.targetId}' が不明です"
+                            + "（空にするとランダム）");
+                }
             }
         }
 
@@ -151,6 +172,14 @@ public static class MasterValidator
         {
             if (dungeon.turnEndEvents.Any(e => e.options.Count < 2))
                 errors.Add($"{dungeon.id}: 選択イベントには2個以上の選択肢が必要です");
+
+            foreach (var reward in dungeon.treasureTable)
+            {
+                if (reward.minQuestRank < Rank.Min || reward.maxQuestRank > Rank.Max
+                    || reward.minQuestRank > reward.maxQuestRank)
+                    errors.Add($"{dungeon.id}: treasureTableの依頼ランク範囲"
+                        + $" {reward.minQuestRank}〜{reward.maxQuestRank} が不正です");
+            }
 
             // 宝箱の中身は帰還後に treasureTable から抽選する。空だと必ず空っぽになる。
             if (dungeon.treasureTable.Count == 0)

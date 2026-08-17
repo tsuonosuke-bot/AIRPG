@@ -66,7 +66,7 @@ public class FEnemyBalanceTests
     }
 
     [Fact]
-    public void FlowingForestMergesTheFormerDeepWoodsFromArea16()
+    public void FlowingForestUsesRankedDepthBandsAfterArea16()
     {
         var db = MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
 
@@ -80,17 +80,18 @@ public class FEnemyBalanceTests
 
         var deepPlacements = new[]
         {
-            (UnitId: "unit_kernos_lone", MinPhase: 16),
-            (UnitId: "unit_wolf_pack", MinPhase: 16),
-            (UnitId: "unit_spider_nest", MinPhase: 16),
-            (UnitId: "unit_kernos_thralls", MinPhase: 18),
-            (UnitId: "unit_treant_grove", MinPhase: 19),
+            (UnitId: "unit_wolf_pack", MinPhase: 16, MaxPhase: 0),
+            (UnitId: "unit_spider_nest", MinPhase: 16, MaxPhase: 0),
+            (UnitId: "unit_ice_ghoul_lone", MinPhase: 18, MaxPhase: 0),
+            (UnitId: "unit_treant_grove", MinPhase: 19, MaxPhase: 24),
+            (UnitId: "unit_kernos_lone", MinPhase: 25, MaxPhase: 0),
+            (UnitId: "unit_kernos_thralls", MinPhase: 27, MaxPhase: 0),
         };
         foreach (var expected in deepPlacements)
         {
             var entry = forest.encounterTable.Single(candidate =>
                 candidate.unitId == expected.UnitId && candidate.minPhase == expected.MinPhase);
-            Assert.Equal(0, entry.maxPhase);
+            Assert.Equal(expected.MaxPhase, entry.maxPhase);
         }
 
         var scout = db.allQuests.Single(quest => quest.id == "quest_deep_woods_scout");
@@ -99,8 +100,9 @@ public class FEnemyBalanceTests
 
         var kernos = db.allQuests.Single(quest => quest.id == "quest_kernos_hunt");
         Assert.Same(forest, kernos.Dungeon);
-        Assert.Equal(16, kernos.totalPhases);
-        Assert.Equal(16, kernos.bossPhase);
+        Assert.Equal(7, kernos.rank);
+        Assert.Equal(38, kernos.totalPhases);
+        Assert.Equal(38, kernos.bossPhase);
     }
 
     static int EffectivePv(EnemyData enemy, bool isFront)

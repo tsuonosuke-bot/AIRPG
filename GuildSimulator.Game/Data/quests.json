@@ -5,7 +5,7 @@
     "rank": 1,
     "totalPhases": 10,
     "phasesPerTurn": 5,
-    "rewardGold": 60,
+    "rewardGold": 80,
     "rewardGuildPoints": 16,
     "rewardExp": 10,
     "dungeonId": "dungeon_meadow",
@@ -26,7 +26,7 @@
     "rank": 1,
     "totalPhases": 10,
     "phasesPerTurn": 5,
-    "rewardGold": 60,
+    "rewardGold": 80,
     "rewardGuildPoints": 16,
     "rewardExp": 10,
     "dungeonId": "dungeon_meadow",
@@ -47,13 +47,21 @@
     "rank": 1,
     "totalPhases": 5,
     "phasesPerTurn": 5,
-    "rewardGold": 60,
+    "rewardGold": 80,
     "rewardGuildPoints": 16,
     "rewardExp": 10,
     "dungeonId": "dungeon_meadow",
     "bossEnemyId": "unit_slime_pair",
     "bossPhase": 5,
-    "bossDrops": [],
+    "bossDrops": [
+      {
+        "type": 4,
+        "consumableId": "item_vital_tonic",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.15
+      }
+    ],
     "fixedEvents": [
       {
         "phase": 3,
@@ -67,17 +75,25 @@
   },
   {
     "id": "quest_raven_nuisance",
-    "questName": "大鴉の追い払い",
+    "questName": "コルヴスの追い払い",
     "rank": 1,
     "totalPhases": 5,
     "phasesPerTurn": 5,
-    "rewardGold": 60,
+    "rewardGold": 80,
     "rewardGuildPoints": 16,
     "rewardExp": 10,
     "dungeonId": "dungeon_meadow",
     "bossEnemyId": "unit_raven_pair",
     "bossPhase": 5,
-    "bossDrops": [],
+    "bossDrops": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_corvus_plume",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.15
+      }
+    ],
     "fixedEvents": [
       {
         "phase": 2,
@@ -95,7 +111,7 @@
     "rank": 1,
     "totalPhases": 10,
     "phasesPerTurn": 5,
-    "rewardGold": 80,
+    "rewardGold": 100,
     "rewardGuildPoints": 24,
     "rewardExp": 15,
     "dungeonId": "dungeon_woods",
@@ -131,10 +147,17 @@
     "bossDrops": [
       {
         "type": 2,
-        "gold": 200,
+        "gold": 50,
         "weight": 0,
         "unique": false,
         "chance": 1
+      },
+      {
+        "type": 4,
+        "consumableId": "item_courage_incense",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.15
       }
     ],
     "fixedEvents": [
@@ -150,7 +173,7 @@
     "rank": 1,
     "totalPhases": 10,
     "phasesPerTurn": 5,
-    "rewardGold": 60,
+    "rewardGold": 80,
     "rewardGuildPoints": 16,
     "rewardExp": 10,
     "dungeonId": "dungeon_meadow",
@@ -171,7 +194,7 @@
     "rank": 1,
     "totalPhases": 10,
     "phasesPerTurn": 5,
-    "rewardGold": 70,
+    "rewardGold": 90,
     "rewardGuildPoints": 18,
     "rewardExp": 12,
     "dungeonId": "dungeon_meadow",
@@ -192,13 +215,21 @@
     "rank": 1,
     "totalPhases": 5,
     "phasesPerTurn": 5,
-    "rewardGold": 60,
+    "rewardGold": 80,
     "rewardGuildPoints": 16,
     "rewardExp": 10,
     "dungeonId": "dungeon_woods",
     "bossEnemyId": "unit_wolf_pair",
     "bossPhase": 5,
-    "bossDrops": [],
+    "bossDrops": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_fang",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.12
+      }
+    ],
     "fixedEvents": [
       {
         "phase": 2,
@@ -216,7 +247,7 @@
     "rank": 1,
     "totalPhases": 12,
     "phasesPerTurn": 5,
-    "rewardGold": 160,
+    "rewardGold": 180,
     "rewardGuildPoints": 36,
     "rewardExp": 22,
     "dungeonId": "dungeon_woods",
@@ -225,10 +256,17 @@
     "bossDrops": [
       {
         "type": 2,
-        "gold": 250,
+        "gold": 50,
         "weight": 0,
         "unique": false,
         "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_fang",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.15
       }
     ],
     "fixedEvents": [
@@ -244,7 +282,7 @@
     "rank": 1,
     "totalPhases": 12,
     "phasesPerTurn": 5,
-    "rewardGold": 170,
+    "rewardGold": 190,
     "rewardGuildPoints": 40,
     "rewardExp": 24,
     "dungeonId": "dungeon_woods",
@@ -253,10 +291,17 @@
     "bossDrops": [
       {
         "type": 2,
-        "gold": 260,
+        "gold": 60,
         "weight": 0,
         "unique": false,
         "chance": 1
+      },
+      {
+        "type": 4,
+        "consumableId": "item_vital_tonic",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.15
       }
     ],
     "fixedEvents": [
@@ -268,32 +313,40 @@
   },
   {
     "id": "quest_promotion_1",
-    "questName": "【昇格試験】森の主を退けよ",
+    "questName": "【昇格試験】森の戦列を破れ",
     "rank": 1,
     "totalPhases": 14,
     "phasesPerTurn": 5,
-    "rewardGold": 300,
-    "rewardGuildPoints": 160,
+    "rewardGold": 240,
+    "rewardGuildPoints": 80,
     "rewardExp": 45,
     "isEmergencyQuest": true,
     "rankUpOnClear": 1,
     "requiredGuildPoints": 50,
     "dungeonId": "dungeon_woods",
-    "bossEnemyId": "unit_treant_grove",
+    "bossEnemyId": "unit_goblin_soldier_boss",
     "bossPhase": 14,
     "bossDrops": [
       {
         "type": 0,
         "relicId": "relic_ironheart",
         "weight": 0,
-        "unique": true
+        "unique": true,
+        "chance": 1
       },
       {
         "type": 2,
-        "gold": 200,
+        "gold": 50,
         "weight": 0,
         "unique": false,
         "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_ironbark_charm",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.15
       }
     ],
     "fixedEvents": [
@@ -301,8 +354,7 @@
         "phase": 14,
         "type": 2
       }
-    ],
-    "bossDropsAreGuaranteed": true
+    ]
   },
   {
     "id": "quest_mine_survey",
@@ -322,7 +374,7 @@
     "rank": 3,
     "totalPhases": 18,
     "phasesPerTurn": 5,
-    "rewardGold": 1800,
+    "rewardGold": 800,
     "rewardGuildPoints": 70,
     "rewardExp": 105,
     "dungeonId": "dungeon_mine",
@@ -337,7 +389,7 @@
     "rank": 3,
     "totalPhases": 20,
     "phasesPerTurn": 5,
-    "rewardGold": 2200,
+    "rewardGold": 1000,
     "rewardGuildPoints": 80,
     "rewardExp": 115,
     "dungeonId": "dungeon_mine",
@@ -358,7 +410,7 @@
     "rank": 3,
     "totalPhases": 17,
     "phasesPerTurn": 5,
-    "rewardGold": 1700,
+    "rewardGold": 750,
     "rewardGuildPoints": 60,
     "rewardExp": 100,
     "dungeonId": "dungeon_mine",
@@ -379,7 +431,7 @@
     "rank": 2,
     "totalPhases": 14,
     "phasesPerTurn": 5,
-    "rewardGold": 1000,
+    "rewardGold": 450,
     "rewardGuildPoints": 60,
     "rewardExp": 70,
     "dungeonId": "dungeon_highway",
@@ -403,20 +455,20 @@
   },
   {
     "id": "quest_bandit_hunt",
-    "questName": "街道の野盗討伐",
-    "rank": 2,
-    "totalPhases": 15,
+    "questName": "街道の野盗頭討伐",
+    "rank": 6,
+    "totalPhases": 34,
     "phasesPerTurn": 5,
-    "rewardGold": 1100,
-    "rewardGuildPoints": 100,
-    "rewardExp": 80,
+    "rewardGold": 3600,
+    "rewardGuildPoints": 300,
+    "rewardExp": 350,
     "dungeonId": "dungeon_highway",
     "bossEnemyId": "unit_bandit_boss",
-    "bossPhase": 15,
+    "bossPhase": 34,
     "bossDrops": [
       {
         "type": 2,
-        "gold": 400,
+        "gold": 100,
         "weight": 0,
         "unique": false,
         "chance": 1
@@ -426,44 +478,59 @@
         "equipmentId": "eq_sword_02",
         "weight": 0,
         "unique": false,
-        "chance": 0.5
+        "chance": 0.3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_lucky_coin",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.05
       }
     ],
     "fixedEvents": [
       {
-        "phase": 15,
+        "phase": 34,
         "type": 2
       }
     ]
   },
   {
     "id": "quest_promotion_2",
-    "questName": "【昇格試験】坑道の守り手を砕け",
+    "questName": "【昇格試験】坑道の群巣を砕け",
     "rank": 2,
     "totalPhases": 16,
     "phasesPerTurn": 5,
-    "rewardGold": 800,
-    "rewardGuildPoints": 240,
+    "rewardGold": 600,
+    "rewardGuildPoints": 120,
     "rewardExp": 90,
     "isEmergencyQuest": true,
     "rankUpOnClear": 1,
     "requiredGuildPoints": 200,
     "dungeonId": "dungeon_mine",
-    "bossEnemyId": "unit_mine_guardian",
+    "bossEnemyId": "unit_rock_eater_queen_guard",
     "bossPhase": 16,
     "bossDrops": [
       {
         "type": 0,
         "relicId": "relic_grimoire",
         "weight": 0,
-        "unique": true
+        "unique": true,
+        "chance": 1
       },
       {
         "type": 2,
-        "gold": 500,
+        "gold": 120,
         "weight": 0,
         "unique": false,
         "chance": 1
+      },
+      {
+        "type": 4,
+        "consumableId": "item_sage_scroll",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.05
       }
     ],
     "fixedEvents": [
@@ -471,8 +538,7 @@
         "phase": 16,
         "type": 2
       }
-    ],
-    "bossDropsAreGuaranteed": true
+    ]
   },
   {
     "id": "quest_crypt_seal",
@@ -480,7 +546,7 @@
     "rank": 3,
     "totalPhases": 17,
     "phasesPerTurn": 5,
-    "rewardGold": 1800,
+    "rewardGold": 800,
     "rewardGuildPoints": 70,
     "rewardExp": 120,
     "dungeonId": "dungeon_crypt",
@@ -495,7 +561,7 @@
     "rank": 3,
     "totalPhases": 18,
     "phasesPerTurn": 5,
-    "rewardGold": 1900,
+    "rewardGold": 850,
     "rewardGuildPoints": 60,
     "rewardExp": 110,
     "dungeonId": "dungeon_crypt",
@@ -513,15 +579,15 @@
   {
     "id": "quest_bone_lord",
     "questName": "骸の王討伐",
-    "rank": 3,
-    "totalPhases": 20,
+    "rank": 7,
+    "totalPhases": 40,
     "phasesPerTurn": 5,
-    "rewardGold": 2800,
-    "rewardGuildPoints": 150,
-    "rewardExp": 150,
+    "rewardGold": 5200,
+    "rewardGuildPoints": 400,
+    "rewardExp": 500,
     "dungeonId": "dungeon_crypt",
     "bossEnemyId": "unit_bone_lord",
-    "bossPhase": 20,
+    "bossPhase": 40,
     "bossDrops": [
       {
         "type": 0,
@@ -532,7 +598,7 @@
       },
       {
         "type": 2,
-        "gold": 1000,
+        "gold": 200,
         "weight": 0,
         "unique": false,
         "chance": 1
@@ -540,7 +606,7 @@
     ],
     "fixedEvents": [
       {
-        "phase": 20,
+        "phase": 40,
         "type": 2
       }
     ]
@@ -551,7 +617,7 @@
     "rank": 2,
     "totalPhases": 18,
     "phasesPerTurn": 5,
-    "rewardGold": 900,
+    "rewardGold": 400,
     "rewardGuildPoints": 55,
     "rewardExp": 70,
     "dungeonId": "dungeon_woods",
@@ -563,15 +629,15 @@
   {
     "id": "quest_kernos_hunt",
     "questName": "ケルノスビースト討伐",
-    "rank": 2,
-    "totalPhases": 16,
+    "rank": 7,
+    "totalPhases": 38,
     "phasesPerTurn": 5,
-    "rewardGold": 1300,
-    "rewardGuildPoints": 120,
-    "rewardExp": 95,
+    "rewardGold": 5000,
+    "rewardGuildPoints": 380,
+    "rewardExp": 480,
     "dungeonId": "dungeon_woods",
     "bossEnemyId": "unit_kernos_beast",
-    "bossPhase": 16,
+    "bossPhase": 38,
     "bossDrops": [
       {
         "type": 0,
@@ -582,15 +648,29 @@
       },
       {
         "type": 2,
-        "gold": 500,
+        "gold": 120,
         "weight": 0,
         "unique": false,
         "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_kernos_antler",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_sage_scroll",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.05
       }
     ],
     "fixedEvents": [
       {
-        "phase": 16,
+        "phase": 38,
         "type": 2
       }
     ]
@@ -613,7 +693,7 @@
     "rank": 3,
     "totalPhases": 18,
     "phasesPerTurn": 5,
-    "rewardGold": 2000,
+    "rewardGold": 900,
     "rewardGuildPoints": 70,
     "rewardExp": 110,
     "dungeonId": "dungeon_old_city",
@@ -634,7 +714,7 @@
     "rank": 3,
     "totalPhases": 20,
     "phasesPerTurn": 5,
-    "rewardGold": 2600,
+    "rewardGold": 1150,
     "rewardGuildPoints": 140,
     "rewardExp": 130,
     "dungeonId": "dungeon_old_city",
@@ -650,10 +730,17 @@
       },
       {
         "type": 2,
-        "gold": 500,
+        "gold": 180,
         "weight": 0,
         "unique": false,
         "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_shadow",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
       }
     ],
     "fixedEvents": [
@@ -669,7 +756,7 @@
     "rank": 2,
     "totalPhases": 13,
     "phasesPerTurn": 5,
-    "rewardGold": 1000,
+    "rewardGold": 450,
     "rewardGuildPoints": 80,
     "rewardExp": 75,
     "dungeonId": "dungeon_woods",
@@ -678,7 +765,7 @@
     "bossDrops": [
       {
         "type": 2,
-        "gold": 300,
+        "gold": 80,
         "weight": 0,
         "unique": false,
         "chance": 1
@@ -688,7 +775,14 @@
         "equipmentId": "eq_dagger_02",
         "weight": 0,
         "unique": false,
-        "chance": 0.4
+        "chance": 0.3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_venom_dagger",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.05
       }
     ],
     "fixedEvents": [
@@ -704,7 +798,7 @@
     "rank": 2,
     "totalPhases": 14,
     "phasesPerTurn": 5,
-    "rewardGold": 1100,
+    "rewardGold": 500,
     "rewardGuildPoints": 80,
     "rewardExp": 80,
     "dungeonId": "dungeon_meadow",
@@ -713,7 +807,7 @@
     "bossDrops": [
       {
         "type": 2,
-        "gold": 350,
+        "gold": 100,
         "weight": 0,
         "unique": false,
         "chance": 1
@@ -723,7 +817,21 @@
         "equipmentId": "eq_leather_01",
         "weight": 0,
         "unique": false,
-        "chance": 0.5
+        "chance": 0.3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_raptor_hide",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_lucky_coin",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.05
       }
     ],
     "fixedEvents": [
@@ -739,7 +847,7 @@
     "rank": 2,
     "totalPhases": 15,
     "phasesPerTurn": 5,
-    "rewardGold": 1200,
+    "rewardGold": 550,
     "rewardGuildPoints": 95,
     "rewardExp": 85,
     "dungeonId": "dungeon_highway",
@@ -748,7 +856,7 @@
     "bossDrops": [
       {
         "type": 2,
-        "gold": 380,
+        "gold": 100,
         "weight": 0,
         "unique": false,
         "chance": 1
@@ -758,7 +866,14 @@
         "equipmentId": "eq_axe_02",
         "weight": 0,
         "unique": false,
-        "chance": 0.4
+        "chance": 0.3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_lucky_coin",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.05
       }
     ],
     "fixedEvents": [
@@ -774,7 +889,7 @@
     "rank": 3,
     "totalPhases": 18,
     "phasesPerTurn": 5,
-    "rewardGold": 2200,
+    "rewardGold": 1000,
     "rewardGuildPoints": 115,
     "rewardExp": 125,
     "dungeonId": "dungeon_woods",
@@ -783,7 +898,7 @@
     "bossDrops": [
       {
         "type": 2,
-        "gold": 600,
+        "gold": 180,
         "weight": 0,
         "unique": false,
         "chance": 1
@@ -793,7 +908,14 @@
         "equipmentId": "eq_drop_fang",
         "weight": 0,
         "unique": false,
-        "chance": 0.6
+        "chance": 0.35
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_venom_dagger",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
       }
     ],
     "fixedEvents": [
@@ -809,7 +931,7 @@
     "rank": 3,
     "totalPhases": 19,
     "phasesPerTurn": 5,
-    "rewardGold": 2400,
+    "rewardGold": 1100,
     "rewardGuildPoints": 125,
     "rewardExp": 130,
     "dungeonId": "dungeon_meadow",
@@ -818,7 +940,7 @@
     "bossDrops": [
       {
         "type": 2,
-        "gold": 700,
+        "gold": 180,
         "weight": 0,
         "unique": false,
         "chance": 1
@@ -828,7 +950,14 @@
         "equipmentId": "eq_spear_02",
         "weight": 0,
         "unique": false,
-        "chance": 0.5
+        "chance": 0.3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_alpha_claw",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
       }
     ],
     "fixedEvents": [
@@ -844,7 +973,7 @@
     "rank": 3,
     "totalPhases": 17,
     "phasesPerTurn": 5,
-    "rewardGold": 2600,
+    "rewardGold": 1150,
     "rewardGuildPoints": 130,
     "rewardExp": 140,
     "dungeonId": "dungeon_meadow",
@@ -853,7 +982,7 @@
     "bossDrops": [
       {
         "type": 2,
-        "gold": 900,
+        "gold": 200,
         "weight": 0,
         "unique": false,
         "chance": 1
@@ -863,7 +992,14 @@
         "equipmentId": "eq_bow_02",
         "weight": 0,
         "unique": false,
-        "chance": 0.4
+        "chance": 0.3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_wyvern_scale",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
       }
     ],
     "fixedEvents": [
@@ -879,7 +1015,7 @@
     "rank": 3,
     "totalPhases": 19,
     "phasesPerTurn": 5,
-    "rewardGold": 2300,
+    "rewardGold": 1050,
     "rewardGuildPoints": 120,
     "rewardExp": 125,
     "dungeonId": "dungeon_mine",
@@ -888,7 +1024,7 @@
     "bossDrops": [
       {
         "type": 2,
-        "gold": 650,
+        "gold": 180,
         "weight": 0,
         "unique": false,
         "chance": 1
@@ -898,12 +1034,276 @@
         "equipmentId": "eq_ironplate_01",
         "weight": 0,
         "unique": false,
-        "chance": 0.4
+        "chance": 0.3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_crystal_shell",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
       }
     ],
     "fixedEvents": [
       {
         "phase": 19,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_promotion_3",
+    "questName": "【昇格試験】旧市街の頭目を討て",
+    "rank": 3,
+    "totalPhases": 22,
+    "phasesPerTurn": 5,
+    "rewardGold": 1300,
+    "rewardGuildPoints": 150,
+    "rewardExp": 150,
+    "isEmergencyQuest": true,
+    "rankUpOnClear": 1,
+    "requiredGuildPoints": 500,
+    "dungeonId": "dungeon_old_city",
+    "bossEnemyId": "unit_goblin_chief",
+    "bossPhase": 22,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 180,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_goblin_ashfire_ring",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.3
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 22,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_treant_grove",
+    "questName": "流れる森の老樹人討伐",
+    "rank": 4,
+    "totalPhases": 24,
+    "phasesPerTurn": 5,
+    "rewardGold": 1700,
+    "rewardGuildPoints": 160,
+    "rewardExp": 190,
+    "dungeonId": "dungeon_woods",
+    "bossEnemyId": "unit_treant_grove",
+    "bossPhase": 24,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 180,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_ironbark_charm",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.3
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 24,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_promotion_4",
+    "questName": "【昇格試験】森の角王を退けよ",
+    "rank": 4,
+    "totalPhases": 27,
+    "phasesPerTurn": 5,
+    "rewardGold": 2100,
+    "rewardGuildPoints": 220,
+    "rewardExp": 220,
+    "isEmergencyQuest": true,
+    "rankUpOnClear": 1,
+    "requiredGuildPoints": 900,
+    "dungeonId": "dungeon_woods",
+    "bossEnemyId": "unit_kernos_trial",
+    "bossPhase": 27,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_kernos_warhorn_ring",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.3
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 27,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_necromancer_ritual",
+    "questName": "死霊術師の儀式阻止",
+    "rank": 5,
+    "totalPhases": 30,
+    "phasesPerTurn": 5,
+    "rewardGold": 2600,
+    "rewardGuildPoints": 240,
+    "rewardExp": 270,
+    "dungeonId": "dungeon_crypt",
+    "bossEnemyId": "unit_necro_ritual",
+    "bossPhase": 30,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_shadow",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 30,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_promotion_5",
+    "questName": "【昇格試験】坑道の守り手を砕け",
+    "rank": 5,
+    "totalPhases": 32,
+    "phasesPerTurn": 5,
+    "rewardGold": 3200,
+    "rewardGuildPoints": 300,
+    "rewardExp": 300,
+    "isEmergencyQuest": true,
+    "rankUpOnClear": 1,
+    "requiredGuildPoints": 1500,
+    "dungeonId": "dungeon_mine",
+    "bossEnemyId": "unit_mine_guardian",
+    "bossPhase": 32,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_crystal_shell",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 32,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_stone_golem",
+    "questName": "坑道の守り手討伐",
+    "rank": 6,
+    "totalPhases": 35,
+    "phasesPerTurn": 5,
+    "rewardGold": 3800,
+    "rewardGuildPoints": 320,
+    "rewardExp": 360,
+    "dungeonId": "dungeon_mine",
+    "bossEnemyId": "unit_mine_guardian",
+    "bossPhase": 35,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_crystal_shell",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 35,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_promotion_6",
+    "questName": "【昇格試験】骸の王の廷臣を破れ",
+    "rank": 6,
+    "totalPhases": 38,
+    "phasesPerTurn": 5,
+    "rewardGold": 4600,
+    "rewardGuildPoints": 400,
+    "rewardExp": 400,
+    "isEmergencyQuest": true,
+    "rankUpOnClear": 1,
+    "requiredGuildPoints": 2400,
+    "dungeonId": "dungeon_crypt",
+    "bossEnemyId": "unit_bone_lord",
+    "bossPhase": 38,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_bone",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 38,
         "type": 2
       }
     ]
