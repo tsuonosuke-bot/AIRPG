@@ -1,6 +1,6 @@
 namespace GuildSimulator.Game.Presentation;
 
-/// <summary>CLIとWebで共有するメインメニューとギルド管理サブメニューを組み立てる。</summary>
+/// <summary>CLIとWebで共有するメインメニューと記録・資料サブメニューを組み立てる。</summary>
 internal static class MainMenuBuilder
 {
     public static IReadOnlyList<MenuOption> BuildMain(
@@ -16,14 +16,14 @@ internal static class MainMenuBuilder
             new("2", "進行中クエスト", Group: "クエスト"),
             new("3", "一覧・装備管理", Group: "冒険者"),
             new("4", "雇う", Group: "冒険者"),
-            new("5", "倉庫", Group: "ギルド資産"),
-            new("6", "商店", Group: "ギルド資産"),
+            new("5", "倉庫", Group: "拠点運営"),
+            new("6", "商店", Group: "拠点運営"),
         };
 
         if (relicsEnabled)
-            menu.Add(new MenuOption("7", "遺物一覧", Group: "ギルド資産"));
+            menu.Add(new MenuOption("7", "遺物一覧", Group: "拠点運営"));
 
-        menu.Add(new MenuOption("F", "施設", Group: "ギルド資産"));
+        menu.Add(new MenuOption("F", "施設", Group: "拠点運営"));
 
         string turnLabel = pendingDecisionCount > 0
             ? $"指示待ちを解決（{pendingDecisionCount}件）"
@@ -46,9 +46,9 @@ internal static class MainMenuBuilder
 
         menu.Add(new MenuOption(
             "G",
-            "ギルド管理",
-            "経済ログ・記録・図鑑・シミュレーター・ヘルプ",
-            Group: "その他"));
+            "記録・資料",
+            "経済ログ・各種記録・図鑑・シミュレーター・ヘルプ",
+            Group: "情報"));
         menu.Add(new MenuOption("S", "セーブする", Group: "セーブデータ"));
         menu.Add(new MenuOption("L", "ロードする", Group: "セーブデータ"));
         menu.Add(new MenuOption(
@@ -62,7 +62,7 @@ internal static class MainMenuBuilder
         return menu;
     }
 
-    public static IReadOnlyList<MenuOption> BuildGuildManagement() => new[]
+    public static IReadOnlyList<MenuOption> BuildRecordsAndReferences() => new[]
     {
         new MenuOption("8", "経済ログ", Group: "記録"),
         new MenuOption("B", "埋葬記録", Group: "記録"),

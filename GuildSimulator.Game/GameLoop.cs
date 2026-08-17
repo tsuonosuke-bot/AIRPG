@@ -95,7 +95,7 @@ public static class GameLoop
                     break;
                 case "F": await FacilityScreen.ShowAsync(db, guild); break;
                 case "G":
-                    await ShowGuildManagementMenuAsync(db, guild, questManager);
+                    await ShowRecordsAndReferencesMenuAsync(db, guild, questManager);
                     break;
                 case "9":
                     if (pendingDecisionCount > 0)
@@ -140,7 +140,7 @@ public static class GameLoop
         }
     }
 
-    static async Task ShowGuildManagementMenuAsync(
+    static async Task ShowRecordsAndReferencesMenuAsync(
         GameMasterData db,
         GuildManager guild,
         QuestManager questManager)
@@ -148,8 +148,8 @@ public static class GameLoop
         while (true)
         {
             Ui.BeginScreen();
-            Ui.Header("ギルド管理");
-            string input = await Ui.SelectAsync("選択", MainMenuBuilder.BuildGuildManagement());
+            Ui.Header("記録・資料");
+            string input = await Ui.SelectAsync("選択", MainMenuBuilder.BuildRecordsAndReferences());
 
             switch (input.Trim().ToUpperInvariant())
             {

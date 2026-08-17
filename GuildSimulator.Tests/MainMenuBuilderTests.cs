@@ -16,15 +16,18 @@ public class MainMenuBuilderTests
             relicsEnabled: false);
 
         Assert.Equal(
-            new[] { "クエスト", "冒険者", "ギルド資産", "ターン操作", "その他", "セーブデータ", "システム" },
+            new[] { "クエスト", "冒険者", "拠点運営", "ターン操作", "情報", "セーブデータ", "システム" },
             menu.Select(option => option.Group).Distinct());
 
         var turn = Assert.Single(menu, option => option.Key == "9");
         Assert.Equal(MenuRole.Primary, turn.Role);
         Assert.Equal("ターン操作", turn.Group);
 
-        var guildManagement = Assert.Single(menu, option => option.Key == "G");
-        Assert.True(menu.IndexOf(turn) < menu.IndexOf(guildManagement));
+        var recordsAndReferences = Assert.Single(menu, option => option.Key == "G");
+        Assert.Equal("記録・資料", recordsAndReferences.Label);
+        Assert.Equal("情報", recordsAndReferences.Group);
+        Assert.Contains("経済ログ・各種記録・図鑑", recordsAndReferences.Detail);
+        Assert.True(menu.IndexOf(turn) < menu.IndexOf(recordsAndReferences));
         Assert.DoesNotContain(menu, option => option.Key is "8" or "B" or "J" or "M" or "T" or "H");
 
         var exit = Assert.Single(menu, option => option.Key == "0");
@@ -76,16 +79,16 @@ public class MainMenuBuilderTests
         var withRelics = MainMenuBuilder.BuildMain(1, 10, 290, 0, true);
 
         Assert.DoesNotContain(withoutRelics, option => option.Key == "7");
-        Assert.Equal("ギルド資産", Assert.Single(withRelics, option => option.Key == "7").Group);
+        Assert.Equal("拠点運営", Assert.Single(withRelics, option => option.Key == "7").Group);
         Assert.Equal(
             withoutRelics.Select(option => option.Group).Distinct(),
             withRelics.Select(option => option.Group).Distinct());
     }
 
     [Fact]
-    public void GuildManagementSubmenuContainsSixActionsAndBack()
+    public void RecordsAndReferencesSubmenuContainsSixActionsAndBack()
     {
-        var menu = MainMenuBuilder.BuildGuildManagement();
+        var menu = MainMenuBuilder.BuildRecordsAndReferences();
 
         Assert.Equal(new[] { "8", "B", "J", "M", "T", "H", "0" }, menu.Select(option => option.Key));
         Assert.Equal("メインメニューへ戻る", menu[^1].Label);
