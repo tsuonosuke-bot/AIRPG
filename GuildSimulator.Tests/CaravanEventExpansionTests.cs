@@ -21,6 +21,14 @@ public class CaravanEventExpansionTests
         "event_caravan_ambush",
     };
 
+    static readonly string[] HighwayCaravanEventIds =
+    {
+        "event_caravan_supply_wagon",
+        "event_caravan_specialist_merchant",
+        "event_caravan_rare_broker",
+        "event_caravan_ambush",
+    };
+
     static GameMasterData Load() =>
         MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
 
@@ -37,18 +45,31 @@ public class CaravanEventExpansionTests
         });
 
         var highway = db.dungeons["dungeon_highway"];
-        Assert.All(CaravanEventIds, id =>
+        Assert.All(HighwayCaravanEventIds, id =>
             Assert.Contains(highway.turnEndEvents, choiceEvent => choiceEvent.id == id));
+        Assert.DoesNotContain(highway.turnEndEvents,
+            choiceEvent => choiceEvent.id is "event_caravan_stuck_wagon" or "event_caravan_pack_beast_panic");
         Assert.Equal(0.35f, highway.turnEndEventChance);
 
         Assert.Contains(db.dungeons["dungeon_meadow"].turnEndEvents,
             choiceEvent => choiceEvent.id == "event_caravan_supply_wagon");
+        Assert.Contains(db.dungeons["dungeon_meadow"].turnEndEvents,
+            choiceEvent => choiceEvent.id == "event_caravan_stuck_wagon");
+        Assert.Contains(db.dungeons["dungeon_woods"].turnEndEvents,
+            choiceEvent => choiceEvent.id == "event_caravan_pack_beast_panic");
         Assert.Contains(db.dungeons["dungeon_mine"].turnEndEvents,
             choiceEvent => choiceEvent.id == "event_caravan_specialist_merchant");
         Assert.Contains(db.dungeons["dungeon_old_city"].turnEndEvents,
             choiceEvent => choiceEvent.id == "event_caravan_rare_broker");
         Assert.DoesNotContain(db.dungeons["dungeon_crypt"].turnEndEvents,
             choiceEvent => choiceEvent.id.StartsWith("event_caravan_", StringComparison.Ordinal));
+
+        Assert.Equal(10, db.choiceEvents["event_caravan_supply_wagon"].options
+            .Single(option => option.effectType == QuestChoiceEffectType.Experience).value);
+        Assert.Equal(15, db.choiceEvents["event_caravan_specialist_merchant"].options
+            .Single(option => option.effectType == QuestChoiceEffectType.Experience).value);
+        Assert.Equal(10, db.choiceEvents["event_caravan_stuck_wagon"].options
+            .Single(option => option.effectType == QuestChoiceEffectType.Experience).value);
 
         Assert.Empty(MasterValidator.Validate(db));
     }
