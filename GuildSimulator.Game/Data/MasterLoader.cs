@@ -95,6 +95,7 @@ public static class MasterLoader
             var td = new TraitMasterData
             {
                 id = t.id, traitName = t.traitName, skillId = t.skillId,
+                offerGroup = t.offerGroup ?? "",
                 description = t.description ?? "",
                 awakenText = t.awakenText ?? "",
                 flavorText = t.flavorText ?? "",
@@ -623,7 +624,7 @@ public static class MasterLoader
         List<string>? turnEndEventIds, float? turnEndEventChance);
 
     record TraitRequirementJson(ExpeditionRecordType record, int atLeast);
-    record TraitJson(string id, string traitName, string skillId,
+    record TraitJson(string id, string traitName, string skillId, string? offerGroup,
         string? description, string? awakenText, string? flavorText,
         List<TraitRequirementJson>? requirements, List<TraitLens>? builds);
 

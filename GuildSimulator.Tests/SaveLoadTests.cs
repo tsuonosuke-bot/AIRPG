@@ -2,6 +2,7 @@ using GuildSimulator.Game.Data;
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Core.Systems.Quest;
 using Xunit;
@@ -192,5 +193,39 @@ public class SaveLoadTests
         {
             File.Delete(tmpPath);
         }
+    }
+
+    [Fact]
+    public void LegacyRenownChoiceDoesNotGrantASecondBossTraitOffer()
+    {
+        var db = LoadDb();
+        var guild = new GuildManager(startGold: 200, startRank: 1);
+        var questManager = new QuestManager(guild);
+        var adventurer = new AdventurerData(
+            db.allAdventurers.First(candidate => candidate.recruitGuildRank <= 1));
+        adventurer.offeredTraitIds.Add("trait_renown");
+        adventurer.records.Add(ExpeditionRecordType.BossKills, 3);
+        guild.AddAdventurer(adventurer);
+
+        string legacyJson = SaveManager.Serialize(
+                guild,
+                questManager,
+                currentTurn: 5,
+                new List<AdventurerMasterData>())
+            .Replace(
+                $"\"saveVersion\": {SaveGameData.CurrentVersion}",
+                "\"saveVersion\": 9",
+                StringComparison.Ordinal);
+
+        var loaded = SaveManager.Deserialize(legacyJson, db);
+        var loadedAdventurer = Assert.Single(loaded.Guild.adventurers);
+
+        Assert.Equal(3, loadedAdventurer.records[ExpeditionRecordType.BossKills]);
+        Assert.Contains("trait_renown", loadedAdventurer.offeredTraitIds);
+        Assert.Contains("trait_boss_footwork", loadedAdventurer.offeredTraitIds);
+        Assert.Contains("trait_trophy_eye", loadedAdventurer.offeredTraitIds);
+        Assert.Empty(TraitSystem.BuildOffers(
+            new[] { loadedAdventurer },
+            db.traits.Values));
     }
 }

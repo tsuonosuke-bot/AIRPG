@@ -59,14 +59,15 @@ public sealed class CombatStatusTracker
             state = new CombatStatusInstance { Type = application.type };
             byType[application.type] = state;
         }
+        var currentState = state!;
         int incomingPotency = Math.Max(0, application.potency);
-        bool adoptsIncomingSource = !refreshed || incomingPotency >= state!.Potency;
-        state.Potency = Math.Max(state.Potency, incomingPotency);
-        state.ExpiresAfterRound = Math.Max(state.ExpiresAfterRound, expires);
+        bool adoptsIncomingSource = !refreshed || incomingPotency >= currentState.Potency;
+        currentState.Potency = Math.Max(currentState.Potency, incomingPotency);
+        currentState.ExpiresAfterRound = Math.Max(currentState.ExpiresAfterRound, expires);
         if (adoptsIncomingSource)
         {
-            state.SourceName = sourceName;
-            state.SourceMember = sourceMember;
+            currentState.SourceName = sourceName;
+            currentState.SourceMember = sourceMember;
         }
 
         string action = refreshed ? "延長" : "付与";

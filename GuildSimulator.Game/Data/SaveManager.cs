@@ -17,6 +17,14 @@ public record LoadedGame(
 
 public static class SaveManager
 {
+    const int BossTraitChoiceSaveVersion = 10;
+    static readonly string[] BossTraitChoiceIds =
+    {
+        "trait_renown",
+        "trait_boss_footwork",
+        "trait_trophy_eye",
+    };
+
     static readonly JsonSerializerOptions _opts = new()
     {
         WriteIndented = true,
@@ -291,7 +299,7 @@ public static class SaveManager
         foreach (var savedAdv in data.guild.adventurers)
         {
             if (!adventurerMasterById.TryGetValue(savedAdv.masterId, out var master)) continue;
-            var adv = RestoreAdventurer(savedAdv, master, db);
+            var adv = RestoreAdventurer(savedAdv, master, db, data.saveVersion);
             guild.adventurers.Add(adv);
             adventurersById[adv.id] = adv;
         }
@@ -325,8 +333,24 @@ public static class SaveManager
         return new LoadedGame(guild, questManager, data.currentTurn, recruitCandidates);
     }
 
-    static AdventurerData RestoreAdventurer(AdventurerSaveData saved, AdventurerMasterData master, GameMasterData db)
+    static AdventurerData RestoreAdventurer(
+        AdventurerSaveData saved,
+        AdventurerMasterData master,
+        GameMasterData db,
+        int saveVersion)
     {
+        var learnedSkills = saved.learnedSkills ?? new List<LearnedSkillSave>();
+        var offeredTraitIds = new List<string>(saved.offeredTraitIds ?? new());
+        bool legacyBossTraitWasResolved = offeredTraitIds.Contains("trait_renown")
+            || learnedSkills.Any(skill => skill.skillId == "skill_trait_renown");
+        if (saveVersion < BossTraitChoiceSaveVersion && legacyBossTraitWasResolved)
+        {
+            // 旧版では「英名」だけが候補だった。新しい2候補を再報酬として出さないよう、
+            // その1回のボス特性選択で3候補とも決着済みだったものとして移行する。
+            foreach (string traitId in BossTraitChoiceIds)
+                if (!offeredTraitIds.Contains(traitId)) offeredTraitIds.Add(traitId);
+        }
+
         var adv = new AdventurerData(master)
         {
             id = saved.id,
@@ -362,7 +386,7 @@ public static class SaveManager
                 scarChancePercent = Math.Clamp(injury.scarChancePercent, 0, 100),
             }).ToList(),
             scars = (saved.scars ?? new()).Select(scar => new AdventurerScar { type = scar.type }).ToList(),
-            offeredTraitIds = new List<string>(saved.offeredTraitIds ?? new()),
+            offeredTraitIds = offeredTraitIds,
         };
 
         // 特性システム導入前のセーブには記録が無い。空のまま読み込み、以後の遠征から数え始める。
@@ -387,7 +411,7 @@ public static class SaveManager
                 adv.SetEquipped(EquipSlot.Body, armor);
         }
 
-        var skills = saved.learnedSkills
+        var skills = learnedSkills
             .Where(ls => db.skills.ContainsKey(ls.skillId))
             .Select(ls => (
                 skill: db.skills[ls.skillId],

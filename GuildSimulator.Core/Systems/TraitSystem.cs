@@ -44,13 +44,13 @@ public static class TraitSystem
         {
             if (!adventurer.isAlive) continue;
 
-            var candidates = traits
+            var eligible = traits
                 .Where(t => IsEligible(adventurer, t))
                 // 代価を先払いした特性を先に見せる。物語として重いほうを頭に置く。
                 .OrderByDescending(t => t.RequiresRisk)
                 .ThenByDescending(t => Surplus(adventurer, t))
-                .Take(MaxCandidatesPerOffer)
                 .ToList();
+            var candidates = SelectCandidatesWithoutSplittingGroups(eligible);
             if (candidates.Count == 0) continue;
 
             var headline = candidates[0];
@@ -68,6 +68,42 @@ public static class TraitSystem
         }
 
         return offers;
+    }
+
+    /// <summary>
+    /// 同じ報酬機会に属する候補はひとかたまりで扱う。残り枠へ収まらないグループは
+    /// 次回へ送り、候補の一部だけを閉じて後から2個目を取れる状態を作らない。
+    /// </summary>
+    static List<TraitMasterData> SelectCandidatesWithoutSplittingGroups(
+        IReadOnlyList<TraitMasterData> eligible)
+    {
+        var selected = new List<TraitMasterData>();
+        var visitedGroups = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var trait in eligible)
+        {
+            if (selected.Count >= MaxCandidatesPerOffer) break;
+
+            string group = trait.offerGroup.Trim();
+            if (group.Length == 0)
+            {
+                selected.Add(trait);
+                continue;
+            }
+
+            if (!visitedGroups.Add(group)) continue;
+            var grouped = eligible
+                .Where(candidate => string.Equals(
+                    candidate.offerGroup.Trim(), group, StringComparison.Ordinal))
+                .ToList();
+            if (grouped.Count > MaxCandidatesPerOffer
+                || selected.Count + grouped.Count > MaxCandidatesPerOffer)
+                continue;
+
+            selected.AddRange(grouped);
+        }
+
+        return selected;
     }
 
     /// <summary>

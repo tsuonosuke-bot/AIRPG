@@ -71,6 +71,12 @@ public class TraitSystemTests
             Assert.NotEmpty(trait.requirements);
             Assert.All(trait.requirements, r => Assert.True(r.atLeast >= 1, $"{trait.id}: atLeastが0以下"));
         }
+
+        Assert.All(
+            db.traits.Values
+                .Where(trait => !string.IsNullOrWhiteSpace(trait.offerGroup))
+                .GroupBy(trait => trait.offerGroup),
+            group => Assert.InRange(group.Count(), 2, TraitSystem.MaxCandidatesPerOffer));
     }
 
     [Fact]
@@ -313,11 +319,54 @@ public class TraitSystemTests
             }));
         Assert.All(offer.Candidates, trait =>
         {
+            Assert.Equal("boss_finisher_reward", trait.offerGroup);
             Assert.Contains(trait.requirements, requirement =>
                 requirement.record == ExpeditionRecordType.BossKills
                 && requirement.atLeast == 3);
             Assert.All(TraitAnalysis.AllLenses, lens => Assert.Contains(lens, trait.Builds));
         });
+    }
+
+    [Fact]
+    public void OfferGroupsAreDeferredInsteadOfSplitAcrossRewards()
+    {
+        var riskSkill1 = new SkillMasterData { id = "risk_skill_1", family = "risk_1", level = 1 };
+        var riskSkill2 = new SkillMasterData { id = "risk_skill_2", family = "risk_2", level = 1 };
+        var riskTrait1 = Trait(
+            "risk_trait_1", riskSkill1, (ExpeditionRecordType.TimesDowned, 1));
+        var riskTrait2 = Trait(
+            "risk_trait_2", riskSkill2, (ExpeditionRecordType.NearDeathRounds, 1));
+        var groupedTraits = Enumerable.Range(1, 3)
+            .Select(index =>
+            {
+                var skill = new SkillMasterData
+                {
+                    id = $"group_skill_{index}",
+                    family = $"group_{index}",
+                    level = 1,
+                };
+                var trait = Trait(
+                    $"group_trait_{index}", skill, (ExpeditionRecordType.BossKills, 3));
+                trait.offerGroup = "boss_reward";
+                return trait;
+            })
+            .ToList();
+        var traits = new[] { riskTrait1, riskTrait2 }.Concat(groupedTraits).ToList();
+        var adventurer = new AdventurerData(Master());
+        adventurer.records.Add(ExpeditionRecordType.TimesDowned, 1);
+        adventurer.records.Add(ExpeditionRecordType.NearDeathRounds, 1);
+        adventurer.records.Add(ExpeditionRecordType.BossKills, 3);
+
+        var riskOffer = Assert.Single(TraitSystem.BuildOffers(new[] { adventurer }, traits));
+        Assert.Equal(new[] { riskTrait1, riskTrait2 }, riskOffer.Candidates);
+        TraitSystem.Decline(riskOffer);
+
+        var groupOffer = Assert.Single(TraitSystem.BuildOffers(new[] { adventurer }, traits));
+        Assert.Equal(groupedTraits, groupOffer.Candidates);
+        TraitSystem.Accept(groupOffer, groupedTraits[0]);
+
+        Assert.All(groupedTraits, trait => Assert.Contains(trait.id, adventurer.offeredTraitIds));
+        Assert.Empty(TraitSystem.BuildOffers(new[] { adventurer }, traits));
     }
 
     [Fact]

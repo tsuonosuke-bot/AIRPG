@@ -8,7 +8,8 @@ namespace GuildSimulator.Game.Data;
 
 public class SaveGameData
 {
-    public int saveVersion = 9;
+    public const int CurrentVersion = 10;
+    public int saveVersion = CurrentVersion;
     public int currentTurn = 1;
     public GuildSaveData guild = new();
     public QuestManagerSaveData questManager = new();

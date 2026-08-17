@@ -58,6 +58,12 @@ public class TraitMasterData
     public string skillId = "";
     public SkillMasterData? Skill;
 
+    /// <summary>
+    /// 同じ機会にまとめて提示する選択肢のグループ。空なら単独候補。
+    /// グループは候補上限をまたいで分割せず、1つを選べば同時に提示済みになる。
+    /// </summary>
+    public string offerGroup = "";
+
     /// <summary>選択肢に並べる効果の要約。</summary>
     public string description = "";
 
