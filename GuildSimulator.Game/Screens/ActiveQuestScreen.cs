@@ -69,7 +69,6 @@ public static class ActiveQuestScreen
         }
     }
 
-    const int LogPageSize = 10;
     sealed record SettlementSnapshot(
         int Gold,
         int GuildPoints,
@@ -113,8 +112,6 @@ public static class ActiveQuestScreen
             await ShowGatherDecisionAsync(q, qm);
             return;
         }
-        int offset = 0; // 0 = 最新ページ。増えるほど過去へ遡る
-        bool showDetailedLogs = false;
         while (true)
         {
             string state = q.failed ? "全員戦闘不能" : q.retreated ? "撤退" : q.CanComplete ? "完了可能" : "進行中";
@@ -134,33 +131,23 @@ public static class ActiveQuestScreen
 
             int total = q.logs.Count;
             var opts = new List<MenuOption>();
-            if (showDetailedLogs)
+            if (total > 0)
             {
-                int maxOffset = Math.Max(0, (total - 1) / LogPageSize * LogPageSize);
-                offset = Math.Clamp(offset, 0, maxOffset);
-                int skip = Math.Max(0, total - LogPageSize - offset);
-                int take = Math.Min(LogPageSize, total - skip);
-
-                Ui.WriteLine();
-                Ui.WriteLine($"  詳細ログ ({(total == 0 ? 0 : skip + 1)}〜{skip + take} / 全{total}件):");
-                foreach (var log in q.logs.Skip(skip).Take(take))
-                    Ui.WriteQuestLog($"    {log}");
-
-                if (skip > 0) opts.Add(new MenuOption("o", "さらに古いログ"));
-                if (offset > 0) opts.Add(new MenuOption("n", "新しいログへ戻る"));
-                opts.Add(new MenuOption("h", "詳細ログを閉じる", Style: TextStyle.Dim));
-            }
-            else if (total > 0)
-            {
-                opts.Add(new MenuOption("l", $"詳細ログを見る（全{total}件）", Style: TextStyle.Dim));
+                var logIndex = QuestLogIndexer.Build(q.logs);
+                opts.Add(new MenuOption(
+                    "l",
+                    $"詳細ログを見る（全{total}件）",
+                    $"遠征 {logIndex.ExpeditionLogs.Count}件 / 戦闘 {logIndex.Battles.Count}戦",
+                    TextStyle.Dim));
             }
             opts.Add(new MenuOption("", "続ける", Style: TextStyle.Dim));
             Ui.WriteLine();
             string nav = await Ui.SelectAsync("表示/進行", opts);
-            if (nav == "l" && !showDetailedLogs) { showDetailedLogs = true; continue; }
-            if (nav == "h" && showDetailedLogs) { showDetailedLogs = false; offset = 0; continue; }
-            if (nav == "o" && showDetailedLogs) { offset += LogPageSize; continue; }
-            if (nav == "n" && offset > 0) { offset = Math.Max(0, offset - LogPageSize); continue; }
+            if (nav == "l")
+            {
+                await QuestLogScreen.ShowAsync(q);
+                continue;
+            }
             break;
         }
 

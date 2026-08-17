@@ -91,6 +91,7 @@ public static class BattleResolver
         while (actions < MAX_ACTIONS)
         {
             round++;
+            logs.Add($"  ── ラウンド {round} ──");
             int partyHpAtRoundStart = SumCurrentHp(advSide);
             int partyDowned = 0;
             partyDowned += statuses.ProcessRoundStart(
