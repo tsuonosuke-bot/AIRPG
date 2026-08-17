@@ -463,15 +463,52 @@ public class QuestManager
                 break;
             }
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Gold:
+            {
                 // F帯のイベント金額を基準に、依頼ランク相応の「見つけ物」にする。
-                // 損失も同じ倍率で動かし、ギャンブル選択肢の期待値だけが都合よく上がらないようにする。
+                // 収入は帰還時、損失はその場で反映する。失敗しても支払いや強奪だけが消えないようにする。
                 int eventGold = outcome.value * QuestEventGoldMultiplier(q.def.rank);
-                q.pendingLoot.Add(new RewardEntryData
+                if (eventGold >= 0)
                 {
-                    type = GuildSimulator.Core.Models.RewardType.Gold, gold = eventGold, quantity = 1,
-                });
-                detail = $"ゴールド{eventGold:+#;-#;0}（帰還時に反映）";
+                    q.pendingLoot.Add(new RewardEntryData
+                    {
+                        type = GuildSimulator.Core.Models.RewardType.Gold, gold = eventGold, quantity = 1,
+                    });
+                    detail = $"ゴールド{eventGold:+#;-#;0}（帰還時に反映）";
+                    break;
+                }
+
+                int requestedLoss = eventGold == int.MinValue ? int.MaxValue : -eventGold;
+                if (!option.IsGamble)
+                {
+                    if (guild.Gold < requestedLoss)
+                    {
+                        result = $"資金が不足しています（必要 {requestedLoss}G / 所持 {guild.Gold}G）。"
+                            + "別の選択肢を選んでください";
+                        return false;
+                    }
+                    if (guild.Gold == requestedLoss)
+                    {
+                        result = $"支払い後に0Gとなり破産するため {requestedLoss}G は支払えません。"
+                            + "少なくとも1Gを残してください";
+                        return false;
+                    }
+
+                    guild.SpendGold(requestedLoss, $"道中イベント: {pending.Event.title}");
+                    detail = $"ゴールド-{requestedLoss}（即時支払い / 残り {guild.Gold}G）";
+                    break;
+                }
+
+                // 抽選後に「払えないので未解決」とすると、再選択で結果を引き直せてしまう。
+                // 強奪などのランダム損失は1Gだけ残して取れる分を取り、結果を必ず確定させる。
+                int actualLoss = Math.Min(requestedLoss, guild.Gold > 1 ? guild.Gold - 1 : 0);
+                if (actualLoss > 0)
+                    guild.SpendGold(actualLoss, $"道中イベント: {pending.Event.title}");
+                detail = actualLoss == requestedLoss
+                    ? $"ゴールド-{actualLoss}（即時損失 / 残り {guild.Gold}G）"
+                    : $"要求 {requestedLoss}G のうちゴールド-{actualLoss}"
+                        + $"（所持金から即時損失 / 残り {guild.Gold}G）";
                 break;
+            }
             case GuildSimulator.Core.Models.QuestChoiceEffectType.Equipment:
                 if (outcome.Equipment != null)
                 {

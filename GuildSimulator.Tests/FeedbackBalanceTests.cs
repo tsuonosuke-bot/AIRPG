@@ -146,7 +146,6 @@ public class FeedbackBalanceTests
     [InlineData(1, 20, 20)]
     [InlineData(2, 20, 40)]
     [InlineData(3, 20, 80)]
-    [InlineData(3, -20, -80)]
     public void ChoiceEventGoldScalesWithQuestRank(int rank, int value, int expected)
     {
         var option = new QuestChoiceOptionData
@@ -167,6 +166,104 @@ public class FeedbackBalanceTests
         Assert.Contains(run.pendingLoot,
             reward => reward.type == RewardType.Gold && reward.gold == expected);
         Assert.Contains($"{expected:+#;-#;0}", result);
+    }
+
+    [Fact]
+    public void DeterministicGoldLossIsPaidImmediatelyAndSurvivesQuestFailure()
+    {
+        var option = GoldOption(-20);
+        var run = PendingGoldRun(rank: 3, option);
+        var guild = new GuildManager(startGold: 81);
+        var manager = new QuestManager(guild);
+
+        Assert.True(manager.ResolveChoice(run, 0, out var result), result);
+
+        Assert.Equal(1, guild.Gold);
+        Assert.Empty(run.pendingLoot);
+        Assert.Null(run.pendingChoice);
+        Assert.Contains("ゴールド-80", result);
+        Assert.Contains("即時支払い", result);
+        Assert.Contains(guild.economyLogs, log => log.Contains("-80G"));
+
+        run.failed = true;
+        manager.FinalizeQuest(run);
+        Assert.Equal(1, guild.Gold);
+    }
+
+    [Theory]
+    [InlineData(79, "資金が不足")]
+    [InlineData(80, "支払い後に0G")]
+    public void DeterministicGoldLossKeepsChoicePendingWhenItCannotLeaveOneGold(
+        int startingGold,
+        string expectedMessage)
+    {
+        var option = GoldOption(-20);
+        var run = PendingGoldRun(rank: 3, option);
+        var guild = new GuildManager(startGold: startingGold);
+        var manager = new QuestManager(guild);
+
+        Assert.False(manager.ResolveChoice(run, 0, out var result));
+
+        Assert.Contains(expectedMessage, result);
+        Assert.Equal(startingGold, guild.Gold);
+        Assert.Empty(run.pendingLoot);
+        Assert.NotNull(run.pendingChoice);
+    }
+
+    [Fact]
+    public void RandomGoldLossTakesOnlySpendableGoldAndCannotBeRerolled()
+    {
+        var option = new QuestChoiceOptionData
+        {
+            text = "顔役と話をつける",
+            resultText = "交渉の結果が出た",
+            outcomes =
+            {
+                new QuestChoiceOutcome
+                {
+                    weight = 1,
+                    effectType = QuestChoiceEffectType.Gold,
+                    value = -80,
+                    resultText = "身ぐるみを剥がされた",
+                },
+                new QuestChoiceOutcome
+                {
+                    weight = 1,
+                    effectType = QuestChoiceEffectType.Gold,
+                    value = -80,
+                    resultText = "路銀を奪われた",
+                },
+            },
+        };
+        var run = PendingGoldRun(rank: 2, option);
+        var guild = new GuildManager(startGold: 50);
+        var manager = new QuestManager(guild);
+
+        Assert.True(manager.ResolveChoice(run, 0, out var result), result);
+
+        Assert.Equal(1, guild.Gold);
+        Assert.Empty(run.pendingLoot);
+        Assert.Null(run.pendingChoice);
+        Assert.Contains("要求 160G", result);
+        Assert.Contains("ゴールド-49", result);
+        Assert.False(manager.ResolveChoice(run, 0, out _));
+    }
+
+    static QuestChoiceOptionData GoldOption(int value) => new()
+    {
+        text = "資金を動かす",
+        resultText = "結果",
+        effectType = QuestChoiceEffectType.Gold,
+        value = value,
+    };
+
+    static QuestRun PendingGoldRun(int rank, QuestChoiceOptionData option)
+    {
+        var choiceEvent = new QuestChoiceEventMasterData { id = "gold_event", options = { option } };
+        return new QuestRun(new QuestMasterData { id = "q", rank = rank }, startedTurn: 1)
+        {
+            pendingChoice = new PendingQuestChoice { Event = choiceEvent },
+        };
     }
 
     static bool IsUncommonOrBetter(RewardEntryData reward) => reward.type switch
