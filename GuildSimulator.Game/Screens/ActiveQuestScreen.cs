@@ -77,6 +77,29 @@ public static class ActiveQuestScreen
         int Upkeep,
         int LogCount);
 
+    enum SettlementRewardGroup
+    {
+        Guild,
+        Experience,
+        Loot,
+        Note,
+    }
+
+    sealed record SettlementRewardLine(
+        SettlementRewardGroup Group,
+        string Label,
+        string Value,
+        TextStyle ValueStyle,
+        string? Detail = null);
+
+    static readonly SettlementRewardGroup[] SettlementRewardOrder =
+    {
+        SettlementRewardGroup.Guild,
+        SettlementRewardGroup.Experience,
+        SettlementRewardGroup.Loot,
+        SettlementRewardGroup.Note,
+    };
+
     // ターン進行直後に結果待ちクエストを直接処理する導線からも呼べるよう公開する。
     public static async Task HandleQuestAsync(QuestRun q, QuestManager qm, GuildManager guild)
     {
@@ -210,6 +233,9 @@ public static class ActiveQuestScreen
         SettlementSnapshot before,
         string result)
     {
+        // Webでは直前の長い遠征報告を流し、終了結果だけに集中できる画面へ切り替える。
+        // CLIの BeginScreen は何もしないため、従来どおり履歴を残す。
+        Ui.BeginScreen();
         Ui.Header("クエスト終了サマリー");
         if (result == "成功") Ui.Info($"  結果: {result} － {q.def.questName}");
         else if (result == "撤退") Ui.Warn($"  結果: {result} － {q.def.questName}");
@@ -278,13 +304,189 @@ public static class ActiveQuestScreen
             .Skip(before.LogCount)
             .Where(log => log.StartsWith("[完了]"))
             .ToList();
-        Ui.WriteLine("  獲得内訳:");
-        if (settlementLogs.Count == 0)
-            Ui.Dim("    報酬なし");
-        else
-            foreach (var log in settlementLogs)
-                Ui.Dim($"    {log}");
+        ShowSettlementRewards(settlementLogs);
     }
+
+    static void ShowSettlementRewards(IReadOnlyList<string> settlementLogs)
+    {
+        Ui.WriteLine();
+        Ui.WriteLine("  ── 獲得内訳 ──", TextStyle.Accent);
+        if (settlementLogs.Count == 0)
+        {
+            Ui.Dim("    報酬なし");
+            return;
+        }
+
+        var lines = settlementLogs
+            .Select(FormatSettlementReward)
+            .OfType<SettlementRewardLine>()
+            .ToList();
+        foreach (var group in SettlementRewardOrder)
+        {
+            var grouped = lines.Where(line => line.Group == group).ToList();
+            if (grouped.Count == 0) continue;
+
+            Ui.WriteLine($"    【{SettlementRewardGroupLabel(group)}】", TextStyle.Accent);
+            int labelWidth = grouped
+                .Where(line => line.Label.Length > 0)
+                .Select(line => Ui.DisplayWidth(line.Label))
+                .DefaultIfEmpty(0)
+                .Max();
+
+            foreach (var line in grouped)
+            {
+                Ui.Write("      ");
+                if (line.Label.Length > 0)
+                {
+                    Ui.Write(Ui.PadWide(line.Label, labelWidth));
+                    Ui.Write("  ");
+                }
+                Ui.Write(line.Value, line.ValueStyle);
+                if (line.Detail != null)
+                {
+                    Ui.Write("  ");
+                    Ui.WriteLine(line.Detail, TextStyle.Dim);
+                }
+                else
+                {
+                    Ui.WriteLine();
+                }
+            }
+        }
+    }
+
+    static SettlementRewardLine? FormatSettlementReward(string log)
+    {
+        const string completionPrefix = "[完了]";
+        string text = log.StartsWith(completionPrefix, StringComparison.Ordinal)
+            ? log[completionPrefix.Length..].TrimStart()
+            : log.Trim();
+
+        const string experienceMarker = " 経験値 ";
+        int experienceAt = text.IndexOf(experienceMarker, StringComparison.Ordinal);
+        if (experienceAt > 0)
+        {
+            string member = text[..experienceAt];
+            string value = text[(experienceAt + experienceMarker.Length)..];
+            int levelUpAt = value.IndexOf("（レベルアップ ", StringComparison.Ordinal);
+            if (levelUpAt >= 0) value = value[..levelUpAt];
+            return new(
+                SettlementRewardGroup.Experience,
+                member,
+                value,
+                RewardValueStyle(value));
+        }
+
+        if (text.StartsWith("資金 ", StringComparison.Ordinal))
+            return LabeledReward(SettlementRewardGroup.Guild, "資金", text["資金".Length..]);
+        if (text.StartsWith("ギルドポイント ", StringComparison.Ordinal))
+            return LabeledReward(
+                SettlementRewardGroup.Guild,
+                "ギルドポイント",
+                text["ギルドポイント".Length..]);
+
+        int openedAt = text.IndexOf("を開けた", StringComparison.Ordinal);
+        int arrowAt = openedAt >= 0
+            ? text.IndexOf(" → ", openedAt, StringComparison.Ordinal)
+            : -1;
+        if (openedAt > 0 && arrowAt > openedAt)
+        {
+            string label = text[..openedAt];
+            string detail = text[(openedAt + "を開けた".Length)..arrowAt].Trim();
+            string value = text[(arrowAt + " → ".Length)..].Trim();
+            if (value == "空っぽだった")
+                return new(SettlementRewardGroup.Loot, label, "空っぽ", TextStyle.Dim);
+
+            // 中身は直後の「戦利品」ログで最終入手として表示されるため二重に並べない。
+            // 合鍵を使った場合だけ、その事実を補足として残す。
+            return detail.Length > 0
+                ? new(
+                    SettlementRewardGroup.Loot,
+                    label,
+                    detail.Trim('（', '）'),
+                    TextStyle.Dim)
+                : null;
+        }
+
+        const string lootPrefix = "戦利品 ";
+        if (text.StartsWith(lootPrefix, StringComparison.Ordinal))
+        {
+            string loot = text[lootPrefix.Length..];
+            if (loot.StartsWith("資金 ", StringComparison.Ordinal))
+                return LabeledReward(SettlementRewardGroup.Loot, "資金", loot["資金".Length..]);
+            if (loot.StartsWith("装備入手: ", StringComparison.Ordinal))
+                return LabeledReward(SettlementRewardGroup.Loot, "装備", loot["装備入手:".Length..]);
+            if (loot.StartsWith("消費アイテム入手: ", StringComparison.Ordinal))
+                return LabeledReward(
+                    SettlementRewardGroup.Loot,
+                    "消費アイテム",
+                    loot["消費アイテム入手:".Length..]);
+            if (loot.StartsWith("遺物入手: ", StringComparison.Ordinal))
+                return LabeledReward(SettlementRewardGroup.Loot, "遺物", loot["遺物入手:".Length..]);
+            return new(
+                SettlementRewardGroup.Loot,
+                "戦利品",
+                loot,
+                RewardValueStyle(loot));
+        }
+
+        if (text.Contains("スキル「", StringComparison.Ordinal))
+            return new(
+                SettlementRewardGroup.Loot,
+                "スキル",
+                text,
+                RewardValueStyle(text));
+
+        if (text.Contains("余剰", StringComparison.Ordinal)
+            && text.Contains("買取", StringComparison.Ordinal))
+            return new(SettlementRewardGroup.Guild, "余剰買取", text, TextStyle.Info);
+
+        if (text.StartsWith("撤退のため基本報酬は ", StringComparison.Ordinal))
+        {
+            string note = text
+                .Replace("撤退のため基本報酬は ", "撤退：基本報酬 ", StringComparison.Ordinal)
+                .Replace("（戦利品はそのまま持ち帰り）", "/ 戦利品は持ち帰り", StringComparison.Ordinal);
+            return new(SettlementRewardGroup.Note, "", note, TextStyle.Dim);
+        }
+
+        return new(
+            SettlementRewardGroup.Note,
+            "",
+            text,
+            TextStyle.Dim);
+    }
+
+    static SettlementRewardLine LabeledReward(
+        SettlementRewardGroup group,
+        string label,
+        string remainder)
+    {
+        string value = remainder.TrimStart();
+        string? detail = null;
+        int detailAt = value.LastIndexOf('（');
+        if (detailAt > 0 && value.EndsWith('）'))
+        {
+            detail = value[detailAt..];
+            value = value[..detailAt].TrimEnd();
+        }
+        return new(group, label, value, RewardValueStyle(value), detail);
+    }
+
+    static TextStyle RewardValueStyle(string value) =>
+        value.StartsWith("+0", StringComparison.Ordinal)
+        || value.Contains("空っぽ", StringComparison.Ordinal)
+        || value.Contains("見送り", StringComparison.Ordinal)
+        || value.Contains("習得済み", StringComparison.Ordinal)
+            ? TextStyle.Dim
+            : TextStyle.Info;
+
+    static string SettlementRewardGroupLabel(SettlementRewardGroup group) => group switch
+    {
+        SettlementRewardGroup.Guild => "基本報酬",
+        SettlementRewardGroup.Experience => "経験値",
+        SettlementRewardGroup.Loot => "宝箱・戦利品",
+        _ => "補足",
+    };
 
     static string Signed(int value) => value > 0 ? $"+{value}" : value.ToString();
 

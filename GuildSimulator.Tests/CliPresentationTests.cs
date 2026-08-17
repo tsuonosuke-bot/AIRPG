@@ -88,6 +88,59 @@ public class CliPresentationTests
     }
 
     [Fact]
+    public async Task CompletionRewardsAreGroupedAndHideInternalLogDetails()
+    {
+        var adventurer = new AdventurerData(Master("reward-reader", "報酬確認者"));
+        var guild = new GuildManager(startGold: 100);
+        guild.AddAdventurer(adventurer);
+        var manager = new QuestManager(guild);
+        var quest = new QuestMasterData
+        {
+            id = "readable-rewards",
+            questName = "報酬表示テスト",
+            totalPhases = 1,
+            rewardGold = 80,
+            rewardGuildPoints = 16,
+            rewardExp = adventurer.RequiredExpForNextLevel,
+        };
+        var run = new QuestRun(quest, startedTurn: 1)
+        {
+            currentPhase = 1,
+            guildUpkeepAtStart = guild.EffectiveUpkeepPerTurn,
+        };
+        run.formation[0] = adventurer;
+        run.startingLevels[adventurer.id] = adventurer.level;
+        run.chests.Add(new TreasureChest
+        {
+            kind = TreasureChestKind.Boss,
+            foundPhase = 1,
+        });
+        manager.RestoreState(new(), new() { run }, Array.Empty<string>());
+
+        string text = await CaptureConsoleAsync(
+            "\n\n",
+            () => ActiveQuestScreen.HandleQuestAsync(run, manager, guild));
+
+        Assert.Contains("── 獲得内訳 ──", text);
+        Assert.Contains("【基本報酬】", text);
+        Assert.Contains("資金", text);
+        Assert.Contains("+80G", text);
+        Assert.Contains("（基本 80G）", text);
+        Assert.Contains("ギルドポイント", text);
+        Assert.Contains("【経験値】", text);
+        Assert.Contains("報酬確認者", text);
+        Assert.Contains($"+{quest.rewardExp}", text);
+        Assert.Contains("【宝箱・戦利品】", text);
+        Assert.Contains("ボスの宝箱", text);
+        Assert.Contains("空っぽ", text);
+        Assert.Contains("報酬確認者: Lv1 → Lv2", text);
+        Assert.Equal(1, CountOccurrences(text, "Lv1 → Lv2"));
+        Assert.DoesNotContain("レベルアップ", text);
+        Assert.DoesNotContain("[完了]", text);
+        Assert.Empty(manager.activeQuests);
+    }
+
+    [Fact]
     public async Task RecruitScreenRendersEachCandidateOnlyOnce()
     {
         var candidate = Master("candidate", "重複しない候補");

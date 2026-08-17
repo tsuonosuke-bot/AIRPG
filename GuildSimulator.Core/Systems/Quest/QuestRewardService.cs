@@ -118,7 +118,7 @@ public class QuestRewardService
             * partySkills.GoldMultiplier);
         guild.AddGold(gold, $"クエスト報酬: {q.def.questName}");
         string goldSkillNote = partySkills.goldPercent != 0 ? $" / スキル {partySkills.goldPercent:+#;-#;0}%" : "";
-        q.logs.Add($"{prefix} 資金 +{gold}G（基本 {baseGold}{(gatherGold > 0 ? $" + 買取 {gatherGold}" : "")}{goldSkillNote}）");
+        q.logs.Add($"{prefix} 資金 +{gold}G（基本 {baseGold}G{(gatherGold > 0 ? $" + 買取 {gatherGold}G" : "")}{goldSkillNote}）");
 
         int totalExp = (int)Math.Floor(
             q.def.rewardExp * rate * (1f + q.expRewardBonusPercent / 100f) * partySkills.ExpMultiplier);
