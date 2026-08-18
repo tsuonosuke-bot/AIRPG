@@ -220,6 +220,7 @@ public static class SaveManager
             important = e.important,
         }).ToList(),
         discoveredClueIds = new List<string>(q.discoveredClueIds),
+        resolvedFixedChoiceEventIds = new List<string>(q.resolvedFixedChoiceEventIds),
         policy = q.policy,
         startingLevels = new Dictionary<string, int>(q.startingLevels),
         levelGrowthsByAdventurerId = q.levelGrowthsByAdventurerId.ToDictionary(
@@ -499,6 +500,7 @@ public static class SaveManager
                 important = e.important,
             });
         run.discoveredClueIds.AddRange(saved.discoveredClueIds ?? new());
+        run.resolvedFixedChoiceEventIds.AddRange(saved.resolvedFixedChoiceEventIds ?? new());
         run.usedConsumableIds.AddRange(saved.usedConsumableIds);
 
         foreach (var (adventurerId, counts) in saved.expeditionRecords ?? new())

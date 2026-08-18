@@ -22,6 +22,16 @@ public class QuestChoiceOptionData
     public ConsumableMasterData? Consumable { get; set; }
     public SkillMasterData? Skill { get; set; }
 
+    /// <summary>この選択で発見する物語上の手掛かり。通常の効果と同時に適用できる。</summary>
+    public string grantedClueId = "";
+    public StoryClueMasterData? GrantedClue { get; set; }
+
+    /// <summary>この選択で確定する物語分岐。分岐はセーブされ、以後の世界効果に使われる。</summary>
+    public string storyBranchId = "";
+
+    /// <summary>調査記録に残す、分岐後の世界の変化。</summary>
+    public string storyOutcomeText = "";
+
     /// <summary>
     /// 実行前にプレイヤーがパーティから1人選ぶ。
     /// 「誰に賭けるか」を決めさせてから結果を振るのが、この手のイベントの肝。

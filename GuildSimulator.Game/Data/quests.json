@@ -164,6 +164,11 @@
       {
         "phase": 10,
         "type": 2
+      },
+      {
+        "phase": 10,
+        "type": 7,
+        "choiceEventId": "story_blue_ore_goblin_cache"
       }
     ]
   },
@@ -381,7 +386,13 @@
     "bossEnemyId": "",
     "bossPhase": 0,
     "bossDrops": [],
-    "fixedEvents": []
+    "fixedEvents": [
+      {
+        "phase": 18,
+        "type": 7,
+        "choiceEventId": "story_blue_ore_resonant_vein"
+      }
+    ]
   },
   {
     "id": "quest_iron_ore",
@@ -706,7 +717,13 @@
     "gatherChance": 0.7,
     "gatherGoldPerItem": 17,
     "bossDrops": [],
-    "fixedEvents": []
+    "fixedEvents": [
+      {
+        "phase": 18,
+        "type": 7,
+        "choiceEventId": "story_blue_ore_final_choice"
+      }
+    ]
   },
   {
     "id": "quest_old_city_garrison",

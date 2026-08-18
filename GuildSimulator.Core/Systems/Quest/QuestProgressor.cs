@@ -278,10 +278,12 @@ public class QuestProgressor
                 important: true);
         }
 
-        if (!q.failed && q.def.IsGatherQuest && q.GatherFulfilled)
-            q.logs.Add($"[Turn {currentTurn}] {q.def.gatherItemName} の必要数を確保。ギルドへ帰還できます");
-        else if (!q.failed && !q.retreated && !q.def.IsGatherQuest && q.currentPhase >= q.PhaseLimit)
+        if (!q.failed && !q.retreated && q.ReachedGoal)
             q.logs.Add($"[Turn {currentTurn}] クエスト完了！報酬を受け取れます");
+        else if (!q.failed && !q.retreated && q.ObjectiveReached
+            && q.def.FixedChoiceEvents.Any(e => e.phase == q.currentPhase
+                && !q.resolvedFixedChoiceEventIds.Contains(e.ChoiceEvent!.id)))
+            q.logs.Add($"[Turn {currentTurn}] 依頼目標を達成。物語に関わる現地判断を待っています");
     }
 
     static ExpeditionEventKind ToReportKind(DungeonEventType type) => type switch

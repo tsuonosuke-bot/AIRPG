@@ -8,7 +8,7 @@ namespace GuildSimulator.Game.Data;
 
 public class SaveGameData
 {
-    public const int CurrentVersion = 11;
+    public const int CurrentVersion = 12;
     public int saveVersion = CurrentVersion;
     public int currentTurn = 1;
     public GuildSaveData guild = new();
@@ -152,6 +152,7 @@ public class QuestRunSaveData
     public List<string> logs = new();
     public List<ExpeditionEventSave> reportEvents = new();
     public List<string> discoveredClueIds = new();
+    public List<string> resolvedFixedChoiceEventIds = new();
     public ExpeditionPolicy policy = ExpeditionPolicy.ObjectiveFirst;
     public Dictionary<string, int> startingLevels = new();
     public Dictionary<string, List<StatType>> levelGrowthsByAdventurerId = new();

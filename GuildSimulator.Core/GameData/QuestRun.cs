@@ -36,6 +36,7 @@ public class QuestRun
     public List<string> logs = new();
     public List<ExpeditionEventRecord> reportEvents = new();
     public List<string> discoveredClueIds = new();
+    public List<string> resolvedFixedChoiceEventIds = new();
     public ExpeditionPolicy policy = ExpeditionPolicy.ObjectiveFirst;
     public Dictionary<string, int> startingLevels = new();
     public Dictionary<string, List<StatType>> levelGrowthsByAdventurerId = new();
@@ -94,6 +95,15 @@ public class QuestRun
 
     public bool GatherFulfilled => def.IsGatherQuest && gatheredCount >= def.gatherTargetCount;
 
+    /// <summary>戦闘・踏破または採取という、依頼本来の達成条件だけを満たした状態。</summary>
+    public bool ObjectiveReached => def.IsGatherQuest
+        ? GatherFulfilled
+        : currentPhase >= PhaseLimit;
+
+    /// <summary>物語依頼で必須の現地判断をすべて解決したか。</summary>
+    public bool RequiredFixedChoicesResolved => def.FixedChoiceEvents.All(
+        storyEvent => resolvedFixedChoiceEventIds.Contains(storyEvent.ChoiceEvent!.id));
+
     /// <summary>今回の遠征で踏み込めるエリア数。延長するたびに伸びる。</summary>
     public int PhaseLimit => def.totalPhases + extraPhases;
 
@@ -102,7 +112,7 @@ public class QuestRun
     /// <b>採取クエストの達成は素材が揃ったかどうかだけで決まる</b>。エリアを使い切っても
     /// 手ぶらならクリアではなく、延長するか撤退するかの判断待ちになる。
     /// </summary>
-    public bool ReachedGoal => def.IsGatherQuest ? GatherFulfilled : currentPhase >= PhaseLimit;
+    public bool ReachedGoal => ObjectiveReached && RequiredFixedChoicesResolved;
 
     /// <summary>正規クリア。ランクポイントや昇格はこれを満たしたときだけ。</summary>
     public bool IsCleared => !failed && !retreated && ReachedGoal;

@@ -118,8 +118,9 @@ public static class HelpScreen
         Ui.WriteLine("  ・遠征方針        : 出発時に「生還優先」か「依頼達成優先」を選ぶ。");
         Ui.WriteLine($"                      生還優先はパーティHP{BattleResolver.SurvivalPartyHpPercent}%以下、または誰かが{BattleResolver.SurvivalMemberHpPercent}%以下で撤退する。");
         Ui.WriteLine("                      依頼達成優先は行動可能な限り続行するため、戦闘不能・死亡のリスクが高い。");
-        Ui.WriteLine("  ・物語クエスト    : 調査で得た手掛かりによって次の依頼が掲示される一度きりのクエスト。");
-        Ui.WriteLine("                      発見した内容は「G. 記録・資料」→「J. 調査記録」で確認できる。");
+        Ui.WriteLine("  ・物語クエスト    : 通常抽選とは別の物語専用枠へ、受注するまで継続掲示される一度きりのクエスト。");
+        Ui.WriteLine("                      道中の固有イベントで手掛かりや結末を選び、以後の依頼にも結果が残る。");
+        Ui.WriteLine("                      現在の調査は「G. 記録・資料」→「J. 調査記録」で確認できる。");
         Ui.WriteLine("  ・撤退            : 士気が尽きるとパーティは自動的に撤退する。基本報酬は無しになるが、");
         Ui.WriteLine("                      道中で得た戦利品（宝箱など）はそのまま持ち帰れる。");
         Ui.WriteLine("  ・壊滅            : 全員が戦闘不能になった場合。報酬・戦利品はすべて失われる。");

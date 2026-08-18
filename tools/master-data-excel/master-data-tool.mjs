@@ -4,11 +4,14 @@ import crypto from "node:crypto";
 import { FileBlob, SpreadsheetFile, Workbook } from "@oai/artifact-tool";
 
 const command = process.argv[2] ?? "export";
-const workbookSchemaVersion = 4;
+const workbookSchemaVersion = 5;
 const scriptDir = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, "$1");
 const repoRoot = path.resolve(scriptDir, "../..");
 const dataDir = path.join(repoRoot, "GuildSimulator.Game", "Data");
-const outputDir = path.join(repoRoot, "outputs", "master-data-editor");
+// 編集中の実ブックを上書きせず検証できるよう、出力先だけ任意に差し替えられる。
+const outputDir = process.env.AIRPG_MASTER_OUTPUT_DIR
+  ? path.resolve(process.env.AIRPG_MASTER_OUTPUT_DIR)
+  : path.join(repoRoot, "outputs", "master-data-editor");
 const workbookPath = path.join(outputDir, "マスタデータ統合_編集用.xlsx");
 const previewDir = path.join(outputDir, "previews");
 const balanceReportPath = path.join(repoRoot, "outputs", "balance-lab", "balance-report.json");
@@ -296,8 +299,14 @@ const sheetDefinitions = {
     title: "選択イベント 選択肢明細",
     capacity: 360,
     unique: false,
-    keys: ["eventId", "order", "text", "resultText", "effectType", "value", "targetId", "targetsOneMember"],
-    labels: ["イベントID", "順序", "選択肢", "結果文", "効果種別", "値", "対象ID", "対象を1人選ぶ"],
+    keys: [
+      "eventId", "order", "text", "resultText", "effectType", "value", "targetId", "targetsOneMember",
+      "grantedClueId", "storyBranchId", "storyOutcomeText",
+    ],
+    labels: [
+      "イベントID", "順序", "選択肢", "結果文", "効果種別", "値", "対象ID", "対象を1人選ぶ",
+      "獲得手掛かりID", "物語分岐ID", "物語の余波",
+    ],
   },
   choiceOutcomes: {
     name: "選択結果",
@@ -357,8 +366,8 @@ const sheetDefinitions = {
     title: "クエスト 固定イベント明細",
     capacity: 240,
     unique: false,
-    keys: ["questId", "order", "phase", "type"],
-    labels: ["クエストID", "順序", "エリア", "イベント種別"],
+    keys: ["questId", "order", "phase", "type", "choiceEventId"],
+    labels: ["クエストID", "順序", "エリア", "イベント種別", "選択イベントID"],
   },
   dungeons: {
     name: "ダンジョン",
@@ -497,6 +506,7 @@ const makeRows = (data) => {
     (event.options ?? []).map((option, index) => [
       event.id, index + 1, option.text, clean(option.resultText), option.effectType,
       option.value, clean(option.targetId), Boolean(option.targetsOneMember),
+      clean(option.grantedClueId), clean(option.storyBranchId), clean(option.storyOutcomeText),
     ]));
   const choiceOutcomes = data.choice_events.flatMap((event) =>
     (event.options ?? []).flatMap((option, optionIndex) =>
@@ -524,7 +534,9 @@ const makeRows = (data) => {
   const questRewards = data.quests.flatMap((q) =>
     (q.bossDrops ?? []).map((reward, index) => [q.id, index + 1, ...rewardKeys.map((key) => mapValue(reward, key))]));
   const questEvents = data.quests.flatMap((q) =>
-    (q.fixedEvents ?? []).map((event, index) => [q.id, index + 1, event.phase, event.type]));
+    (q.fixedEvents ?? []).map((event, index) => [
+      q.id, index + 1, event.phase, event.type, clean(event.choiceEventId),
+    ]));
 
   const dungeons = data.dungeons.map((d) => [
     d.id, d.dungeonName, clean(d.turnEndEventChance),
@@ -656,7 +668,7 @@ const writeDataSheet = (workbook, definition, rows, tableName) => {
     if (["background", "personality", "motivation", "specialty", "fear", "creed", "selfIntroduction"].includes(key)) {
       width = 38;
     }
-    if (["text", "resultText"].includes(key)) width = 34;
+    if (["text", "resultText", "storyOutcomeText"].includes(key)) width = 34;
     if (key.endsWith("Id") || key === "id" || key.startsWith("skillId")) width = 22;
     if (key.startsWith("formationId")) width = 24;
     if (["allowedClassIds", "skillIds", "requiredQuestIds", "requiredClueIds", "grantedClueIds"].includes(key)) {
@@ -667,7 +679,7 @@ const writeDataSheet = (workbook, definition, rows, tableName) => {
   }
   const wrappedKeys = new Set([
     "description", "background", "personality", "motivation", "specialty", "fear", "creed",
-    "selfIntroduction", "text", "resultText", "allowedClassIds", "skillIds", "requiredQuestIds",
+    "selfIntroduction", "text", "resultText", "storyOutcomeText", "allowedClassIds", "skillIds", "requiredQuestIds",
     "requiredClueIds", "grantedClueIds",
   ]);
   const populatedLastRow = rows.length + 4;
@@ -1032,7 +1044,7 @@ const exportWorkbook = async (providedData = null, exitWhenDone = true, renderPr
   addValidation(sheets.relics, sheetDefinitions.relics, "effectType", [0, 1, 2, 3, 4]);
   addValidation(sheets.enemyDrops, sheetDefinitions.enemyDrops, "type", [0, 1, 2, 3, 4]);
   addValidation(sheets.questRewards, sheetDefinitions.questRewards, "type", [0, 1, 2, 3, 4]);
-  addValidation(sheets.questEvents, sheetDefinitions.questEvents, "type", [0, 1, 2, 3, 4, 5, 6]);
+  addValidation(sheets.questEvents, sheetDefinitions.questEvents, "type", [0, 1, 2, 3, 4, 5, 6, 7]);
   addValidation(sheets.dungeonEvents, sheetDefinitions.dungeonEvents, "eventType", [
     "EnemyEncounter", "Heal", "Trap", "Treasure", "Nothing",
   ]);
@@ -1215,7 +1227,10 @@ const buildReward = (source, row) => {
 const stable = (value) => {
   if (Array.isArray(value)) return value.map(stable);
   if (value && typeof value === "object") {
-    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable(value[key])]));
+    return Object.fromEntries(Object.keys(value)
+      .filter((key) => !(key === "targetId" && value[key] === ""))
+      .sort()
+      .map((key) => [key, stable(value[key])]));
   }
   return value;
 };
@@ -1544,7 +1559,7 @@ const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
       optionalAssign(outcome, "value", optionalNumber(entry.object.value, "value", entry.row, true));
       const resultText = optionalText(entry.object.resultText);
       if (resultText !== null) outcome.resultText = resultText;
-      if (!isBlank(entry.object.targetId) || resultText !== null) outcome.targetId = text(entry.object.targetId);
+      optionalAssign(outcome, "targetId", optionalText(entry.object.targetId));
       if (!outcomeGroups.has(key)) outcomeGroups.set(key, []);
       outcomeGroups.get(key).push(outcome);
     });
@@ -1564,6 +1579,9 @@ const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
       };
       optionalAssign(option, "value", optionalNumber(entry.object.value, "value", entry.row, true));
       optionalAssign(option, "targetId", optionalText(entry.object.targetId));
+      optionalAssign(option, "grantedClueId", optionalText(entry.object.grantedClueId));
+      optionalAssign(option, "storyBranchId", optionalText(entry.object.storyBranchId));
+      optionalAssign(option, "storyOutcomeText", optionalText(entry.object.storyOutcomeText));
       if (boolValue(entry.object.targetsOneMember, "targetsOneMember", entry.row)) {
         option.targetsOneMember = true;
       }
@@ -1717,6 +1735,7 @@ const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
         phase: numberValue(entry.object.phase, "phase", entry.row, true),
         type: numberValue(entry.object.type, "type", entry.row, true),
       };
+      optionalAssign(event, "choiceEventId", optionalText(entry.object.choiceEventId));
       if (!questEventGroups.has(questId)) questEventGroups.set(questId, []);
       questEventGroups.get(questId).push(event);
     });
@@ -1783,8 +1802,16 @@ const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
       if (!clueIds.has(clueId)) errors.push(`${quest.id}: 不正なclueId「${clueId}」`);
     }
   }
+  for (const entry of rows.choiceOptions) {
+    if (!isBlank(entry.object.grantedClueId))
+      assertRef(clueIds, entry.object.grantedClueId, "選択肢.grantedClueId", entry.row);
+  }
   for (const entry of rows.questRewards) assertRef(questIds, entry.object.questId, "クエスト報酬.questId", entry.row);
-  for (const entry of rows.questEvents) assertRef(questIds, entry.object.questId, "クエスト固定イベント.questId", entry.row);
+  for (const entry of rows.questEvents) {
+    assertRef(questIds, entry.object.questId, "クエスト固定イベント.questId", entry.row);
+    if (text(entry.object.type) === "7" || text(entry.object.type) === "ForceChoice")
+      assertRef(choiceEventIds, entry.object.choiceEventId, "クエスト固定イベント.choiceEventId", entry.row);
+  }
 
   const eventGroups = new Map();
   for (const entry of orderRows(rows.dungeonEvents, "dungeonId")) {
@@ -1876,8 +1903,8 @@ const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
     }
     assertRef(refs.classes, item.defaultClassId, "冒険者.defaultClassId", row);
     assertRef(refs.races, item.raceId, "冒険者.raceId", row);
-    assertRef(weaponIds, item.defaultWeaponId, "冒険者.defaultWeaponId", row);
-    assertRef(armorIds, item.defaultArmorId, "冒険者.defaultArmorId", row);
+    if (item.defaultWeaponId) assertRef(weaponIds, item.defaultWeaponId, "冒険者.defaultWeaponId", row);
+    if (item.defaultArmorId) assertRef(armorIds, item.defaultArmorId, "冒険者.defaultArmorId", row);
     for (const id of item.skillIds) assertRef(skillIds, id, "冒険者.skillId", row);
     return item;
   })).filter(Boolean);

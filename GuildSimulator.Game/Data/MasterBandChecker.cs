@@ -187,7 +187,9 @@ public static class MasterBandChecker
                 + "（入手経路がありません）");
         }
 
-        var usedEvents = db.dungeons.Values.SelectMany(d => d.turnEndEvents).Select(e => e.id).ToHashSet();
+        var usedEvents = db.dungeons.Values.SelectMany(d => d.turnEndEvents).Select(e => e.id)
+            .Concat(db.allQuests.SelectMany(q => q.FixedChoiceEvents).Select(e => e.ChoiceEvent!.id))
+            .ToHashSet();
         foreach (var ev in db.choiceEvents.Values)
             if (!usedEvents.Contains(ev.id))
                 warnings.Add($"{ev.id}: どのダンジョンの turnEndEventIds にも入っていないので一度も発生しません");

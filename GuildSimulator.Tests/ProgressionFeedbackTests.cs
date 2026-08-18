@@ -117,7 +117,8 @@ public sealed class ProgressionFeedbackTests
         Assert.All(normalEntries.Where(entry => entry.quest.rank != Rank.Min),
             entry => Assert.Equal(Rank.Max, entry.quest.rank));
         Assert.Equal(
-            manager.NormalBoardCapacity + manager.NoviceBoardCapacity + manager.EmergencyBoardCapacity,
+            manager.NormalBoardCapacity + manager.NoviceBoardCapacity
+                + manager.EmergencyBoardCapacity + manager.StoryBoardCapacity,
             manager.BoardCapacity);
     }
 

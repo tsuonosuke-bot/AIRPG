@@ -30,6 +30,10 @@ public class QuestMasterData
     public string storyBranchId = "";
     public List<StoryClueMasterData> GrantedClues { get; set; } = new();
 
+    /// <summary>この依頼で解決必須の固定選択イベント。</summary>
+    public IEnumerable<QuestPhaseEvent> FixedChoiceEvents =>
+        fixedEvents.Where(e => e.type == Models.QuestEventType.ForceChoice && e.ChoiceEvent != null);
+
     // ---- 採取クエスト ----
     // gatherTargetCount > 0 のとき採取クエストとして扱う。道中で採取イベントが抽選され、
     // 目標数に達した時点で即帰還できる。**達成条件は素材が揃ったかどうかだけ**で、

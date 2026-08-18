@@ -8,11 +8,17 @@ internal static class MainMenuBuilder
         int upkeepPerTurn,
         int projectedAfterUpkeep,
         int pendingDecisionCount,
-        bool relicsEnabled)
+        bool relicsEnabled,
+        int storyLeadCount = 0)
     {
         var menu = new List<MenuOption>
         {
-            new("1", "クエストボード", Group: "クエスト"),
+            new(
+                "1",
+                "クエストボード",
+                storyLeadCount > 0 ? $"新たな物語調査が掲示されています（{storyLeadCount}件）" : null,
+                storyLeadCount > 0 ? TextStyle.Accent : TextStyle.Normal,
+                Group: "クエスト"),
             new("2", "進行中クエスト", Group: "クエスト"),
             new("3", "一覧・装備管理", Group: "冒険者"),
             new("4", "雇う", Group: "冒険者"),
@@ -67,7 +73,7 @@ internal static class MainMenuBuilder
         new MenuOption("8", "経済ログ", Group: "記録"),
         new MenuOption("Q", "完了クエスト履歴", "遠征ログ・戦闘別ログを再閲覧", Group: "記録"),
         new MenuOption("B", "埋葬記録", Group: "記録"),
-        new MenuOption("J", "調査記録", Group: "記録"),
+        new MenuOption("J", "調査記録", "現在の事件・手掛かり・選んだ結末", Group: "記録"),
         new MenuOption("M", "モンスター図鑑", Group: "資料"),
         new MenuOption("T", "戦闘シミュレーター", Group: "ツール"),
         new MenuOption("H", "ヘルプ・用語集", Group: "ツール"),

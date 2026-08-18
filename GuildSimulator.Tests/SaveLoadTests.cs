@@ -103,6 +103,7 @@ public class SaveLoadTests
         run.targetMpvBonusByAdventurerId[adv.id] = 2;
         run.RecordLevelGrowth(adv.id, new[] { StatType.Vitality, StatType.Agility });
         run.usedConsumableIds.Add(consumable.id);
+        run.resolvedFixedChoiceEventIds.Add("resolved_story_event");
         var choiceEvent = db.choiceEvents.Values.First();
         run.pendingChoice = new PendingQuestChoice { Event = choiceEvent, createdTurn = 5 };
         adv.RegisterKnockout(severity: 2);
@@ -187,6 +188,7 @@ public class SaveLoadTests
             Assert.Equal(1, loadedRun.targetPvBonusByAdventurerId[adv.id]);
             Assert.Equal(2, loadedRun.targetMpvBonusByAdventurerId[adv.id]);
             Assert.Contains(consumable.id, loadedRun.usedConsumableIds);
+            Assert.Contains("resolved_story_event", loadedRun.resolvedFixedChoiceEventIds);
             Assert.Equal(choiceEvent.id, loadedRun.pendingChoice?.Event.id);
 
             Assert.Equal(questManager.questBoard.Select(e => e.quest.id), loaded.QuestManager.questBoard.Select(e => e.quest.id));
@@ -196,6 +198,28 @@ public class SaveLoadTests
         {
             File.Delete(tmpPath);
         }
+    }
+
+    [Fact]
+    public void StoryClueOrderAndSelectedBranchSurviveSaveLoad()
+    {
+        var db = LoadDb();
+        var guild = new GuildManager(startGold: 200, startRank: 1);
+        var questManager = new QuestManager(guild);
+        var clueOrder = db.clues.Keys.Reverse().ToArray();
+
+        questManager.RestoreState(
+            new List<QuestBoardEntry>(),
+            new List<QuestRun>(),
+            Array.Empty<string>(),
+            discoveredClueIdsToRestore: clueOrder,
+            selectedBranchIdsToRestore: new[] { QuestManager.BlueOreStudiedBranchId });
+
+        string json = SaveManager.Serialize(guild, questManager, currentTurn: 3, new List<AdventurerMasterData>());
+        var loaded = SaveManager.Deserialize(json, db);
+
+        Assert.Equal(clueOrder, loaded.QuestManager.ExportDiscoveredClueIds());
+        Assert.True(loaded.QuestManager.HasSelectedBranch(QuestManager.BlueOreStudiedBranchId));
     }
 
     [Fact]

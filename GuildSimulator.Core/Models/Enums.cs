@@ -15,7 +15,22 @@ public enum SkillScope { Self, UnitAura }
 public enum RelicEffectType { Unit_AddFlat, Unit_Multiply, GoldReward_Multiply, Upkeep_Multiply, RestHeal_Multiply }
 // 採取はダンジョンイベントとは別枠で判定するので、ここには含めない（QuestProgressor参照）。
 public enum DungeonEventType { EnemyEncounter, Heal, Trap, Treasure, Nothing }
-public enum QuestEventType { None, ForceEnemyEncounter, ForceBossEncounter, ForceTreasure, ForceTrap, ForceHeal, ForceGather }
+public enum QuestEventType
+{
+    None,
+    ForceEnemyEncounter,
+    ForceBossEncounter,
+    ForceTreasure,
+    ForceTrap,
+    ForceHeal,
+    ForceGather,
+
+    /// <summary>
+    /// 通常のエリアイベントを処理したあと、クエスト固有の選択イベントを発生させる。
+    /// 既存セーブとJSONの数値を維持するため末尾に追加する。
+    /// </summary>
+    ForceChoice,
+}
 public enum RewardType { Relic, Equipment, Gold, Skill, Consumable }
 
 /// <summary>宝箱の種別。ボスの宝箱だけは空っぽ抽選を受けない。</summary>

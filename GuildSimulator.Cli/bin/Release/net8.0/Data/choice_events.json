@@ -849,5 +849,84 @@
         "value": 10
       }
     ]
+  },
+  {
+    "id": "story_blue_ore_goblin_cache",
+    "title": "脈打つ積荷",
+    "description": "討ち倒したゴブリンの荷車には、食料ではなく青い鉱石が積まれていた。石は心臓のようにかすかに脈打ち、森の奥ではなく古い坑道へ続く轍が残っている。",
+    "weight": 0,
+    "options": [
+      {
+        "text": "現場を保存し、轍と積荷を詳しく調べる",
+        "resultText": "監視隊と協力して荷車を封鎖し、鉱石が廃坑から運ばれた証拠を揃えた。",
+        "effectType": "Experience",
+        "value": 8,
+        "grantedClueId": "clue_stolen_blue_ore"
+      },
+      {
+        "text": "鉱石を封じ、危険が広がる前に持ち帰る",
+        "resultText": "鉱石を布と油で包み、脈動を抑えながらギルドへ運び込んだ。",
+        "effectType": "Morale",
+        "value": 12,
+        "grantedClueId": "clue_stolen_blue_ore"
+      }
+    ]
+  },
+  {
+    "id": "story_blue_ore_resonant_vein",
+    "title": "坑道の底で応えるもの",
+    "description": "測量の終点で、持ち込んだ青い鉱石と坑壁の鉱脈が同じ間隔で震え始めた。振動はさらに地下ではなく、旧市街の方角へ伸びている。",
+    "weight": 0,
+    "options": [
+      {
+        "text": "振動の周期と方角を測量図へ記す",
+        "resultText": "崩落の危険を避けて観測を続け、旧市街へ向かう共鳴の線を地図に刻んだ。",
+        "effectType": "Experience",
+        "value": 15,
+        "grantedClueId": "clue_resonant_vein"
+      },
+      {
+        "text": "共鳴する鉱脈から標本を切り出す",
+        "resultText": "危険を承知で鉱脈へ近づき、共鳴を保ったままの標本と古い副葬箱を回収した。",
+        "effectType": "Treasure",
+        "value": 1,
+        "grantedClueId": "clue_resonant_vein"
+      }
+    ]
+  },
+  {
+    "id": "story_blue_ore_final_choice",
+    "title": "旧市街の刻印をどう扱うか",
+    "description": "遺物の刻印は、青い鉱脈を制御する古代の仕組みだった。封じることも、知識として公開することも、富を求める者へ渡すこともできる。ギルドの決断が、この土地の行く末を変える。",
+    "weight": 0,
+    "options": [
+      {
+        "text": "刻印を使い、青い鉱脈を封じる",
+        "resultText": "遺物を制御盤へ戻すと脈動は静まり、地下に久しくなかった静寂が戻った。",
+        "effectType": "Morale",
+        "value": 20,
+        "grantedClueId": "clue_old_city_sigil",
+        "storyBranchId": "blue_ore_sealed",
+        "storyOutcomeText": "青い鉱脈は封印された。以後、廃坑と旧市街では罠ダメージが25%軽減される。"
+      },
+      {
+        "text": "王立古物院へ託し、知識を公開する",
+        "resultText": "古物院は刻印と測量記録を公開し、冒険者たちは古代の地下構造を学べるようになった。",
+        "effectType": "Experience",
+        "value": 25,
+        "grantedClueId": "clue_old_city_sigil",
+        "storyBranchId": "blue_ore_studied",
+        "storyOutcomeText": "鉱脈の知識は共有された。以後、廃坑と旧市街で得る経験値が10%増える。"
+      },
+      {
+        "text": "採掘権を商人組合へ売却する",
+        "resultText": "商人組合は多額の代価を払い、翌日には採掘隊と護衛を旧市街へ送り込んだ。",
+        "effectType": "Gold",
+        "value": 75,
+        "grantedClueId": "clue_old_city_sigil",
+        "storyBranchId": "blue_ore_traded",
+        "storyOutcomeText": "鉱石交易が始まった。以後、廃坑と旧市街の報酬Goldが15%増える一方、敵との遭遇が増える。"
+      }
+    ]
   }
 ]

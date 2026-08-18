@@ -75,7 +75,8 @@ public static class GameLoop
                 upkeepPerTurn,
                 projectedAfterUpkeep,
                 pendingDecisionCount,
-                GameFeatures.RelicsEnabled);
+                GameFeatures.RelicsEnabled,
+                questManager.questBoard.Count(entry => entry.quest.isStoryQuest));
 
             string input = await Ui.SelectAsync("選択", menu);
 

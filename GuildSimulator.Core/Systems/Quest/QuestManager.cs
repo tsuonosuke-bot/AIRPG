@@ -33,7 +33,12 @@ public class QuestManager
 
     /// <summary>通常枠とは別に掲示できる緊急クエストの最大枚数。</summary>
     public int EmergencyBoardCapacity = 1;
-    public int BoardCapacity => NormalBoardCapacity + NoviceBoardCapacity + EmergencyBoardCapacity;
+
+    /// <summary>通常依頼の抽選に埋もれない、物語依頼の継続掲示枠。</summary>
+    public int StoryBoardCapacity = 1;
+
+    public int BoardCapacity =>
+        NormalBoardCapacity + NoviceBoardCapacity + EmergencyBoardCapacity + StoryBoardCapacity;
 
     /// <summary>受注されないまま掲示され続けた枠を差し替えるまでのターン数。</summary>
     public int BoardExpireTurns = 7;
@@ -53,7 +58,13 @@ public class QuestManager
     readonly HashSet<string> clearedOneShotIds = new();
     readonly HashSet<string> clearedQuestIds = new();
     readonly HashSet<string> discoveredClueIds = new();
+    readonly List<string> discoveredClueOrder = new();
     readonly HashSet<string> selectedBranchIds = new();
+
+    public const string BlueOreSealedBranchId = "blue_ore_sealed";
+    public const string BlueOreStudiedBranchId = "blue_ore_studied";
+    public const string BlueOreTradedBranchId = "blue_ore_traded";
+    public const string BlueOreFinalQuestId = "quest_old_city_relic";
 
     public QuestManager(GuildManager guild)
     {
@@ -78,20 +89,38 @@ public class QuestManager
     /// </summary>
     public void RefreshBoard(IEnumerable<QuestMasterData> pool, int currentTurn)
     {
-        questBoard.RemoveAll(e => e.IsExpired(currentTurn, BoardExpireTurns));
+        // 物語依頼は新しい手掛かりそのものなので、受注するまで専用枠へ残す。
+        questBoard.RemoveAll(e => !e.quest.isStoryQuest && e.IsExpired(currentTurn, BoardExpireTurns));
         FillBoard(pool, currentTurn);
     }
 
     /// <summary>空きスロットだけを補充する（既存の掲示は据え置き）。</summary>
     public void FillBoard(IEnumerable<QuestMasterData> pool, int currentTurn)
     {
-        var candidates = pool.Where(IsPostable).ToList();
-        var normalCandidates = candidates.Where(q => !q.isEmergencyQuest).ToList();
+        var poolList = pool.ToList();
+        var candidates = poolList.Where(IsPostable).ToList();
+        var storyCandidates = candidates
+            .Where(q => q.isStoryQuest && !q.isEmergencyQuest)
+            .OrderBy(q => q.rank)
+            .ThenBy(poolList.IndexOf)
+            .ToList();
+        while (questBoard.Count(e => e.quest.isStoryQuest) < StoryBoardCapacity
+            && storyCandidates.Count > 0)
+        {
+            var chosen = storyCandidates[0];
+            questBoard.Add(new QuestBoardEntry(chosen, currentTurn));
+            storyCandidates.RemoveAt(0);
+        }
+
+        var normalCandidates = candidates
+            .Where(q => !q.isEmergencyQuest && !q.isStoryQuest)
+            .ToList();
 
         // ギルドランクが上がるほど候補総数が増え、F依頼が通常3枠の抽選から消えやすくなる。
         // 訓練所などの新人枠は先にF依頼を確保し、その後で通常枠を全ランクから補充する。
         var noviceCandidates = normalCandidates.Where(q => q.rank == Rank.Min).ToList();
-        while (questBoard.Count(e => !e.quest.isEmergencyQuest && e.quest.rank == Rank.Min) < NoviceBoardCapacity
+        while (questBoard.Count(e => !e.quest.isEmergencyQuest && !e.quest.isStoryQuest
+                && e.quest.rank == Rank.Min) < NoviceBoardCapacity
             && noviceCandidates.Count > 0)
         {
             int i = GameRandom.Range(0, noviceCandidates.Count);
@@ -102,7 +131,7 @@ public class QuestManager
         }
 
         int totalNormalCapacity = NormalBoardCapacity + NoviceBoardCapacity;
-        while (questBoard.Count(e => !e.quest.isEmergencyQuest) < totalNormalCapacity
+        while (questBoard.Count(e => !e.quest.isEmergencyQuest && !e.quest.isStoryQuest) < totalNormalCapacity
             && normalCandidates.Count > 0)
         {
             int i = GameRandom.Range(0, normalCandidates.Count);
@@ -227,6 +256,7 @@ public class QuestManager
             string target = use.target == null ? "" : $"（対象: {use.target.name}）";
             run.logs.Add($"[出発準備] {use.item.displayName}{target}: {use.item.description}");
         }
+        string storyAftermath = ApplyStoryWorldEffects(run);
         run.AddReportEvent(
             currentTurn,
             0,
@@ -234,6 +264,17 @@ public class QuestManager
             "ギルドを出発",
             $"遠征方針は「{PolicyName(policy)}」。{run.EnumerateMembers().Count()}名で任務へ向かった。",
             important: true);
+        if (!string.IsNullOrWhiteSpace(storyAftermath))
+        {
+            run.logs.Add($"[物語の余波] {storyAftermath}");
+            run.AddReportEvent(
+                currentTurn,
+                0,
+                ExpeditionEventKind.Progress,
+                "物語の余波",
+                storyAftermath,
+                important: true);
+        }
 
         activeQuests.Add(run);
         MarkBusy(run);
@@ -241,19 +282,49 @@ public class QuestManager
         return true;
     }
 
+    string ApplyStoryWorldEffects(QuestRun run)
+    {
+        string dungeonId = run.def.Dungeon?.id ?? "";
+        if (dungeonId is not ("dungeon_mine" or "dungeon_old_city")) return "";
+
+        if (selectedBranchIds.Contains(BlueOreSealedBranchId))
+        {
+            run.trapDamageReductionPercent = Math.Clamp(run.trapDamageReductionPercent + 25, 0, 90);
+            return "青い鉱脈を封じたことで地下の脈動が鎮まり、この遠征では罠ダメージを25%軽減する。";
+        }
+        if (selectedBranchIds.Contains(BlueOreStudiedBranchId))
+        {
+            run.expRewardBonusPercent += 10;
+            run.battleExpBonusPercent += 10;
+            return "王立古物院が公開した調査知識により、この遠征で得る経験値が10%増える。";
+        }
+        if (selectedBranchIds.Contains(BlueOreTradedBranchId))
+        {
+            run.goldRewardBonusPercent += 15;
+            run.enemyFromNothingPercent = Math.Clamp(run.enemyFromNothingPercent + 10, 0, 100);
+            return "鉱石交易の活況で報酬Goldが15%増える一方、採掘権を狙う敵との遭遇が増える。";
+        }
+        return "";
+    }
+
     public void AdvanceAll(int currentTurn)
     {
         foreach (var q in activeQuests.ToList())
         {
             if (q.HasPendingChoice || q.HasGatherDecision) continue;
+            if (TryQueueFixedChoice(q, currentTurn)) continue;
+
             int steps = q.def.phasesPerTurn;
             for (int i = 0; i < steps && q.IsInProgress; i++)
+            {
                 progressor.AdvanceOnePhase(q, currentTurn);
+                if (!q.failed && !q.retreated && TryQueueFixedChoice(q, currentTurn)) break;
+            }
 
-            if (q.IsInProgress)
+            if (q.IsInProgress && !q.HasPendingChoice)
                 AppearanceSystem.TryRunHumanEncounter(q, currentTurn);
 
-            if (q.IsInProgress)
+            if (q.IsInProgress && !q.HasPendingChoice)
             {
                 var choiceEvent = PickTurnEndEvent(q.def.Dungeon);
                 if (choiceEvent != null)
@@ -263,43 +334,68 @@ public class QuestManager
                 }
             }
 
-            // 習熟度・昇格は正規クリアのみ。撤退では得られない。
-            if (q.IsCleared && !q.clearProgressApplied)
-            {
-                q.clearProgressApplied = true;
-                foreach (var a in q.EnumerateMembers())
-                {
-                    var mastery = a.OnClearQuest(q.def.rank);
-                    if (mastery.PointsGained > 0)
-                    {
-                        string className = a.currentClass?.className ?? "職業";
-                        q.logs.Add($"[職業習熟] {a.name} {className} +{mastery.PointsGained}"
-                            + $"（合計 習熟度 {mastery.TotalPoints}）");
-                    }
-                    if (mastery.UnlockedSkills.Count > 0)
-                    {
-                        string names = string.Join("」「", mastery.UnlockedSkills.Select(skill => skill.skillName));
-                        string className = a.currentClass?.className ?? "職業";
-                        string message = $"{a.name}がスキル「{names}」を習得"
-                            + $"（{className}習熟度 {a.CurrentClassMastery}）";
-                        q.logs.Add($"[スキル習得] {message}");
-                        q.AddReportEvent(
-                            currentTurn,
-                            q.currentPhase,
-                            ExpeditionEventKind.Progress,
-                            "スキル習得",
-                            message,
-                            important: true,
-                            actorName: a.name);
-                    }
-                    a.RecordQuestClearForRank(q.def.rank);
-                    if (a.CanRankUp)
-                        q.logs.Add($"[昇格可能] {a.name} は {Rank.Label(a.rank)}→{Rank.Label(a.rank + 1)} の条件を満たした。冒険者一覧から昇格させられる。");
-                }
-                if (q.def.rankUpOnClear > 0)
-                    guild.RankUp(q.def.rankUpOnClear, $"緊急クエスト完了: {q.def.questName}");
-            }
+            ApplyClearProgress(q, currentTurn);
         }
+    }
+
+    bool TryQueueFixedChoice(QuestRun q, int currentTurn)
+    {
+        if (q.HasPendingChoice || q.failed || q.retreated) return false;
+
+        var fixedChoice = q.def.FixedChoiceEvents
+            .Where(e => e.phase <= q.currentPhase)
+            .Where(e => !q.resolvedFixedChoiceEventIds.Contains(e.ChoiceEvent!.id))
+            .OrderBy(e => e.phase)
+            .FirstOrDefault();
+        if (fixedChoice?.ChoiceEvent == null) return false;
+
+        q.pendingChoice = new PendingQuestChoice
+        {
+            Event = fixedChoice.ChoiceEvent,
+            createdTurn = currentTurn,
+        };
+        q.logs.Add($"[Turn {currentTurn}] 物語イベント発生: {fixedChoice.ChoiceEvent.title}");
+        return true;
+    }
+
+    // 習熟度・昇格は正規クリアのみ。固定選択の解決直後に手動帰還しても取りこぼさないよう、
+    // ターン進行と帰還処理の両方から同じ処理を呼ぶ。
+    void ApplyClearProgress(QuestRun q, int currentTurn)
+    {
+        if (!q.IsCleared || q.clearProgressApplied) return;
+
+        q.clearProgressApplied = true;
+        foreach (var a in q.EnumerateMembers())
+        {
+            var mastery = a.OnClearQuest(q.def.rank);
+            if (mastery.PointsGained > 0)
+            {
+                string className = a.currentClass?.className ?? "職業";
+                q.logs.Add($"[職業習熟] {a.name} {className} +{mastery.PointsGained}"
+                    + $"（合計 習熟度 {mastery.TotalPoints}）");
+            }
+            if (mastery.UnlockedSkills.Count > 0)
+            {
+                string names = string.Join("」「", mastery.UnlockedSkills.Select(skill => skill.skillName));
+                string className = a.currentClass?.className ?? "職業";
+                string message = $"{a.name}がスキル「{names}」を習得"
+                    + $"（{className}習熟度 {a.CurrentClassMastery}）";
+                q.logs.Add($"[スキル習得] {message}");
+                q.AddReportEvent(
+                    currentTurn,
+                    q.currentPhase,
+                    ExpeditionEventKind.Progress,
+                    "スキル習得",
+                    message,
+                    important: true,
+                    actorName: a.name);
+            }
+            a.RecordQuestClearForRank(q.def.rank);
+            if (a.CanRankUp)
+                q.logs.Add($"[昇格可能] {a.name} は {Rank.Label(a.rank)}→{Rank.Label(a.rank + 1)} の条件を満たした。冒険者一覧から昇格させられる。");
+        }
+        if (q.def.rankUpOnClear > 0)
+            guild.RankUp(q.def.rankUpOnClear, $"緊急クエスト完了: {q.def.questName}");
     }
 
     static QuestChoiceEventMasterData? PickTurnEndEvent(DungeonMasterData? dungeon)
@@ -641,6 +737,27 @@ public class QuestManager
             }
         }
 
+        var storyDetails = new List<string>();
+        if (option.GrantedClue != null
+            && DiscoverClue(q, option.GrantedClue, pending.createdTurn))
+        {
+            storyDetails.Add($"手掛かり「{option.GrantedClue.title}」を発見");
+        }
+        if (!string.IsNullOrWhiteSpace(option.storyBranchId))
+        {
+            selectedBranchIds.Add(option.storyBranchId);
+            if (!string.IsNullOrWhiteSpace(option.storyOutcomeText))
+                storyDetails.Add(option.storyOutcomeText);
+        }
+        if (storyDetails.Count > 0)
+            detail = detail.Length > 0
+                ? $"{detail} / {string.Join(" / ", storyDetails)}"
+                : string.Join(" / ", storyDetails);
+
+        if (q.def.FixedChoiceEvents.Any(e => e.ChoiceEvent?.id == pending.Event.id)
+            && !q.resolvedFixedChoiceEventIds.Contains(pending.Event.id))
+            q.resolvedFixedChoiceEventIds.Add(pending.Event.id);
+
         // 結果テーブルを引いた選択肢は、どれを引いたかの一文を先に見せる。
         if (outcome.resultText.Length > 0)
             detail = detail.Length > 0 ? $"{outcome.resultText}\n  → {detail}" : outcome.resultText;
@@ -654,6 +771,25 @@ public class QuestManager
             $"{option.text}。{option.resultText}" + (detail.Length > 0 ? $" {detail}" : ""),
             important: true);
         q.pendingChoice = null;
+        if (q.ReachedGoal)
+            q.logs.Add($"[Turn {pending.createdTurn}] クエスト完了！報酬を受け取れます");
+        return true;
+    }
+
+    bool DiscoverClue(QuestRun q, StoryClueMasterData clue, int currentTurn)
+    {
+        if (!discoveredClueIds.Add(clue.id)) return false;
+
+        discoveredClueOrder.Add(clue.id);
+        if (!q.discoveredClueIds.Contains(clue.id)) q.discoveredClueIds.Add(clue.id);
+        q.AddReportEvent(
+            currentTurn,
+            q.currentPhase,
+            ExpeditionEventKind.Discovery,
+            "新たな手掛かり",
+            $"{clue.title}: {clue.description}",
+            important: true,
+            clueId: clue.id);
         return true;
     }
 
@@ -722,6 +858,9 @@ public class QuestManager
 
     public void FinalizeQuest(QuestRun q)
     {
+        int reportTurn = q.reportEvents.LastOrDefault()?.turn ?? q.startedTurn;
+        ApplyClearProgress(q, reportTurn);
+
         if (!q.baseRewardsApplied)
         {
             q.baseRewardsApplied = true;
@@ -742,21 +881,10 @@ public class QuestManager
             if (!string.IsNullOrWhiteSpace(q.def.storyBranchId))
                 selectedBranchIds.Add(q.def.storyBranchId);
 
-            int reportTurn = q.reportEvents.LastOrDefault()?.turn ?? q.startedTurn;
             foreach (var clueId in q.def.grantedClueIds)
             {
-                if (!discoveredClueIds.Add(clueId)) continue;
-                q.discoveredClueIds.Add(clueId);
-                string clueTitle = q.def.GrantedClues
-                    .FirstOrDefault(clue => clue.id == clueId)?.title ?? clueId;
-                q.AddReportEvent(
-                    reportTurn,
-                    q.currentPhase,
-                    ExpeditionEventKind.Discovery,
-                    "新たな手掛かり",
-                    $"調査記録「{clueTitle}」をギルドへ持ち帰った。",
-                    important: true,
-                    clueId: clueId);
+                var clue = q.def.GrantedClues.FirstOrDefault(candidate => candidate.id == clueId);
+                if (clue != null) DiscoverClue(q, clue, reportTurn);
             }
             q.AddReportEvent(
                 reportTurn,
@@ -768,7 +896,6 @@ public class QuestManager
         }
         else if (q.retreated)
         {
-            int reportTurn = q.reportEvents.LastOrDefault()?.turn ?? q.startedTurn;
             q.AddReportEvent(
                 reportTurn,
                 q.currentPhase,
@@ -859,11 +986,46 @@ public class QuestManager
     // ---- セーブ/ロード ----
     public IReadOnlyCollection<string> ExportClearedOneShotIds() => clearedOneShotIds;
     public IReadOnlyCollection<string> ExportClearedQuestIds() => clearedQuestIds;
-    public IReadOnlyCollection<string> ExportDiscoveredClueIds() => discoveredClueIds;
+    public IReadOnlyCollection<string> ExportDiscoveredClueIds() => discoveredClueOrder;
     public IReadOnlyCollection<string> ExportSelectedBranchIds() => selectedBranchIds;
 
     public bool HasClearedQuest(string id) => clearedQuestIds.Contains(id);
     public bool HasDiscoveredClue(string id) => discoveredClueIds.Contains(id);
+    public bool HasSelectedBranch(string id) => selectedBranchIds.Contains(id);
+    public bool HasSelectedBlueOreOutcome =>
+        selectedBranchIds.Contains(BlueOreSealedBranchId)
+        || selectedBranchIds.Contains(BlueOreStudiedBranchId)
+        || selectedBranchIds.Contains(BlueOreTradedBranchId);
+
+    /// <summary>
+    /// 固定選択イベント導入前に最終調査まで終えていたセーブだけ、調査記録から結末を補完する。
+    /// 新規進行では最終依頼を完了するまで使えず、すでに選んだ結末の上書きもできない。
+    /// </summary>
+    public bool TryRecordLegacyBlueOreOutcome(string branchId, out string result)
+    {
+        if (!clearedQuestIds.Contains(BlueOreFinalQuestId))
+        {
+            result = "最終調査が完了していません";
+            return false;
+        }
+        if (HasSelectedBlueOreOutcome)
+        {
+            result = "青い鉱石事件の結末はすでに確定しています";
+            return false;
+        }
+        if (branchId is not (BlueOreSealedBranchId or BlueOreStudiedBranchId or BlueOreTradedBranchId))
+        {
+            result = "選べない結末です";
+            return false;
+        }
+
+        selectedBranchIds.Add(branchId);
+        result = "過去の判断を調査記録へ反映しました";
+        return true;
+    }
+
+    public bool AreStoryRequirementsMet(QuestMasterData quest) => MeetsStoryRequirements(quest);
+    public int GuildRank => guild.GuildRank;
 
     /// <summary>セーブデータからの復元専用。掲示板・進行中クエスト・出発中フラグをまとめて置き換える。</summary>
     public void RestoreState(
@@ -895,8 +1057,9 @@ public class QuestManager
             clearedQuestIds.Add(id);
 
         discoveredClueIds.Clear();
+        discoveredClueOrder.Clear();
         foreach (var id in discoveredClueIdsToRestore ?? Array.Empty<string>())
-            discoveredClueIds.Add(id);
+            if (discoveredClueIds.Add(id)) discoveredClueOrder.Add(id);
 
         selectedBranchIds.Clear();
         foreach (var id in selectedBranchIdsToRestore ?? Array.Empty<string>())

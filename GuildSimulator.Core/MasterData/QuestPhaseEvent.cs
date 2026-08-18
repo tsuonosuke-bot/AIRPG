@@ -6,4 +6,6 @@ public class QuestPhaseEvent
 {
     public int phase;
     public QuestEventType type;
+    public string choiceEventId = "";
+    public QuestChoiceEventMasterData? ChoiceEvent { get; set; }
 }

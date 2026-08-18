@@ -128,6 +128,13 @@ public static class MasterValidator
 
             foreach (var option in ev.options)
             {
+                if (!string.IsNullOrWhiteSpace(option.grantedClueId) && option.GrantedClue == null)
+                    errors.Add($"{ev.id}: 選択肢「{option.text}」の手掛かりID"
+                        + $" '{option.grantedClueId}' を解決できません");
+                if (!string.IsNullOrWhiteSpace(option.storyBranchId)
+                    && string.IsNullOrWhiteSpace(option.storyOutcomeText))
+                    errors.Add($"{ev.id}: 分岐 '{option.storyBranchId}' には storyOutcomeText が必要です");
+
                 // 結果テーブルの重みが全部0だと抽選できず、常に先頭の結果になってしまう。
                 if (option.outcomes.Count > 0 && option.outcomes.Sum(o => Math.Max(0, o.weight)) <= 0)
                     errors.Add($"{ev.id}: 選択肢「{option.text}」の結果テーブルの重みが全て0です");
@@ -209,6 +216,22 @@ public static class MasterValidator
             foreach (var clueId in quest.requiredClueIds.Concat(quest.grantedClueIds))
                 if (!db.clues.ContainsKey(clueId))
                     errors.Add($"{quest.id}: 不明なclueId '{clueId}'");
+
+            foreach (var fixedEvent in quest.fixedEvents)
+            {
+                if (fixedEvent.type == QuestEventType.ForceChoice)
+                {
+                    if (fixedEvent.phase < 1 || fixedEvent.phase > quest.totalPhases)
+                        errors.Add($"{quest.id}: 固定選択イベントのエリア {fixedEvent.phase} は"
+                            + $" 1〜{quest.totalPhases} の範囲にしてください");
+                    if (string.IsNullOrWhiteSpace(fixedEvent.choiceEventId) || fixedEvent.ChoiceEvent == null)
+                        errors.Add($"{quest.id}: ForceChoice には解決可能な choiceEventId が必要です");
+                }
+                else if (!string.IsNullOrWhiteSpace(fixedEvent.choiceEventId))
+                {
+                    errors.Add($"{quest.id}: choiceEventId は ForceChoice の固定イベントだけに指定できます");
+                }
+            }
 
             // 同じく、遺物しか入っていないボスの宝箱は凍結中に必ず空っぽになる。
             if (!GameFeatures.RelicsEnabled

@@ -96,6 +96,16 @@ public class MainMenuBuilderTests
         Assert.Contains("遠征ログ・戦闘別ログ", history.Detail);
         Assert.Equal("メインメニューへ戻る", menu[^1].Label);
     }
+
+    [Fact]
+    public void StoryLeadIsVisibleFromTheMainMenu()
+    {
+        var board = MainMenuBuilder.BuildMain(1, 10, 290, 0, false, storyLeadCount: 1)
+            .Single(option => option.Key == "1");
+
+        Assert.Equal(TextStyle.Accent, board.Style);
+        Assert.Contains("新たな物語調査", board.Detail);
+    }
 }
 
 static class MenuTestExtensions

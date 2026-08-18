@@ -19,7 +19,10 @@ public static class QuestBoardScreen
         {
             Ui.BeginScreen();
             Ui.Header("クエストボード");
-            var board = questManager.questBoard;
+            var board = questManager.questBoard
+                .OrderByDescending(entry => entry.quest.isStoryQuest)
+                .ThenByDescending(entry => entry.quest.isEmergencyQuest)
+                .ToList();
             var availableAdvs = guild.adventurers.Where(a => a.isAlive && !questManager.IsAdventurerBusy(a.id)).ToList();
             int partyAvgLevel = availableAdvs.Count > 0 ? (int)Math.Round(availableAdvs.Average(a => a.level)) : 0;
             Ui.WriteLine($"  受注可能: ギルドランク{guild.GuildRankLabel}以下    待機中冒険者: {availableAdvs.Count}人（平均Lv{partyAvgLevel}）");
@@ -43,15 +46,19 @@ public static class QuestBoardScreen
                 var objective = DescribeObjective(q);
 
                 // 一覧は一目で比較できる要点だけにする。詳細はタップ後の確認画面で見せる。
+                string posting = q.isStoryQuest
+                    ? "物語専用枠: 受注まで継続掲示"
+                    : $"掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン";
                 string summary = $"達成条件: {objective.Summary}　危険度目安: {DifficultyLabel(diff)}"
                     + $"\n基本報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}"
-                    + $"　掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン";
+                    + $"　{posting}";
 
                 entries.Add(new MenuOption(
                     (i + 1).ToString(),
                     $"【{Rank.Label(q.rank)}】【{objective.TypeLabel}】{q.questName}  所要:{estTurns}T{emg}{story}",
                     summary,
-                    q.isEmergencyQuest ? TextStyle.Warn : TextStyle.Normal));
+                    q.isStoryQuest ? TextStyle.Accent
+                        : q.isEmergencyQuest ? TextStyle.Warn : TextStyle.Normal));
             }
 
             int? sel = await Ui.SelectIndexAsync("受注するクエスト", entries);
@@ -98,7 +105,10 @@ public static class QuestBoardScreen
         int suitableCount = availableAdvs.Count(a => a.IsSuitableQuestRank(q.rank));
         Ui.WriteLine($"  適正ランク: {Rank.SuitableAdventurerRangeLabel(q.rank)}（このランク帯の冒険者が正規クリアすると習熟度が入る）"
             + $"（待機中 {suitableCount}/{availableAdvs.Count}人が該当）");
-        Ui.WriteLine($"  掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
+        if (q.isStoryQuest)
+            Ui.Info("  物語専用枠: 受注するまで掲示され続けます");
+        else
+            Ui.WriteLine($"  掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン");
         Ui.WriteLine();
 
         return await Ui.ConfirmAsync("このクエストを受注しますか？");

@@ -253,6 +253,9 @@ public static class MasterLoader
                     text = option.text, resultText = option.resultText ?? "",
                     effectType = option.effectType, value = option.value, targetId = option.targetId ?? "",
                     targetsOneMember = option.targetsOneMember,
+                    grantedClueId = option.grantedClueId ?? "",
+                    storyBranchId = option.storyBranchId ?? "",
+                    storyOutcomeText = option.storyOutcomeText ?? "",
                 };
                 ResolveChoiceRefs(resolvedOption.effectType, resolvedOption.targetId, db,
                     out var optEquip, out var optItem, out var optSkill);
@@ -337,6 +340,18 @@ public static class MasterLoader
                 description = clue.description ?? "",
             };
 
+        // choice_events.json はダンジョン解決の都合で clues.json より先に読む。
+        // 手掛かり参照だけは、手掛かりマスタが揃ったこの時点で解決する。
+        foreach (var choiceEvent in db.choiceEvents.Values)
+        foreach (var option in choiceEvent.options)
+        {
+            if (string.IsNullOrWhiteSpace(option.grantedClueId)) continue;
+            if (db.clues.TryGetValue(option.grantedClueId, out var clue))
+                option.GrantedClue = clue;
+            else
+                Unresolved(db, "choice_events.json", choiceEvent.id, "grantedClueId", option.grantedClueId);
+        }
+
         var quests = Load<List<QuestJson>>(readJson, "quests.json");
         foreach (var q in quests)
         {
@@ -373,7 +388,22 @@ public static class MasterLoader
             }
             foreach (var re in q.bossDrops ?? new()) qd.bossDrops.Add(ResolveRewardEntry(re, db));
             foreach (var fe in q.fixedEvents ?? new())
-                qd.fixedEvents.Add(new QuestPhaseEvent { phase = fe.phase, type = (QuestEventType)fe.type });
+            {
+                var fixedEvent = new QuestPhaseEvent
+                {
+                    phase = fe.phase,
+                    type = (QuestEventType)fe.type,
+                    choiceEventId = fe.choiceEventId ?? "",
+                };
+                if (fixedEvent.type == QuestEventType.ForceChoice)
+                {
+                    if (db.choiceEvents.TryGetValue(fixedEvent.choiceEventId, out var choiceEvent))
+                        fixedEvent.ChoiceEvent = choiceEvent;
+                    else
+                        Unresolved(db, "quests.json", q.id, "fixedEvents.choiceEventId", fixedEvent.choiceEventId);
+                }
+                qd.fixedEvents.Add(fixedEvent);
+            }
             foreach (var clueId in qd.grantedClueIds)
                 if (db.clues.TryGetValue(clueId, out var clue))
                     qd.GrantedClues.Add(clue);
@@ -614,7 +644,8 @@ public static class MasterLoader
     record ChoiceOutcomeJson(int weight, QuestChoiceEffectType effectType, int value,
         string? targetId, string? resultText);
     record ChoiceOptionJson(string text, string? resultText, QuestChoiceEffectType effectType, int value,
-        string? targetId, bool targetsOneMember = false, List<ChoiceOutcomeJson>? outcomes = null);
+        string? targetId, bool targetsOneMember = false, List<ChoiceOutcomeJson>? outcomes = null,
+        string? grantedClueId = null, string? storyBranchId = null, string? storyOutcomeText = null);
     record ChoiceEventJson(string id, string title, string? description, int weight, List<ChoiceOptionJson>? options);
 
     record EncounterEntryJson(string unitId, int weight, int minPhase, int maxPhase);
@@ -630,7 +661,7 @@ public static class MasterLoader
 
     record StoryClueJson(string id, string title, string? description);
 
-    record QuestPhaseEventJson(int phase, int type);
+    record QuestPhaseEventJson(int phase, int type, string? choiceEventId = null);
     record QuestJson(string id, string questName, int rank, int totalPhases, int phasesPerTurn,
         int rewardGold, int rewardGuildPoints,
         int rewardExp, bool isEmergencyQuest, int rankUpOnClear, int requiredGuildPoints, string? dungeonId, string? bossEnemyId,

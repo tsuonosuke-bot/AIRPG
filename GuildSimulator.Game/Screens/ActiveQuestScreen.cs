@@ -125,7 +125,11 @@ public static class ActiveQuestScreen
                 + (q.morale.Rate <= 0.3f && !q.morale.IsBroken ? "  ← 危険域" : ""));
             if (q.def.IsGatherQuest)
                 Ui.WriteLine($"  採取状況　: {q.def.gatherItemName} {q.gatheredCount}/{q.def.gatherTargetCount}"
-                    + (q.GatherFulfilled ? "  → 必要数を確保済み、帰還可能" : ""));
+                    + (q.GatherFulfilled
+                        ? q.ReachedGoal
+                            ? "  → 必要数を確保済み、帰還可能"
+                            : "  → 必要数を確保済み、物語調査を継続中"
+                        : ""));
 
             ShowExpeditionReport(q);
 
