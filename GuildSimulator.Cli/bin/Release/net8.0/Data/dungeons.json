@@ -2,7 +2,6 @@
   {
     "id": "dungeon_meadow",
     "dungeonName": "静寂の草原",
-    "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 3,
       "Nothing": 7,
@@ -48,6 +47,12 @@
         "maxPhase": 0
       },
       {
+        "unitId": "unit_aptos_herd",
+        "weight": 2,
+        "minPhase": 11,
+        "maxPhase": 0
+      },
+      {
         "unitId": "unit_goblin_single",
         "weight": 3,
         "minPhase": 2,
@@ -67,29 +72,189 @@
       },
       {
         "unitId": "unit_goblin_thrower_ambush",
-        "weight": 1,
+        "weight": 2,
+        "minPhase": 6,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_acid_slime_pair",
+        "weight": 3,
+        "minPhase": 8,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_ranpos_pack",
+        "weight": 3,
         "minPhase": 11,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wyvern_lesser",
+        "weight": 1,
+        "minPhase": 14,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_acid_slime_swarm",
+        "weight": 2,
+        "minPhase": 10,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_ranpos_hunt",
+        "weight": 3,
+        "minPhase": 9,
         "maxPhase": 0
       }
     ],
     "treasureTable": [
       {
         "type": 2,
-        "gold": 3,
+        "gold": 10,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 2,
+        "gold": 20,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 2,
+        "gold": 40,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 2,
+        "gold": 25,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 50,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 50,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_spear_01",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leathercap_01",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_accessory_camp_prayer_stone",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_spear_02",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leather_01",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_spear_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_ironplate_01",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_camp_herbal_tea",
         "weight": 3,
         "unique": false
       },
       {
-        "type": 2,
-        "gold": 5,
+        "type": 4,
+        "consumableId": "item_trap_kit",
         "weight": 2,
         "unique": false
       },
       {
-        "type": 2,
-        "gold": 10,
+        "type": 4,
+        "consumableId": "item_vital_tonic",
         "weight": 1,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 3
       },
       {
         "type": 0,
@@ -108,19 +273,35 @@
         "relicId": "relic_clover",
         "weight": 1,
         "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_porter_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_firstAid_lv1",
+        "weight": 1,
+        "unique": true
       }
     ],
     "turnEndEventIds": [
       "event_abandoned_camp",
       "event_forked_path",
       "event_mysterious_shrine",
-      "event_looted_caravan"
+      "event_looted_caravan",
+      "event_forest_lore",
+      "event_bandit_lookout_spotted",
+      "event_caravan_supply_wagon",
+      "event_caravan_stuck_wagon",
+      "event_caravan_pack_beast_panic"
     ]
   },
   {
     "id": "dungeon_woods",
-    "dungeonName": "森林外縁",
-    "enemyLevelPerPhase": 0.1,
+    "dungeonName": "流れる森",
     "eventTable": {
       "EnemyEncounter": 6,
       "Nothing": 6,
@@ -139,105 +320,321 @@
         "unitId": "unit_goblin_group",
         "weight": 2,
         "minPhase": 1,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_goblin_scouts",
         "weight": 2,
         "minPhase": 6,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_goblin_warband",
         "weight": 1,
         "minPhase": 11,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_wolf_pair",
         "weight": 4,
         "minPhase": 2,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_wolf_pack",
         "weight": 2,
         "minPhase": 6,
-        "maxPhase": 0
+        "maxPhase": 15
+      },
+      {
+        "unitId": "unit_forest_hopper_pair",
+        "weight": 2,
+        "minPhase": 11,
+        "maxPhase": 15
       },
       {
         "unitId": "unit_spider_single",
         "weight": 4,
         "minPhase": 1,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_spider_nest",
         "weight": 2,
         "minPhase": 7,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_bee_swarm",
         "weight": 3,
         "minPhase": 6,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_treant_single",
         "weight": 1,
-        "minPhase": 11,
-        "maxPhase": 0
-      },
-      {
-        "unitId": "unit_treant_grove",
-        "weight": 1,
-        "minPhase": 16,
-        "maxPhase": 0
+        "minPhase": 19,
+        "maxPhase": 24
       },
       {
         "unitId": "unit_goblin_soldier_patrol",
         "weight": 2,
         "minPhase": 11,
+        "maxPhase": 15
+      },
+      {
+        "unitId": "unit_poison_spider_lair",
+        "weight": 2,
+        "minPhase": 8,
+        "maxPhase": 15
+      },
+      {
+        "unitId": "unit_mage_wolf_pack",
+        "weight": 2,
+        "minPhase": 11,
+        "maxPhase": 15
+      },
+      {
+        "unitId": "unit_wight_cortege",
+        "weight": 1,
+        "minPhase": 14,
+        "maxPhase": 15
+      },
+      {
+        "unitId": "unit_ice_ghoul_lone",
+        "weight": 1,
+        "minPhase": 18,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_goblin_pair",
+        "weight": 3,
+        "minPhase": 6,
+        "maxPhase": 15
+      },
+      {
+        "unitId": "unit_spider_and_bees",
+        "weight": 2,
+        "minPhase": 8,
+        "maxPhase": 15
+      },
+      {
+        "unitId": "unit_mage_wolf_alone",
+        "weight": 1,
+        "minPhase": 11,
+        "maxPhase": 15
+      },
+      {
+        "unitId": "unit_goblin_line",
+        "weight": 2,
+        "minPhase": 12,
+        "maxPhase": 15
+      },
+      {
+        "unitId": "unit_mage_wolf_hunt",
+        "weight": 2,
+        "minPhase": 13,
+        "maxPhase": 15
+      },
+      {
+        "unitId": "unit_wight_alone",
+        "weight": 1,
+        "minPhase": 14,
+        "maxPhase": 15
+      },
+      {
+        "unitId": "unit_wight_pair",
+        "weight": 1,
+        "minPhase": 16,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_kernos_lone",
+        "weight": 3,
+        "minPhase": 25,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_kernos_thralls",
+        "weight": 2,
+        "minPhase": 27,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wolf_pack",
+        "weight": 2,
+        "minPhase": 16,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_treant_grove",
+        "weight": 2,
+        "minPhase": 19,
+        "maxPhase": 24
+      },
+      {
+        "unitId": "unit_spider_nest",
+        "weight": 1,
+        "minPhase": 16,
         "maxPhase": 0
       }
     ],
     "treasureTable": [
       {
         "type": 2,
-        "gold": 5,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
         "gold": 10,
         "weight": 3,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 15,
-        "weight": 1,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
       },
       {
         "type": 2,
         "gold": 20,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 2,
+        "gold": 40,
         "weight": 1,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 2,
+        "gold": 25,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 50,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 50,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_trap_kit",
+        "weight": 2,
         "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_vital_tonic",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_explorers_pendulum",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 3
       },
       {
         "type": 1,
         "equipmentId": "eq_bow_01",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
       },
       {
         "type": 1,
         "equipmentId": "eq_wind_01",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_accessory_caravan_strap",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 1,
+        "maxQuestRank": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_bow_02",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_wind_02",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_accessory_moonsilver_charm",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_bow_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_wind_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 0,
@@ -280,19 +677,43 @@
         "relicId": "relic_barkshield",
         "weight": 1,
         "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_haggle_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_trapSense_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_martialArts_lv1",
+        "weight": 1,
+        "unique": true
       }
     ],
     "turnEndEventIds": [
       "event_abandoned_camp",
       "event_forked_path",
       "event_mysterious_shrine",
-      "event_looted_caravan"
+      "event_looted_caravan",
+      "ev_old_swordsman",
+      "event_forest_lore",
+      "event_bandit_lookout_spotted",
+      "event_caravan_supply_wagon",
+      "event_caravan_stuck_wagon",
+      "event_caravan_pack_beast_panic",
+      "event_caravan_ambush"
     ]
   },
   {
     "id": "dungeon_highway",
     "dungeonName": "隊商街道",
-    "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 5,
       "Nothing": 6,
@@ -336,30 +757,108 @@
         "weight": 2,
         "minPhase": 2,
         "maxPhase": 0
+      },
+      {
+        "unitId": "unit_deserter_patrol",
+        "weight": 3,
+        "minPhase": 4,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_bandit_hawks",
+        "weight": 3,
+        "minPhase": 6,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_bandit_raiders",
+        "weight": 2,
+        "minPhase": 8,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_goblin_pair",
+        "weight": 2,
+        "minPhase": 5,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_bandit_back_line",
+        "weight": 2,
+        "minPhase": 10,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_highway_coalition",
+        "weight": 2,
+        "minPhase": 12,
+        "maxPhase": 0
       }
     ],
     "treasureTable": [
       {
         "type": 2,
-        "gold": 20,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 35,
-        "weight": 3,
-        "unique": false
-      },
-      {
-        "type": 2,
         "gold": 25,
-        "weight": 2,
-        "unique": false
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 2,
         "gold": 50,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 50,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_courage_incense",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_trap_kit",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_lucky_coin",
         "weight": 1,
         "unique": false
       },
@@ -367,19 +866,57 @@
         "type": 1,
         "equipmentId": "eq_sword_02",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 1,
         "equipmentId": "eq_bow_02",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 1,
         "equipmentId": "eq_chain_01",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_accessory_vanguard_tassel",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_sword_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_bow_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_axe_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 0,
@@ -404,19 +941,44 @@
         "relicId": "relic_signet",
         "weight": 1,
         "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_mentor_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_willpower_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_treasureHunter_lv1",
+        "weight": 1,
+        "unique": true
       }
     ],
     "turnEndEventIds": [
       "event_abandoned_camp",
       "event_forked_path",
       "event_looted_caravan",
-      "event_hidden_cache"
+      "event_hidden_cache",
+      "event_bandit_toll",
+      "event_bandit_deserter_dealer",
+      "event_roadside_lessons",
+      "event_bandit_lookout_spotted",
+      "event_caravan_supply_wagon",
+      "event_caravan_specialist_merchant",
+      "event_caravan_rare_broker",
+      "event_caravan_ambush"
     ]
   },
   {
     "id": "dungeon_mine",
     "dungeonName": "打ち捨てられた廃坑",
-    "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 6,
       "Nothing": 5,
@@ -444,19 +1006,19 @@
         "maxPhase": 0
       },
       {
-        "unitId": "unit_kobold_patrol",
+        "unitId": "unit_rock_eater_pair",
         "weight": 4,
         "minPhase": 2,
         "maxPhase": 0
       },
       {
-        "unitId": "unit_kobold_crew",
+        "unitId": "unit_mine_infestation",
         "weight": 3,
         "minPhase": 5,
         "maxPhase": 0
       },
       {
-        "unitId": "unit_kobold_warband",
+        "unitId": "unit_mine_brood",
         "weight": 2,
         "minPhase": 9,
         "maxPhase": 0
@@ -464,19 +1026,25 @@
       {
         "unitId": "unit_wraith_single",
         "weight": 2,
-        "minPhase": 6,
+        "minPhase": 17,
         "maxPhase": 0
       },
       {
         "unitId": "unit_wraith_haunt",
         "weight": 1,
-        "minPhase": 10,
+        "minPhase": 18,
         "maxPhase": 0
       },
       {
         "unitId": "unit_golem_single",
         "weight": 1,
-        "minPhase": 12,
+        "minPhase": 30,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_rock_eater_swarm",
+        "weight": 1,
+        "minPhase": 17,
         "maxPhase": 0
       }
     ],
@@ -484,44 +1052,134 @@
       {
         "type": 2,
         "gold": 25,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 45,
         "weight": 3,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 2,
-        "gold": 70,
+        "gold": 50,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 100,
         "weight": 1,
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 2,
+        "gold": 50,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_trap_kit",
+        "weight": 2,
         "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_sharpeners_black_oil",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_sage_scroll",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 1,
         "equipmentId": "eq_chain_01",
         "weight": 1,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 1,
         "equipmentId": "eq_axe_02",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 1,
         "equipmentId": "eq_spear_02",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
       },
       {
         "type": 1,
         "equipmentId": "eq_robe_02",
         "weight": 2,
-        "unique": false
+        "unique": false,
+        "minQuestRank": 2,
+        "maxQuestRank": 2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_axe_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_spear_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_earth_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_accessory_blacksteel_ring",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 0,
@@ -552,19 +1210,39 @@
         "relicId": "relic_emberstone",
         "weight": 1,
         "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_earthMastery_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_sureStrike_lv1",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_porter_lv2",
+        "weight": 1,
+        "unique": true
       }
     ],
     "turnEndEventIds": [
       "event_forked_path",
       "event_mysterious_shrine",
       "event_collapsed_vault",
-      "event_hidden_cache"
+      "event_hidden_cache",
+      "ev_ancient_altar",
+      "event_ruin_tablets",
+      "event_caravan_specialist_merchant"
     ]
   },
   {
     "id": "dungeon_crypt",
     "dungeonName": "古の墓所",
-    "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 8,
       "Nothing": 4,
@@ -606,7 +1284,7 @@
       {
         "unitId": "unit_necro_ritual",
         "weight": 2,
-        "minPhase": 9,
+        "minPhase": 25,
         "maxPhase": 0
       },
       {
@@ -614,24 +1292,66 @@
         "weight": 1,
         "minPhase": 13,
         "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wight_alone",
+        "weight": 2,
+        "minPhase": 5,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_undead_column",
+        "weight": 3,
+        "minPhase": 8,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wight_pair",
+        "weight": 2,
+        "minPhase": 12,
+        "maxPhase": 0
       }
     ],
     "treasureTable": [
       {
         "type": 2,
-        "gold": 60,
-        "weight": 5,
-        "unique": false
+        "gold": 50,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 2,
         "gold": 100,
-        "weight": 3,
-        "unique": false
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 2,
-        "gold": 160,
+        "gold": 200,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_courage_incense",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_stardust_catalyst",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_graverobbers_key",
         "weight": 1,
         "unique": false
       },
@@ -643,25 +1363,25 @@
       },
       {
         "type": 1,
-        "equipmentId": "eq_sword_02",
+        "equipmentId": "eq_sword_03",
         "weight": 1,
         "unique": false
       },
       {
         "type": 1,
-        "equipmentId": "eq_fire_02",
+        "equipmentId": "eq_fire_03",
         "weight": 2,
         "unique": false
       },
       {
         "type": 1,
-        "equipmentId": "eq_Light_02",
+        "equipmentId": "eq_Light_03",
         "weight": 2,
         "unique": false
       },
       {
         "type": 1,
-        "equipmentId": "eq_dark_01",
+        "equipmentId": "eq_dark_03",
         "weight": 2,
         "unique": false
       },
@@ -670,6 +1390,14 @@
         "equipmentId": "eq_plate_02",
         "weight": 2,
         "unique": false
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_accessory_lifebond_amber",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 0,
@@ -700,126 +1428,51 @@
         "relicId": "relic_reliquary",
         "weight": 1,
         "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_willpower_lv2",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_wardEnchant_lv2",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_sureStrike_lv2",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_martialArts_lv3",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_firstAid_lv2",
+        "weight": 1,
+        "unique": true
       }
     ],
     "turnEndEventIds": [
       "event_mysterious_shrine",
       "event_forked_path",
       "event_collapsed_vault",
-      "event_hidden_cache"
-    ]
-  },
-  {
-    "id": "dungeon_deep_woods",
-    "dungeonName": "森林深部",
-    "enemyLevelPerPhase": 0.1,
-    "eventTable": {
-      "EnemyEncounter": 7,
-      "Nothing": 5,
-      "Trap": 3,
-      "Treasure": 3,
-      "Heal": 1
-    },
-    "encounterTable": [
-      {
-        "unitId": "unit_kernos_lone",
-        "weight": 3,
-        "minPhase": 1,
-        "maxPhase": 0
-      },
-      {
-        "unitId": "unit_kernos_thralls",
-        "weight": 2,
-        "minPhase": 3,
-        "maxPhase": 0
-      },
-      {
-        "unitId": "unit_wolf_pack",
-        "weight": 2,
-        "minPhase": 1,
-        "maxPhase": 0
-      },
-      {
-        "unitId": "unit_treant_grove",
-        "weight": 2,
-        "minPhase": 4,
-        "maxPhase": 0
-      },
-      {
-        "unitId": "unit_spider_nest",
-        "weight": 1,
-        "minPhase": 1,
-        "maxPhase": 0
-      }
-    ],
-    "treasureTable": [
-      {
-        "type": 2,
-        "gold": 25,
-        "weight": 5,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 45,
-        "weight": 3,
-        "unique": false
-      },
-      {
-        "type": 2,
-        "gold": 70,
-        "weight": 1,
-        "unique": false
-      },
-      {
-        "type": 1,
-        "equipmentId": "eq_chain_01",
-        "weight": 1,
-        "unique": false
-      },
-      {
-        "type": 1,
-        "equipmentId": "eq_axe_02",
-        "weight": 2,
-        "unique": false
-      },
-      {
-        "type": 1,
-        "equipmentId": "eq_spear_02",
-        "weight": 2,
-        "unique": false
-      },
-      {
-        "type": 0,
-        "relicId": "relic_whetstone",
-        "weight": 1,
-        "unique": true
-      },
-      {
-        "type": 0,
-        "relicId": "relic_ironheart",
-        "weight": 1,
-        "unique": true
-      },
-      {
-        "type": 0,
-        "relicId": "relic_eggs",
-        "weight": 1,
-        "unique": true
-      }
-    ],
-    "turnEndEventIds": [
-      "event_abandoned_camp",
-      "event_forked_path",
-      "event_mysterious_shrine",
-      "event_looted_caravan",
-      "event_hidden_cache"
+      "event_hidden_cache",
+      "ev_ancient_altar",
+      "ev_cursed_spring",
+      "event_ruin_tablets"
     ]
   },
   {
     "id": "dungeon_old_city",
     "dungeonName": "旧市街",
-    "enemyLevelPerPhase": 0.1,
     "eventTable": {
       "EnemyEncounter": 7,
       "Nothing": 4,
@@ -851,19 +1504,67 @@
         "weight": 2,
         "minPhase": 1,
         "maxPhase": 0
+      },
+      {
+        "unitId": "unit_goblin_line",
+        "weight": 3,
+        "minPhase": 1,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_highway_coalition",
+        "weight": 2,
+        "minPhase": 4,
+        "maxPhase": 0
       }
     ],
     "treasureTable": [
       {
         "type": 2,
-        "gold": 30,
-        "weight": 5,
-        "unique": false
+        "gold": 50,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
       },
       {
         "type": 2,
-        "gold": 50,
-        "weight": 3,
+        "gold": 100,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 3,
+        "maxQuestRank": 3
+      },
+      {
+        "type": 4,
+        "consumableId": "item_explorers_pendulum",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_lucky_coin",
+        "weight": 1,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_sage_scroll",
+        "weight": 1,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_graverobbers_key",
+        "weight": 1,
         "unique": false
       },
       {
@@ -874,7 +1575,7 @@
       },
       {
         "type": 1,
-        "equipmentId": "eq_sword_02",
+        "equipmentId": "eq_sword_03",
         "weight": 2,
         "unique": false
       },
@@ -895,6 +1596,30 @@
         "relicId": "relic_contract",
         "weight": 1,
         "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_haggle_lv2",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_mentor_lv2",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_windMastery_lv2",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_deepCut_lv1",
+        "weight": 1,
+        "unique": true
       }
     ],
     "turnEndEventIds": [
@@ -902,7 +1627,12 @@
       "event_forked_path",
       "event_mysterious_shrine",
       "event_collapsed_vault",
-      "event_hidden_cache"
+      "event_hidden_cache",
+      "ev_ancient_altar",
+      "ev_cursed_spring",
+      "event_ruin_tablets",
+      "event_caravan_rare_broker",
+      "event_caravan_ambush"
     ]
   }
 ]

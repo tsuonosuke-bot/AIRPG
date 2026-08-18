@@ -27,8 +27,15 @@
   <ItemGroup>
     <None Include="..\GuildSimulator.Game\Data\*.json">
       <Link>Data\%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>AIRPG.RepositoryRoot</_Parameter1>
+      <_Parameter2>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/..'))</_Parameter2>
+    </AssemblyAttribute>
   </ItemGroup>
 
 </Project>

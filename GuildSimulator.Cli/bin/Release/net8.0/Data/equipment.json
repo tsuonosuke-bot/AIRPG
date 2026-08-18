@@ -23,17 +23,20 @@
     "rarity": "Common",
     "shopTier": 1,
     "type": 0,
-    "weaponType": 0,
+    "weaponType": 11,
     "armorType": 3,
     "attackKind": "Physical",
     "damageDice": "1d2",
-    "basePv": 3,
+    "basePv": 1,
     "maxStatBonus": 5,
+    "critRange": 2,
+    "extraAttacks": 1,
     "price": 25,
     "weight": 2,
     "bonus": {
-      "toHit": 2
-    }
+      "toHit": 3
+    },
+    "offHandBonus": 20
   },
   {
     "id": "eq_spear_01",
@@ -45,8 +48,9 @@
     "armorType": 3,
     "attackKind": "Physical",
     "damageDice": "1d2",
-    "basePv": 4,
+    "basePv": 5,
     "maxStatBonus": 7,
+    "armorPierce": 2,
     "price": 35,
     "weight": 4,
     "bonus": {
@@ -62,13 +66,14 @@
     "weaponType": 1,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "1d2",
-    "basePv": 4,
+    "damageDice": "1d4",
+    "basePv": 2,
     "maxStatBonus": 8,
+    "armorShred": 2,
     "price": 40,
     "weight": 5,
     "bonus": {
-      "toHit": -3
+      "toHit": -4
     }
   },
   {
@@ -87,7 +92,8 @@
     "weight": 3,
     "bonus": {
       "toHit": -2
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_sling_01",
@@ -100,12 +106,13 @@
     "attackKind": "Physical",
     "damageDice": "1d2",
     "basePv": 2,
-    "maxStatBonus": 5,
+    "maxStatBonus": 6,
     "price": 25,
     "weight": 2,
     "bonus": {
       "toHit": 2
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_fire_01",
@@ -123,7 +130,8 @@
     "weight": 3,
     "bonus": {
       "dv": -3
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_wind_01",
@@ -141,7 +149,8 @@
     "weight": 1,
     "bonus": {
       "toHit": 2
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_water_01",
@@ -159,7 +168,8 @@
     "weight": 4,
     "bonus": {
       "mav": 1
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_earth_01",
@@ -177,7 +187,8 @@
     "weight": 5,
     "bonus": {
       "av": 1
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_dark_01",
@@ -196,7 +207,8 @@
     "bonus": {
       "mav": -1,
       "dv": -2
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_Light_01",
@@ -215,7 +227,8 @@
     "weight": 3,
     "bonus": {
       "heal": 20
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_sword_02",
@@ -241,17 +254,20 @@
     "rarity": "Common",
     "shopTier": 2,
     "type": 0,
-    "weaponType": 0,
+    "weaponType": 11,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "1d3",
-    "basePv": 4,
+    "damageDice": "1d2",
+    "basePv": 3,
     "maxStatBonus": 5,
+    "critRange": 2,
+    "extraAttacks": 1,
     "price": 75,
     "weight": 2,
     "bonus": {
-      "toHit": 2
-    }
+      "toHit": 3
+    },
+    "offHandBonus": 20
   },
   {
     "id": "eq_spear_02",
@@ -262,9 +278,10 @@
     "weaponType": 2,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "1d1+1",
-    "basePv": 5,
+    "damageDice": "1d3",
+    "basePv": 6,
     "maxStatBonus": 7,
+    "armorPierce": 2,
     "price": 100,
     "weight": 5,
     "bonus": {
@@ -280,9 +297,10 @@
     "weaponType": 1,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "1d2+1",
-    "basePv": 5,
+    "damageDice": "1d4+1",
+    "basePv": 2,
     "maxStatBonus": 8,
+    "armorShred": 2,
     "price": 110,
     "weight": 6,
     "bonus": {
@@ -305,7 +323,8 @@
     "weight": 4,
     "bonus": {
       "toHit": -1
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_fire_02",
@@ -323,7 +342,8 @@
     "weight": 3,
     "bonus": {
       "dv": -3
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_wind_02",
@@ -341,7 +361,8 @@
     "weight": 1,
     "bonus": {
       "toHit": 2
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_water_02",
@@ -359,7 +380,8 @@
     "weight": 4,
     "bonus": {
       "mav": 2
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_earth_02",
@@ -377,7 +399,8 @@
     "weight": 5,
     "bonus": {
       "av": 2
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_dark_02",
@@ -396,7 +419,8 @@
     "bonus": {
       "mav": -1,
       "dv": -2
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_Light_02",
@@ -415,7 +439,8 @@
     "weight": 3,
     "bonus": {
       "heal": 30
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_sword_03",
@@ -441,17 +466,20 @@
     "rarity": "Common",
     "shopTier": 3,
     "type": 0,
-    "weaponType": 0,
+    "weaponType": 11,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "1d4",
+    "damageDice": "1d3",
     "basePv": 5,
     "maxStatBonus": 5,
+    "critRange": 2,
+    "extraAttacks": 1,
     "price": 180,
     "weight": 3,
     "bonus": {
-      "toHit": 2
-    }
+      "toHit": 3
+    },
+    "offHandBonus": 20
   },
   {
     "id": "eq_spear_03",
@@ -462,9 +490,10 @@
     "weaponType": 2,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "2d2",
+    "damageDice": "1d3+1",
     "basePv": 7,
     "maxStatBonus": 7,
+    "armorPierce": 2,
     "price": 240,
     "weight": 6,
     "bonus": {
@@ -480,9 +509,10 @@
     "weaponType": 1,
     "armorType": 3,
     "attackKind": "Physical",
-    "damageDice": "1d3+1",
-    "basePv": 7,
+    "damageDice": "1d6+1",
+    "basePv": 4,
     "maxStatBonus": 8,
+    "armorShred": 2,
     "price": 260,
     "weight": 8,
     "bonus": {
@@ -505,7 +535,8 @@
     "weight": 4,
     "bonus": {
       "toHit": -1
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_fire_03",
@@ -523,7 +554,8 @@
     "weight": 4,
     "bonus": {
       "dv": -3
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_wind_03",
@@ -541,7 +573,8 @@
     "weight": 2,
     "bonus": {
       "toHit": 2
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_water_03",
@@ -559,7 +592,8 @@
     "weight": 5,
     "bonus": {
       "mav": 3
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_earth_03",
@@ -577,7 +611,8 @@
     "weight": 6,
     "bonus": {
       "av": 3
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_dark_03",
@@ -596,7 +631,8 @@
     "bonus": {
       "mav": -2,
       "dv": -2
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_Light_03",
@@ -615,7 +651,8 @@
     "weight": 3,
     "bonus": {
       "heal": 50
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_cloth_01",
@@ -790,8 +827,265 @@
     ]
   },
   {
+    "id": "eq_accessory_camp_prayer_stone",
+    "displayName": "野営祈りの青石",
+    "rarity": "Common",
+    "shopTier": 1,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 45,
+    "weight": 1,
+    "bonus": {
+      "san": 10
+    }
+  },
+  {
+    "id": "eq_accessory_caravan_strap",
+    "displayName": "隊商の肩紐",
+    "rarity": "Common",
+    "shopTier": 1,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 50,
+    "weight": 1,
+    "bonus": {
+      "carry": 4
+    }
+  },
+  {
+    "id": "eq_accessory_moonsilver_charm",
+    "displayName": "月銀の護符",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 120,
+    "weight": 1,
+    "bonus": {
+      "mav": 1
+    }
+  },
+  {
+    "id": "eq_accessory_vanguard_tassel",
+    "displayName": "先陣の赤房",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 130,
+    "weight": 1,
+    "bonus": {
+      "threatWeight": 20
+    }
+  },
+  {
+    "id": "eq_accessory_blacksteel_ring",
+    "displayName": "穿岩の黒鋼環",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 260,
+    "weight": 1,
+    "bonus": {
+      "autoPenetrate": 5
+    }
+  },
+  {
+    "id": "eq_accessory_lifebond_amber",
+    "displayName": "命継ぎの琥珀",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 300,
+    "weight": 1,
+    "bonus": {
+      "emergencyHeal": 10
+    }
+  },
+  {
+    "id": "eq_drop_slime_core_ring",
+    "displayName": "粘核の指輪",
+    "rarity": "Uncommon",
+    "shopTier": 1,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 75,
+    "weight": 1,
+    "bonus": {
+      "offHandChance": 10
+    }
+  },
+  {
+    "id": "eq_drop_goblin_ashfire_ring",
+    "displayName": "灰火の術環",
+    "rarity": "Uncommon",
+    "shopTier": 2,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 140,
+    "weight": 1,
+    "bonus": {
+      "mpv": 1
+    }
+  },
+  {
+    "id": "eq_drop_kernos_warhorn_ring",
+    "displayName": "戦角の刻印環",
+    "rarity": "Uncommon",
+    "shopTier": 2,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 170,
+    "weight": 2,
+    "bonus": {
+      "blockNegate": 8
+    }
+  },
+  {
+    "id": "eq_drop_corvus_plume",
+    "displayName": "コルヴスの羽飾り",
+    "rarity": "Uncommon",
+    "shopTier": 1,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 70,
+    "weight": 1,
+    "bonus": {
+      "dv": 1,
+      "toHit": 1
+    }
+  },
+  {
+    "id": "eq_drop_ironbark_charm",
+    "displayName": "鉄樹皮の護符",
+    "rarity": "Uncommon",
+    "shopTier": 1,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 80,
+    "weight": 2,
+    "bonus": {
+      "hp": 10,
+      "av": 1,
+      "dv": -1
+    }
+  },
+  {
+    "id": "eq_drop_kernos_antler",
+    "displayName": "ケルノスの角飾り",
+    "rarity": "Uncommon",
+    "shopTier": 2,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 160,
+    "weight": 2,
+    "bonus": {
+      "pv": 1,
+      "toHit": 1
+    }
+  },
+  {
+    "id": "eq_drop_venom_dagger",
+    "displayName": "毒腺の短剣",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 11,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d3",
+    "basePv": 5,
+    "maxStatBonus": 5,
+    "critRange": 2,
+    "extraAttacks": 1,
+    "price": 260,
+    "weight": 2,
+    "bonus": {
+      "toHit": 3
+    },
+    "offHandBonus": 20
+  },
+  {
+    "id": "eq_drop_raptor_hide",
+    "displayName": "ランポスの疾駆革",
+    "rarity": "Uncommon",
+    "shopTier": 2,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 1,
+    "price": 170,
+    "weight": 6,
+    "bonus": {
+      "av": 3
+    }
+  },
+  {
+    "id": "eq_drop_alpha_claw",
+    "displayName": "アルファの鉤爪剣",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 0,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d4+1",
+    "basePv": 7,
+    "maxStatBonus": 6,
+    "price": 300,
+    "weight": 5,
+    "bonus": {
+      "toHit": 1
+    }
+  },
+  {
+    "id": "eq_drop_wyvern_scale",
+    "displayName": "飛竜鱗の軽鎧",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 1,
+    "price": 340,
+    "weight": 8,
+    "bonus": {
+      "av": 6,
+      "mav": 2,
+      "dv": -1
+    }
+  },
+  {
+    "id": "eq_drop_crystal_shell",
+    "displayName": "晶殻の盾",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 3,
+    "weaponType": 10,
+    "armorType": 1,
+    "blockChance": 45,
+    "blockAv": 11,
+    "price": 320,
+    "weight": 9,
+    "allowedSlots": [
+      "LeftHand"
+    ]
+  },
+  {
     "id": "eq_drop_fang",
-    "displayName": "森狼の牙剣",
+    "displayName": "ルプスの牙剣",
     "rarity": "Uncommon",
     "shopTier": 2,
     "type": 0,
@@ -824,7 +1118,8 @@
     "bonus": {
       "toHit": 3,
       "dv": 2
-    }
+    },
+    "isTwoHanded": true
   },
   {
     "id": "eq_drop_bone",
@@ -836,13 +1131,261 @@
     "armorType": 3,
     "attackKind": "Physical",
     "damageDice": "2d4",
-    "basePv": 8,
-    "maxStatBonus": 8,
+    "basePv": 9,
+    "maxStatBonus": 7,
     "price": 480,
     "weight": 8,
     "bonus": {
       "toHit": -2,
       "av": 2
+    },
+    "isTwoHanded": true
+  },
+  {
+    "id": "eq_greatsword_01",
+    "displayName": "青銅の大剣",
+    "rarity": "Common",
+    "shopTier": 1,
+    "type": 0,
+    "weaponType": 0,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d4",
+    "basePv": 4,
+    "maxStatBonus": 7,
+    "isTwoHanded": true,
+    "price": 70,
+    "weight": 7,
+    "bonus": {
+      "toHit": 0
+    }
+  },
+  {
+    "id": "eq_greatsword_02",
+    "displayName": "鉄の大剣",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 0,
+    "weaponType": 0,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d6",
+    "basePv": 5,
+    "maxStatBonus": 7,
+    "isTwoHanded": true,
+    "price": 190,
+    "weight": 9,
+    "bonus": {
+      "toHit": 0
+    }
+  },
+  {
+    "id": "eq_greatsword_03",
+    "displayName": "鋼の大剣",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 0,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d8",
+    "basePv": 7,
+    "maxStatBonus": 7,
+    "isTwoHanded": true,
+    "price": 460,
+    "weight": 10,
+    "bonus": {
+      "toHit": 0
+    }
+  },
+  {
+    "id": "eq_greataxe_01",
+    "displayName": "青銅の大斧",
+    "rarity": "Common",
+    "shopTier": 1,
+    "type": 0,
+    "weaponType": 1,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d6",
+    "basePv": 3,
+    "maxStatBonus": 9,
+    "armorShred": 2,
+    "isTwoHanded": true,
+    "price": 85,
+    "weight": 10,
+    "bonus": {
+      "toHit": -5
+    }
+  },
+  {
+    "id": "eq_greataxe_02",
+    "displayName": "鉄の大斧",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 0,
+    "weaponType": 1,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d6+1",
+    "basePv": 4,
+    "maxStatBonus": 9,
+    "armorShred": 2,
+    "isTwoHanded": true,
+    "price": 230,
+    "weight": 12,
+    "bonus": {
+      "toHit": -5
+    }
+  },
+  {
+    "id": "eq_greataxe_03",
+    "displayName": "鋼の大斧",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 1,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d8+1",
+    "basePv": 5,
+    "maxStatBonus": 9,
+    "armorShred": 2,
+    "isTwoHanded": true,
+    "price": 540,
+    "weight": 14,
+    "bonus": {
+      "toHit": -5
+    }
+  },
+  {
+    "id": "eq_longspear_01",
+    "displayName": "青銅の長槍",
+    "rarity": "Common",
+    "shopTier": 1,
+    "type": 0,
+    "weaponType": 2,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d3",
+    "basePv": 6,
+    "maxStatBonus": 8,
+    "isTwoHanded": true,
+    "price": 80,
+    "weight": 8,
+    "bonus": {
+      "toHit": -3
+    },
+    "armorPierce": 2
+  },
+  {
+    "id": "eq_longspear_02",
+    "displayName": "鉄の長槍",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 0,
+    "weaponType": 2,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d4",
+    "basePv": 7,
+    "maxStatBonus": 8,
+    "isTwoHanded": true,
+    "price": 210,
+    "weight": 10,
+    "bonus": {
+      "toHit": -3
+    },
+    "armorPierce": 2
+  },
+  {
+    "id": "eq_longspear_03",
+    "displayName": "鋼の長槍",
+    "rarity": "Common",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 2,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d4+2",
+    "basePv": 8,
+    "maxStatBonus": 8,
+    "isTwoHanded": true,
+    "price": 500,
+    "weight": 12,
+    "bonus": {
+      "toHit": -3
+    },
+    "armorPierce": 2
+  },
+  {
+    "id": "eq_buckler_01",
+    "displayName": "木の小盾",
+    "rarity": "Common",
+    "shopTier": 1,
+    "type": 3,
+    "weaponType": 10,
+    "armorType": 1,
+    "blockChance": 25,
+    "blockAv": 4,
+    "price": 40,
+    "weight": 3,
+    "allowedSlots": [
+      "LeftHand"
+    ]
+  },
+  {
+    "id": "eq_buckler_02",
+    "displayName": "鉄の小盾",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 3,
+    "weaponType": 10,
+    "armorType": 1,
+    "blockChance": 30,
+    "blockAv": 6,
+    "price": 120,
+    "weight": 4,
+    "allowedSlots": [
+      "LeftHand"
+    ]
+  },
+  {
+    "id": "eq_towershield_01",
+    "displayName": "木の大盾",
+    "rarity": "Common",
+    "shopTier": 1,
+    "type": 3,
+    "weaponType": 10,
+    "armorType": 1,
+    "blockChance": 40,
+    "blockAv": 7,
+    "price": 60,
+    "weight": 9,
+    "allowedSlots": [
+      "LeftHand"
+    ],
+    "bonus": {
+      "dv": -2
+    }
+  },
+  {
+    "id": "eq_towershield_02",
+    "displayName": "鉄の大盾",
+    "rarity": "Common",
+    "shopTier": 2,
+    "type": 3,
+    "weaponType": 10,
+    "armorType": 1,
+    "blockChance": 45,
+    "blockAv": 10,
+    "price": 170,
+    "weight": 11,
+    "allowedSlots": [
+      "LeftHand"
+    ],
+    "bonus": {
+      "dv": -2
     }
   },
   {

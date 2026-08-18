@@ -23,13 +23,13 @@
 
   <!-- マスタJSONはCLI版と同じ実体を配信する。静的Webアセットとして扱わせるため、
        ビルド前に wwwroot/Data へコピーする（コピー先はgit管理外）。 -->
-  <Target Name="CopyMasterData" BeforeTargets="BeforeBuild;BeforeRebuild">
+  <Target Name="CopyMasterData" BeforeTargets="BeforeBuild;BeforeRebuild;ComputeFilesToPublish">
     <ItemGroup>
       <MasterDataJson Include="..\GuildSimulator.Game\Data\*.json" />
     </ItemGroup>
     <Copy SourceFiles="@(MasterDataJson)"
           DestinationFolder="$(MSBuildProjectDirectory)\wwwroot\Data"
-          SkipUnchangedFiles="true" />
+          SkipUnchangedFiles="false" />
   </Target>
 
 </Project>

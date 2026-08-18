@@ -86,11 +86,14 @@ public class MainMenuBuilderTests
     }
 
     [Fact]
-    public void RecordsAndReferencesSubmenuContainsSixActionsAndBack()
+    public void RecordsAndReferencesSubmenuContainsQuestHistoryAndBack()
     {
         var menu = MainMenuBuilder.BuildRecordsAndReferences();
 
-        Assert.Equal(new[] { "8", "B", "J", "M", "T", "H", "0" }, menu.Select(option => option.Key));
+        Assert.Equal(new[] { "8", "Q", "B", "J", "M", "T", "H", "0" }, menu.Select(option => option.Key));
+        var history = Assert.Single(menu, option => option.Key == "Q");
+        Assert.Equal("完了クエスト履歴", history.Label);
+        Assert.Contains("遠征ログ・戦闘別ログ", history.Detail);
         Assert.Equal("メインメニューへ戻る", menu[^1].Label);
     }
 }

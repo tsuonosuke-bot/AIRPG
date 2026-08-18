@@ -1,5 +1,7 @@
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Unicode;
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Systems.Battle;
@@ -29,6 +31,9 @@ public static class SaveManager
     {
         WriteIndented = true,
         IncludeFields = true,
+        // セーブJSONはHTMLへ埋め込まず、そのままファイル/localStorageへ保存する。
+        // 日本語を \uXXXX（最大6文字）へ膨張させず、履歴上限と実保存量を近づける。
+        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
         Converters = { new JsonStringEnumConverter() },
     };
 
@@ -168,6 +173,17 @@ public static class SaveManager
             .Select(e => new BoardEntrySave { questId = e.quest.id, postedTurn = e.postedTurn })
             .ToList(),
         activeQuests = qm.activeQuests.Select(ExportQuestRun).ToList(),
+        questHistory = qm.QuestHistory
+            .TakeLast(QuestManager.QuestHistoryLimit)
+            .Select(entry => new QuestHistoryEntrySaveData
+            {
+                questId = entry.QuestId,
+                questName = entry.QuestName,
+                startedTurn = entry.StartedTurn,
+                completedTurn = entry.CompletedTurn,
+                outcome = entry.Outcome,
+                logs = new List<string>(entry.Logs),
+            }).ToList(),
         clearedOneShotIds = qm.ExportClearedOneShotIds().ToList(),
         clearedQuestIds = qm.ExportClearedQuestIds().ToList(),
         discoveredClueIds = qm.ExportDiscoveredClueIds().ToList(),
@@ -317,13 +333,18 @@ public static class SaveManager
             .Where(q => questById.ContainsKey(q.questId))
             .Select(q => RestoreQuestRun(q, questById[q.questId], adventurersById, db))
             .ToList();
+        var history = (data.questManager.questHistory ?? new())
+            .TakeLast(QuestManager.QuestHistoryLimit)
+            .Select(saved => RestoreQuestHistoryEntry(saved, questById))
+            .ToList();
         questManager.RestoreState(
             board,
             active,
             data.questManager.clearedOneShotIds ?? new(),
             data.questManager.clearedQuestIds ?? new(),
             data.questManager.discoveredClueIds ?? new(),
-            data.questManager.selectedBranchIds ?? new());
+            data.questManager.selectedBranchIds ?? new(),
+            history);
 
         var recruitCandidates = data.recruitCandidateIds
             .Where(adventurerMasterById.ContainsKey)
@@ -525,6 +546,28 @@ public static class SaveManager
         }
 
         return run;
+    }
+
+    static QuestHistoryEntry RestoreQuestHistoryEntry(
+        QuestHistoryEntrySaveData saved,
+        IReadOnlyDictionary<string, QuestMasterData> questById)
+    {
+        string questName = saved.questName;
+        if (string.IsNullOrWhiteSpace(questName)
+            && questById.TryGetValue(saved.questId ?? "", out var currentMaster))
+            questName = currentMaster.questName;
+        if (string.IsNullOrWhiteSpace(questName))
+            questName = string.IsNullOrWhiteSpace(saved.questId)
+                ? "不明なクエスト"
+                : $"不明なクエスト（{saved.questId}）";
+
+        return new QuestHistoryEntry(
+            saved.questId ?? "",
+            questName,
+            saved.startedTurn,
+            saved.completedTurn,
+            saved.outcome,
+            (saved.logs ?? new()).Select(NormalizeAreaTerminology));
     }
 
     static string NormalizeAreaTerminology(string log) =>

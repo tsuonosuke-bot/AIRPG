@@ -8,7 +8,7 @@ namespace GuildSimulator.Game.Data;
 
 public class SaveGameData
 {
-    public const int CurrentVersion = 10;
+    public const int CurrentVersion = 11;
     public int saveVersion = CurrentVersion;
     public int currentTurn = 1;
     public GuildSaveData guild = new();
@@ -109,10 +109,21 @@ public class QuestManagerSaveData
 {
     public List<BoardEntrySave> questBoard = new();
     public List<QuestRunSaveData> activeQuests = new();
+    public List<QuestHistoryEntrySaveData> questHistory = new();
     public List<string> clearedOneShotIds = new();
     public List<string> clearedQuestIds = new();
     public List<string> discoveredClueIds = new();
     public List<string> selectedBranchIds = new();
+}
+
+public class QuestHistoryEntrySaveData
+{
+    public string questId = "";
+    public string questName = "";
+    public int startedTurn;
+    public int completedTurn;
+    public QuestHistoryOutcome outcome;
+    public List<string> logs = new();
 }
 
 public class BoardEntrySave

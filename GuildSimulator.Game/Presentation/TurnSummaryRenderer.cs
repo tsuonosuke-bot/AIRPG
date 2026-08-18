@@ -58,8 +58,13 @@ internal static class TurnSummaryRenderer
     {
         int start = Math.Clamp(beforeReportCount, 0, quest.reportEvents.Count);
         var events = quest.reportEvents.Skip(start).ToList();
-        var quietEvents = events.Where(IsQuietProgress).ToList();
         var notableEvents = events.Where(e => !IsQuietProgress(e)).ToList();
+        int quietPhaseCount = events
+            .Where(e => e.phase > 0)
+            .GroupBy(e => e.phase)
+            .Count(phaseEvents =>
+                phaseEvents.Any(IsQuietProgress)
+                && phaseEvents.All(IsQuietProgress));
 
         foreach (var e in notableEvents)
         {
@@ -85,10 +90,10 @@ internal static class TurnSummaryRenderer
                 Ui.WriteLine($"          ★ 成長  {growth}", TextStyle.Warn);
         }
 
-        if (quietEvents.Count > 0)
+        if (quietPhaseCount > 0)
         {
             string prefix = notableEvents.Count > 0 ? "ほか" : "";
-            Ui.Dim($"      ・{prefix}{quietEvents.Count}エリア：特記事項なし");
+            Ui.Dim($"      ・{prefix}{quietPhaseCount}エリア：特記事項なし");
         }
         else if (notableEvents.Count == 0)
         {

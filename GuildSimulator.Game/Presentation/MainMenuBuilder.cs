@@ -65,6 +65,7 @@ internal static class MainMenuBuilder
     public static IReadOnlyList<MenuOption> BuildRecordsAndReferences() => new[]
     {
         new MenuOption("8", "経済ログ", Group: "記録"),
+        new MenuOption("Q", "完了クエスト履歴", "遠征ログ・戦闘別ログを再閲覧", Group: "記録"),
         new MenuOption("B", "埋葬記録", Group: "記録"),
         new MenuOption("J", "調査記録", Group: "記録"),
         new MenuOption("M", "モンスター図鑑", Group: "資料"),

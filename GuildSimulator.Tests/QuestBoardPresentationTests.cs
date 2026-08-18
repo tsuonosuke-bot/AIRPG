@@ -1,5 +1,8 @@
 using GuildSimulator.Cli;
+using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
+using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
 using GuildSimulator.Core.Systems.Quest;
 using GuildSimulator.Game.Data;
@@ -70,6 +73,58 @@ public class QuestBoardPresentationTests
         Assert.DoesNotContain("スコア", text);
     }
 
+    [Fact]
+    public void PartyPreviewWarnsAboutAnEmptyFrontAndRearMeleePlacement()
+    {
+        var formation = new AdventurerData?[6];
+        formation[3] = AdventurerWithWeapon("剣士", PhysicalWeapon());
+        formation[4] = AdventurerWithWeapon("神官", HealingWeapon());
+
+        string text = CaptureConsole(() =>
+            QuestBoardScreen.ShowPartyPreview(formation, BossQuest()));
+
+        Assert.Contains("配置役割: 前衛 0人 / 後衛 2人 / 回復役 1人", text);
+        Assert.Contains("⚠ 前衛不在: 後衛への攻撃を遮る隊員がいません", text);
+        Assert.Contains($"⚠ 後衛の近接役: 剣士（命中-{BattleResolver.REAR_MELEE_TO_HIT_PENALTY}）", text);
+        Assert.DoesNotContain("回復役不在", text);
+    }
+
+    [Fact]
+    public void PartyPreviewWarnsAboutMissingHealingForAFullBossParty()
+    {
+        var formation = new AdventurerData?[6];
+        formation[0] = AdventurerWithWeapon("前衛1", PhysicalWeapon());
+        formation[1] = AdventurerWithWeapon("前衛2", PhysicalWeapon());
+        formation[2] = AdventurerWithWeapon("前衛3", PhysicalWeapon());
+
+        string text = CaptureConsole(() =>
+            QuestBoardScreen.ShowPartyPreview(formation, BossQuest()));
+
+        Assert.Contains("配置役割: 前衛 3人 / 後衛 0人 / 回復役 0人", text);
+        Assert.Contains("⚠ 回復役不在:", text);
+        Assert.DoesNotContain("⚠ 前衛不在:", text);
+    }
+
+    [Fact]
+    public void PartyPreviewDoesNotOverWarnAQuietSoloExpeditionWithoutHealing()
+    {
+        var formation = new AdventurerData?[6];
+        formation[0] = AdventurerWithWeapon("斥候", PhysicalWeapon());
+        var quest = new QuestMasterData
+        {
+            id = "quiet",
+            questName = "安全な踏破",
+            totalPhases = 3,
+            Dungeon = new DungeonMasterData(),
+        };
+
+        string text = CaptureConsole(() =>
+            QuestBoardScreen.ShowPartyPreview(formation, quest));
+
+        Assert.Contains("配置役割: 前衛 1人 / 後衛 0人 / 回復役 0人", text);
+        Assert.DoesNotContain("⚠ 回復役不在:", text);
+    }
+
     static QuestMasterData HuntQuest()
     {
         var soldier = new EnemyMasterData
@@ -101,6 +156,84 @@ public class QuestBoardPresentationTests
                 },
             },
         };
+    }
+
+    static QuestMasterData BossQuest()
+    {
+        var boss = new EnemyMasterData
+        {
+            id = "boss",
+            baseName = "大物",
+            threat = 1,
+        };
+        return new QuestMasterData
+        {
+            id = "boss-quest",
+            questName = "討伐任務",
+            rank = 1,
+            totalPhases = 1,
+            bossPhase = 1,
+            BossEnemy = new EnemyUnitTemplate
+            {
+                Formation = new List<EnemyMasterData?> { boss },
+            },
+        };
+    }
+
+    static AdventurerData AdventurerWithWeapon(string name, EquipmentMasterData weapon) =>
+        new(new AdventurerMasterData
+        {
+            id = name,
+            baseName = name,
+            defaultLevel = 1,
+            defaultRank = 1,
+            vitality = 10,
+            mental = 10,
+            strength = 10,
+            agility = 10,
+            intelligence = 10,
+            constitution = 10,
+            appearance = 10,
+            DefaultWeapon = weapon,
+        });
+
+    static EquipmentMasterData PhysicalWeapon() => new()
+    {
+        id = "sword",
+        displayName = "剣",
+        type = EquipmentType.Weapon,
+        weaponType = WeaponType.Sword,
+        attackKind = AttackKind.Physical,
+        damageDice = "1d6",
+        bonus = new StatBlock(),
+    };
+
+    static EquipmentMasterData HealingWeapon() => new()
+    {
+        id = "staff",
+        displayName = "回復杖",
+        type = EquipmentType.Weapon,
+        weaponType = WeaponType.Light,
+        attackKind = AttackKind.Heal,
+        healPower = 1f,
+        bonus = new StatBlock(),
+    };
+
+    static string CaptureConsole(Action action)
+    {
+        var originalOut = Console.Out;
+        using var output = new StringWriter();
+        try
+        {
+            Console.SetOut(output);
+            Ui.Use(new ConsoleGameIo());
+            action();
+            return output.ToString();
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
     }
 
     static async Task<string> CaptureConsoleAsync(string inputText, Func<Task> action)

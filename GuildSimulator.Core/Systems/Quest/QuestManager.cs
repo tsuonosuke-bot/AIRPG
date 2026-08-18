@@ -10,8 +10,16 @@ namespace GuildSimulator.Core.Systems.Quest;
 
 public class QuestManager
 {
+    /// <summary>
+    /// WebのlocalStorageを含むセーブ領域が無制限に増えないよう保持する完了履歴の上限。
+    /// </summary>
+    public const int QuestHistoryLimit = 30;
+    public const int QuestHistoryLogCharacterBudget =
+        QuestHistoryLimit * QuestHistoryEntry.MaxLogCharacters;
+
     public List<QuestRun> activeQuests = new();
-    public List<QuestRun> questHistory = new();
+    readonly List<QuestHistoryEntry> questHistory = new();
+    public IReadOnlyList<QuestHistoryEntry> QuestHistory => questHistory;
     public List<QuestBoardEntry> questBoard = new();
 
     /// <summary>施設のボーナスを含まない、通常クエストの掲示枠の基本数。</summary>
@@ -815,7 +823,34 @@ public class QuestManager
 
         UnmarkBusy(q);
         activeQuests.Remove(q);
-        questHistory.Add(q);
+        questHistory.Add(QuestHistoryEntry.Capture(q));
+        TrimQuestHistory();
+    }
+
+    void TrimQuestHistory()
+    {
+        int overflow = questHistory.Count - QuestHistoryLimit;
+        if (overflow > 0)
+            questHistory.RemoveRange(0, overflow);
+    }
+
+    /// <summary>
+    /// 帰還処理後に確定した特性選択などを、対応する最新の完了履歴へ反映する。
+    /// 同じクエストIDでも別の遠征を上書きしないよう開始Turnまで照合する。
+    /// </summary>
+    public bool RefreshCompletedQuestHistory(QuestRun quest)
+    {
+        for (int index = questHistory.Count - 1; index >= 0; index--)
+        {
+            var history = questHistory[index];
+            if (!string.Equals(history.QuestId, quest.def.id, StringComparison.Ordinal)
+                || history.StartedTurn != quest.startedTurn)
+                continue;
+
+            questHistory[index] = history.WithQuestLogUpdates(quest);
+            return true;
+        }
+        return false;
     }
 
     void MarkBusy(QuestRun q) { foreach (var a in q.EnumerateMembers()) busyIds.Add(a.id); }
@@ -837,10 +872,16 @@ public class QuestManager
         IEnumerable<string> clearedOneShotIdsToRestore,
         IEnumerable<string>? clearedQuestIdsToRestore = null,
         IEnumerable<string>? discoveredClueIdsToRestore = null,
-        IEnumerable<string>? selectedBranchIdsToRestore = null)
+        IEnumerable<string>? selectedBranchIdsToRestore = null,
+        IEnumerable<QuestHistoryEntry>? questHistoryToRestore = null)
     {
         questBoard = board;
         activeQuests = active;
+
+        questHistory.Clear();
+        questHistory.AddRange(
+            (questHistoryToRestore ?? Array.Empty<QuestHistoryEntry>())
+                .TakeLast(QuestHistoryLimit));
 
         clearedOneShotIds.Clear();
         foreach (var id in clearedOneShotIdsToRestore)

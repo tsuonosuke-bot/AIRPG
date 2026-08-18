@@ -128,6 +128,8 @@ public static class HelpScreen
         Ui.WriteLine("                      未解決の選択がある間は次のターンへ進めない。");
         Ui.WriteLine("  ・報酬の見方      : クエストボードの基本報酬は確定分のみ。宝箱・敵ドロップ・選択イベントの");
         Ui.WriteLine("                      副収入は含まれておらず、結果によって上乗せされる。");
+        Ui.WriteLine("  ・完了履歴        : 帰還済みクエストの遠征ログ・戦闘別ログは");
+        Ui.WriteLine("                      「G. 記録・資料」→「Q. 完了クエスト履歴」から再閲覧できる。");
         await Ui.PauseAsync();
     }
 

@@ -154,6 +154,7 @@ public static class GameLoop
             switch (input.Trim().ToUpperInvariant())
             {
                 case "8": await ShowEconomyLogAsync(guild); break;
+                case "Q": await QuestHistoryScreen.ShowAsync(questManager); break;
                 case "B": await BurialScreen.ShowAsync(guild); break;
                 case "J": await StoryJournalScreen.ShowAsync(db, questManager); break;
                 case "M": await MonsterGuideScreen.ShowAsync(db, guild); break;
@@ -174,12 +175,22 @@ public static class GameLoop
             await saveStore.WriteAsync(json);
             Ui.Info($"セーブしました（Turn {currentTurn}）");
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (!IsFatal(ex))
         {
             Ui.Error($"セーブに失敗しました: {ex.Message}");
         }
         await Ui.PauseAsync();
     }
+
+    static bool IsFatal(Exception ex) => ex is
+        OutOfMemoryException
+        or StackOverflowException
+        or AccessViolationException
+        or AppDomainUnloadedException
+        or BadImageFormatException
+        or CannotUnloadAppDomainException
+        or InvalidProgramException
+        or System.Threading.ThreadAbortException;
 
     static async Task<LoadedGame?> DoLoadAsync(ISaveStore saveStore, GameMasterData db)
     {

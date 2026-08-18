@@ -164,7 +164,7 @@ public static class ActiveQuestScreen
                 qm.FinalizeQuest(q);
                 ShowCompletionSummary(q, guild, before, "壊滅");
                 await Ui.PauseAsync();
-                await ResolveTraitOffersAsync(q);
+                await ResolveTraitOffersAsync(q, qm);
             }
             return;
         }
@@ -183,7 +183,7 @@ public static class ActiveQuestScreen
                 qm.FinalizeQuest(q);
                 ShowCompletionSummary(q, guild, before, "撤退");
                 await Ui.PauseAsync();
-                await ResolveTraitOffersAsync(q);
+                await ResolveTraitOffersAsync(q, qm);
             }
             return;
         }
@@ -194,7 +194,7 @@ public static class ActiveQuestScreen
         qm.FinalizeQuest(q);
         ShowCompletionSummary(q, guild, settlementBefore, "成功");
         await Ui.PauseAsync();
-        await ResolveTraitOffersAsync(q);
+        await ResolveTraitOffersAsync(q, qm);
     }
 
     static SettlementSnapshot CaptureSettlement(GuildManager guild, QuestRun q) => new(
@@ -484,7 +484,7 @@ public static class ActiveQuestScreen
     /// 「その冒険者が実際にどう戦ってきたか」が決めるので、賭けではなく積み重ねの決算になる。
     /// 特性は原則として諸刃で、欠点のない特性は瀕死や戦闘不能を潜った者にしか現れない。
     /// </summary>
-    static async Task ResolveTraitOffersAsync(QuestRun q)
+    internal static async Task ResolveTraitOffersAsync(QuestRun q, QuestManager questManager)
     {
         if (q.pendingTraitOffers.Count == 0) return;
 
@@ -510,9 +510,22 @@ public static class ActiveQuestScreen
                 Ui.WriteLine($"  {option.Key}. {option.Label}（{option.Detail}）");
 
             int? pick = await Ui.SelectIndexAsync("何を身につけさせる？", options, "見送る");
-            string result = pick == null
-                ? TraitSystem.Decline(offer)
-                : TraitSystem.Accept(offer, offer.Candidates[pick.Value - 1]);
+            string result;
+            string historyLog;
+            if (pick == null)
+            {
+                result = TraitSystem.Decline(offer);
+                string candidates = string.Join("、", offer.Candidates.Select(candidate => candidate.traitName));
+                historyLog = $"[特性選択] {offer.Adventurer.name} は特性の開花を見送った"
+                    + (candidates.Length == 0 ? "" : $"（候補: {candidates}）");
+            }
+            else
+            {
+                result = TraitSystem.Accept(offer, offer.Candidates[pick.Value - 1]);
+                historyLog = $"[特性選択] {result}";
+            }
+            q.logs.Add(historyLog);
+            questManager.RefreshCompletedQuestHistory(q);
             Ui.Info($"  {result}");
             await Ui.PauseAsync();
         }

@@ -14,13 +14,22 @@ internal static class QuestLogScreen
         @"^\s*(?:エリア|Phase) \d+:\s*",
         RegexOptions.CultureInvariant);
 
-    public static async Task ShowAsync(QuestRun quest)
+    public static Task ShowAsync(QuestRun quest) =>
+        ShowAsync(quest.def.questName, quest.logs, "クエスト詳細へ戻る");
+
+    public static Task ShowAsync(QuestHistoryEntry history) =>
+        ShowAsync(history.QuestName, history.Logs, "クエスト履歴へ戻る");
+
+    static async Task ShowAsync(
+        string questName,
+        IReadOnlyList<string> logs,
+        string returnLabel)
     {
         while (true)
         {
-            var index = QuestLogIndexer.Build(quest.logs);
+            var index = QuestLogIndexer.Build(logs);
             Ui.BeginScreen();
-            Ui.Header($"詳細ログ: {quest.def.questName}");
+            Ui.Header($"詳細ログ: {questName}");
             Ui.Dim("  戦闘記録は一戦ごとに分けてあります");
             Ui.WriteLine();
 
@@ -42,18 +51,18 @@ internal static class QuestLogScreen
             else
                 Ui.Dim("  戦闘ログ: なし");
 
-            options.Add(new MenuOption("0", "クエスト詳細へ戻る", Style: TextStyle.Dim));
+            options.Add(new MenuOption("0", returnLabel, Style: TextStyle.Dim));
             string choice = await Ui.SelectAsync("ログ種別", options);
             if (choice == "e")
-                await ShowExpeditionLogsAsync(quest, index.ExpeditionLogs);
+                await ShowExpeditionLogsAsync(questName, index.ExpeditionLogs);
             else if (choice == "b")
-                await ShowBattleListAsync(quest, index.Battles);
+                await ShowBattleListAsync(questName, index.Battles);
             else
                 return;
         }
     }
 
-    static async Task ShowExpeditionLogsAsync(QuestRun quest, IReadOnlyList<string> logs)
+    static async Task ShowExpeditionLogsAsync(string questName, IReadOnlyList<string> logs)
     {
         int offset = 0; // 0 = 最新ページ。増えるほど過去へ遡る
         while (true)
@@ -64,7 +73,7 @@ internal static class QuestLogScreen
             int take = Math.Min(LogPageSize, logs.Count - skip);
 
             Ui.BeginScreen();
-            Ui.Header($"遠征ログ: {quest.def.questName}");
+            Ui.Header($"遠征ログ: {questName}");
             Ui.Dim("  戦闘以外の進行・採取・選択・報酬");
             Ui.WriteLine($"  {(logs.Count == 0 ? 0 : skip + 1)}〜{skip + take} / 全{logs.Count}件");
             Ui.WriteLine();
@@ -82,7 +91,7 @@ internal static class QuestLogScreen
         }
     }
 
-    static async Task ShowBattleListAsync(QuestRun quest, IReadOnlyList<QuestBattleLog> battles)
+    static async Task ShowBattleListAsync(string questName, IReadOnlyList<QuestBattleLog> battles)
     {
         var newestFirst = battles.Reverse().ToList();
         int page = 0;
@@ -94,7 +103,7 @@ internal static class QuestLogScreen
             var visible = newestFirst.Skip(start).Take(BattleListPageSize).ToList();
 
             Ui.BeginScreen();
-            Ui.Header($"戦闘ログ一覧: {quest.def.questName}");
+            Ui.Header($"戦闘ログ一覧: {questName}");
             Ui.WriteLine($"  {start + 1}〜{start + visible.Count} / 全{newestFirst.Count}戦（新しい順）");
             Ui.Dim("  見直す戦闘を選んでください");
             Ui.WriteLine();
@@ -114,14 +123,14 @@ internal static class QuestLogScreen
             if (int.TryParse(choice, out int selected)
                 && selected >= 1
                 && selected <= visible.Count)
-                await ShowBattleAsync(quest, visible[selected - 1]);
+                await ShowBattleAsync(visible[selected - 1]);
             else if (choice == "o") page++;
             else if (choice == "n") page--;
             else return;
         }
     }
 
-    static async Task ShowBattleAsync(QuestRun quest, QuestBattleLog battle)
+    static async Task ShowBattleAsync(QuestBattleLog battle)
     {
         var lines = BattleDetailLines(battle);
         int page = 0;

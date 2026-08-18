@@ -5,9 +5,24 @@
     "description": "火の消えた野営地に、まだ使えそうな物資が残っている。",
     "weight": 4,
     "options": [
-      { "text": "慎重に休息する", "resultText": "交代で見張りながら体を休めた。", "effectType": "HealPercent", "value": 15 },
-      { "text": "物資を探す", "resultText": "売れそうな物資を見つけた。", "effectType": "Gold", "value": 20 },
-      { "text": "不吉なので先を急ぐ", "resultText": "一行は警戒を保ったまま進んだ。", "effectType": "Morale", "value": 5 }
+      {
+        "text": "慎重に休息する",
+        "resultText": "交代で見張りながら体を休めた。",
+        "effectType": "HealPercent",
+        "value": 15
+      },
+      {
+        "text": "物資を探す",
+        "resultText": "売れそうな物資を見つけた。",
+        "effectType": "Gold",
+        "value": 20
+      },
+      {
+        "text": "不吉なので先を急ぐ",
+        "resultText": "一行は警戒を保ったまま進んだ。",
+        "effectType": "Morale",
+        "value": 5
+      }
     ]
   },
   {
@@ -16,9 +31,24 @@
     "description": "安全そうな迂回路と、危険だが近い獣道に分かれている。",
     "weight": 3,
     "options": [
-      { "text": "迂回路を進む", "resultText": "堅実な判断が仲間を安心させた。", "effectType": "Morale", "value": 8 },
-      { "text": "獣道を突破する", "resultText": "険しい道で傷ついたが、多くを学んだ。", "effectType": "Experience", "value": 20 },
-      { "text": "地形を調べてから決める", "resultText": "調査中に古い貨幣を見つけた。", "effectType": "Gold", "value": 15 }
+      {
+        "text": "迂回路を進む",
+        "resultText": "堅実な判断が仲間を安心させた。",
+        "effectType": "Morale",
+        "value": 8
+      },
+      {
+        "text": "獣道を突破する",
+        "resultText": "険しい道で傷ついたが、多くを学んだ。",
+        "effectType": "Experience",
+        "value": 20
+      },
+      {
+        "text": "地形を調べてから決める",
+        "resultText": "調査中に古い貨幣を見つけた。",
+        "effectType": "Gold",
+        "value": 15
+      }
     ]
   },
   {
@@ -27,9 +57,25 @@
     "description": "古い祠から、かすかな温もりが漂っている。",
     "weight": 2,
     "options": [
-      { "text": "祈りを捧げる", "resultText": "穏やかな光が一行の傷を癒した。", "effectType": "HealPercent", "value": 25 },
-      { "text": "供物を探す", "resultText": "祠の裏で薬品を見つけた。", "effectType": "Consumable", "targetId": "item_vital_tonic", "value": 1 },
-      { "text": "触れずに立ち去る", "resultText": "畏敬の念が一行の心を引き締めた。", "effectType": "Morale", "value": 10 }
+      {
+        "text": "祈りを捧げる",
+        "resultText": "穏やかな光が一行の傷を癒した。",
+        "effectType": "HealPercent",
+        "value": 25
+      },
+      {
+        "text": "供物を探す",
+        "resultText": "祠の裏で薬品を見つけた。",
+        "effectType": "Consumable",
+        "targetId": "item_vital_tonic",
+        "value": 1
+      },
+      {
+        "text": "触れずに立ち去る",
+        "resultText": "畏敬の念が一行の心を引き締めた。",
+        "effectType": "Morale",
+        "value": 10
+      }
     ]
   },
   {
@@ -38,9 +84,24 @@
     "description": "横倒しの荷車に、まだ手つかずの積み荷が残っている。",
     "weight": 4,
     "options": [
-      { "text": "積み荷を解いて改める", "resultText": "泥をかぶった荷箱を引きずり出した。", "effectType": "Treasure", "value": 1 },
-      { "text": "使えそうな食料を分ける", "resultText": "干し肉を分け合い、英気を養った。", "effectType": "HealPercent", "value": 12 },
-      { "text": "襲撃を警戒して離れる", "resultText": "深追いを避けた判断が一行を落ち着かせた。", "effectType": "Morale", "value": 5 }
+      {
+        "text": "積み荷を解いて改める",
+        "resultText": "泥をかぶった荷箱を引きずり出した。",
+        "effectType": "Treasure",
+        "value": 1
+      },
+      {
+        "text": "使えそうな食料を分ける",
+        "resultText": "干し肉を分け合い、英気を養った。",
+        "effectType": "HealPercent",
+        "value": 12
+      },
+      {
+        "text": "襲撃を警戒して離れる",
+        "resultText": "深追いを避けた判断が一行を落ち着かせた。",
+        "effectType": "Morale",
+        "value": 5
+      }
     ]
   },
   {
@@ -49,9 +110,24 @@
     "description": "崩落した石室の奥に、埋もれた収蔵品が見え隠れしている。",
     "weight": 4,
     "options": [
-      { "text": "瓦礫をどけて奥を漁る", "resultText": "埃まみれの箱を掘り出した。", "effectType": "Treasure", "value": 1 },
-      { "text": "手前の金目の物だけ拾う", "resultText": "崩れかけた棚から装飾品をかき集めた。", "effectType": "Gold", "value": 40 },
-      { "text": "崩落を恐れて引き返す", "resultText": "無理を避けた判断に仲間が頷いた。", "effectType": "Morale", "value": 6 }
+      {
+        "text": "瓦礫をどけて奥を漁る",
+        "resultText": "埃まみれの箱を掘り出した。",
+        "effectType": "Treasure",
+        "value": 1
+      },
+      {
+        "text": "手前の金目の物だけ拾う",
+        "resultText": "崩れかけた棚から装飾品をかき集めた。",
+        "effectType": "Gold",
+        "value": 40
+      },
+      {
+        "text": "崩落を恐れて引き返す",
+        "resultText": "無理を避けた判断に仲間が頷いた。",
+        "effectType": "Morale",
+        "value": 6
+      }
     ]
   },
   {
@@ -60,9 +136,718 @@
     "description": "壁の奥に隠し扉。誰かが蓄えを隠していたらしい。",
     "weight": 3,
     "options": [
-      { "text": "封を破って隠し棚まで探る", "resultText": "奥の棚まで漁り、抱えきれないほど運び出した。", "effectType": "Treasure", "value": 2 },
-      { "text": "表の棚だけ頂く", "resultText": "手前に置かれていた薬品を持ち出した。", "effectType": "Consumable", "targetId": "item_vital_tonic", "value": 1 },
-      { "text": "罠の気配、諦めて去る", "resultText": "欲を出さなかったことで一行は気を引き締めた。", "effectType": "Morale", "value": 10 }
+      {
+        "text": "封を破って隠し棚まで探る",
+        "resultText": "奥の棚まで漁り、抱えきれないほど運び出した。",
+        "effectType": "Treasure",
+        "value": 2
+      },
+      {
+        "text": "表の棚だけ頂く",
+        "resultText": "手前に置かれていた薬品を持ち出した。",
+        "effectType": "Consumable",
+        "targetId": "item_vital_tonic",
+        "value": 1
+      },
+      {
+        "text": "罠の気配、諦めて去る",
+        "resultText": "欲を出さなかったことで一行は気を引き締めた。",
+        "effectType": "Morale",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": "ev_ancient_altar",
+    "title": "苔むした祭壇",
+    "weight": 8,
+    "description": "崩れかけた祭壇が道を塞いでいる。窪みに手を差し入れれば何かが起きそうだが、何が起きるかは分からない。",
+    "options": [
+      {
+        "text": "隊員の一人に手を触れさせる",
+        "resultText": "窪みに手を差し入れた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 30,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "",
+            "resultText": "温かい光が腕を這い上がった。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerStatUp",
+            "value": 2,
+            "targetId": "",
+            "resultText": "祭壇が眩く応え、体の芯が作り変わっていく。"
+          },
+          {
+            "weight": 25,
+            "effectType": "AdventurerStatDown",
+            "value": 1,
+            "targetId": "",
+            "resultText": "何かを吸い取られた気がする。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerDamage",
+            "value": 25,
+            "targetId": "",
+            "resultText": "窪みから針のような衝撃が走った。"
+          },
+          {
+            "weight": 10,
+            "effectType": "Morale",
+            "value": -20,
+            "targetId": "",
+            "resultText": "祭壇は沈黙したまま、ただ寒気だけが残った。"
+          }
+        ]
+      },
+      {
+        "text": "触れずに迂回する",
+        "resultText": "祭壇には手を出さず、道を回り込んだ。",
+        "effectType": "None",
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": "ev_old_swordsman",
+    "title": "隠棲の老兵",
+    "weight": 6,
+    "description": "洞の入口に、片腕を失った老兵が座っている。「一人だけなら、稽古をつけてやろう」",
+    "options": [
+      {
+        "text": "隊員を一人、稽古に出す",
+        "resultText": "老兵が木の枝を構えた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 35,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "Strength",
+            "resultText": "打ち込みの型を叩き込まれた。"
+          },
+          {
+            "weight": 35,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "Agility",
+            "resultText": "足の運びを徹底的に直された。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_backstab",
+            "resultText": "老兵は間合いの外し方だけを、繰り返し教えた。"
+          },
+          {
+            "weight": 10,
+            "effectType": "AdventurerDamage",
+            "value": 20,
+            "targetId": "",
+            "resultText": "手加減はなかった。"
+          }
+        ]
+      },
+      {
+        "text": "礼を言って先を急ぐ",
+        "resultText": "老兵は笑って手を振った。",
+        "effectType": "Morale",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": "ev_cursed_spring",
+    "title": "黒い泉",
+    "weight": 5,
+    "description": "油のように黒い水が湧いている。飲めば力が湧くという言い伝えがあるが、言い伝えの続きは誰も知らない。",
+    "options": [
+      {
+        "text": "隊員に一口飲ませる",
+        "resultText": "黒い水を掬って飲ませた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 25,
+            "effectType": "AdventurerStatUp",
+            "value": 2,
+            "targetId": "Vitality",
+            "resultText": "血が沸き立つように熱くなった。"
+          },
+          {
+            "weight": 30,
+            "effectType": "AdventurerStatDown",
+            "value": 1,
+            "targetId": "Mental",
+            "resultText": "喉を焼く。何かが記憶から抜け落ちた気がする。"
+          },
+          {
+            "weight": 25,
+            "effectType": "AdventurerDamage",
+            "value": 35,
+            "targetId": "",
+            "resultText": "激しく咳き込み、黒い水を吐き戻した。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_toughBody_lv3",
+            "resultText": "泉の毒に耐えきった体が、以前より頑丈になっている。"
+          }
+        ]
+      },
+      {
+        "text": "水筒を満たすだけにする",
+        "resultText": "誰も口はつけなかった。",
+        "effectType": "None",
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": "event_forest_lore",
+    "title": "森渡りの教え",
+    "description": "年老いた狩人が道行きを助ける三つの技を示した。教えを受けられるのは一人だけだ。",
+    "weight": 8,
+    "options": [
+      {
+        "text": "「野営の知恵」を学ぶ",
+        "resultText": "火と寝床の扱いを学び、より深く体を休められるようになった。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_campWisdom",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「危険察知」を学ぶ",
+        "resultText": "周囲のわずかな違和感から罠を見抜く勘を身につけた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_dangerSense",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「獣道歩き」を学ぶ",
+        "resultText": "敵の気配を避けて森を抜ける足運びを身につけた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_trailcraft",
+        "targetsOneMember": true
+      }
+    ]
+  },
+  {
+    "id": "event_roadside_lessons",
+    "title": "旅人たちの手ほどき",
+    "description": "街道脇の野営地で旅慣れた者たちと出会った。ひと休みする間、一人だけ実地の技を教わることができる。",
+    "weight": 8,
+    "options": [
+      {
+        "text": "荷造りと野営を教わる",
+        "resultText": "旅装を崩さず休む手順を覚え、短い野営でも体を休められるようになった。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_campWisdom",
+        "targetsOneMember": true
+      },
+      {
+        "text": "待ち伏せの見抜き方を教わる",
+        "resultText": "轍や草の乱れから危険を読む勘を身につけた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_dangerSense",
+        "targetsOneMember": true
+      },
+      {
+        "text": "平静を保つ呼吸法を教わる",
+        "resultText": "不意の出来事にも心を乱さず対処する呼吸を会得した。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_composure",
+        "targetsOneMember": true
+      }
+    ]
+  },
+  {
+    "id": "event_ruin_tablets",
+    "title": "残響する石版",
+    "description": "古い石版に三つの心得が刻まれている。読み解き、会得できるのは一人だけだ。",
+    "weight": 8,
+    "options": [
+      {
+        "text": "「古物鑑定」を会得する",
+        "resultText": "古い品の価値を見抜く観察眼を得た。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_antiqueEye",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「魔除けの作法」を会得する",
+        "resultText": "邪気を遠ざける身のこなしを会得した。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_wardingRite",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「沈着」を会得する",
+        "resultText": "異様な光景にも心を乱さない術を会得した。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_composure",
+        "targetsOneMember": true
+      }
+    ]
+  },
+  {
+    "id": "event_bandit_toll",
+    "title": "野盗の通行料",
+    "description": "街道を塞いだ数名の野盗が「通行料」を寄越せと凄んでいる。剣の柄に手を掛けたまま、こちらの人数を数えている。",
+    "weight": 4,
+    "options": [
+      {
+        "text": "言い値を払って通してもらう",
+        "resultText": "銀貨を数枚握らせ、一行は速やかに街道を進んだ。",
+        "effectType": "Gold",
+        "value": -60
+      },
+      {
+        "text": "剣を抜き、追い返す",
+        "resultText": "こちらの装備を見て、野盗はいったん退いた。斬り合いのぶん、いくらか傷を負った。",
+        "effectType": "DamagePercent",
+        "value": 12
+      },
+      {
+        "text": "顔役と話をつける",
+        "resultText": "「話が分かるじゃねえか」──野盗の顔役が笑った。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 25,
+            "effectType": "Gold",
+            "value": 40,
+            "targetId": "",
+            "resultText": "「近道を教えといてやる」と、金貨と地図を投げてよこした。"
+          },
+          {
+            "weight": 20,
+            "effectType": "Morale",
+            "value": 12,
+            "targetId": "",
+            "resultText": "顔役は快活に手を叩き、荒くれた仲間を下がらせた。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "",
+            "resultText": "顔役に気に入られ、腕っぷしの鍛え方を直々に教わった。"
+          },
+          {
+            "weight": 20,
+            "effectType": "DamagePercent",
+            "value": 15,
+            "targetId": "",
+            "resultText": "交渉は決裂した。数発の刃を交わし、なんとか押し通った。"
+          },
+          {
+            "weight": 10,
+            "effectType": "Gold",
+            "value": -80,
+            "targetId": "",
+            "resultText": "口先で嵌められ、腰の袋を丸ごと引ったくられた。"
+          },
+          {
+            "weight": 10,
+            "effectType": "Morale",
+            "value": -18,
+            "targetId": "",
+            "resultText": "薄笑いを浮かべた顔役は、こちらの弱みを見透かして去った。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "event_bandit_deserter_dealer",
+    "title": "脱走兵の売人",
+    "description": "元・王国兵らしい男が、荷車の陰から装備を売りつけようとしている。由来は聞かないでほしい、と目で語っている。",
+    "weight": 3,
+    "options": [
+      {
+        "text": "掘り出し物を買う",
+        "resultText": "男が鎖帷子を荷車から引きずり出した。",
+        "effectType": "Purchase",
+        "value": 90,
+        "targetId": "eq_chain_01"
+      },
+      {
+        "text": "追い剥ぎと見て凄む",
+        "resultText": "腰の物に手を掛けると、男の目が変わった。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 25,
+            "effectType": "Gold",
+            "value": 90,
+            "targetId": "",
+            "resultText": "怯えた男は路銀と装備を置いて逃げていった。"
+          },
+          {
+            "weight": 15,
+            "effectType": "Equipment",
+            "value": 1,
+            "targetId": "eq_buckler_01",
+            "resultText": "「持って行ってくれ」と男は荷を投げ、駆け去った。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "",
+            "resultText": "怯えた男の隙を突いて機先を制し、身のこなしが一段鋭くなった。"
+          },
+          {
+            "weight": 20,
+            "effectType": "DamagePercent",
+            "value": 10,
+            "targetId": "",
+            "resultText": "男の仲間が物陰から矢を放った。追い散らしたが浅くない傷を負った。"
+          },
+          {
+            "weight": 15,
+            "effectType": "Morale",
+            "value": -12,
+            "targetId": "",
+            "resultText": "男は無言のまま消え、こちらだけが街道に取り残された。"
+          },
+          {
+            "weight": 10,
+            "effectType": "AdventurerDamage",
+            "value": 30,
+            "targetId": "",
+            "resultText": "隠し持っていた短剣で不意を突かれた。一人が深く斬られた。"
+          }
+        ]
+      },
+      {
+        "text": "関わらず先を急ぐ",
+        "resultText": "面倒事は避けて街道を進んだ。",
+        "effectType": "Morale",
+        "value": 6
+      }
+    ]
+  },
+  {
+    "id": "event_bandit_lookout_spotted",
+    "title": "野盗の見張りを発見",
+    "description": "街道を見下ろす岩陰に、まだこちらに気づいていない見張りが二人いる。手筈を決めるなら今のうちだ。",
+    "weight": 3,
+    "options": [
+      {
+        "text": "気づかれる前に迂回する",
+        "resultText": "回り道になったが、無傷で街道を抜けた。",
+        "effectType": "Morale",
+        "value": 8
+      },
+      {
+        "text": "静かに近づいて仕留める",
+        "resultText": "急襲は決まった。手練れの立ち回りに、若手が学びを得た。",
+        "effectType": "Experience",
+        "value": 30
+      },
+      {
+        "text": "そのまま突破する",
+        "resultText": "見張りの叫び声で、街道の空気が変わった。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 30,
+            "effectType": "Gold",
+            "value": 60,
+            "targetId": "",
+            "resultText": "追ってきた野盗を返り討ちにし、落とし物を漁った。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "",
+            "resultText": "追っ手をあしらう立ち回りに、思わぬ手応えを得た。"
+          },
+          {
+            "weight": 25,
+            "effectType": "DamagePercent",
+            "value": 12,
+            "targetId": "",
+            "resultText": "背後から矢を受けながら、なんとか街道を駆け抜けた。"
+          },
+          {
+            "weight": 15,
+            "effectType": "Morale",
+            "value": -10,
+            "targetId": "",
+            "resultText": "追撃を振り切るのに走り通しで、一行は疲弊した。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerDamage",
+            "value": 25,
+            "targetId": "",
+            "resultText": "殿を務めた一人が矢を受け、深い傷を負った。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "event_caravan_supply_wagon",
+    "title": "隊商の補給荷車",
+    "description": "街道を巡る隊商が荷車を止め、冒険者向けの旅道具を並べている。買った品は後便でギルドへ届けてくれるらしい。",
+    "weight": 3,
+    "options": [
+      {
+        "text": "罠外し道具を買う",
+        "resultText": "隊商主が道具一式を取り出した。",
+        "effectType": "Purchase",
+        "value": 30,
+        "targetId": "item_trap_kit"
+      },
+      {
+        "text": "野営用の薬草茶を買う",
+        "resultText": "隊商主が香りのよい茶葉を包んだ。",
+        "effectType": "Purchase",
+        "value": 45,
+        "targetId": "item_camp_herbal_tea"
+      },
+      {
+        "text": "勇気の香を買う",
+        "resultText": "隊商主が封を切って香りを確かめさせた。",
+        "effectType": "Purchase",
+        "value": 45,
+        "targetId": "item_courage_incense"
+      },
+      {
+        "text": "最近の街道事情を聞く",
+        "resultText": "安全な水場と危険な分かれ道を地図へ書き込んだ。",
+        "effectType": "Experience",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": "event_caravan_specialist_merchant",
+    "title": "遠征職人の行商隊",
+    "description": "鍛冶師や錬金術師、探索具職人が連なる小さな行商隊が、道沿いの開けた場所で休んでいる。町では手に入りにくい専門道具も積んでいる。",
+    "weight": 2,
+    "options": [
+      {
+        "text": "研磨師の黒油を買う",
+        "resultText": "職人が漏れないよう油壺を二重に包んだ。",
+        "effectType": "Purchase",
+        "value": 60,
+        "targetId": "item_sharpeners_black_oil"
+      },
+      {
+        "text": "星屑の触媒を買う",
+        "resultText": "職人が淡く光る触媒を小箱へ収めた。",
+        "effectType": "Purchase",
+        "value": 60,
+        "targetId": "item_stardust_catalyst"
+      },
+      {
+        "text": "探索者の振り子を買う",
+        "resultText": "職人が振り子の糸と錘の振れ具合を確かめて差し出した。",
+        "effectType": "Purchase",
+        "value": 65,
+        "targetId": "item_explorers_pendulum"
+      },
+      {
+        "text": "道具の手入れを見学する",
+        "resultText": "遠征道具を長持ちさせる職人の手順を全員で覚えた。",
+        "effectType": "Experience",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": "event_caravan_rare_broker",
+    "title": "特別荷の仲買人",
+    "description": "遠征者組合の鑑札を下げた仲買人が、危険な土地へ向かう者にだけ希少な道具を見せている。",
+    "weight": 1,
+    "options": [
+      {
+        "text": "不退転の角笛を買う",
+        "resultText": "仲買人が傷のない角笛を幌の奥から取り出した。",
+        "effectType": "Purchase",
+        "value": 80,
+        "targetId": "item_defiant_horn"
+      },
+      {
+        "text": "盗掘者の合鍵を買う",
+        "resultText": "仲買人が形の異なる鍵束を革袋へ収めた。",
+        "effectType": "Purchase",
+        "value": 90,
+        "targetId": "item_graverobbers_key"
+      },
+      {
+        "text": "機関の煙玉を買う",
+        "resultText": "仲買人が導火線を固定し、安全栓を確かめた。",
+        "effectType": "Purchase",
+        "value": 110,
+        "targetId": "item_mechanical_smoke_bomb"
+      },
+      {
+        "text": "代わりに危険地帯の噂を聞く",
+        "resultText": "先行した隊商の証言から、危険の兆しを見抜く心構えができた。",
+        "effectType": "Morale",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": "event_caravan_stuck_wagon",
+    "title": "泥濘の荷車",
+    "description": "車輪を取られた隊商が、荷崩れを防ぎながら荷車を街道へ戻そうとしている。",
+    "weight": 3,
+    "options": [
+      {
+        "text": "車体を持ち上げる",
+        "resultText": "車輪と荷重の扱いを学び、荷車を街道へ戻した。",
+        "effectType": "Experience",
+        "value": 10
+      },
+      {
+        "text": "作業中の周囲を警戒する",
+        "resultText": "死角を守り、隊商主から臨時の護衛料を受け取った。",
+        "effectType": "Gold",
+        "value": 25
+      },
+      {
+        "text": "切れた荷紐を結び直す",
+        "resultText": "手際を買われ、丈夫な肩紐を謝礼として譲られた。",
+        "effectType": "Equipment",
+        "value": 1,
+        "targetId": "eq_accessory_caravan_strap"
+      }
+    ]
+  },
+  {
+    "id": "event_caravan_pack_beast_panic",
+    "title": "荷駄獣の暴走",
+    "description": "雷鳴に驚いた荷駄獣が手綱を振り切り、積み荷ごと道を駆け出した。",
+    "weight": 2,
+    "options": [
+      {
+        "text": "一人で手綱へ飛びつく",
+        "resultText": "選んだ一人が、駆ける荷駄獣へ飛びついた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 25,
+            "effectType": "AdventurerStatUp",
+            "targetId": "Agility",
+            "value": 1,
+            "resultText": "暴れる脚をかわし、鮮やかに手綱を取った。"
+          },
+          {
+            "weight": 50,
+            "effectType": "None",
+            "value": 0,
+            "resultText": "必死にしがみつき、どうにか荷駄獣を止めた。"
+          },
+          {
+            "weight": 25,
+            "effectType": "AdventurerDamage",
+            "value": 20,
+            "resultText": "道を引きずられ、深い擦り傷を負った。"
+          }
+        ]
+      },
+      {
+        "text": "一行で誘導路を作る",
+        "resultText": "声を合わせて誘導し、誰も傷つけず荷駄獣を鎮めた。",
+        "effectType": "Morale",
+        "value": 10
+      },
+      {
+        "text": "散った積み荷を回収する",
+        "resultText": "荷を残らず拾い集め、隊商主から謝礼を受け取った。",
+        "effectType": "Gold",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": "event_caravan_ambush",
+    "title": "襲撃された商隊",
+    "description": "破れた幌と散乱した木箱のそばで、生き残った商人たちが身を寄せている。襲撃者はまだ近くにいるかもしれない。",
+    "weight": 2,
+    "options": [
+      {
+        "text": "頼まれた積み荷を救出する",
+        "resultText": "商人の頼みを受け、周囲を警戒しながら散らばった荷へ近づいた。",
+        "effectType": "None",
+        "value": 0,
+        "outcomes": [
+          {
+            "weight": 35,
+            "effectType": "Treasure",
+            "value": 1,
+            "resultText": "無傷の荷箱を取り戻し、謝礼として別の荷箱を一つ託された。"
+          },
+          {
+            "weight": 25,
+            "effectType": "Consumable",
+            "value": 1,
+            "targetId": "item_trap_kit",
+            "resultText": "工具箱を取り戻し、礼として道具一式を分けてもらった。"
+          },
+          {
+            "weight": 20,
+            "effectType": "Gold",
+            "value": 25,
+            "resultText": "金庫を取り戻し、商人から謝礼の路銀を受け取った。"
+          },
+          {
+            "weight": 10,
+            "effectType": "DamagePercent",
+            "value": 15,
+            "resultText": "潜んでいた襲撃者の矢を受け、荷を捨てて退いた。"
+          },
+          {
+            "weight": 10,
+            "effectType": "Morale",
+            "value": -12,
+            "resultText": "積み荷の下から犠牲者を見つけ、一行は言葉を失った。"
+          }
+        ]
+      },
+      {
+        "text": "負傷した商人を手当てする",
+        "resultText": "互いの傷を処置し、隊商の備蓄薬も分けてもらった。",
+        "effectType": "HealPercent",
+        "value": 15
+      },
+      {
+        "text": "生存者を次の宿駅まで護送する",
+        "resultText": "次の宿駅で後続の隊商へ引き渡すまで守り抜き、一行は役目を果たした。",
+        "effectType": "Morale",
+        "value": 10
+      }
     ]
   }
 ]

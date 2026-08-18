@@ -15,7 +15,7 @@
   {
     "id": "fac_shop_ext_01",
     "displayName": "商店の増築",
-    "description": "商店の取引ルートを広げ、鋼製の武具など上位の品を仕入れられるようにする。",
+    "description": "商店の取引ルートを広げ、鉄製の武具など上位の品を仕入れられるようにする。",
     "buildCostGold": 400,
     "upkeepGoldPerTurn": 15,
     "requiredGuildRank": 1,
@@ -26,9 +26,22 @@
     "recruitMinBonus": 0
   },
   {
+    "id": "fac_shop_ext_02",
+    "displayName": "商業ギルド提携",
+    "description": "商業ギルドと提携し、遠方の工房が打った得物を取り寄せる。商店の品揃えがもう一段上がる。",
+    "buildCostGold": 1200,
+    "upkeepGoldPerTurn": 40,
+    "requiredGuildRank": 3,
+    "questBoardBonus": 0,
+    "shopLevelBonus": 1,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
+  },
+  {
     "id": "fac_infirmary_01",
     "displayName": "医療院",
-    "description": "遠征中の休息時の回復量を高める。",
+    "description": "遠征中の休息回復を高め、ギルドで休養する負傷者の治療と救命を助ける。",
     "buildCostGold": 350,
     "upkeepGoldPerTurn": 12,
     "requiredGuildRank": 1,
@@ -36,19 +49,36 @@
     "shopLevelBonus": 0,
     "restHealBonusPercent": 20,
     "growthRateBonusPercent": 0,
-    "recruitMinBonus": 0
+    "recruitMinBonus": 0,
+    "injuryRecoveryBonus": 1,
+    "fatalityReductionPercent": 10,
+    "scarPreventionPercent": 20
   },
   {
     "id": "fac_training_hall_01",
     "displayName": "訓練所",
-    "description": "冒険者のレベルアップ時の能力成長率を高める。",
+    "description": "新人向けの安全な依頼枠を確保し、冒険者のレベルアップ時に追加成長する確率も高める。",
     "buildCostGold": 500,
     "upkeepGoldPerTurn": 18,
     "requiredGuildRank": 2,
     "questBoardBonus": 0,
     "shopLevelBonus": 0,
     "restHealBonusPercent": 0,
-    "growthRateBonusPercent": 5,
+    "growthRateBonusPercent": 15,
+    "noviceQuestBoardBonus": 1,
+    "recruitMinBonus": 0
+  },
+  {
+    "id": "fac_class_change_01",
+    "displayName": "転職指南所",
+    "description": "他の職業を修めた指南役を招き、冒険者のクラスチェンジを受け付けられるようにする。",
+    "buildCostGold": 450,
+    "upkeepGoldPerTurn": 15,
+    "requiredGuildRank": 1,
+    "questBoardBonus": 0,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
     "recruitMinBonus": 0
   },
   {

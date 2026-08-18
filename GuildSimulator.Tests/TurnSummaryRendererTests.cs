@@ -75,6 +75,38 @@ public class TurnSummaryRendererTests
         Assert.DoesNotContain("[Turn 6]", text);
     }
 
+    [Fact]
+    public void SummaryCountsDistinctPhasesAndDoesNotHideMixedPhaseEventsAsQuiet()
+    {
+        var quest = new QuestRun(new QuestMasterData
+        {
+            id = "phase-summary",
+            questName = "静穏集計",
+            totalPhases = 4,
+        }, startedTurn: 1)
+        {
+            currentPhase = 4,
+            morale = new MoraleState(100),
+        };
+        quest.AddReportEvent(2, 1, ExpeditionEventKind.Progress, "進行", "何も起きなかった");
+        quest.AddReportEvent(2, 1, ExpeditionEventKind.Progress, "進行", "何も起きなかった");
+        quest.AddReportEvent(2, 2, ExpeditionEventKind.Progress, "進行", "何も起きなかった");
+        quest.AddReportEvent(2, 2, ExpeditionEventKind.Gather, "採取", "薬草を1個採取");
+        quest.AddReportEvent(2, 3, ExpeditionEventKind.Progress, "進行", "何も起きなかった");
+        quest.AddReportEvent(2, 4, ExpeditionEventKind.Encounter, "敵遭遇", "勝利");
+
+        string text = CaptureConsole(() => TurnSummaryRenderer.Write(
+            quest,
+            beforePhase: 0,
+            beforeHp: 0,
+            beforeMorale: 100,
+            beforeReportCount: 0));
+
+        Assert.Contains("・ 2/4  採取 → 薬草を1個採取", text);
+        Assert.Contains("・ほか2エリア：特記事項なし", text);
+        Assert.DoesNotContain("ほか4エリア", text);
+    }
+
     static string CaptureConsole(Action action)
     {
         var originalOut = Console.Out;

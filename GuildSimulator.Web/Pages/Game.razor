@@ -8,106 +8,123 @@
 
 <PageTitle>ギルドシミュレーター</PageTitle>
 
-@if (_error != null)
-{
-    <div class="startup">
-        <p class="startup-error">読み込みに失敗しました</p>
-        <p class="startup-detail">@_error</p>
-    </div>
-}
-else if (!_ready)
-{
-    <div class="startup">
-        <p>データ読み込み中...</p>
-    </div>
-}
-else
-{
-    <div class="screen">
-        <div class="output" id="output">
-            @foreach (var line in _io.Lines)
-            {
-                <div class="line">
-                    @if (line.Count == 0)
+<div class="app-shell">
+    <header class="app-toolbar">
+        <span class="app-title">ギルドシミュレーター</span>
+        <button type="button"
+                class="theme-toggle"
+                aria-pressed="@_eInkTheme"
+                title="e-Ink向けの白基調・高コントラスト表示に切り替えます"
+                @onclick="ToggleTheme">
+            <span class="theme-icon" aria-hidden="true">@(_eInkTheme ? "□" : "■")</span>
+            <span>表示: @(_eInkTheme ? "e-Ink" : "ダーク")</span>
+        </button>
+    </header>
+
+    <main class="app-content">
+        @if (_error != null)
+        {
+            <div class="startup">
+                <p class="startup-error">読み込みに失敗しました</p>
+                <p class="startup-detail">@_error</p>
+            </div>
+        }
+        else if (!_ready)
+        {
+            <div class="startup">
+                <p>データ読み込み中...</p>
+            </div>
+        }
+        else
+        {
+            <div class="screen">
+                <div class="output" id="output">
+                    @foreach (var line in _io.Lines)
                     {
-                        <text>&nbsp;</text>
+                        <div class="line">
+                            @if (line.Count == 0)
+                            {
+                                <text>&nbsp;</text>
+                            }
+                            else
+                            {
+                                @foreach (var segment in line)
+                                {
+                                    <span class="@StyleClass(segment.Style)">@segment.Text</span>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="controls">
+                    @if (_io.IsFinished)
+                    {
+                        @if (_io.FailureMessage != null)
+                        {
+                            <div class="prompt s-error">エラーが発生したため中断しました: @_io.FailureMessage</div>
+                        }
+                        else
+                        {
+                            <div class="prompt">ゲームを終了しました。お疲れさまでした。</div>
+                        }
+                        <div class="option-row">
+                            <button type="button" class="option s-accent" @onclick="Restart">
+                                <span class="option-label">もう一度遊ぶ</span>
+                                <span class="option-detail">最初から始めます（セーブデータは残ります）</span>
+                            </button>
+                        </div>
+                    }
+                    else if (_io.IsTextInput)
+                    {
+                        <div class="prompt">@_io.Prompt</div>
+                        <form class="text-input" @onsubmit="SubmitText" @formname="freetext">
+                            <input @bind="_textValue" @bind:event="oninput" autocomplete="off" />
+                            <button type="submit">決定</button>
+                        </form>
+                    }
+                    else if (_io.Options.Count > 0)
+                    {
+                        @if (!string.IsNullOrEmpty(_io.Prompt))
+                        {
+                            <div class="prompt">@_io.Prompt</div>
+                        }
+                        @foreach (var group in GroupedOptions())
+                        {
+                            @if (group.Key != null)
+                            {
+                                <div class="group-label">@group.Key</div>
+                            }
+                            <div class="option-row">
+                                @foreach (var option in group)
+                                {
+                                    <button type="button"
+                                            class="option @StyleClass(option.Style) @RoleClass(option.Role)"
+                                            @onclick="() => Choose(option.Key)">
+                                        <span class="option-label">@option.Label</span>
+                                        @if (!string.IsNullOrWhiteSpace(option.Detail))
+                                        {
+                                            <span class="option-detail">@option.Detail</span>
+                                        }
+                                    </button>
+                                }
+                            </div>
+                        }
                     }
                     else
                     {
-                        @foreach (var segment in line)
-                        {
-                            <span class="@StyleClass(segment.Style)">@segment.Text</span>
-                        }
+                        <div class="prompt">処理中...</div>
                     }
                 </div>
-            }
-        </div>
-
-        <div class="controls">
-            @if (_io.IsFinished)
-            {
-                @if (_io.FailureMessage != null)
-                {
-                    <div class="prompt s-error">エラーが発生したため中断しました: @_io.FailureMessage</div>
-                }
-                else
-                {
-                    <div class="prompt">ゲームを終了しました。お疲れさまでした。</div>
-                }
-                <div class="option-row">
-                    <button type="button" class="option s-accent" @onclick="Restart">
-                        <span class="option-label">もう一度遊ぶ</span>
-                        <span class="option-detail">最初から始めます（セーブデータは残ります）</span>
-                    </button>
-                </div>
-            }
-            else if (_io.IsTextInput)
-            {
-                <div class="prompt">@_io.Prompt</div>
-                <form class="text-input" @onsubmit="SubmitText" @formname="freetext">
-                    <input @bind="_textValue" @bind:event="oninput" autocomplete="off" />
-                    <button type="submit">決定</button>
-                </form>
-            }
-            else if (_io.Options.Count > 0)
-            {
-                @if (!string.IsNullOrEmpty(_io.Prompt))
-                {
-                    <div class="prompt">@_io.Prompt</div>
-                }
-                @foreach (var group in GroupedOptions())
-                {
-                    @if (group.Key != null)
-                    {
-                        <div class="group-label">@group.Key</div>
-                    }
-                    <div class="option-row">
-                        @foreach (var option in group)
-                        {
-                            <button type="button"
-                                    class="option @StyleClass(option.Style) @RoleClass(option.Role)"
-                                    @onclick="() => Choose(option.Key)">
-                                <span class="option-label">@option.Label</span>
-                                @if (!string.IsNullOrWhiteSpace(option.Detail))
-                                {
-                                    <span class="option-detail">@option.Detail</span>
-                                }
-                            </button>
-                        }
-                    </div>
-                }
-            }
-            else
-            {
-                <div class="prompt">処理中...</div>
-            }
-        </div>
-    </div>
-}
+            </div>
+        }
+    </main>
+</div>
 
 @code {
     readonly WebGameIo _io = new();
     bool _ready;
+    bool _eInkTheme;
     string? _error;
     string _textValue = "";
     GameMasterData? _db;
@@ -117,6 +134,8 @@ else
     {
         try
         {
+            _eInkTheme = await Js.InvokeAsync<string>("guildSim.getTheme") == "eink";
+
             // マスタJSONはwwwroot/Data配下に配置され、HTTPで取得する。
             var json = new Dictionary<string, string>();
             foreach (var file in MasterLoader.DataFileNames)
@@ -161,6 +180,12 @@ else
     {
         _io.Reset();
         StartGameLoop();
+    }
+
+    async Task ToggleTheme()
+    {
+        _eInkTheme = !_eInkTheme;
+        await Js.InvokeVoidAsync("guildSim.setTheme", _eInkTheme ? "eink" : "dark");
     }
 
     void OnIoStateChanged() => InvokeAsync(async () =>

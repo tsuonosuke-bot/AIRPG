@@ -15,7 +15,8 @@
   <ItemGroup>
     <None Include="..\GuildSimulator.Game\Data\*.json">
       <Link>Data\%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </None>
     <None Include="scenarios\*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

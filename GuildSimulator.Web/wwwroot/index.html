@@ -7,10 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>ギルドシミュレーター</title>
     <base href="/" />
+    <meta name="theme-color" content="#10131a" />
+    <script>
+        // 保存済みテーマをBlazor起動前に反映し、白い画面の点滅を防ぐ。
+        try {
+            if (localStorage.getItem('guildsim.theme') === 'eink') {
+                document.documentElement.dataset.theme = 'eink';
+                document.querySelector('meta[name="theme-color"]').content = '#ffffff';
+            }
+        } catch { }
+    </script>
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="manifest.webmanifest" rel="manifest" />
-    <meta name="theme-color" content="#10131a" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -34,10 +43,30 @@
     </div>
 
     <script>
+        const guildSimThemeKey = 'guildsim.theme';
+
         window.guildSim = {
             scrollOutputToEnd: function () {
                 const output = document.getElementById('output');
                 if (output) output.scrollTop = output.scrollHeight;
+            },
+            getTheme: function () {
+                return document.documentElement.dataset.theme === 'eink' ? 'eink' : 'dark';
+            },
+            setTheme: function (theme) {
+                const value = theme === 'eink' ? 'eink' : 'dark';
+                if (value === 'eink') {
+                    document.documentElement.dataset.theme = 'eink';
+                } else {
+                    delete document.documentElement.dataset.theme;
+                }
+
+                document.querySelector('meta[name="theme-color"]').content =
+                    value === 'eink' ? '#ffffff' : '#10131a';
+
+                try {
+                    localStorage.setItem(guildSimThemeKey, value);
+                } catch { }
             }
         };
     </script>

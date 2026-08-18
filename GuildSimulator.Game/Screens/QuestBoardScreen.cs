@@ -268,7 +268,7 @@ public static class QuestBoardScreen
 
     static string PositionName(int slot) => slot < 3 ? $"前衛{slot + 1}" : $"後衛{slot - 2}";
 
-    static void ShowPartyPreview(AdventurerData?[] formation, QuestMasterData def)
+    internal static void ShowPartyPreview(AdventurerData?[] formation, QuestMasterData def)
     {
         var members = formation.Where(a => a != null).Select(a => a!).ToList();
         if (members.Count == 0) return;
@@ -280,10 +280,15 @@ public static class QuestBoardScreen
         int avgLevel = (int)Math.Round(members.Average(a => a.level));
 
         var diff = DungeonDifficulty.Evaluate(def);
+        var frontMembers = formation.Take(3).Where(a => a != null).Select(a => a!).ToList();
+        var rearMembers = formation.Skip(3).Where(a => a != null).Select(a => a!).ToList();
+        int healerCount = members.Count(member => member.Weapon?.IsHealWeapon == true);
 
         Ui.WriteLine();
         Ui.Header("パーティ戦力");
         Ui.WriteLine($"  平均レベル: {avgLevel}   合計HP: {totalHp}   推定士気: {totalMorale}");
+        Ui.WriteLine($"  配置役割: 前衛 {frontMembers.Count}人 / 後衛 {rearMembers.Count}人"
+            + $" / 回復役 {healerCount}人");
         int maxAppearance = AppearanceSystem.HighestAppearance(formation);
         int fameBonus = AppearanceSystem.GuildPointBonusPercent(formation);
         int battleMorale = AppearanceSystem.BattleMoralePerRound(
@@ -301,6 +306,21 @@ public static class QuestBoardScreen
         if (assessment.Score < 0) Ui.Warn(assessmentText);
         else Ui.Info(assessmentText);
         Ui.Dim("    ※人数・認定ランク・負傷状態による目安。装備や相性、乱数で結果は変わります");
+
+        if (frontMembers.Count == 0)
+            Ui.Warn("  ⚠ 前衛不在: 後衛への攻撃を遮る隊員がいません");
+
+        var rearMelee = rearMembers
+            .Where(member => !UsesRangedOrSupportWeapon(member))
+            .ToList();
+        if (rearMelee.Count > 0)
+            Ui.Warn($"  ⚠ 後衛の近接役: {string.Join("、", rearMelee.Select(member => member.name))}"
+                + $"（命中-{BattleResolver.REAR_MELEE_TO_HIT_PENALTY}）");
+
+        bool sustainedCombatExpected = diff.hasBoss || diff.expectedFights >= 2f;
+        if (members.Count >= 3 && healerCount == 0 && sustainedCombatExpected)
+            Ui.Warn("  ⚠ 回復役不在: 3人以上で連戦またはボス戦に臨みます（回復武器の装備者なし）");
+
         // 最大値だけで危険度を断定せず、通常遭遇の確率と確定ボスを分けて知らせる。
         int avgRank = assessment.AverageRank;
         if (assessment.OutrankedEncounterChancePercent >= 0.5f)
@@ -326,6 +346,14 @@ public static class QuestBoardScreen
         var injured = members.Where(a => a.IsInjured).ToList();
         if (injured.Count > 0)
             Ui.Warn($"  ⚠ 負傷者を編成中: {string.Join("、", injured.Select(a => a.name))}（負傷補正を含む戦力です）");
+    }
+
+    static bool UsesRangedOrSupportWeapon(AdventurerData member)
+    {
+        var weapon = member.Weapon;
+        if (weapon == null) return false;
+        return weapon.attackKind != AttackKind.Physical
+            || weapon.weaponType == WeaponType.Bow;
     }
 
     static QuestObjective DescribeObjective(QuestMasterData q)

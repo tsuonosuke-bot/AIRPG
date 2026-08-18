@@ -1,245 +1,1876 @@
 [
   {
-    "id": "skill_axeMastery",
-    "skillName": "斧マスタリー",
+    "id": "skill_swordMastery_lv1",
+    "skillName": "剣マスタリー Lv1",
+    "family": "mastery_sword",
+    "level": 1,
     "scope": 0,
     "frontOnly": true,
-    "backOnly": false,
-    "requireWeaponType": true,
-    "requiredWeaponType": 1,
-    "requireArmorType": false,
-    "add": {
-      "pv": 2
-    },
-    "mul": {}
-  },
-  {
-    "id": "skill_swordMastery",
-    "skillName": "剣マスタリー",
-    "scope": 0,
-    "frontOnly": true,
-    "backOnly": false,
     "requireWeaponType": true,
     "requiredWeaponType": 0,
-    "requireArmorType": false,
     "add": {
-      "pv": 2
+      "pv": 1
     },
     "mul": {}
   },
   {
-    "id": "skill_swordSpear",
-    "skillName": "槍マスタリー",
+    "id": "skill_swordMastery_lv2",
+    "skillName": "剣マスタリー Lv2",
+    "family": "mastery_sword",
+    "level": 2,
     "scope": 0,
     "frontOnly": true,
-    "backOnly": false,
     "requireWeaponType": true,
-    "requiredWeaponType": 2,
-    "requireArmorType": false,
+    "requiredWeaponType": 0,
     "add": {
-      "pv": 2
+      "pv": 2,
+      "toHit": 1
     },
     "mul": {}
   },
   {
-    "id": "skill_bowSpear",
-    "skillName": "弓マスタリー",
+    "id": "skill_swordMastery_lv3",
+    "skillName": "剣マスタリー Lv3",
+    "family": "mastery_sword",
+    "level": 3,
     "scope": 0,
-    "frontOnly": false,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 0,
+    "add": {
+      "pv": 3,
+      "toHit": 1,
+      "dv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_swordMastery_lv4",
+    "skillName": "剣マスタリー Lv4",
+    "family": "mastery_sword",
+    "level": 4,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 0,
+    "add": {
+      "pv": 4,
+      "toHit": 2,
+      "dv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_swordMastery_lv5",
+    "skillName": "剣マスタリー Lv5",
+    "family": "mastery_sword",
+    "level": 5,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 0,
+    "add": {
+      "pv": 5,
+      "toHit": 3,
+      "dv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_axeMastery_lv1",
+    "skillName": "斧マスタリー Lv1",
+    "family": "mastery_axe",
+    "level": 1,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 1,
+    "add": {
+      "pv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_axeMastery_lv2",
+    "skillName": "斧マスタリー Lv2",
+    "family": "mastery_axe",
+    "level": 2,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 1,
+    "add": {
+      "pv": 2,
+      "toHit": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_axeMastery_lv3",
+    "skillName": "斧マスタリー Lv3",
+    "family": "mastery_axe",
+    "level": 3,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 1,
+    "add": {
+      "pv": 3,
+      "toHit": 1,
+      "armorShred": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_axeMastery_lv4",
+    "skillName": "斧マスタリー Lv4",
+    "family": "mastery_axe",
+    "level": 4,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 1,
+    "add": {
+      "pv": 4,
+      "toHit": 2,
+      "armorShred": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_axeMastery_lv5",
+    "skillName": "斧マスタリー Lv5",
+    "family": "mastery_axe",
+    "level": 5,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 1,
+    "add": {
+      "pv": 5,
+      "toHit": 2,
+      "armorShred": 2,
+      "critPv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_spearMastery_lv1",
+    "skillName": "槍マスタリー Lv1",
+    "family": "mastery_spear",
+    "level": 1,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 2,
+    "add": {
+      "pv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_spearMastery_lv2",
+    "skillName": "槍マスタリー Lv2",
+    "family": "mastery_spear",
+    "level": 2,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 2,
+    "add": {
+      "pv": 2,
+      "toHit": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_spearMastery_lv3",
+    "skillName": "槍マスタリー Lv3",
+    "family": "mastery_spear",
+    "level": 3,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 2,
+    "add": {
+      "pv": 3,
+      "toHit": 1,
+      "armorPierce": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_spearMastery_lv4",
+    "skillName": "槍マスタリー Lv4",
+    "family": "mastery_spear",
+    "level": 4,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 2,
+    "add": {
+      "pv": 4,
+      "toHit": 2,
+      "armorPierce": 1,
+      "av": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_spearMastery_lv5",
+    "skillName": "槍マスタリー Lv5",
+    "family": "mastery_spear",
+    "level": 5,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 2,
+    "add": {
+      "pv": 5,
+      "toHit": 2,
+      "armorPierce": 2,
+      "av": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_bowMastery_lv1",
+    "skillName": "弓マスタリー Lv1",
+    "family": "mastery_bow",
+    "level": 1,
+    "scope": 0,
     "backOnly": true,
     "requireWeaponType": true,
     "requiredWeaponType": 3,
-    "requireArmorType": false,
     "add": {
-      "pv": 2
+      "pv": 1,
+      "toHit": 1
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Bleeding",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
+  },
+  {
+    "id": "skill_bowMastery_lv2",
+    "skillName": "弓マスタリー Lv2",
+    "family": "mastery_bow",
+    "level": 2,
+    "scope": 0,
+    "backOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 3,
+    "add": {
+      "pv": 2,
+      "toHit": 2
     },
     "mul": {}
   },
   {
-    "id": "skill_fireMastery",
-    "skillName": "炎魔法マスタリー",
+    "id": "skill_bowMastery_lv3",
+    "skillName": "弓マスタリー Lv3",
+    "family": "mastery_bow",
+    "level": 3,
     "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
+    "backOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 3,
+    "add": {
+      "pv": 3,
+      "toHit": 3
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_bowMastery_lv4",
+    "skillName": "弓マスタリー Lv4",
+    "family": "mastery_bow",
+    "level": 4,
+    "scope": 0,
+    "backOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 3,
+    "add": {
+      "pv": 4,
+      "toHit": 4
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_bowMastery_lv5",
+    "skillName": "弓マスタリー Lv5",
+    "family": "mastery_bow",
+    "level": 5,
+    "scope": 0,
+    "backOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 3,
+    "add": {
+      "pv": 5,
+      "toHit": 5,
+      "critRange": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_daggerMastery_lv1",
+    "skillName": "短剣マスタリー Lv1",
+    "family": "mastery_dagger",
+    "level": 1,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 11,
+    "add": {
+      "pv": 1,
+      "critRange": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_daggerMastery_lv2",
+    "skillName": "短剣マスタリー Lv2",
+    "family": "mastery_dagger",
+    "level": 2,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 11,
+    "add": {
+      "pv": 2,
+      "toHit": 1,
+      "critRange": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_daggerMastery_lv3",
+    "skillName": "短剣マスタリー Lv3",
+    "family": "mastery_dagger",
+    "level": 3,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 11,
+    "add": {
+      "pv": 3,
+      "toHit": 2,
+      "critRange": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_daggerMastery_lv4",
+    "skillName": "短剣マスタリー Lv4",
+    "family": "mastery_dagger",
+    "level": 4,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 11,
+    "add": {
+      "pv": 4,
+      "toHit": 2,
+      "critRange": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_daggerMastery_lv5",
+    "skillName": "短剣マスタリー Lv5",
+    "family": "mastery_dagger",
+    "level": 5,
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 11,
+    "add": {
+      "pv": 5,
+      "toHit": 3,
+      "critRange": 2,
+      "extraAttacks": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_fireMastery_lv1",
+    "skillName": "炎魔法マスタリー Lv1",
+    "family": "mastery_fire",
+    "level": 1,
+    "scope": 0,
     "requireWeaponType": true,
     "requiredWeaponType": 4,
-    "requireArmorType": false,
     "add": {
-      "mpv": 2
+      "mpv": 1
     },
     "mul": {}
   },
   {
-    "id": "skill_waterMastery",
-    "skillName": "水魔法マスタリー",
+    "id": "skill_fireMastery_lv2",
+    "skillName": "炎魔法マスタリー Lv2",
+    "family": "mastery_fire",
+    "level": 2,
     "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
     "requireWeaponType": true,
-    "requiredWeaponType": 6,
-    "requireArmorType": false,
+    "requiredWeaponType": 4,
     "add": {
       "mpv": 2
     },
     "mul": {}
   },
   {
-    "id": "skill_earthMastery",
-    "skillName": "土魔法マスタリー",
+    "id": "skill_fireMastery_lv3",
+    "skillName": "炎魔法マスタリー Lv3",
+    "family": "mastery_fire",
+    "level": 3,
     "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
     "requireWeaponType": true,
-    "requiredWeaponType": 7,
-    "requireArmorType": false,
+    "requiredWeaponType": 4,
     "add": {
-      "mpv": 2
+      "mpv": 4
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Burning",
+        "target": "Enemy",
+        "chancePercent": 15,
+        "durationRounds": 3,
+        "potency": 2
+      }
+    ]
   },
   {
-    "id": "skill_windMastery",
-    "skillName": "風魔法マスタリー",
+    "id": "skill_fireMastery_lv4",
+    "skillName": "炎魔法マスタリー Lv4",
+    "family": "mastery_fire",
+    "level": 4,
     "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
+    "requireWeaponType": true,
+    "requiredWeaponType": 4,
+    "add": {
+      "mpv": 5,
+      "critPv": 2
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Burning",
+        "target": "Enemy",
+        "chancePercent": 20,
+        "durationRounds": 3,
+        "potency": 2
+      }
+    ]
+  },
+  {
+    "id": "skill_fireMastery_lv5",
+    "skillName": "炎魔法マスタリー Lv5",
+    "family": "mastery_fire",
+    "level": 5,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 4,
+    "add": {
+      "mpv": 7,
+      "critPv": 3
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Burning",
+        "target": "Enemy",
+        "chancePercent": 30,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
+  },
+  {
+    "id": "skill_windMastery_lv1",
+    "skillName": "風魔法マスタリー Lv1",
+    "family": "mastery_wind",
+    "level": 1,
+    "scope": 0,
     "requireWeaponType": true,
     "requiredWeaponType": 5,
-    "requireArmorType": false,
     "add": {
-      "mpv": 2
+      "mpv": 1
     },
     "mul": {}
   },
   {
-    "id": "skill_darkMastery",
-    "skillName": "闇魔法マスタリー",
+    "id": "skill_windMastery_lv2",
+    "skillName": "風魔法マスタリー Lv2",
+    "family": "mastery_wind",
+    "level": 2,
     "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
+    "requireWeaponType": true,
+    "requiredWeaponType": 5,
+    "add": {
+      "mpv": 2,
+      "dv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_windMastery_lv3",
+    "skillName": "風魔法マスタリー Lv3",
+    "family": "mastery_wind",
+    "level": 3,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 5,
+    "add": {
+      "mpv": 3,
+      "dv": 2,
+      "toHit": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_windMastery_lv4",
+    "skillName": "風魔法マスタリー Lv4",
+    "family": "mastery_wind",
+    "level": 4,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 5,
+    "add": {
+      "mpv": 4,
+      "dv": 3,
+      "toHit": 1,
+      "extraAttacks": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_windMastery_lv5",
+    "skillName": "風魔法マスタリー Lv5",
+    "family": "mastery_wind",
+    "level": 5,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 5,
+    "add": {
+      "mpv": 5,
+      "dv": 4,
+      "toHit": 2,
+      "extraAttacks": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_waterMastery_lv1",
+    "skillName": "水魔法マスタリー Lv1",
+    "family": "mastery_water",
+    "level": 1,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 6,
+    "add": {
+      "mpv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_waterMastery_lv2",
+    "skillName": "水魔法マスタリー Lv2",
+    "family": "mastery_water",
+    "level": 2,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 6,
+    "add": {
+      "mpv": 2,
+      "mav": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_waterMastery_lv3",
+    "skillName": "水魔法マスタリー Lv3",
+    "family": "mastery_water",
+    "level": 3,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 6,
+    "add": {
+      "mpv": 3,
+      "mav": 2
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Stunned",
+        "target": "Enemy",
+        "chancePercent": 10,
+        "durationRounds": 1,
+        "potency": 0
+      }
+    ]
+  },
+  {
+    "id": "skill_waterMastery_lv4",
+    "skillName": "水魔法マスタリー Lv4",
+    "family": "mastery_water",
+    "level": 4,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 6,
+    "add": {
+      "mpv": 4,
+      "mav": 2
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Stunned",
+        "target": "Enemy",
+        "chancePercent": 15,
+        "durationRounds": 1,
+        "potency": 0
+      }
+    ]
+  },
+  {
+    "id": "skill_waterMastery_lv5",
+    "skillName": "水魔法マスタリー Lv5",
+    "family": "mastery_water",
+    "level": 5,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 6,
+    "add": {
+      "mpv": 5,
+      "mav": 3
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Stunned",
+        "target": "Enemy",
+        "chancePercent": 20,
+        "durationRounds": 2,
+        "potency": 0
+      }
+    ]
+  },
+  {
+    "id": "skill_earthMastery_lv1",
+    "skillName": "土魔法マスタリー Lv1",
+    "family": "mastery_earth",
+    "level": 1,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 7,
+    "add": {
+      "mpv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_earthMastery_lv2",
+    "skillName": "土魔法マスタリー Lv2",
+    "family": "mastery_earth",
+    "level": 2,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 7,
+    "add": {
+      "mpv": 2,
+      "av": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_earthMastery_lv3",
+    "skillName": "土魔法マスタリー Lv3",
+    "family": "mastery_earth",
+    "level": 3,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 7,
+    "add": {
+      "mpv": 3,
+      "av": 1
+    },
+    "mul": {
+      "hp": 1.08
+    }
+  },
+  {
+    "id": "skill_earthMastery_lv4",
+    "skillName": "土魔法マスタリー Lv4",
+    "family": "mastery_earth",
+    "level": 4,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 7,
+    "add": {
+      "mpv": 4,
+      "av": 2
+    },
+    "mul": {
+      "hp": 1.12
+    }
+  },
+  {
+    "id": "skill_earthMastery_lv5",
+    "skillName": "土魔法マスタリー Lv5",
+    "family": "mastery_earth",
+    "level": 5,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 7,
+    "add": {
+      "mpv": 5,
+      "av": 3,
+      "armorPierce": 1
+    },
+    "mul": {
+      "hp": 1.15
+    }
+  },
+  {
+    "id": "skill_darkMastery_lv1",
+    "skillName": "闇魔法マスタリー Lv1",
+    "family": "mastery_dark",
+    "level": 1,
+    "scope": 0,
     "requireWeaponType": true,
     "requiredWeaponType": 8,
-    "requireArmorType": false,
     "add": {
-      "mpv": 2
+      "mpv": 1
     },
     "mul": {}
   },
   {
-    "id": "skill_lightMastery",
-    "skillName": "光魔法マスタリー",
+    "id": "skill_darkMastery_lv2",
+    "skillName": "闇魔法マスタリー Lv2",
+    "family": "mastery_dark",
+    "level": 2,
     "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
+    "requireWeaponType": true,
+    "requiredWeaponType": 8,
+    "add": {
+      "mpv": 2,
+      "threatWeight": -10
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_darkMastery_lv3",
+    "skillName": "闇魔法マスタリー Lv3",
+    "family": "mastery_dark",
+    "level": 3,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 8,
+    "add": {
+      "mpv": 3,
+      "threatWeight": -20,
+      "critRange": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_darkMastery_lv4",
+    "skillName": "闇魔法マスタリー Lv4",
+    "family": "mastery_dark",
+    "level": 4,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 8,
+    "add": {
+      "mpv": 4,
+      "threatWeight": -30,
+      "critRange": 1
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "ManaSapped",
+        "target": "Enemy",
+        "chancePercent": 25,
+        "durationRounds": 2,
+        "potency": 2
+      }
+    ]
+  },
+  {
+    "id": "skill_darkMastery_lv5",
+    "skillName": "闇魔法マスタリー Lv5",
+    "family": "mastery_dark",
+    "level": 5,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 8,
+    "add": {
+      "mpv": 5,
+      "threatWeight": -40,
+      "critRange": 2
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "ManaSapped",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
+  },
+  {
+    "id": "skill_lightMastery_lv1",
+    "skillName": "光魔法マスタリー Lv1",
+    "family": "mastery_light",
+    "level": 1,
+    "scope": 0,
     "requireWeaponType": true,
     "requiredWeaponType": 9,
-    "requireArmorType": false,
+    "add": {
+      "mpv": 1
+    },
+    "mul": {
+      "heal": 1.2
+    }
+  },
+  {
+    "id": "skill_lightMastery_lv2",
+    "skillName": "光魔法マスタリー Lv2",
+    "family": "mastery_light",
+    "level": 2,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 9,
     "add": {
       "mpv": 2
+    },
+    "mul": {
+      "heal": 1.35
+    }
+  },
+  {
+    "id": "skill_lightMastery_lv3",
+    "skillName": "光魔法マスタリー Lv3",
+    "family": "mastery_light",
+    "level": 3,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 9,
+    "add": {
+      "mpv": 3,
+      "mav": 1
     },
     "mul": {
       "heal": 1.5
     }
   },
   {
-    "id": "skill_axeMastery2",
-    "skillName": "斧マスタリー・極",
+    "id": "skill_lightMastery_lv4",
+    "skillName": "光魔法マスタリー Lv4",
+    "family": "mastery_light",
+    "level": 4,
     "scope": 0,
-    "frontOnly": true,
-    "backOnly": false,
     "requireWeaponType": true,
-    "requiredWeaponType": 1,
-    "requireArmorType": false,
+    "requiredWeaponType": 9,
     "add": {
-      "pv": 2,
-      "toHit": 2
+      "mpv": 3,
+      "mav": 2,
+      "heal": 10
+    },
+    "mul": {
+      "heal": 1.6
+    }
+  },
+  {
+    "id": "skill_lightMastery_lv5",
+    "skillName": "光魔法マスタリー Lv5",
+    "family": "mastery_light",
+    "level": 5,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 9,
+    "add": {
+      "mpv": 4,
+      "mav": 3,
+      "heal": 20
+    },
+    "mul": {
+      "heal": 1.75
+    }
+  },
+  {
+    "id": "skill_clothMastery_lv1",
+    "skillName": "布マスタリー Lv1",
+    "family": "mastery_cloth",
+    "level": 1,
+    "scope": 0,
+    "requireArmorType": true,
+    "requiredArmorType": 0,
+    "add": {
+      "dv": 1
     },
     "mul": {}
   },
   {
-    "id": "skill_swordMastery2",
-    "skillName": "剣マスタリー・極",
+    "id": "skill_clothMastery_lv2",
+    "skillName": "布マスタリー Lv2",
+    "family": "mastery_cloth",
+    "level": 2,
     "scope": 0,
-    "frontOnly": true,
-    "backOnly": false,
-    "requireWeaponType": true,
-    "requiredWeaponType": 0,
-    "requireArmorType": false,
+    "requireArmorType": true,
+    "requiredArmorType": 0,
     "add": {
-      "pv": 2,
-      "toHit": 2
+      "dv": 2,
+      "mav": 1
     },
     "mul": {}
   },
   {
-    "id": "skill_spearMastery2",
-    "skillName": "槍マスタリー・極",
+    "id": "skill_clothMastery_lv3",
+    "skillName": "布マスタリー Lv3",
+    "family": "mastery_cloth",
+    "level": 3,
     "scope": 0,
-    "frontOnly": true,
-    "backOnly": false,
-    "requireWeaponType": true,
-    "requiredWeaponType": 2,
-    "requireArmorType": false,
+    "requireArmorType": true,
+    "requiredArmorType": 0,
     "add": {
-      "pv": 2,
-      "toHit": 2,
+      "dv": 3,
+      "mav": 2,
+      "mpv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_clothMastery_lv4",
+    "skillName": "布マスタリー Lv4",
+    "family": "mastery_cloth",
+    "level": 4,
+    "scope": 0,
+    "requireArmorType": true,
+    "requiredArmorType": 0,
+    "add": {
+      "dv": 4,
+      "mav": 3,
+      "mpv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_clothMastery_lv5",
+    "skillName": "布マスタリー Lv5",
+    "family": "mastery_cloth",
+    "level": 5,
+    "scope": 0,
+    "requireArmorType": true,
+    "requiredArmorType": 0,
+    "add": {
+      "dv": 5,
+      "mav": 4,
+      "mpv": 3,
+      "threatWeight": -15
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_lightArmorMastery_lv1",
+    "skillName": "軽鎧マスタリー Lv1",
+    "family": "mastery_lightArmor",
+    "level": 1,
+    "scope": 0,
+    "requireArmorType": true,
+    "requiredArmorType": 1,
+    "add": {
       "av": 1
     },
     "mul": {}
   },
   {
-    "id": "skill_bowMastery2",
-    "skillName": "弓マスタリー・極",
+    "id": "skill_lightArmorMastery_lv2",
+    "skillName": "軽鎧マスタリー Lv2",
+    "family": "mastery_lightArmor",
+    "level": 2,
     "scope": 0,
-    "frontOnly": false,
-    "backOnly": true,
-    "requireWeaponType": true,
-    "requiredWeaponType": 3,
-    "requireArmorType": false,
+    "requireArmorType": true,
+    "requiredArmorType": 1,
     "add": {
-      "pv": 2,
-      "toHit": 3
+      "av": 1,
+      "dv": 1,
+      "toHit": 1
     },
     "mul": {}
   },
   {
-    "id": "skill_fireMastery2",
-    "skillName": "炎魔法マスタリー・極",
+    "id": "skill_lightArmorMastery_lv3",
+    "skillName": "軽鎧マスタリー Lv3",
+    "family": "mastery_lightArmor",
+    "level": 3,
     "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": true,
-    "requiredWeaponType": 4,
-    "requireArmorType": false,
+    "requireArmorType": true,
+    "requiredArmorType": 1,
     "add": {
-      "mpv": 3
+      "av": 2,
+      "dv": 2,
+      "toHit": 1
     },
     "mul": {}
   },
   {
-    "id": "skill_lightMastery2",
-    "skillName": "光魔法マスタリー・極",
+    "id": "skill_lightArmorMastery_lv4",
+    "skillName": "軽鎧マスタリー Lv4",
+    "family": "mastery_lightArmor",
+    "level": 4,
     "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": true,
-    "requiredWeaponType": 9,
-    "requireArmorType": false,
+    "requireArmorType": true,
+    "requiredArmorType": 1,
     "add": {
-      "heal": 15
+      "av": 2,
+      "dv": 3,
+      "toHit": 2,
+      "carry": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_lightArmorMastery_lv5",
+    "skillName": "軽鎧マスタリー Lv5",
+    "family": "mastery_lightArmor",
+    "level": 5,
+    "scope": 0,
+    "requireArmorType": true,
+    "requiredArmorType": 1,
+    "add": {
+      "av": 3,
+      "dv": 4,
+      "toHit": 2,
+      "carry": 4
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_plateMastery_lv1",
+    "skillName": "重鎧マスタリー Lv1",
+    "family": "mastery_plate",
+    "level": 1,
+    "scope": 0,
+    "requireArmorType": true,
+    "requiredArmorType": 2,
+    "add": {
+      "carry": 4
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_plateMastery_lv2",
+    "skillName": "重鎧マスタリー Lv2",
+    "family": "mastery_plate",
+    "level": 2,
+    "scope": 0,
+    "requireArmorType": true,
+    "requiredArmorType": 2,
+    "add": {
+      "carry": 8
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_plateMastery_lv3",
+    "skillName": "重鎧マスタリー Lv3",
+    "family": "mastery_plate",
+    "level": 3,
+    "scope": 0,
+    "requireArmorType": true,
+    "requiredArmorType": 2,
+    "add": {
+      "carry": 12,
+      "av": 1
     },
     "mul": {
-      "heal": 1.3
+      "hp": 1.05
     }
   },
   {
-    "id": "skill_battleCry",
-    "skillName": "鬨の声",
+    "id": "skill_plateMastery_lv4",
+    "skillName": "重鎧マスタリー Lv4",
+    "family": "mastery_plate",
+    "level": 4,
+    "scope": 0,
+    "requireArmorType": true,
+    "requiredArmorType": 2,
+    "add": {
+      "carry": 16,
+      "av": 1
+    },
+    "mul": {
+      "hp": 1.1
+    }
+  },
+  {
+    "id": "skill_plateMastery_lv5",
+    "skillName": "重鎧マスタリー Lv5",
+    "family": "mastery_plate",
+    "level": 5,
+    "scope": 0,
+    "requireArmorType": true,
+    "requiredArmorType": 2,
+    "add": {
+      "carry": 20,
+      "av": 2
+    },
+    "mul": {
+      "hp": 1.15
+    }
+  },
+  {
+    "id": "skill_martialArts_lv1",
+    "skillName": "格闘術 Lv1",
+    "family": "martial_arts",
+    "level": 1,
+    "scope": 0,
+    "requireUnarmed": true,
+    "unarmedDamageDice": "1d3",
+    "add": {
+      "pv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_martialArts_lv2",
+    "skillName": "格闘術 Lv2",
+    "family": "martial_arts",
+    "level": 2,
+    "scope": 0,
+    "requireUnarmed": true,
+    "unarmedDamageDice": "1d4",
+    "add": {
+      "pv": 3,
+      "toHit": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_martialArts_lv3",
+    "skillName": "格闘術 Lv3",
+    "family": "martial_arts",
+    "level": 3,
+    "scope": 0,
+    "requireUnarmed": true,
+    "unarmedDamageDice": "1d6",
+    "add": {
+      "pv": 4,
+      "toHit": 2,
+      "critRange": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_martialArts_lv4",
+    "skillName": "格闘術 Lv4",
+    "family": "martial_arts",
+    "level": 4,
+    "scope": 0,
+    "requireUnarmed": true,
+    "unarmedDamageDice": "1d8",
+    "add": {
+      "pv": 5,
+      "toHit": 3,
+      "critRange": 1,
+      "dv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_martialArts_lv5",
+    "skillName": "格闘術 Lv5",
+    "family": "martial_arts",
+    "level": 5,
+    "scope": 0,
+    "requireUnarmed": true,
+    "unarmedDamageDice": "1d10",
+    "add": {
+      "pv": 6,
+      "toHit": 4,
+      "critRange": 2,
+      "dv": 2,
+      "extraAttacks": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_twoHandedMastery_lv1",
+    "skillName": "両手武器術 Lv1",
+    "family": "two_handed",
+    "level": 1,
+    "scope": 0,
+    "frontOnly": true,
+    "requireTwoHanded": true,
+    "requirePhysicalWeapon": true,
+    "add": {
+      "pv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_twoHandedMastery_lv2",
+    "skillName": "両手武器術 Lv2",
+    "family": "two_handed",
+    "level": 2,
+    "scope": 0,
+    "frontOnly": true,
+    "requireTwoHanded": true,
+    "requirePhysicalWeapon": true,
+    "add": {
+      "pv": 4,
+      "toHit": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_twoHandedMastery_lv3",
+    "skillName": "両手武器術 Lv3",
+    "family": "two_handed",
+    "level": 3,
+    "scope": 0,
+    "frontOnly": true,
+    "requireTwoHanded": true,
+    "requirePhysicalWeapon": true,
+    "add": {
+      "pv": 6,
+      "toHit": 2,
+      "armorPierce": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_dualWield_lv1",
+    "skillName": "二刀流 Lv1",
+    "family": "dual_wield",
+    "level": 1,
+    "scope": 0,
+    "frontOnly": true,
+    "requireOffHandWeapon": true,
+    "add": {
+      "offHandChance": 20
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_dualWield_lv2",
+    "skillName": "二刀流 Lv2",
+    "family": "dual_wield",
+    "level": 2,
+    "scope": 0,
+    "frontOnly": true,
+    "requireOffHandWeapon": true,
+    "add": {
+      "offHandChance": 35
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_dualWield_lv3",
+    "skillName": "二刀流 Lv3",
+    "family": "dual_wield",
+    "level": 3,
+    "scope": 0,
+    "frontOnly": true,
+    "requireOffHandWeapon": true,
+    "add": {
+      "offHandChance": 50,
+      "toHit": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_shieldMastery_lv1",
+    "skillName": "盾術 Lv1",
+    "family": "shield",
+    "level": 1,
+    "scope": 0,
+    "frontOnly": true,
+    "requireShield": true,
+    "add": {
+      "blockChance": 8
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_shieldMastery_lv2",
+    "skillName": "盾術 Lv2",
+    "family": "shield",
+    "level": 2,
+    "scope": 0,
+    "frontOnly": true,
+    "requireShield": true,
+    "add": {
+      "blockChance": 14
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_shieldMastery_lv3",
+    "skillName": "盾術 Lv3",
+    "family": "shield",
+    "level": 3,
+    "scope": 0,
+    "frontOnly": true,
+    "requireShield": true,
+    "add": {
+      "blockChance": 20,
+      "av": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_shieldMastery_lv4",
+    "skillName": "盾術 Lv4",
+    "family": "shield",
+    "level": 4,
+    "scope": 0,
+    "frontOnly": true,
+    "requireShield": true,
+    "add": {
+      "blockChance": 26,
+      "av": 1,
+      "blockNegate": 10
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_shieldMastery_lv5",
+    "skillName": "盾術 Lv5",
+    "family": "shield",
+    "level": 5,
+    "scope": 0,
+    "frontOnly": true,
+    "requireShield": true,
+    "add": {
+      "blockChance": 32,
+      "av": 2,
+      "blockNegate": 20
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_toughBody_lv1",
+    "skillName": "頑健 Lv1",
+    "family": "toughness",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {
+      "hp": 1.08
+    }
+  },
+  {
+    "id": "skill_toughBody_lv2",
+    "skillName": "頑健 Lv2",
+    "family": "toughness",
+    "level": 2,
+    "scope": 0,
+    "add": {
+      "av": 1
+    },
+    "mul": {
+      "hp": 1.14
+    }
+  },
+  {
+    "id": "skill_toughBody_lv3",
+    "skillName": "頑健 Lv3",
+    "family": "toughness",
+    "level": 3,
+    "scope": 0,
+    "add": {
+      "av": 1
+    },
+    "mul": {
+      "hp": 1.2
+    }
+  },
+  {
+    "id": "skill_toughBody_lv4",
+    "skillName": "頑健 Lv4",
+    "family": "toughness",
+    "level": 4,
+    "scope": 0,
+    "add": {
+      "av": 2
+    },
+    "mul": {
+      "hp": 1.26
+    }
+  },
+  {
+    "id": "skill_toughBody_lv5",
+    "skillName": "頑健 Lv5",
+    "family": "toughness",
+    "level": 5,
+    "scope": 0,
+    "add": {
+      "av": 2,
+      "mav": 1
+    },
+    "mul": {
+      "hp": 1.32
+    }
+  },
+  {
+    "id": "skill_porter_lv1",
+    "skillName": "剛力の荷役 Lv1",
+    "family": "porter",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "carry": 4
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_porter_lv2",
+    "skillName": "剛力の荷役 Lv2",
+    "family": "porter",
+    "level": 2,
+    "scope": 0,
+    "add": {
+      "carry": 8
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_porter_lv3",
+    "skillName": "剛力の荷役 Lv3",
+    "family": "porter",
+    "level": 3,
+    "scope": 0,
+    "add": {
+      "carry": 12
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_willpower_lv1",
+    "skillName": "不屈の意志 Lv1",
+    "family": "willpower",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "san": 20
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_willpower_lv2",
+    "skillName": "不屈の意志 Lv2",
+    "family": "willpower",
+    "level": 2,
+    "scope": 0,
+    "add": {
+      "san": 45
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_willpower_lv3",
+    "skillName": "不屈の意志 Lv3",
+    "family": "willpower",
+    "level": 3,
+    "scope": 0,
+    "add": {
+      "san": 80
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_wardEnchant_lv1",
+    "skillName": "魔法抵抗 Lv1",
+    "family": "ward",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "mav": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_wardEnchant_lv2",
+    "skillName": "魔法抵抗 Lv2",
+    "family": "ward",
+    "level": 2,
+    "scope": 0,
+    "add": {
+      "mav": 4
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_wardEnchant_lv3",
+    "skillName": "魔法抵抗 Lv3",
+    "family": "ward",
+    "level": 3,
+    "scope": 0,
+    "add": {
+      "mav": 6
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_taunt_lv1",
+    "skillName": "挑発 Lv1",
+    "family": "taunt",
+    "level": 1,
+    "scope": 0,
+    "frontOnly": true,
+    "add": {
+      "threatWeight": 40
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_taunt_lv2",
+    "skillName": "挑発 Lv2",
+    "family": "taunt",
+    "level": 2,
+    "scope": 0,
+    "frontOnly": true,
+    "add": {
+      "threatWeight": 80,
+      "av": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_taunt_lv3",
+    "skillName": "挑発 Lv3",
+    "family": "taunt",
+    "level": 3,
+    "scope": 0,
+    "frontOnly": true,
+    "add": {
+      "threatWeight": 130,
+      "av": 1,
+      "mav": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_stealth_lv1",
+    "skillName": "隠形 Lv1",
+    "family": "stealth",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "threatWeight": -25
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_stealth_lv2",
+    "skillName": "隠形 Lv2",
+    "family": "stealth",
+    "level": 2,
+    "scope": 0,
+    "add": {
+      "threatWeight": -45
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_stealth_lv3",
+    "skillName": "隠形 Lv3",
+    "family": "stealth",
+    "level": 3,
+    "scope": 0,
+    "add": {
+      "threatWeight": -65,
+      "dv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_swiftStep_lv1",
+    "skillName": "疾風の歩法 Lv1",
+    "family": "swift_step",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "toHit": 1,
+      "dv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_swiftStep_lv2",
+    "skillName": "疾風の歩法 Lv2",
+    "family": "swift_step",
+    "level": 2,
+    "scope": 0,
+    "add": {
+      "toHit": 2,
+      "dv": 3
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_swiftStep_lv3",
+    "skillName": "疾風の歩法 Lv3",
+    "family": "swift_step",
+    "level": 3,
+    "scope": 0,
+    "add": {
+      "toHit": 3,
+      "dv": 5
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_eagleEye_lv1",
+    "skillName": "鷹の目 Lv1",
+    "family": "eagle_eye",
+    "level": 1,
+    "scope": 0,
+    "backOnly": true,
+    "add": {
+      "toHit": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_eagleEye_lv2",
+    "skillName": "鷹の目 Lv2",
+    "family": "eagle_eye",
+    "level": 2,
+    "scope": 0,
+    "backOnly": true,
+    "add": {
+      "toHit": 4
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_eagleEye_lv3",
+    "skillName": "鷹の目 Lv3",
+    "family": "eagle_eye",
+    "level": 3,
+    "scope": 0,
+    "backOnly": true,
+    "add": {
+      "toHit": 6
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_berserk_lv1",
+    "skillName": "狂戦士 Lv1",
+    "family": "berserk",
+    "level": 1,
+    "scope": 0,
+    "frontOnly": true,
+    "add": {
+      "pv": 2,
+      "dv": -1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_berserk_lv2",
+    "skillName": "狂戦士 Lv2",
+    "family": "berserk",
+    "level": 2,
+    "scope": 0,
+    "frontOnly": true,
+    "add": {
+      "pv": 3,
+      "dv": -2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_berserk_lv3",
+    "skillName": "狂戦士 Lv3",
+    "family": "berserk",
+    "level": 3,
+    "scope": 0,
+    "frontOnly": true,
+    "add": {
+      "pv": 5,
+      "dv": -3,
+      "threatWeight": 30
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_manaFlow_lv1",
+    "skillName": "魔力循環 Lv1",
+    "family": "mana_flow",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "mpv": 1,
+      "mav": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_manaFlow_lv2",
+    "skillName": "魔力循環 Lv2",
+    "family": "mana_flow",
+    "level": 2,
+    "scope": 0,
+    "add": {
+      "mpv": 2,
+      "mav": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_manaFlow_lv3",
+    "skillName": "魔力循環 Lv3",
+    "family": "mana_flow",
+    "level": 3,
+    "scope": 0,
+    "add": {
+      "mpv": 3,
+      "mav": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_precision_lv1",
+    "skillName": "急所狙い Lv1",
+    "family": "precision",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "critRange": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_precision_lv2",
+    "skillName": "急所狙い Lv2",
+    "family": "precision",
+    "level": 2,
+    "scope": 0,
+    "add": {
+      "critRange": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_precision_lv3",
+    "skillName": "急所狙い Lv3",
+    "family": "precision",
+    "level": 3,
+    "scope": 0,
+    "add": {
+      "critRange": 3
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_deepCut_lv1",
+    "skillName": "痛撃 Lv1",
+    "family": "deep_cut",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "critPv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_deepCut_lv2",
+    "skillName": "痛撃 Lv2",
+    "family": "deep_cut",
+    "level": 2,
+    "scope": 0,
+    "add": {
+      "critPv": 4
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_deepCut_lv3",
+    "skillName": "痛撃 Lv3",
+    "family": "deep_cut",
+    "level": 3,
+    "scope": 0,
+    "add": {
+      "critPv": 6
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_sureStrike_lv1",
+    "skillName": "必倒の型 Lv1",
+    "family": "sure_strike",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "autoPenetrate": 8
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_sureStrike_lv2",
+    "skillName": "必倒の型 Lv2",
+    "family": "sure_strike",
+    "level": 2,
+    "scope": 0,
+    "add": {
+      "autoPenetrate": 15
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_sureStrike_lv3",
+    "skillName": "必倒の型 Lv3",
+    "family": "sure_strike",
+    "level": 3,
+    "scope": 0,
+    "add": {
+      "autoPenetrate": 25
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_firstAid_lv1",
+    "skillName": "応急処置 Lv1",
+    "family": "first_aid",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "emergencyHeal": 15
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_firstAid_lv2",
+    "skillName": "応急処置 Lv2",
+    "family": "first_aid",
+    "level": 2,
+    "scope": 0,
+    "add": {
+      "emergencyHeal": 25
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_battleCry_lv1",
+    "skillName": "鬨の声 Lv1",
+    "family": "war_cry",
+    "level": 1,
     "scope": 1,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": false,
-    "requireArmorType": false,
     "add": {
       "pv": 1,
       "mpv": 1
@@ -247,16 +1878,439 @@
     "mul": {}
   },
   {
-    "id": "skill_berserk",
-    "skillName": "狂戦士",
+    "id": "skill_battleCry_lv2",
+    "skillName": "鬨の声 Lv2",
+    "family": "war_cry",
+    "level": 2,
+    "scope": 1,
+    "add": {
+      "pv": 2,
+      "mpv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_battleCry_lv3",
+    "skillName": "鬨の声 Lv3",
+    "family": "war_cry",
+    "level": 3,
+    "scope": 1,
+    "add": {
+      "pv": 2,
+      "mpv": 2,
+      "toHit": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_guardian_lv1",
+    "skillName": "守護者 Lv1",
+    "family": "guardian",
+    "level": 1,
+    "scope": 1,
+    "add": {
+      "av": 1,
+      "mav": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_guardian_lv2",
+    "skillName": "守護者 Lv2",
+    "family": "guardian",
+    "level": 2,
+    "scope": 1,
+    "add": {
+      "av": 2,
+      "mav": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_guardian_lv3",
+    "skillName": "守護者 Lv3",
+    "family": "guardian",
+    "level": 3,
+    "scope": 1,
+    "add": {
+      "av": 3,
+      "mav": 3
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_prayer_lv1",
+    "skillName": "癒しの祈り Lv1",
+    "family": "prayer",
+    "level": 1,
+    "scope": 1,
+    "add": {
+      "hp": 15,
+      "mav": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_prayer_lv2",
+    "skillName": "癒しの祈り Lv2",
+    "family": "prayer",
+    "level": 2,
+    "scope": 1,
+    "add": {
+      "hp": 30,
+      "mav": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_prayer_lv3",
+    "skillName": "癒しの祈り Lv3",
+    "family": "prayer",
+    "level": 3,
+    "scope": 1,
+    "add": {
+      "hp": 50,
+      "mav": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_haggle_lv1",
+    "skillName": "交渉術 Lv1",
+    "family": "haggle",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "goldPercent": 6
+    }
+  },
+  {
+    "id": "skill_haggle_lv2",
+    "skillName": "交渉術 Lv2",
+    "family": "haggle",
+    "level": 2,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "goldPercent": 12
+    }
+  },
+  {
+    "id": "skill_haggle_lv3",
+    "skillName": "交渉術 Lv3",
+    "family": "haggle",
+    "level": 3,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "goldPercent": 20
+    }
+  },
+  {
+    "id": "skill_mentor_lv1",
+    "skillName": "教導 Lv1",
+    "family": "mentor",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "expPercent": 6
+    }
+  },
+  {
+    "id": "skill_mentor_lv2",
+    "skillName": "教導 Lv2",
+    "family": "mentor",
+    "level": 2,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "expPercent": 12
+    }
+  },
+  {
+    "id": "skill_mentor_lv3",
+    "skillName": "教導 Lv3",
+    "family": "mentor",
+    "level": 3,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "expPercent": 20
+    }
+  },
+  {
+    "id": "skill_treasureHunter_lv1",
+    "skillName": "宝探し Lv1",
+    "family": "treasure_hunter",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "treasureChancePercent": 25
+    }
+  },
+  {
+    "id": "skill_treasureHunter_lv2",
+    "skillName": "宝探し Lv2",
+    "family": "treasure_hunter",
+    "level": 2,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "treasureChancePercent": 50
+    }
+  },
+  {
+    "id": "skill_treasureHunter_lv3",
+    "skillName": "宝探し Lv3",
+    "family": "treasure_hunter",
+    "level": 3,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "treasureChancePercent": 80
+    }
+  },
+  {
+    "id": "skill_trapSense_lv1",
+    "skillName": "罠の勘 Lv1",
+    "family": "trap_sense",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "trapChancePercent": -20
+    }
+  },
+  {
+    "id": "skill_trapSense_lv2",
+    "skillName": "罠の勘 Lv2",
+    "family": "trap_sense",
+    "level": 2,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "trapChancePercent": -35
+    }
+  },
+  {
+    "id": "skill_trapSense_lv3",
+    "skillName": "罠の勘 Lv3",
+    "family": "trap_sense",
+    "level": 3,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "trapChancePercent": -50
+    }
+  },
+  {
+    "id": "skill_scouting",
+    "skillName": "斥候術",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "enemyEncounterChancePercent": -25
+    }
+  },
+  {
+    "id": "skill_campcraft",
+    "skillName": "野営術",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "healEventChancePercent": 40,
+      "restHealPercent": 20
+    }
+  },
+  {
+    "id": "skill_butchery",
+    "skillName": "解体術",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "enemyDropChancePercent": 30,
+      "rareDropChancePercent": 20
+    }
+  },
+  {
+    "id": "skill_protection",
+    "skillName": "庇護",
     "scope": 0,
     "frontOnly": true,
-    "backOnly": false,
-    "requireWeaponType": false,
-    "requireArmorType": false,
+    "requireShield": true,
+    "add": {},
+    "mul": {},
+    "battle": {
+      "protectAllyHpPercent": 35,
+      "protectChancePercent": 100
+    }
+  },
+  {
+    "id": "skill_executioner",
+    "skillName": "処刑人",
+    "scope": 0,
+    "requirePhysicalWeapon": true,
+    "add": {},
+    "mul": {},
+    "battle": {
+      "afflictedTargetPv": 2
+    }
+  },
+  {
+    "id": "skill_purification",
+    "skillName": "浄化",
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 9,
+    "add": {},
+    "mul": {},
+    "battle": {
+      "cleanseOnHealChancePercent": 100
+    }
+  },
+  {
+    "id": "skill_backsToWall",
+    "skillName": "背水",
+    "scope": 0,
+    "requirePhysicalWeapon": true,
+    "add": {},
+    "mul": {},
+    "battle": {
+      "lowHpThresholdPercent": 35,
+      "lowHpPv": 3
+    }
+  },
+  {
+    "id": "skill_counter",
+    "skillName": "反撃",
+    "scope": 0,
+    "frontOnly": true,
+    "requireShield": true,
+    "requirePhysicalWeapon": true,
+    "add": {},
+    "mul": {},
+    "battle": {
+      "counterChancePercent": 35
+    }
+  },
+  {
+    "id": "skill_event_campWisdom",
+    "skillName": "野営の知恵",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "restHealPercent": 10
+    }
+  },
+  {
+    "id": "skill_event_dangerSense",
+    "skillName": "危険察知",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "trapChancePercent": -10
+    }
+  },
+  {
+    "id": "skill_event_trailcraft",
+    "skillName": "獣道歩き",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "enemyEncounterChancePercent": -10
+    }
+  },
+  {
+    "id": "skill_event_antiqueEye",
+    "skillName": "古物鑑定",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "rareDropChancePercent": 10
+    }
+  },
+  {
+    "id": "skill_event_wardingRite",
+    "skillName": "魔除けの作法",
+    "scope": 0,
     "add": {
-      "pv": 3,
-      "dv": -2
+      "mav": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_event_composure",
+    "skillName": "沈着",
+    "scope": 0,
+    "add": {
+      "san": 10
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_spendthrift",
+    "skillName": "浪費癖",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "goldPercent": -15
+    }
+  },
+  {
+    "id": "skill_sloth",
+    "skillName": "怠惰",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "expPercent": -15
+    }
+  },
+  {
+    "id": "skill_cursedLuck",
+    "skillName": "貧乏くじ",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "treasureChancePercent": -30,
+      "trapChancePercent": 30
+    }
+  },
+  {
+    "id": "skill_backstab",
+    "skillName": "不意打ち",
+    "scope": 0,
+    "frontOnly": true,
+    "requireWeaponType": true,
+    "requiredWeaponType": 11,
+    "add": {
+      "pv": 2,
+      "toHit": 2,
+      "critRange": 1
     },
     "mul": {}
   },
@@ -265,8 +2319,6 @@
     "skillName": "鉄壁",
     "scope": 0,
     "frontOnly": true,
-    "backOnly": false,
-    "requireWeaponType": false,
     "requireArmorType": true,
     "requiredArmorType": 2,
     "add": {
@@ -277,111 +2329,30 @@
     }
   },
   {
-    "id": "skill_guardian",
-    "skillName": "守護者",
-    "scope": 1,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": false,
-    "requireArmorType": false,
-    "add": {
-      "av": 2,
-      "mav": 2
-    },
-    "mul": {}
-  },
-  {
-    "id": "skill_swiftStep",
-    "skillName": "疾風の歩法",
-    "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": false,
-    "requireArmorType": false,
-    "add": {
-      "toHit": 2,
-      "dv": 3
-    },
-    "mul": {}
-  },
-  {
-    "id": "skill_eagleEye",
-    "skillName": "鷹の目",
-    "scope": 0,
-    "frontOnly": false,
-    "backOnly": true,
-    "requireWeaponType": false,
-    "requireArmorType": false,
-    "add": {
-      "toHit": 4
-    },
-    "mul": {}
-  },
-  {
-    "id": "skill_prayer",
-    "skillName": "癒しの祈り",
-    "scope": 1,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": false,
-    "requireArmorType": false,
-    "add": {
-      "hp": 30,
-      "mav": 1
-    },
-    "mul": {}
-  },
-  {
-    "id": "skill_manaFlow",
-    "skillName": "魔力循環",
-    "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": false,
-    "requireArmorType": false,
-    "add": {
-      "mpv": 2,
-      "mav": 1
-    },
-    "mul": {}
-  },
-  {
-    "id": "skill_toughBody",
-    "skillName": "頑健",
-    "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": false,
-    "requireArmorType": false,
-    "add": {
-      "av": 1
-    },
-    "mul": {
-      "hp": 1.2
-    }
-  },
-  {
     "id": "skill_beastFang",
     "skillName": "獣の牙",
     "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": false,
-    "requireArmorType": false,
+    "requireUnarmed": true,
+    "unarmedDamageDice": "1d6",
     "add": {
       "pv": 1,
       "toHit": 1
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Bleeding",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
   },
   {
     "id": "skill_flight",
     "skillName": "飛行",
     "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": false,
-    "requireArmorType": false,
     "add": {
       "dv": 4,
       "toHit": 1
@@ -392,10 +2363,6 @@
     "id": "skill_swarm",
     "skillName": "群れ",
     "scope": 1,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": false,
-    "requireArmorType": false,
     "add": {
       "pv": 1,
       "toHit": 1
@@ -406,10 +2373,6 @@
     "id": "skill_undeadTough",
     "skillName": "不死の肉体",
     "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": false,
-    "requireArmorType": false,
     "add": {
       "dv": -2
     },
@@ -421,10 +2384,6 @@
     "id": "skill_stoneSkin",
     "skillName": "石の皮膚",
     "scope": 0,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": false,
-    "requireArmorType": false,
     "add": {
       "av": 4,
       "dv": -3
@@ -435,13 +2394,592 @@
     "id": "skill_deathAura",
     "skillName": "死の瘴気",
     "scope": 1,
-    "frontOnly": false,
-    "backOnly": false,
-    "requireWeaponType": false,
-    "requireArmorType": false,
     "add": {
       "mpv": 1,
       "mav": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_blazeSoul_lv1",
+    "skillName": "焔の魂 Lv1",
+    "family": "blaze_soul",
+    "level": 1,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 4,
+    "add": {
+      "mpv": 1,
+      "critPv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_flameChorus_lv1",
+    "skillName": "焔の唱和 Lv1",
+    "family": "flame_chorus",
+    "level": 1,
+    "scope": 1,
+    "requireWeaponType": true,
+    "requiredWeaponType": 4,
+    "add": {
+      "mpv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_frostbind_lv1",
+    "skillName": "凍てつく波動 Lv1",
+    "family": "frostbind",
+    "level": 1,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 6,
+    "add": {},
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Chilled",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 2,
+        "potency": 2
+      }
+    ]
+  },
+  {
+    "id": "skill_frostbind_lv2",
+    "skillName": "凍てつく波動 Lv2",
+    "family": "frostbind",
+    "level": 2,
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 6,
+    "add": {},
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Chilled",
+        "target": "Enemy",
+        "chancePercent": 50,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
+  },
+  {
+    "id": "skill_sanctuary_lv1",
+    "skillName": "聖なる加護 Lv1",
+    "family": "sanctuary",
+    "level": 1,
+    "scope": 1,
+    "requireWeaponType": true,
+    "requiredWeaponType": 9,
+    "add": {
+      "mav": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_sanctuary_lv2",
+    "skillName": "聖なる加護 Lv2",
+    "family": "sanctuary",
+    "level": 2,
+    "scope": 1,
+    "requireWeaponType": true,
+    "requiredWeaponType": 9,
+    "add": {
+      "mav": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_venomFang_lv1",
+    "skillName": "毒牙 Lv1",
+    "family": "venom_fang",
+    "level": 1,
+    "scope": 0,
+    "requireUnarmed": true,
+    "add": {
+      "pv": 1
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Poisoned",
+        "target": "Enemy",
+        "chancePercent": 40,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
+  },
+  {
+    "id": "skill_venomFang_lv2",
+    "skillName": "毒牙 Lv2",
+    "family": "venom_fang",
+    "level": 2,
+    "scope": 0,
+    "requireUnarmed": true,
+    "add": {
+      "pv": 2,
+      "toHit": 1
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Poisoned",
+        "target": "Enemy",
+        "chancePercent": 55,
+        "durationRounds": 4,
+        "potency": 5
+      }
+    ]
+  },
+  {
+    "id": "skill_arcaneFang",
+    "skillName": "魔牙",
+    "scope": 0,
+    "requireUnarmed": true,
+    "add": {
+      "mpv": 2,
+      "toHit": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_frostFang",
+    "skillName": "氷牙",
+    "scope": 0,
+    "requireUnarmed": true,
+    "add": {
+      "mpv": 2,
+      "mav": 1
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Stunned",
+        "target": "Enemy",
+        "chancePercent": 20,
+        "durationRounds": 2,
+        "potency": 0
+      }
+    ]
+  },
+  {
+    "id": "skill_graveChill",
+    "skillName": "生気吸い",
+    "scope": 0,
+    "add": {
+      "mav": 2
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Regenerating",
+        "target": "Self",
+        "chancePercent": 45,
+        "durationRounds": 2,
+        "potency": 4
+      }
+    ]
+  },
+  {
+    "id": "skill_acidBody",
+    "skillName": "酸の体",
+    "scope": 0,
+    "add": {
+      "armorShred": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_ironJaw",
+    "skillName": "鉄喰らいの顎",
+    "scope": 0,
+    "add": {
+      "armorShred": 3
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_sporeBurst",
+    "skillName": "毒胞子",
+    "scope": 0,
+    "backOnly": true,
+    "add": {
+      "mav": 2
+    },
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Poisoned",
+        "target": "Enemy",
+        "chancePercent": 45,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
+  },
+  {
+    "id": "skill_skyDive",
+    "skillName": "急降下",
+    "scope": 0,
+    "add": {
+      "toHit": 2,
+      "critRange": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_bloodscent",
+    "skillName": "血の匂い",
+    "family": "trait_bloodscent",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "critPv": 1,
+      "threatWeight": 25
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_stone_stance",
+    "skillName": "石の構え",
+    "family": "trait_stone_stance",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "av": 1,
+      "dv": -1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_gap_eye",
+    "skillName": "隙を見る目",
+    "family": "trait_gap_eye",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "autoPenetrate": 12,
+      "toHit": -1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_reckless",
+    "skillName": "捨て身",
+    "family": "trait_reckless",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {
+      "hp": 0.95
+    },
+    "battle": {
+      "lowHpThresholdPercent": 50,
+      "lowHpPv": 2
+    }
+  },
+  {
+    "id": "skill_trait_shield_oath",
+    "skillName": "盾の誓い",
+    "family": "trait_shield_oath",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "threatWeight": 20
+    },
+    "mul": {},
+    "battle": {
+      "protectAllyHpPercent": 45,
+      "protectChancePercent": 25
+    }
+  },
+  {
+    "id": "skill_trait_killing_habit",
+    "skillName": "殺し慣れ",
+    "family": "trait_killing_habit",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "pv": 1
+    },
+    "mul": {
+      "san": 0.9
+    }
+  },
+  {
+    "id": "skill_trait_hollow_eyes",
+    "skillName": "虚ろな目",
+    "family": "trait_hollow_eyes",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {
+      "san": 0.88
+    },
+    "battle": {
+      "afflictedTargetPv": 2
+    }
+  },
+  {
+    "id": "skill_trait_unyielding",
+    "skillName": "不屈",
+    "family": "trait_unyielding",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "battle": {
+      "lowHpThresholdPercent": 40,
+      "lowHpPv": 2
+    }
+  },
+  {
+    "id": "skill_trait_deathwalker",
+    "skillName": "死線を歩む者",
+    "family": "trait_deathwalker",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "emergencyHeal": 8
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_last_bulwark",
+    "skillName": "最後の砦",
+    "family": "trait_last_bulwark",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "blockChance": 5
+    },
+    "mul": {},
+    "battle": {
+      "protectAllyHpPercent": 50,
+      "protectChancePercent": 30
+    }
+  },
+  {
+    "id": "skill_trait_lone_shadow",
+    "skillName": "孤影",
+    "family": "trait_lone_shadow",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "dv": 2
+    },
+    "mul": {
+      "san": 0.9
+    }
+  },
+  {
+    "id": "skill_trait_mourning",
+    "skillName": "弔い",
+    "family": "trait_mourning",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "pv": 1,
+      "toHit": 1
+    },
+    "mul": {
+      "san": 0.85
+    }
+  },
+  {
+    "id": "skill_trait_renown",
+    "skillName": "英名",
+    "family": "trait_renown",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "threatWeight": 25
+    },
+    "mul": {
+      "san": 1.15
+    }
+  },
+  {
+    "id": "skill_trait_boss_footwork",
+    "skillName": "巨影の間合い",
+    "family": "trait_boss_footwork",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "dv": 1
+    },
+    "mul": {
+      "hp": 0.95
+    }
+  },
+  {
+    "id": "skill_trait_trophy_eye",
+    "skillName": "戦利眼",
+    "family": "trait_trophy_eye",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "rareDropChancePercent": 10,
+      "trapChancePercent": 10
+    }
+  },
+  {
+    "id": "skill_trait_knows_when",
+    "skillName": "引き際を知る",
+    "family": "trait_knows_when",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "dv": 1,
+      "pv": -1
+    },
+    "mul": {},
+    "expedition": {
+      "trapChancePercent": -20
+    }
+  },
+  {
+    "id": "skill_trait_unscarred_pride",
+    "skillName": "無傷の驕り",
+    "family": "trait_unscarred_pride",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "toHit": 1
+    },
+    "mul": {
+      "hp": 0.95
+    }
+  },
+  {
+    "id": "skill_trait_life_in_death",
+    "skillName": "死中に活",
+    "family": "trait_life_in_death",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "emergencyHeal": 6,
+      "dv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_only_one_back",
+    "skillName": "唯一の生還者",
+    "family": "trait_only_one_back",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "dv": 1
+    },
+    "mul": {
+      "san": 1.2
+    }
+  },
+  {
+    "id": "skill_trait_stands_alone",
+    "skillName": "独り立ち",
+    "family": "trait_stands_alone",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "pv": 1,
+      "dv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_arcane_weight",
+    "skillName": "魔の手応え",
+    "family": "trait_arcane_weight",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "mpv": 1
+    },
+    "mul": {
+      "san": 0.9
+    }
+  },
+  {
+    "id": "skill_trait_casters_nerve",
+    "skillName": "術者の胆",
+    "family": "trait_casters_nerve",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "mpv": 2
+    },
+    "mul": {
+      "hp": 0.95
+    }
+  },
+  {
+    "id": "skill_trait_deathbed_chant",
+    "skillName": "死線の詠唱",
+    "family": "trait_deathbed_chant",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "mpv": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_trait_quiet_weave",
+    "skillName": "魔を編む静けさ",
+    "family": "trait_quiet_weave",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "mav": 2
+    },
+    "mul": {
+      "san": 0.88
+    }
+  },
+  {
+    "id": "skill_trait_praying_hands",
+    "skillName": "祈りの手",
+    "family": "trait_praying_hands",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "heal": 2
+    },
+    "mul": {
+      "san": 0.9
+    }
+  },
+  {
+    "id": "skill_trait_cleansing_lore",
+    "skillName": "浄めの心得",
+    "family": "trait_cleansing_lore",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {
+      "hp": 0.95
+    },
+    "battle": {
+      "cleanseOnHealChancePercent": 20
+    }
+  },
+  {
+    "id": "skill_trait_last_rites",
+    "skillName": "看取りの技",
+    "family": "trait_last_rites",
+    "level": 1,
+    "scope": 0,
+    "add": {
+      "heal": 3
     },
     "mul": {}
   }

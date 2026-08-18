@@ -8,7 +8,9 @@
   <ItemGroup>
     <None Include="..\GuildSimulator.Game\Data\*.json">
       <Link>Data\%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <!-- The canonical files can have older mtimes than tracked Release output after checkout. -->
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </None>
   </ItemGroup>
 
