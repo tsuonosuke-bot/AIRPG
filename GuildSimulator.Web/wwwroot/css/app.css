@@ -416,7 +416,14 @@ button.s-accent .option-label { color: var(--accent); }
 :root[data-theme="eink"] .option,
 :root[data-theme="eink"] .text-input input,
 :root[data-theme="eink"] .text-input button {
+    border-color: #000000;
     border-width: 2px;
+}
+
+:root[data-theme="eink"] .theme-toggle:hover,
+:root[data-theme="eink"] .option:hover {
+    background: var(--button-bg);
+    border-color: #000000;
 }
 
 :root[data-theme="eink"] button.option.role-primary {

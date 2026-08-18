@@ -14,7 +14,7 @@
         <button type="button"
                 class="theme-toggle"
                 aria-pressed="@_eInkTheme"
-                title="e-Ink向けの白基調・高コントラスト表示に切り替えます"
+                title="@(_eInkTheme ? "ダーク表示に戻します" : "e-Ink向けの白基調・高コントラスト表示に切り替えます")"
                 @onclick="ToggleTheme">
             <span class="theme-icon" aria-hidden="true">@(_eInkTheme ? "□" : "■")</span>
             <span>表示: @(_eInkTheme ? "e-Ink" : "ダーク")</span>
