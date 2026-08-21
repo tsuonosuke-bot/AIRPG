@@ -8,6 +8,12 @@ public class GuildManager
 {
     public const int GuildBaseUpkeepGoldPerTurn = 10;
     public const int UpkeepGoldPerLevel = 1;
+    public const int FormationSlotCount = 6;
+    public const int FrontRowSlotCount = 3;
+    public const int BasePartyCapacity = 3;
+    public const int MaximumPartyCapacity = FormationSlotCount;
+    public const int PartyCapacityUpgradeMaximum =
+        MaximumPartyCapacity - BasePartyCapacity;
 
     /// <summary>認定ランクが1つ上がるごとに増える賃金。レアリティは維持費に関係させない。</summary>
     public const int UpkeepGoldPerRank = 15;
@@ -128,6 +134,20 @@ public class GuildManager
         adventurers.Where(a => a != null && a.isAlive).Sum(a => CalculateAdventurerUpkeep(a.level, a.rank));
 
     public int FacilityUpkeepPerTurn => facilities.Sum(f => f.upkeepGoldPerTurn);
+    public int PartyCapacityUpgradeCount => Math.Clamp(
+        facilities.Sum(f => Math.Max(0, f.partySlotBonus)),
+        0,
+        PartyCapacityUpgradeMaximum);
+    public int PartyCapacity => BasePartyCapacity + PartyCapacityUpgradeCount;
+
+    /// <summary>そのランクで対象施設をすべて建てた場合の編成人数上限。</summary>
+    public static int PartyCapacityCeilingForRank(int rank) => Math.Clamp(
+        BasePartyCapacity
+        + (rank >= 2 ? 1 : 0)
+        + (rank >= 4 ? 1 : 0)
+        + (rank >= 6 ? 1 : 0),
+        BasePartyCapacity,
+        MaximumPartyCapacity);
 
     public int BaseUpkeepPerTurn =>
         GuildBaseUpkeepGoldPerTurn + AdventurerUpkeepPerTurn + FacilityUpkeepPerTurn;

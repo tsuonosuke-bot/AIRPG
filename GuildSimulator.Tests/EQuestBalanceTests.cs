@@ -77,13 +77,13 @@ public class EQuestBalanceTests
     }
 
     [Fact]
-    public void BanditEncounterEventsAreOnTheHighway()
+    public void BanditEncounterEventsRemainOnAmashiroLowerRoute()
     {
         var db = Load();
-        var highway = db.dungeons["dungeon_highway"];
-        Assert.Contains("event_bandit_toll", highway.turnEndEvents.Select(e => e.id));
-        Assert.Contains("event_bandit_deserter_dealer", highway.turnEndEvents.Select(e => e.id));
-        Assert.Contains("event_bandit_lookout_spotted", highway.turnEndEvents.Select(e => e.id));
+        var amashiro = db.dungeons["dungeon_amashiro"];
+        Assert.Contains("event_bandit_toll", amashiro.turnEndEvents.Select(e => e.id));
+        Assert.Contains("event_bandit_deserter_dealer", amashiro.turnEndEvents.Select(e => e.id));
+        Assert.Contains("event_bandit_lookout_spotted", amashiro.turnEndEvents.Select(e => e.id));
 
         // 通行料の交渉は結果が運次第（IsGamble = outcomes.Count > 1）で、
         // 戦闘を模した DamagePercent の分岐がある。

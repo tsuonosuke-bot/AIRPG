@@ -825,7 +825,7 @@ public class TraitSystemTests
             var formation = new AdventurerData?[6];
             var party = db.allAdventurers
                 .Where(m => m.recruitGuildRank <= 1)
-                .Take(4)
+                .Take(3)
                 .Select(m => new AdventurerData(m))
                 .ToList();
             for (int i = 0; i < party.Count; i++)

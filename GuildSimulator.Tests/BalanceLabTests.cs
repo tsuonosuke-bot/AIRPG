@@ -43,6 +43,7 @@ public class BalanceLabTests
                     id = "quest",
                     type = "quest",
                     partyIds = { "adv_0001", "adv_0002", "adv_0003", "adv_0004" },
+                    partyCapacityUpgrades = 1,
                     questId = "quest_slime_cull",
                     startingGold = 5000,
                     maxTurns = 20,
@@ -159,8 +160,9 @@ public class BalanceLabTests
                     id = "growth-campaign",
                     type = "campaign",
                     partyIds = { "adv_0001", "adv_0002", "adv_0003", "adv_0004" },
+                    partyCapacityUpgrades = 1,
                     questIds = { "quest_slime_cull", "quest_raven_nuisance", "quest_goblin_slayer" },
-                    startingGuildRank = 1,
+                    startingGuildRank = 2,
                     maxTurns = 20,
                 },
             },
@@ -191,6 +193,7 @@ public class BalanceLabTests
                     id = "promotion-campaign",
                     type = "campaign",
                     partyIds = { "adv_0001", "adv_0002", "adv_0003", "adv_0004" },
+                    partyCapacityUpgrades = 1,
                     partyLevel = 10,
                     questIds =
                     {
@@ -246,6 +249,60 @@ public class BalanceLabTests
     }
 
     [Fact]
+    public void DuplicateExplicitFormationSlotsAreRejectedBeforeSimulation()
+    {
+        var db = MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
+        var configuration = new BalanceConfiguration
+        {
+            runs = 1,
+            scenarios =
+            {
+                new BalanceScenario
+                {
+                    id = "duplicate-formation-slot",
+                    type = "battle",
+                    party =
+                    {
+                        new BalancePartyMember { id = "adv_0001", formationSlot = 1 },
+                        new BalancePartyMember { id = "adv_0002", formationSlot = 1 },
+                    },
+                    enemyUnitId = "unit_slime_pair",
+                },
+            },
+        };
+
+        var error = Assert.Throws<InvalidDataException>(() =>
+            new BalanceRunner(db).Run(configuration));
+
+        Assert.Contains("duplicate formation slots", error.Message);
+    }
+
+    [Fact]
+    public void QuestScenarioRequiresExplicitPartyCapacityUpgradeForFourthMember()
+    {
+        var db = MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
+        var configuration = new BalanceConfiguration
+        {
+            runs = 1,
+            scenarios =
+            {
+                new BalanceScenario
+                {
+                    id = "locked-fourth-member",
+                    type = "quest",
+                    partyIds = { "adv_0001", "adv_0002", "adv_0003", "adv_0004" },
+                    questId = "quest_slime_cull",
+                },
+            },
+        };
+
+        var error = Assert.Throws<InvalidDataException>(() =>
+            new BalanceRunner(db).Run(configuration));
+
+        Assert.Contains("partyCapacityUpgrades=1", error.Message);
+    }
+
+    [Fact]
     public void LongCampaignSelectsAnotherSkillRecipientWhenTheFirstAlreadyKnowsIt()
     {
         var db = MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
@@ -259,7 +316,7 @@ public class BalanceLabTests
                 {
                     id = "repeated-choice-events",
                     type = "campaign",
-                    partyIds = { "adv_0001", "adv_0002", "adv_0003", "adv_0004" },
+                    partyIds = { "adv_0001", "adv_0002", "adv_0003" },
                     questIds =
                     {
                         "quest_slime_cull",

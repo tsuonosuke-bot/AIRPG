@@ -20,6 +20,7 @@ public sealed class BalanceScenario
     public List<BalancePartyMember> party { get; set; } = new();
     public int partyLevel { get; set; }
     public int partyRank { get; set; }
+    public int partyCapacityUpgrades { get; set; }
     public string enemyUnitId { get; set; } = "";
     public string questId { get; set; } = "";
     public List<string> questIds { get; set; } = new();
@@ -35,6 +36,8 @@ public sealed class BalanceScenario
 public sealed class BalancePartyMember
 {
     public string id { get; set; } = "";
+    /// <summary>1=前衛1 ... 6=後衛3。0なら記述順に空き枠へ自動配置。</summary>
+    public int formationSlot { get; set; }
     public int level { get; set; }
     public int rank { get; set; }
     public Dictionary<string, string> equipment { get; set; } = new();

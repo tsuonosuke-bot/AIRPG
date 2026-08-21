@@ -13,5 +13,40 @@
     "id": "clue_old_city_sigil",
     "title": "旧市街の刻印",
     "description": "旧市街の遺物と鉱石には同じ刻印があった。現在の種族より古い文明が、鉱脈を制御していた可能性がある。"
+  },
+  {
+    "id": "clue_amashiro_fogbound_silhouette",
+    "title": "濃霧の向こうの巨塔",
+    "description": "流れる森の深部で一瞬だけ霧が裂け、雲を貫く白い巨構造が姿を現した。地図には記録がなく、内部も、どこまで続いているのかも分からない。"
+  },
+  {
+    "id": "clue_amashiro_last_waybill",
+    "title": "行先を削られた送り状",
+    "description": "天城低層の旧関所で見つかった送り状。大量の荷が上層へ送られていたが、最終目的地だけが意図的に削り取られている。"
+  },
+  {
+    "id": "clue_amashiro_usurper_edict",
+    "title": "簒奪者の拒絶命令",
+    "description": "竜爪で刻み直された機兵の命令板。『上る者を拒め。荷はすべて我が蔵へ』と記され、動甲冑とゴーレムが古龍に作り替えられたことが分かる。"
+  },
+  {
+    "id": "clue_amashiro_tide_chart",
+    "title": "反転する潮路図",
+    "description": "飛竜の巣に残された航路図。天城は雲を抜けた先で重力を反転させ、宙に浮かぶ海『ミドルオーシャン』へ接続していた。その先の行先は欠けている。"
+  },
+  {
+    "id": "clue_amashiro_heaven_key",
+    "title": "簒奪者の昇潮鍵",
+    "description": "古竜式ゴーレムの命令核に組み込まれていた鍵。古龍はこれを奪って昇潮機関を封じ、天城からミドルオーシャンへ出る道を閉ざしていた。"
+  },
+  {
+    "id": "clue_middle_ocean_trade_manifest",
+    "title": "天界行きの通商目録",
+    "description": "沈んだ税関船から回収した最後の目録。地上の鉱物・薬草と天界の機巧品が行き交っていたが、最終便の日付は古龍の天城簒奪と一致する。"
+  },
+  {
+    "id": "clue_middle_ocean_celestial_barrier",
+    "title": "応答しない天界門",
+    "description": "天界門に残された二重封鎖の記録。地上側の鍵は取り戻されたが、天界側の鍵は応答せず、門はなお閉ざされている。"
   }
 ]

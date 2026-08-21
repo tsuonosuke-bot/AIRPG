@@ -124,7 +124,7 @@ public class FeedbackBalanceTests
     }
 
     [Fact]
-    public void DeterministicSkillEventsHaveMoreWeightAndCoverTheHighway()
+    public void DeterministicSkillEventsHaveMoreWeightAndCoverAmashiro()
     {
         var db = Load();
         string[] eventIds = { "event_forest_lore", "event_roadside_lessons", "event_ruin_tablets" };
@@ -138,7 +138,7 @@ public class FeedbackBalanceTests
                 Assert.Equal(QuestChoiceEffectType.AdventurerSkill, option.effectType));
         }
 
-        Assert.Contains(db.dungeons["dungeon_highway"].turnEndEvents,
+        Assert.Contains(db.dungeons["dungeon_amashiro"].turnEndEvents,
             choiceEvent => choiceEvent.id == "event_roadside_lessons");
     }
 

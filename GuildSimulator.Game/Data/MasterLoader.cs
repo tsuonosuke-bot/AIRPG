@@ -204,6 +204,7 @@ public static class MasterLoader
                 buildCostGold = f.buildCostGold, upkeepGoldPerTurn = f.upkeepGoldPerTurn,
                 requiredGuildRank = Math.Max(1, f.requiredGuildRank),
                 questBoardBonus = f.questBoardBonus, shopLevelBonus = f.shopLevelBonus,
+                partySlotBonus = f.partySlotBonus,
                 restHealBonusPercent = f.restHealBonusPercent, growthRateBonusPercent = f.growthRateBonusPercent,
                 noviceQuestBoardBonus = Math.Max(0, f.noviceQuestBoardBonus),
                 recruitMinBonus = f.recruitMinBonus,
@@ -365,6 +366,8 @@ public static class MasterLoader
                 isEmergencyQuest = q.isEmergencyQuest, rankUpOnClear = q.rankUpOnClear, requiredGuildPoints = q.requiredGuildPoints,
                 bossPhase = q.bossPhase, bossDropsAreGuaranteed = q.bossDropsAreGuaranteed,
                 isStoryQuest = q.isStoryQuest,
+                storyArcId = q.storyArcId ?? "",
+                storyArcTitle = q.storyArcTitle ?? "",
                 requiredQuestIds = q.requiredQuestIds ?? new(),
                 requiredClueIds = q.requiredClueIds ?? new(),
                 grantedClueIds = q.grantedClueIds ?? new(),
@@ -626,7 +629,7 @@ public static class MasterLoader
         int requiredGuildRank, int questBoardBonus, int shopLevelBonus, int restHealBonusPercent,
         int growthRateBonusPercent, int recruitMinBonus,
         int injuryRecoveryBonus = 0, int fatalityReductionPercent = 0, int scarPreventionPercent = 0,
-        int noviceQuestBoardBonus = 0);
+        int noviceQuestBoardBonus = 0, int partySlotBonus = 0);
 
     record EnemyJson(string id, string baseName, int exp, int threat, int vitality, int mental, int strength,
         int agility, int intelligence, int constitution, string? defaultWeaponId, string? defaultArmorId,
@@ -670,7 +673,7 @@ public static class MasterLoader
         float gatherChance, int gatherGoldPerItem,
         string? clientName, string? description, bool isStoryQuest,
         List<string>? requiredQuestIds, List<string>? requiredClueIds, List<string>? grantedClueIds,
-        string? storyBranchId);
+        string? storyBranchId, string? storyArcId = null, string? storyArcTitle = null);
 
     record AdvJson(string id, string baseName, int defaultLevel, int defaultRank,
         int? recruitGuildRank, int? recruitWeight,

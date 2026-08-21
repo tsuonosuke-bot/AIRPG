@@ -946,5 +946,173 @@
       null,
       null
     ]
+  },
+  {
+    "id": "unit_amashiro_armor_pair",
+    "unitName": "天城の動甲冑二体",
+    "formationIds": [
+      "enemy_amashiro_animated_armor",
+      "enemy_amashiro_animated_armor",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_amashiro_sentinel_patrol",
+    "unitName": "機巧衛兵の巡回隊",
+    "formationIds": [
+      "enemy_amashiro_clockwork_sentinel",
+      "enemy_amashiro_animated_armor",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_amashiro_construct_line",
+    "unitName": "天城機兵の防衛線",
+    "formationIds": [
+      "enemy_amashiro_clockwork_sentinel",
+      "enemy_amashiro_animated_armor",
+      "enemy_amashiro_animated_armor",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_amashiro_dragon_golem",
+    "unitName": "古竜式昇潮ゴーレム",
+    "formationIds": [
+      "enemy_amashiro_dragon_golem",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_wyvern_fledglings",
+    "unitName": "飛竜の幼体群",
+    "formationIds": [
+      "enemy_wyvern_lesser",
+      "enemy_wyvern_lesser",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_wyvern_roost",
+    "unitName": "雲上の飛竜巣",
+    "formationIds": [
+      "enemy_wyvern_greater",
+      "enemy_wyvern_lesser",
+      "enemy_wyvern_lesser",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_wyvern_storm",
+    "unitName": "嵐冠の飛竜",
+    "formationIds": [
+      "enemy_wyvern_storm",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_skyfish_school",
+    "unitName": "空魚の群れ",
+    "formationIds": [
+      "enemy_skyfish",
+      "enemy_skyfish",
+      "enemy_skyfish",
+      "enemy_skyfish",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_storm_jelly_drift",
+    "unitName": "雷海月の漂流群",
+    "formationIds": [
+      "enemy_storm_jelly",
+      "enemy_storm_jelly",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_sky_manta_pair",
+    "unitName": "天帆エイ二体",
+    "formationIds": [
+      "enemy_sky_manta",
+      "enemy_sky_manta",
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_sky_shark_hunt",
+    "unitName": "空ザメの狩り場",
+    "formationIds": [
+      "enemy_sky_shark",
+      "enemy_skyfish",
+      "enemy_skyfish",
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_sky_whale",
+    "unitName": "荒ぶる空鯨",
+    "formationIds": [
+      "enemy_sky_whale",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_middle_ocean_predators",
+    "unitName": "ミドルオーシャンの捕食群",
+    "formationIds": [
+      "enemy_sky_shark",
+      "enemy_sky_manta",
+      null,
+      "enemy_storm_jelly",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_middle_ocean_leviathan",
+    "unitName": "天洋のリヴァイアサン",
+    "formationIds": [
+      "enemy_middle_ocean_leviathan",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
   }
 ]

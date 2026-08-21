@@ -3,6 +3,7 @@ using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Battle;
+using GuildSimulator.Core.Systems.Guild;
 
 namespace GuildSimulator.Game.Data;
 
@@ -177,8 +178,22 @@ public static class MasterValidator
 
         foreach (var dungeon in db.dungeons.Values)
         {
+            if (string.IsNullOrWhiteSpace(dungeon.id))
+                errors.Add("dungeons.json: idが空の項目があります");
+            if (string.IsNullOrWhiteSpace(dungeon.dungeonName))
+                errors.Add($"{dungeon.id}: dungeonNameが空です");
             if (dungeon.turnEndEvents.Any(e => e.options.Count < 2))
                 errors.Add($"{dungeon.id}: 選択イベントには2個以上の選択肢が必要です");
+
+            foreach (var encounter in dungeon.encounterTable)
+            {
+                if (encounter.weight <= 0)
+                    errors.Add($"{dungeon.id}: encounterTableの '{encounter.unitId}' はweightを1以上にしてください");
+                if (encounter.minPhase < 1)
+                    errors.Add($"{dungeon.id}: encounterTableの '{encounter.unitId}' はminPhaseを1以上にしてください");
+                if (encounter.maxPhase != 0 && encounter.maxPhase < encounter.minPhase)
+                    errors.Add($"{dungeon.id}: encounterTableの '{encounter.unitId}' はmaxPhaseを0またはminPhase以上にしてください");
+            }
 
             foreach (var reward in dungeon.treasureTable)
             {
@@ -210,6 +225,16 @@ public static class MasterValidator
         var questIds = db.allQuests.Select(q => q.id).ToHashSet();
         foreach (var quest in db.allQuests)
         {
+            if (quest.isStoryQuest)
+            {
+                if (string.IsNullOrWhiteSpace(quest.storyArcId))
+                    errors.Add($"{quest.id}: 物語クエストにはstoryArcIdが必要です");
+                if (string.IsNullOrWhiteSpace(quest.storyArcTitle))
+                    errors.Add($"{quest.id}: 物語クエストにはstoryArcTitleが必要です");
+            }
+            if (quest.BossEnemy != null && (quest.bossPhase < 1 || quest.bossPhase > quest.totalPhases))
+                errors.Add($"{quest.id}: ボスエリア {quest.bossPhase} は1〜{quest.totalPhases}の範囲にしてください");
+
             foreach (var requiredQuestId in quest.requiredQuestIds)
                 if (!questIds.Contains(requiredQuestId))
                     errors.Add($"{quest.id}: 不明なrequiredQuestId '{requiredQuestId}'");
@@ -248,13 +273,27 @@ public static class MasterValidator
                         + "（確定で落としたいならbossDropsAreGuaranteedを使う）");
         }
 
+        foreach (var arc in db.allQuests.Where(q => q.isStoryQuest).GroupBy(q => q.storyArcId))
+        {
+            var titles = arc.Select(q => q.storyArcTitle).Distinct().ToList();
+            if (titles.Count > 1)
+                errors.Add($"storyArcId '{arc.Key}' のstoryArcTitleが統一されていません: {string.Join(" / ", titles)}");
+        }
+
         foreach (var facility in db.facilities.Values)
         {
             if (string.IsNullOrWhiteSpace(facility.id)) errors.Add("facilities.json: idが空の項目があります");
             if (string.IsNullOrWhiteSpace(facility.displayName)) errors.Add($"{facility.id}: displayNameが空です");
             if (facility.buildCostGold < 0) errors.Add($"{facility.id}: buildCostGoldは0以上にしてください");
             if (facility.upkeepGoldPerTurn < 0) errors.Add($"{facility.id}: upkeepGoldPerTurnは0以上にしてください");
+            if (facility.partySlotBonus < 0)
+                errors.Add($"{facility.id}: partySlotBonusは0以上にしてください");
+            if (facility.partySlotBonus > GuildManager.PartyCapacityUpgradeMaximum)
+                errors.Add($"{facility.id}: partySlotBonusが編成枠の最大強化数を超えています");
         }
+        if (db.facilities.Values.Sum(facility => facility.partySlotBonus)
+            > GuildManager.PartyCapacityUpgradeMaximum)
+            errors.Add("facilities.json: パーティ編成枠の強化合計が最大人数を超えています");
 
         foreach (var clue in db.clues.Values)
         {

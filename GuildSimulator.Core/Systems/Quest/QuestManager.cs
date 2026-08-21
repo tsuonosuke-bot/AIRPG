@@ -204,8 +204,24 @@ public class QuestManager
         ExpeditionPolicy policy)
     {
         error = "";
+        if (formation.Length > GuildManager.FormationSlotCount)
+        {
+            error = $"編成データが最大{GuildManager.FormationSlotCount}枠を超えています";
+            return false;
+        }
         var members = formation.Where(a => a != null).ToArray();
         if (members.Length == 0) { error = "編成が空です"; return false; }
+        if (members.Length > guild.PartyCapacity)
+        {
+            error = $"現在のパーティ編成上限は{guild.PartyCapacity}人です"
+                + $"（編成枠強化 {guild.PartyCapacityUpgradeCount}/{GuildManager.PartyCapacityUpgradeMaximum}）";
+            return false;
+        }
+        if (members.Select(member => member!.id).Distinct().Count() != members.Length)
+        {
+            error = "同じ冒険者を複数の配置枠へ編成することはできません";
+            return false;
+        }
         foreach (var a in members)
         {
             if (a == null) continue;
@@ -230,7 +246,7 @@ public class QuestManager
 
         var run = new QuestRun(def, currentTurn);
         run.policy = policy;
-        Array.Copy(formation, run.formation, Math.Min(formation.Length, 6));
+        Array.Copy(formation, run.formation, Math.Min(formation.Length, run.formation.Length));
         run.guildUpkeepAtStart = guild.EffectiveUpkeepPerTurn;
         foreach (var member in run.EnumerateMembers())
             run.startingLevels[member.id] = member.level;
@@ -1025,6 +1041,13 @@ public class QuestManager
     }
 
     public bool AreStoryRequirementsMet(QuestMasterData quest) => MeetsStoryRequirements(quest);
+    public bool IsQuestKnown(QuestMasterData quest) =>
+        clearedQuestIds.Contains(quest.id)
+        || activeQuests.Any(run => run.def.id == quest.id)
+        || questBoard.Any(entry => entry.quest.id == quest.id)
+        || (quest.rank <= guild.GuildRank
+            && guild.GuildPoints >= quest.requiredGuildPoints
+            && MeetsStoryRequirements(quest));
     public int GuildRank => guild.GuildRank;
 
     /// <summary>セーブデータからの復元専用。掲示板・進行中クエスト・出発中フラグをまとめて置き換える。</summary>

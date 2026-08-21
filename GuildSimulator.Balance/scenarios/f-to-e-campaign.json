@@ -5,9 +5,13 @@
   "scenarios": [
     {
       "id": "f-to-e-natural-growth",
-      "name": "Fから育成してEへ進む",
+      "name": "編成枠未強化の3人でE帯まで進む",
       "type": "campaign",
-      "partyIds": ["adv_0001", "adv_0002", "adv_0003", "adv_0004"],
+      "party": [
+        { "id": "adv_0001", "formationSlot": 1 },
+        { "id": "adv_0002", "formationSlot": 2 },
+        { "id": "adv_0003", "formationSlot": 4 }
+      ],
       "questIds": [
         "quest_slime_cull",
         "quest_raven_nuisance",
@@ -29,6 +33,26 @@
       "continueOnFailure": false
     },
     {
+      "id": "e-caravan-with-first-expansion",
+      "name": "E帯4人・小隊指揮所建設後の隊商護衛",
+      "type": "quest",
+      "partyLevel": 7,
+      "partyRank": 2,
+      "partyCapacityUpgrades": 1,
+      "party": [
+        { "id": "adv_0001", "formationSlot": 1 },
+        { "id": "adv_0002", "formationSlot": 2 },
+        { "id": "adv_0003", "formationSlot": 4 },
+        { "id": "adv_0004", "formationSlot": 5 }
+      ],
+      "questId": "quest_caravan_escort",
+      "policy": "ObjectiveFirst",
+      "startingGold": 5000,
+      "startingGuildRank": 2,
+      "maxTurns": 50,
+      "maxGatherExtensions": 0
+    },
+    {
       "id": "e-prepared-party",
       "name": "育成済みEパーティの基準戦闘",
       "type": "battle",
@@ -37,14 +61,15 @@
       "party": [
         {
           "id": "adv_0001",
+          "formationSlot": 1,
           "equipment": {
             "RightHand": "eq_sword_02",
             "Body": "eq_leather_01"
           }
         },
-        { "id": "adv_0002" },
-        { "id": "adv_0003" },
-        { "id": "adv_0004" }
+        { "id": "adv_0002", "formationSlot": 2 },
+        { "id": "adv_0003", "formationSlot": 4 },
+        { "id": "adv_0004", "formationSlot": 5 }
       ],
       "enemyUnitId": "unit_goblin_line",
       "policy": "ObjectiveFirst"

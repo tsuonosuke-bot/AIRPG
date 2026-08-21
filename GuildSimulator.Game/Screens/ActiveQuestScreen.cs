@@ -237,7 +237,12 @@ public static class ActiveQuestScreen
         Ui.WriteLine($"  資金精算: {Signed(goldDelta)}G（{before.Gold}G → {guild.Gold}G）");
         Ui.WriteLine($"  ギルドポイント: {Signed(pointDelta)}（{before.GuildPoints} → {guild.GuildPoints}）");
         if (guild.GuildRank != before.GuildRank)
+        {
             Ui.Info($"  ギルドランク: {Rank.Label(before.GuildRank)} → {guild.GuildRankLabel}");
+            if (GuildManager.PartyCapacityCeilingForRank(guild.GuildRank)
+                > GuildManager.PartyCapacityCeilingForRank(before.GuildRank))
+                Ui.Info("  新施設解禁: ギルド施設でパーティ編成上限を1人拡張できます");
+        }
 
         int startUpkeep = q.guildUpkeepAtStart > 0 ? q.guildUpkeepAtStart : before.Upkeep;
         int currentUpkeep = guild.EffectiveUpkeepPerTurn;

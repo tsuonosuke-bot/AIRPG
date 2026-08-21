@@ -2,6 +2,9 @@
 
 ギルドを運営し、冒険者を雇い、クエストへ送り出すターン制シミュレーション。
 
+パーティは最初3人まで編成でき、E・C・Aランクで解禁されるギルド施設を建てるたびに
+4人、5人、最大6人へ拡張できます。人数上限以内なら、前衛・後衛の6マスへ自由に配置できます。
+
 コンソール版とブラウザ版の2つの遊び方があります。ゲームのルールや進行は同じで、
 画面の描き方と入力方法だけが違います。
 
@@ -130,17 +133,23 @@ dotnet run --project GuildSimulator.Cli -- --validate-master
 ```json
 "partyLevel": 5,
 "partyRank": 2,
+"partyCapacityUpgrades": 1,
 "party": [
   {
     "id": "adv_0001",
+    "formationSlot": 1,
     "equipment": {
       "RightHand": "eq_sword_02",
       "Body": "eq_leather_01"
     }
   },
-  { "id": "adv_0002", "level": 4, "rank": 2 }
+  { "id": "adv_0002", "formationSlot": 4, "level": 4, "rank": 2 }
 ]
 ```
+
+`formationSlot` は1〜6で、1〜3が前衛、4〜6が後衛です。省略または0なら記述順に空き枠へ配置されます。
+`quest` / `campaign` で4人以上を試す場合は、ゲーム内の3段階強化に合わせて
+`partyCapacityUpgrades` を1〜3で明示します。生の戦闘比較である `battle` は従来どおり最大6人です。
 
 `type: "campaign"` は同じパーティ・資金・経験値・負傷状態をクエスト間で持ち越します。
 `autoRankUp` を有効にすると、昇格条件を満たした冒険者を各クエスト後に自動昇格させます。
@@ -182,4 +191,4 @@ dotnet run --project GuildSimulator.Cli -- --validate-master
 
 なお、遺物が担っていた強化のうち **ユニットの能力補正・クエスト報酬倍率・維持費倍率** には
 まだ対応する施設がありません（`facilities.json` にあるのは掲示枠・商店・休息回復・成長率・
-雇入れ・負傷回復まで）。一本化を完了させるには、これらを施設側に用意する必要があります。
+雇入れ・負傷回復・パーティ編成上限まで）。一本化を完了させるには、これらを施設側に用意する必要があります。

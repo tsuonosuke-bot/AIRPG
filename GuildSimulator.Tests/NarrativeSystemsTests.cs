@@ -27,9 +27,85 @@ public class NarrativeSystemsTests
         Assert.Contains("clue_stolen_blue_ore", goblin.grantedClueIds);
         Assert.Contains(goblin.id, mine.requiredQuestIds);
         Assert.Contains("clue_stolen_blue_ore", mine.requiredClueIds);
-        var storyQuests = db.allQuests.Where(quest => quest.isStoryQuest).ToList();
-        Assert.Equal(3, storyQuests.Count);
-        Assert.All(storyQuests, quest => Assert.Single(quest.FixedChoiceEvents));
+        string[] blueOreIds =
+        {
+            "quest_goblin_slayer", "quest_mine_survey", "quest_old_city_relic",
+        };
+        string[] skywayIds =
+        {
+            "quest_amashiro_last_caravan",
+            "quest_amashiro_silent_guardians",
+            "quest_amashiro_wyvern_roost",
+            "quest_amashiro_usurper",
+            "quest_middle_ocean_crossing",
+            "quest_middle_ocean_heaven_gate",
+        };
+        var blueOre = db.allQuests.Where(quest => blueOreIds.Contains(quest.id)).ToList();
+        var skyway = db.allQuests.Where(quest => skywayIds.Contains(quest.id)).ToList();
+        Assert.Equal(3, blueOre.Count);
+        Assert.Equal(6, skyway.Count);
+        Assert.All(blueOre, quest =>
+        {
+            Assert.Equal("blue_ore", quest.storyArcId);
+            Assert.Equal("青い鉱石事件", quest.storyArcTitle);
+            Assert.Single(quest.FixedChoiceEvents);
+        });
+        Assert.All(skyway, quest =>
+        {
+            Assert.Equal("skyway", quest.storyArcId);
+            Assert.Equal("天城探索記", quest.storyArcTitle);
+            Assert.Single(quest.FixedChoiceEvents);
+        });
+
+        var forestDiscovery = Assert.Single(db.allQuests,
+            quest => quest.id == "quest_deep_woods_scout");
+        Assert.Equal("dungeon_woods", forestDiscovery.Dungeon?.id);
+        Assert.Contains("clue_amashiro_fogbound_silhouette", forestDiscovery.grantedClueIds);
+        Assert.Equal("story_woods_amashiro_discovery",
+            Assert.Single(forestDiscovery.FixedChoiceEvents).choiceEventId);
+        Assert.Contains(forestDiscovery.id, skyway[0].requiredQuestIds);
+
+        string EarlyDiscoveryText(QuestMasterData quest) => string.Join(" ",
+            new[] { quest.storyArcTitle, quest.questName, quest.description }
+                .Concat(quest.GrantedClues.Select(clue => $"{clue.title} {clue.description}"))
+                .Concat(quest.FixedChoiceEvents.SelectMany(fixedEvent =>
+                {
+                    var choice = fixedEvent.ChoiceEvent!;
+                    return new[] { choice.title, choice.description }
+                        .Concat(choice.options.SelectMany(option =>
+                            new[] { option.text, option.resultText }));
+                })));
+        Assert.DoesNotContain("ミドルオーシャン", EarlyDiscoveryText(skyway[0]));
+        Assert.DoesNotContain("ミドルオーシャン", EarlyDiscoveryText(skyway[1]));
+        Assert.Contains("ミドルオーシャン", EarlyDiscoveryText(skyway[2]));
+
+        foreach (string lowQuestId in new[] { "quest_caravan_escort", "quest_bandit_raiders" })
+        {
+            var lowQuest = Assert.Single(db.allQuests, quest => quest.id == lowQuestId);
+            Assert.Contains(skyway[0].id, lowQuest.requiredQuestIds);
+            Assert.Contains("clue_amashiro_last_waybill", lowQuest.requiredClueIds);
+        }
+        var routeRecovery = Assert.Single(db.allQuests, quest => quest.id == "quest_bandit_hunt");
+        Assert.Contains(skyway[2].id, routeRecovery.requiredQuestIds);
+        Assert.Contains("clue_amashiro_tide_chart", routeRecovery.requiredClueIds);
+
+        string[] skywayClues =
+        {
+            "clue_amashiro_last_waybill",
+            "clue_amashiro_usurper_edict",
+            "clue_amashiro_tide_chart",
+            "clue_amashiro_heaven_key",
+            "clue_middle_ocean_trade_manifest",
+            "clue_middle_ocean_celestial_barrier",
+        };
+        for (int index = 0; index < skyway.Count; index++)
+        {
+            Assert.Contains(skywayClues[index], skyway[index].grantedClueIds);
+            if (index == 0) continue;
+            Assert.Contains(skyway[index - 1].id, skyway[index].requiredQuestIds);
+            Assert.Contains(skywayClues[index - 1], skyway[index].requiredClueIds);
+        }
+
         var finalChoice = db.choiceEvents["story_blue_ore_final_choice"];
         Assert.Equal(3, finalChoice.options.Count);
         Assert.All(finalChoice.options, option =>
@@ -38,7 +114,49 @@ public class NarrativeSystemsTests
             Assert.False(string.IsNullOrWhiteSpace(option.storyBranchId));
             Assert.False(string.IsNullOrWhiteSpace(option.storyOutcomeText));
         });
+        var celestialBarrier = db.choiceEvents["story_middle_ocean_celestial_barrier"];
+        Assert.Equal(3, celestialBarrier.options.Count);
+        Assert.Equal(3, celestialBarrier.options.Select(option => option.storyBranchId).Distinct().Count());
+        Assert.All(celestialBarrier.options, option =>
+        {
+            Assert.Equal("clue_middle_ocean_celestial_barrier", option.grantedClueId);
+            Assert.NotNull(option.GrantedClue);
+            Assert.False(string.IsNullOrWhiteSpace(option.storyBranchId));
+            Assert.False(string.IsNullOrWhiteSpace(option.storyOutcomeText));
+        });
+        Assert.DoesNotContain("dungeon_heaven", db.dungeons.Keys);
         Assert.Empty(MasterValidator.Validate(db));
+    }
+
+    [Fact]
+    public void FirstAmashiroStoryRequiresTheFlowingForestDiscovery()
+    {
+        string dataDir = Path.Combine(AppContext.BaseDirectory, "Data");
+        var db = MasterLoader.Load(dataDir);
+        var forest = Assert.Single(db.allQuests, quest => quest.id == "quest_deep_woods_scout");
+        var firstAmashiro = Assert.Single(db.allQuests,
+            quest => quest.id == "quest_amashiro_last_caravan");
+
+        var manager = new QuestManager(new GuildManager(startRank: 2));
+        manager.FillBoard(new[] { firstAmashiro }, currentTurn: 1);
+        Assert.Empty(manager.questBoard);
+
+        manager.RestoreState(
+            new(),
+            new(),
+            Array.Empty<string>(),
+            clearedQuestIdsToRestore: new[] { forest.id });
+        manager.FillBoard(new[] { firstAmashiro }, currentTurn: 2);
+        Assert.Equal(firstAmashiro, Assert.Single(manager.questBoard).quest);
+
+        var noviceManager = new QuestManager(new GuildManager(startRank: 1));
+        noviceManager.RestoreState(
+            new(),
+            new(),
+            Array.Empty<string>(),
+            clearedQuestIdsToRestore: new[] { forest.id });
+        noviceManager.FillBoard(new[] { firstAmashiro }, currentTurn: 2);
+        Assert.Empty(noviceManager.questBoard);
     }
 
     [Fact]

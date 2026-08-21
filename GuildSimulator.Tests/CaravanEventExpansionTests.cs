@@ -21,7 +21,7 @@ public class CaravanEventExpansionTests
         "event_caravan_ambush",
     };
 
-    static readonly string[] HighwayCaravanEventIds =
+    static readonly string[] AmashiroCaravanEventIds =
     {
         "event_caravan_supply_wagon",
         "event_caravan_specialist_merchant",
@@ -44,12 +44,12 @@ public class CaravanEventExpansionTests
             Assert.True(choiceEvent.options.Count >= 3, id);
         });
 
-        var highway = db.dungeons["dungeon_highway"];
-        Assert.All(HighwayCaravanEventIds, id =>
-            Assert.Contains(highway.turnEndEvents, choiceEvent => choiceEvent.id == id));
-        Assert.DoesNotContain(highway.turnEndEvents,
+        var amashiro = db.dungeons["dungeon_amashiro"];
+        Assert.All(AmashiroCaravanEventIds, id =>
+            Assert.Contains(amashiro.turnEndEvents, choiceEvent => choiceEvent.id == id));
+        Assert.DoesNotContain(amashiro.turnEndEvents,
             choiceEvent => choiceEvent.id is "event_caravan_stuck_wagon" or "event_caravan_pack_beast_panic");
-        Assert.Equal(0.35f, highway.turnEndEventChance);
+        Assert.Equal(0.35f, amashiro.turnEndEventChance);
 
         Assert.Contains(db.dungeons["dungeon_meadow"].turnEndEvents,
             choiceEvent => choiceEvent.id == "event_caravan_supply_wagon");

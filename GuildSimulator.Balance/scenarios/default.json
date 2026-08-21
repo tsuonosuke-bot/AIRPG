@@ -5,9 +5,13 @@
   "scenarios": [
     {
       "id": "f-party-vs-goblins",
-      "name": "F帯4人 vs ゴブリン集団",
+      "name": "F帯3人 vs ゴブリン集団",
       "type": "battle",
-      "partyIds": ["adv_0001", "adv_0002", "adv_0003", "adv_0004"],
+      "party": [
+        { "id": "adv_0001", "formationSlot": 1 },
+        { "id": "adv_0002", "formationSlot": 2 },
+        { "id": "adv_0003", "formationSlot": 4 }
+      ],
       "enemyUnitId": "unit_goblin_group",
       "policy": "ObjectiveFirst"
     },
@@ -15,7 +19,11 @@
       "id": "f-slime-cull",
       "name": "F帯 スライム駆除",
       "type": "quest",
-      "partyIds": ["adv_0001", "adv_0002", "adv_0003", "adv_0004"],
+      "party": [
+        { "id": "adv_0001", "formationSlot": 1 },
+        { "id": "adv_0002", "formationSlot": 2 },
+        { "id": "adv_0003", "formationSlot": 4 }
+      ],
       "questId": "quest_slime_cull",
       "policy": "ObjectiveFirst",
       "startingGold": 5000,
@@ -26,7 +34,11 @@
       "id": "f-herb-gather",
       "name": "F帯 薬草採取",
       "type": "quest",
-      "partyIds": ["adv_0001", "adv_0002", "adv_0003", "adv_0004"],
+      "party": [
+        { "id": "adv_0001", "formationSlot": 1 },
+        { "id": "adv_0002", "formationSlot": 2 },
+        { "id": "adv_0003", "formationSlot": 4 }
+      ],
       "questId": "quest_herb",
       "policy": "SurvivalFirst",
       "startingGold": 5000,

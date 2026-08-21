@@ -93,5 +93,47 @@
     "restHealBonusPercent": 0,
     "growthRateBonusPercent": 0,
     "recruitMinBonus": 1
+  },
+  {
+    "id": "fac_party_slot_01",
+    "displayName": "小隊指揮所",
+    "description": "遠征計画と補給を担う指揮所を設け、同じパーティへ編成できる冒険者を1人増やす。",
+    "buildCostGold": 500,
+    "upkeepGoldPerTurn": 15,
+    "requiredGuildRank": 2,
+    "questBoardBonus": 0,
+    "partySlotBonus": 1,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
+  },
+  {
+    "id": "fac_party_slot_02",
+    "displayName": "戦術通信室",
+    "description": "伝令と通信術式で離れた隊員の連携を支え、同じパーティへ編成できる冒険者をさらに1人増やす。",
+    "buildCostGold": 2000,
+    "upkeepGoldPerTurn": 35,
+    "requiredGuildRank": 4,
+    "questBoardBonus": 0,
+    "partySlotBonus": 1,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
+  },
+  {
+    "id": "fac_party_slot_03",
+    "displayName": "遠征司令部",
+    "description": "大規模遠征を統括する司令部を置き、パーティ編成上限を最終段階まで拡張する。",
+    "buildCostGold": 4500,
+    "upkeepGoldPerTurn": 70,
+    "requiredGuildRank": 6,
+    "questBoardBonus": 0,
+    "partySlotBonus": 1,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
   }
 ]

@@ -94,7 +94,7 @@ public static class HelpScreen
         Ui.WriteLine("                      冒険者・クエスト・ギルドのランクはすべてこの同じ物差しで比べる。");
         Ui.WriteLine($"                      掲示されるのは「クエストランク ≦ ギルドランク」のものだけ。");
         Ui.WriteLine("  ・施設            : ゴールドで建設するギルドの恒常強化。建設後は維持費が増える代わりに、");
-        Ui.WriteLine("                      クエスト掲示枠・商店品揃え・休息回復量・成長率・求人候補の最低人数・");
+        Ui.WriteLine("                      クエスト掲示枠・パーティ編成上限・商店品揃え・休息回復量・成長率・求人候補の最低人数・");
         Ui.WriteLine("                      負傷回復（回復量/死亡率/傷痕発生率の軽減）のいずれかを高め続ける。");
         Ui.WriteLine("                      転職指南所は冒険者のクラスチェンジを解禁する（詳細は「職業とマスタリー」）。");
         await Ui.PauseAsync();
@@ -115,6 +115,8 @@ public static class HelpScreen
         Ui.WriteLine("                      クリアするとギルドランクが上がる（撤退・全滅ではランクは上がらない）。");
         Ui.WriteLine("  ・編成相対評価    : 人数・平均認定ランク・通常遭遇の中心脅威・確定ボス・負傷状態による目安。");
         Ui.WriteLine("                      最大脅威は遭遇見込みと分けて表示する。装備・相性・乱数は含まず、勝敗は保証しない。");
+        Ui.WriteLine($"  ・パーティ編成上限: 初期は{GuildManager.BasePartyCapacity}人。E・C・Aで解禁される施設を建設するたび1人増え、最大{GuildManager.MaximumPartyCapacity}人。");
+        Ui.WriteLine("                      人数上限の範囲なら、少人数のうちから前衛・後衛のどちらにも自由に配置できる。");
         Ui.WriteLine("  ・遠征方針        : 出発時に「生還優先」か「依頼達成優先」を選ぶ。");
         Ui.WriteLine($"                      生還優先はパーティHP{BattleResolver.SurvivalPartyHpPercent}%以下、または誰かが{BattleResolver.SurvivalMemberHpPercent}%以下で撤退する。");
         Ui.WriteLine("                      依頼達成優先は行動可能な限り続行するため、戦闘不能・死亡のリスクが高い。");

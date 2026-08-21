@@ -4,7 +4,7 @@ import crypto from "node:crypto";
 import { FileBlob, SpreadsheetFile, Workbook } from "@oai/artifact-tool";
 
 const command = process.argv[2] ?? "export";
-const workbookSchemaVersion = 5;
+const workbookSchemaVersion = 7;
 const scriptDir = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, "$1");
 const repoRoot = path.resolve(scriptDir, "../..");
 const dataDir = path.join(repoRoot, "GuildSimulator.Game", "Data");
@@ -248,13 +248,13 @@ const sheetDefinitions = {
     unique: true,
     keys: [
       "id", "displayName", "description", "buildCostGold", "upkeepGoldPerTurn",
-      "requiredGuildRank", "questBoardBonus", "shopLevelBonus", "restHealBonusPercent",
+      "requiredGuildRank", "questBoardBonus", "partySlotBonus", "shopLevelBonus", "restHealBonusPercent",
       "growthRateBonusPercent", "noviceQuestBoardBonus", "recruitMinBonus", "injuryRecoveryBonus",
       "fatalityReductionPercent", "scarPreventionPercent",
     ],
     labels: [
       "ID", "施設名", "説明", "建設費", "毎ターン維持費", "必要ギルドランク",
-      "掲示板枠加算", "商店Lv加算", "休息回復%", "成長率%", "新人向けF依頼枠", "最低採用候補加算",
+      "掲示板枠加算", "パーティ編成上限加算", "商店Lv加算", "休息回復%", "成長率%", "新人向けF依頼枠", "最低採用候補加算",
       "負傷回復加算", "死亡率軽減%", "傷痕予防%",
     ],
   },
@@ -330,7 +330,7 @@ const sheetDefinitions = {
     capacity: 120,
     unique: true,
     keys: [
-      "id", "questName", "clientName", "description", "isStoryQuest",
+      "id", "questName", "clientName", "description", "isStoryQuest", "storyArcId", "storyArcTitle",
       "requiredQuestIds", "requiredClueIds", "grantedClueIds", "storyBranchId",
       "rank", "totalPhases", "phasesPerTurn",
       "rewardGold", "rewardGuildPoints", "rewardExp",
@@ -340,7 +340,7 @@ const sheetDefinitions = {
       "gatherChance", "gatherGoldPerItem",
     ],
     labels: [
-      "ID", "クエスト名", "依頼人", "依頼文", "物語クエスト",
+      "ID", "クエスト名", "依頼人", "依頼文", "物語クエスト", "物語章ID", "物語章名",
       "必要クエストID（カンマ区切り）", "必要手掛かりID（カンマ区切り）",
       "獲得手掛かりID（カンマ区切り）", "分岐ID",
       "ランク(1=F〜7=S)", "総エリア", "ターン毎エリア",
@@ -484,7 +484,7 @@ const makeRows = (data) => {
 
   const facilities = data.facilities.map((f) => [
     f.id, f.displayName, clean(f.description), f.buildCostGold, f.upkeepGoldPerTurn,
-    f.requiredGuildRank, f.questBoardBonus, f.shopLevelBonus, f.restHealBonusPercent,
+    f.requiredGuildRank, f.questBoardBonus, clean(f.partySlotBonus), f.shopLevelBonus, f.restHealBonusPercent,
     f.growthRateBonusPercent, clean(f.noviceQuestBoardBonus), clean(f.recruitMinBonus), clean(f.injuryRecoveryBonus),
     clean(f.fatalityReductionPercent), clean(f.scarPreventionPercent),
   ]);
@@ -522,6 +522,7 @@ const makeRows = (data) => {
 
   const quests = data.quests.map((q) => [
     q.id, q.questName, clean(q.clientName), clean(q.description), clean(q.isStoryQuest),
+    clean(q.storyArcId), clean(q.storyArcTitle),
     clean(q.requiredQuestIds?.join(", ")), clean(q.requiredClueIds?.join(", ")),
     clean(q.grantedClueIds?.join(", ")), clean(q.storyBranchId),
     q.rank, q.totalPhases, q.phasesPerTurn,
@@ -1496,7 +1497,7 @@ const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
     };
     optionalAssign(item, "description", optionalText(x.description));
     for (const key of [
-      "noviceQuestBoardBonus", "recruitMinBonus", "injuryRecoveryBonus", "fatalityReductionPercent", "scarPreventionPercent",
+      "partySlotBonus", "noviceQuestBoardBonus", "recruitMinBonus", "injuryRecoveryBonus", "fatalityReductionPercent", "scarPreventionPercent",
     ]) {
       optionalAssign(item, key, optionalNumber(x[key], key, row, true));
     }
@@ -1764,6 +1765,8 @@ const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
     optionalAssign(item, "clientName", optionalText(x.clientName));
     optionalAssign(item, "description", optionalText(x.description));
     optionalAssign(item, "isStoryQuest", optionalBool(x.isStoryQuest, "isStoryQuest", row));
+    optionalAssign(item, "storyArcId", optionalText(x.storyArcId));
+    optionalAssign(item, "storyArcTitle", optionalText(x.storyArcTitle));
     const requiredQuestIds = idList(x.requiredQuestIds);
     const requiredClueIds = idList(x.requiredClueIds);
     const grantedClueIds = idList(x.grantedClueIds);

@@ -132,6 +132,8 @@
     "clientName": "森林監視隊",
     "description": "街道を襲うゴブリンを退け、彼らが人間の荷ではなく特定の積荷を狙う理由を調べる。",
     "isStoryQuest": true,
+    "storyArcId": "blue_ore",
+    "storyArcTitle": "青い鉱石事件",
     "grantedClueIds": [
       "clue_stolen_blue_ore"
     ],
@@ -367,6 +369,8 @@
     "clientName": "鉱山組合の測量士",
     "description": "ゴブリンが集めていた青い鉱石の出所を追い、閉鎖された廃坑の深部を測量する。",
     "isStoryQuest": true,
+    "storyArcId": "blue_ore",
+    "storyArcTitle": "青い鉱石事件",
     "requiredQuestIds": [
       "quest_goblin_slayer"
     ],
@@ -438,14 +442,22 @@
   },
   {
     "id": "quest_caravan_escort",
-    "questName": "隊商護衛",
+    "questName": "天城下層・隊商護衛",
+    "clientName": "旧街道商人組合",
+    "description": "流れる森の濃霧の先で見つかった巨塔『天城』の旧関所まで、調査隊の荷を護衛する。野盗たちは今では低層を根城にしている。",
+    "requiredQuestIds": [
+      "quest_amashiro_last_caravan"
+    ],
+    "requiredClueIds": [
+      "clue_amashiro_last_waybill"
+    ],
     "rank": 2,
     "totalPhases": 14,
     "phasesPerTurn": 5,
     "rewardGold": 450,
     "rewardGuildPoints": 60,
     "rewardExp": 70,
-    "dungeonId": "dungeon_highway",
+    "dungeonId": "dungeon_amashiro",
     "bossEnemyId": "",
     "bossPhase": 0,
     "bossDrops": [],
@@ -466,20 +478,28 @@
   },
   {
     "id": "quest_bandit_hunt",
-    "questName": "街道の野盗頭討伐",
+    "questName": "天城交易路の奪還",
+    "clientName": "地上諸国交易会議",
+    "description": "低層の野盗頭を討って旧関所を奪還し、機兵と飛竜の縄張りを越えて、発見された空の海へ続く潮門まで補給路を確保する。",
+    "requiredQuestIds": [
+      "quest_amashiro_wyvern_roost"
+    ],
+    "requiredClueIds": [
+      "clue_amashiro_tide_chart"
+    ],
     "rank": 6,
     "totalPhases": 34,
     "phasesPerTurn": 5,
     "rewardGold": 3600,
     "rewardGuildPoints": 300,
     "rewardExp": 350,
-    "dungeonId": "dungeon_highway",
+    "dungeonId": "dungeon_amashiro",
     "bossEnemyId": "unit_bandit_boss",
-    "bossPhase": 34,
+    "bossPhase": 15,
     "bossDrops": [
       {
         "type": 2,
-        "gold": 100,
+        "gold": 200,
         "weight": 0,
         "unique": false,
         "chance": 1
@@ -496,12 +516,12 @@
         "consumableId": "item_lucky_coin",
         "weight": 0,
         "unique": false,
-        "chance": 0.05
+        "chance": 0.12
       }
     ],
     "fixedEvents": [
       {
-        "phase": 34,
+        "phase": 15,
         "type": 2
       }
     ]
@@ -625,6 +645,11 @@
   {
     "id": "quest_deep_woods_scout",
     "questName": "流れる森・深部の偵察",
+    "clientName": "辺境測量局",
+    "description": "流れる森の深部を覆う濃霧の境界を測り、地図に残された空白を埋める。霧の向こうに何があるかは確認されていない。",
+    "grantedClueIds": [
+      "clue_amashiro_fogbound_silhouette"
+    ],
     "rank": 2,
     "totalPhases": 18,
     "phasesPerTurn": 5,
@@ -635,7 +660,13 @@
     "bossEnemyId": "",
     "bossPhase": 0,
     "bossDrops": [],
-    "fixedEvents": []
+    "fixedEvents": [
+      {
+        "phase": 18,
+        "type": 7,
+        "choiceEventId": "story_woods_amashiro_discovery"
+      }
+    ]
   },
   {
     "id": "quest_kernos_hunt",
@@ -692,6 +723,8 @@
     "clientName": "王立古物院",
     "description": "廃坑の鉱脈と同じ反応を示す遺物を旧市街から回収し、刻印の由来を確かめる。",
     "isStoryQuest": true,
+    "storyArcId": "blue_ore",
+    "storyArcTitle": "青い鉱石事件",
     "requiredQuestIds": [
       "quest_mine_survey"
     ],
@@ -860,14 +893,22 @@
   },
   {
     "id": "quest_bandit_raiders",
-    "questName": "街道の襲撃者討伐",
+    "questName": "天城下層の襲撃者討伐",
+    "clientName": "天城路修復隊",
+    "description": "天城の旧料金所を占拠し、修復隊を襲う野盗と脱走兵を排除する。",
+    "requiredQuestIds": [
+      "quest_amashiro_last_caravan"
+    ],
+    "requiredClueIds": [
+      "clue_amashiro_last_waybill"
+    ],
     "rank": 2,
     "totalPhases": 15,
     "phasesPerTurn": 5,
     "rewardGold": 550,
     "rewardGuildPoints": 95,
     "rewardExp": 85,
-    "dungeonId": "dungeon_highway",
+    "dungeonId": "dungeon_amashiro",
     "bossEnemyId": "unit_bandit_raiders",
     "bossPhase": 15,
     "bossDrops": [
@@ -1322,6 +1363,327 @@
       {
         "phase": 38,
         "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_amashiro_last_caravan",
+    "questName": "天城・濃霧の入口",
+    "clientName": "辺境測量局",
+    "description": "流れる森の濃霧の先で発見した巨塔の入口を調べ、先行した小規模調査隊を捜す。どこまで続くのか、何のための構造物なのかは分かっていない。",
+    "isStoryQuest": true,
+    "storyArcId": "skyway",
+    "storyArcTitle": "天城探索記",
+    "requiredQuestIds": [
+      "quest_deep_woods_scout"
+    ],
+    "grantedClueIds": [
+      "clue_amashiro_last_waybill"
+    ],
+    "rank": 2,
+    "totalPhases": 15,
+    "phasesPerTurn": 5,
+    "rewardGold": 600,
+    "rewardGuildPoints": 90,
+    "rewardExp": 90,
+    "dungeonId": "dungeon_amashiro",
+    "bossEnemyId": "unit_bandit_raiders",
+    "bossPhase": 15,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 100,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 4,
+        "consumableId": "item_lucky_coin",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.15
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 15,
+        "type": 2
+      },
+      {
+        "phase": 15,
+        "type": 7,
+        "choiceEventId": "story_amashiro_last_waybill"
+      }
+    ]
+  },
+  {
+    "id": "quest_amashiro_silent_guardians",
+    "questName": "天城・無言の関所",
+    "clientName": "王立古物院・天城調査班",
+    "description": "低層の送り状を手掛かりに、さらに上へ続く関所を調べる。人の代わりに番を続けるゴーレムと動く鎧は、同じ命令を繰り返している。",
+    "isStoryQuest": true,
+    "storyArcId": "skyway",
+    "storyArcTitle": "天城探索記",
+    "requiredQuestIds": [
+      "quest_amashiro_last_caravan"
+    ],
+    "requiredClueIds": [
+      "clue_amashiro_last_waybill"
+    ],
+    "grantedClueIds": [
+      "clue_amashiro_usurper_edict"
+    ],
+    "rank": 4,
+    "totalPhases": 24,
+    "phasesPerTurn": 5,
+    "rewardGold": 1900,
+    "rewardGuildPoints": 190,
+    "rewardExp": 200,
+    "dungeonId": "dungeon_amashiro",
+    "bossEnemyId": "unit_amashiro_construct_line",
+    "bossPhase": 24,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 4,
+        "consumableId": "item_mechanical_smoke_bomb",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.2
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 24,
+        "type": 2
+      },
+      {
+        "phase": 24,
+        "type": 7,
+        "choiceEventId": "story_amashiro_usurper_forge"
+      }
+    ]
+  },
+  {
+    "id": "quest_amashiro_wyvern_roost",
+    "questName": "天城・雲裂く竜路",
+    "clientName": "王立飛竜監視隊",
+    "description": "飛竜が巣食う高層を突破し、雲の向こうへ続く昇降路の終端を確かめる。上に何があるのかを見た者は、まだいない。",
+    "isStoryQuest": true,
+    "storyArcId": "skyway",
+    "storyArcTitle": "天城探索記",
+    "requiredQuestIds": [
+      "quest_amashiro_silent_guardians"
+    ],
+    "requiredClueIds": [
+      "clue_amashiro_usurper_edict"
+    ],
+    "grantedClueIds": [
+      "clue_amashiro_tide_chart"
+    ],
+    "rank": 5,
+    "totalPhases": 34,
+    "phasesPerTurn": 5,
+    "rewardGold": 2850,
+    "rewardGuildPoints": 270,
+    "rewardExp": 275,
+    "dungeonId": "dungeon_amashiro",
+    "bossEnemyId": "unit_wyvern_storm",
+    "bossPhase": 34,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_wyvern_scale",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 34,
+        "type": 2
+      },
+      {
+        "phase": 34,
+        "type": 7,
+        "choiceEventId": "story_amashiro_middle_ocean_sighting"
+      }
+    ]
+  },
+  {
+    "id": "quest_amashiro_usurper",
+    "questName": "天城・簒奪者の封鎖機",
+    "clientName": "天城合同調査隊",
+    "description": "飛竜の巣で発見した潮路図をたどり、浮かぶ海への経路を塞ぐ古龍の巨大守護機を停止させる。海の先に何があるかは分かっていない。",
+    "isStoryQuest": true,
+    "storyArcId": "skyway",
+    "storyArcTitle": "天城探索記",
+    "requiredQuestIds": [
+      "quest_amashiro_wyvern_roost"
+    ],
+    "requiredClueIds": [
+      "clue_amashiro_tide_chart"
+    ],
+    "grantedClueIds": [
+      "clue_amashiro_heaven_key"
+    ],
+    "rank": 6,
+    "totalPhases": 40,
+    "phasesPerTurn": 5,
+    "rewardGold": 4400,
+    "rewardGuildPoints": 400,
+    "rewardExp": 390,
+    "dungeonId": "dungeon_amashiro",
+    "bossEnemyId": "unit_amashiro_dragon_golem",
+    "bossPhase": 40,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 4,
+        "consumableId": "item_stardust_catalyst",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 40,
+        "type": 2
+      },
+      {
+        "phase": 40,
+        "type": 7,
+        "choiceEventId": "story_amashiro_usurper_key"
+      }
+    ]
+  },
+  {
+    "id": "quest_middle_ocean_crossing",
+    "questName": "ミドルオーシャン・空海横断",
+    "clientName": "空海先遣調査隊",
+    "description": "天城の先で発見した空の海を初めて横断し、遠方に沈む未知の船影を調べる。どこから来て、どこへ向かっていた船かは分かっていない。",
+    "isStoryQuest": true,
+    "storyArcId": "skyway",
+    "storyArcTitle": "天城探索記",
+    "requiredQuestIds": [
+      "quest_amashiro_usurper"
+    ],
+    "requiredClueIds": [
+      "clue_amashiro_heaven_key"
+    ],
+    "grantedClueIds": [
+      "clue_middle_ocean_trade_manifest"
+    ],
+    "rank": 7,
+    "totalPhases": 38,
+    "phasesPerTurn": 5,
+    "rewardGold": 5200,
+    "rewardGuildPoints": 420,
+    "rewardExp": 450,
+    "dungeonId": "dungeon_middle_ocean",
+    "bossEnemyId": "unit_sky_whale",
+    "bossPhase": 38,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 4,
+        "consumableId": "item_explorers_pendulum",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 38,
+        "type": 2
+      },
+      {
+        "phase": 38,
+        "type": 7,
+        "choiceEventId": "story_middle_ocean_trade_wreck"
+      }
+    ]
+  },
+  {
+    "id": "quest_middle_ocean_heaven_gate",
+    "questName": "ミドルオーシャン・天界門への航路",
+    "clientName": "地上諸国共同使節団",
+    "description": "空海の主を越え、沈没船の目録に記された天界門の現在を確かめる。地上からの使節が門へたどり着けるかは、まだ誰にも分からない。",
+    "isStoryQuest": true,
+    "storyArcId": "skyway",
+    "storyArcTitle": "天城探索記",
+    "requiredQuestIds": [
+      "quest_middle_ocean_crossing"
+    ],
+    "requiredClueIds": [
+      "clue_middle_ocean_trade_manifest"
+    ],
+    "grantedClueIds": [
+      "clue_middle_ocean_celestial_barrier"
+    ],
+    "rank": 7,
+    "totalPhases": 42,
+    "phasesPerTurn": 5,
+    "rewardGold": 6200,
+    "rewardGuildPoints": 500,
+    "rewardExp": 540,
+    "dungeonId": "dungeon_middle_ocean",
+    "bossEnemyId": "unit_middle_ocean_leviathan",
+    "bossPhase": 42,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 200,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 4,
+        "consumableId": "item_defiant_horn",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 42,
+        "type": 2
+      },
+      {
+        "phase": 42,
+        "type": 7,
+        "choiceEventId": "story_middle_ocean_celestial_barrier"
       }
     ]
   }

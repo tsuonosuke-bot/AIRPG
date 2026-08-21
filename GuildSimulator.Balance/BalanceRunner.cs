@@ -68,14 +68,26 @@ public sealed class BalanceRunner(GameMasterData db)
             throw new InvalidDataException($"{scenario.id}: use either party or partyIds, not both.");
 
         var members = PartyMembers(scenario).ToList();
-        if (members.Count == 0 || members.Count > 6)
-            throw new InvalidDataException($"{scenario.id}: party must contain 1 to 6 adventurers.");
+        if (members.Count == 0 || members.Count > GuildManager.FormationSlotCount)
+            throw new InvalidDataException(
+                $"{scenario.id}: party must contain 1 to {GuildManager.FormationSlotCount} adventurers.");
         if (members.Select(x => x.id).Distinct(StringComparer.OrdinalIgnoreCase).Count() != members.Count)
             throw new InvalidDataException($"{scenario.id}: party contains duplicate adventurer ids.");
+        foreach (var member in members)
+            if (member.formationSlot < 0 || member.formationSlot > GuildManager.FormationSlotCount)
+                throw new InvalidDataException(
+                    $"{scenario.id}: {member.id}.formationSlot must be 0 to {GuildManager.FormationSlotCount}.");
+        var fixedSlots = members.Where(member => member.formationSlot > 0).ToList();
+        if (fixedSlots.Select(member => member.formationSlot).Distinct().Count() != fixedSlots.Count)
+            throw new InvalidDataException($"{scenario.id}: party contains duplicate formation slots.");
 
         ValidateLevel(scenario.partyLevel, 0, $"{scenario.id}: partyLevel");
         ValidateRank(scenario.partyRank, 0, $"{scenario.id}: partyRank");
         ValidateRank(scenario.startingGuildRank, 0, $"{scenario.id}: startingGuildRank");
+        if (scenario.partyCapacityUpgrades < 0
+            || scenario.partyCapacityUpgrades > GuildManager.PartyCapacityUpgradeMaximum)
+            throw new InvalidDataException(
+                $"{scenario.id}: partyCapacityUpgrades must be 0 to {GuildManager.PartyCapacityUpgradeMaximum}.");
         foreach (var member in members)
         {
             if (!adventurers.TryGetValue(member.id, out var master))
@@ -99,6 +111,11 @@ public sealed class BalanceRunner(GameMasterData db)
         }
 
         string type = scenario.type.ToLowerInvariant();
+        if (type is "quest" or "campaign"
+            && members.Count > GuildManager.BasePartyCapacity + scenario.partyCapacityUpgrades)
+            throw new InvalidDataException(
+                $"{scenario.id}: {members.Count} quest members need partyCapacityUpgrades="
+                + $"{members.Count - GuildManager.BasePartyCapacity}.");
         if (type == "battle" && !db.enemyUnits.ContainsKey(scenario.enemyUnitId))
             throw new InvalidDataException($"{scenario.id}: unknown enemy unit '{scenario.enemyUnitId}'.");
         if (type == "quest" && !quests.ContainsKey(scenario.questId))
@@ -199,6 +216,7 @@ public sealed class BalanceRunner(GameMasterData db)
             int guildRank = scenario.startingGuildRank > 0 ? scenario.startingGuildRank : quest.rank;
             var guild = new GuildManager(scenario.startingGold, guildRank);
             var party = CreateParty(scenario);
+            RestoreConfiguredPartyCapacity(guild, scenario.partyCapacityUpgrades);
             foreach (var member in party.Where(x => x != null)) guild.AddAdventurer(member!);
             var manager = new QuestManager(guild);
             int currentTurn = 1;
@@ -254,6 +272,7 @@ public sealed class BalanceRunner(GameMasterData db)
                 : quests[scenario.questIds[0]].rank;
             var guild = new GuildManager(scenario.startingGold, guildRank);
             var party = CreateParty(scenario);
+            RestoreConfiguredPartyCapacity(guild, scenario.partyCapacityUpgrades);
             foreach (var member in party.Where(x => x != null)) guild.AddAdventurer(member!);
             var manager = new QuestManager(guild);
             int currentTurn = 1;
@@ -419,7 +438,7 @@ public sealed class BalanceRunner(GameMasterData db)
 
     AdventurerData?[] CreateParty(BalanceScenario scenario)
     {
-        var party = PartyMembers(scenario).Select(spec =>
+        var members = PartyMembers(scenario).Select(spec =>
         {
             var member = new AdventurerData(adventurers[spec.id]);
             int targetLevel = spec.level > 0 ? spec.level : scenario.partyLevel;
@@ -446,10 +465,36 @@ public sealed class BalanceRunner(GameMasterData db)
             if (member.GetEquipped(EquipSlot.RightHand) is { isTwoHanded: true }
                 && member.GetEquipped(EquipSlot.LeftHand) != null)
                 throw new InvalidDataException($"{scenario.id}: {spec.id} cannot combine a two-handed weapon with left-hand equipment.");
-            return (AdventurerData?)member;
+            return (spec, member);
         }).ToArray();
-        Array.Resize(ref party, 6);
+
+        var party = new AdventurerData?[GuildManager.FormationSlotCount];
+        foreach (var (spec, member) in members.Where(entry => entry.spec.formationSlot > 0))
+            party[spec.formationSlot - 1] = member;
+        foreach (var (_, member) in members.Where(entry => entry.spec.formationSlot == 0))
+        {
+            int openSlot = Array.FindIndex(party, existing => existing == null);
+            if (openSlot < 0)
+                throw new InvalidDataException($"{scenario.id}: no open formation slot remains.");
+            party[openSlot] = member;
+        }
         return party;
+    }
+
+    static void RestoreConfiguredPartyCapacity(GuildManager guild, int upgradeCount)
+    {
+        // 比較条件を明示できるよう、ゲーム内の建設費・ランク条件とは分けて
+        // シナリオに指定した強化段階だけを試験用施設効果として再現する。
+        if (upgradeCount == 0) return;
+        guild.RestoreFacilities(new[]
+        {
+            new FacilityMasterData
+            {
+                id = "balance_party_capacity",
+                displayName = "Balance Lab 編成枠",
+                partySlotBonus = upgradeCount,
+            },
+        });
     }
 
     static IEnumerable<BalancePartyMember> PartyMembers(BalanceScenario scenario) =>

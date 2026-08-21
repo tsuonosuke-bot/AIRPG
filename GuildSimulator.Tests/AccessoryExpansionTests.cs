@@ -52,7 +52,7 @@ public sealed class AccessoryExpansionTests
     [InlineData("eq_accessory_camp_prayer_stone", "dungeon_meadow", 1)]
     [InlineData("eq_accessory_caravan_strap", "dungeon_woods", 1)]
     [InlineData("eq_accessory_moonsilver_charm", "dungeon_woods", 2)]
-    [InlineData("eq_accessory_vanguard_tassel", "dungeon_highway", 2)]
+    [InlineData("eq_accessory_vanguard_tassel", "dungeon_amashiro", 2)]
     [InlineData("eq_accessory_blacksteel_ring", "dungeon_mine", 3)]
     [InlineData("eq_accessory_lifebond_amber", "dungeon_crypt", 3)]
     public void EachAccessoryHasARankMatchedTreasureRoute(string equipmentId, string dungeonId, int rank)

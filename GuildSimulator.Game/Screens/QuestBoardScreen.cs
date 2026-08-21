@@ -117,10 +117,12 @@ public static class QuestBoardScreen
     static async Task SelectAndStartAsync(
         QuestMasterData def, QuestManager qm, GuildManager guild, int currentTurn)
     {
-        var formation = new AdventurerData?[6];
+        var formation = new AdventurerData?[GuildManager.FormationSlotCount];
         var advs = guild.adventurers;
+        int partyCapacity = guild.PartyCapacity;
 
-        while (formation.Any(x => x == null))
+        while (formation.Any(x => x == null)
+            && formation.Count(member => member != null) < partyCapacity)
         {
             // 配置を1人確定するたびに画面を描き直す。Web版で変更前と変更後の
             // 「現在の編成」が同じ画面に積み重ならないようにする。
@@ -128,7 +130,7 @@ public static class QuestBoardScreen
             Ui.Header($"編成: {def.questName}");
             Ui.WriteLine("冒険者を選び、次に配置先を指定してください");
             Ui.WriteLine();
-            ShowFormation(formation);
+            ShowFormation(formation, partyCapacity);
 
             var available = advs.Where((a, i) =>
                 a.isAlive &&
@@ -178,8 +180,8 @@ public static class QuestBoardScreen
 
         Ui.BeginScreen();
         Ui.Header("編成確認");
-        ShowFormation(formation);
-        ShowPartyPreview(formation, def);
+        ShowFormation(formation, partyCapacity);
+        ShowPartyPreview(formation, def, partyCapacity);
         var policy = await SelectPolicyAsync();
         if (policy == null) return;
         var carriedConsumables = await SelectConsumablesAsync(guild, formation);
@@ -262,9 +264,12 @@ public static class QuestBoardScreen
         return selected;
     }
 
-    static void ShowFormation(AdventurerData?[] formation)
+    static void ShowFormation(AdventurerData?[] formation, int partyCapacity)
     {
-        Ui.WriteLine("  現在の編成:");
+        int memberCount = formation.Count(member => member != null);
+        Ui.WriteLine($"  現在の編成: {memberCount}/{partyCapacity}人"
+            + $"（編成枠強化で最大{GuildManager.MaximumPartyCapacity}人）");
+        Ui.Dim("    配置位置は前衛3＋後衛3の6マス。人数上限以内なら好きな位置を選べます");
         for (int i = 0; i < formation.Length; i++)
         {
             Ui.Write($"    {PositionName(i),-4}: ");
@@ -274,11 +279,18 @@ public static class QuestBoardScreen
                 Ui.Write("空");
             Ui.WriteLine();
         }
+        if (memberCount >= partyCapacity && partyCapacity < GuildManager.MaximumPartyCapacity)
+            Ui.Dim("    現在の編成上限に達しました。ギルド施設を建てると1人ずつ拡張できます");
     }
 
-    static string PositionName(int slot) => slot < 3 ? $"前衛{slot + 1}" : $"後衛{slot - 2}";
+    static string PositionName(int slot) => slot < GuildManager.FrontRowSlotCount
+        ? $"前衛{slot + 1}"
+        : $"後衛{slot - GuildManager.FrontRowSlotCount + 1}";
 
-    internal static void ShowPartyPreview(AdventurerData?[] formation, QuestMasterData def)
+    internal static void ShowPartyPreview(
+        AdventurerData?[] formation,
+        QuestMasterData def,
+        int? partyCapacity = null)
     {
         var members = formation.Where(a => a != null).Select(a => a!).ToList();
         if (members.Count == 0) return;
@@ -315,6 +327,9 @@ public static class QuestBoardScreen
             + $"平均認定{assessment.AverageRankLabel}/評価基準{assessment.TargetThreatLabel}）";
         if (assessment.Score < 0) Ui.Warn(assessmentText);
         else Ui.Info(assessmentText);
+        if (partyCapacity.HasValue && assessment.RecommendedSize > partyCapacity.Value)
+            Ui.Warn($"  ⚠ 現在の編成上限は{partyCapacity.Value}人です。"
+                + "ギルド施設で上限を拡張すると推奨人数へ近づけます");
         Ui.Dim("    ※人数・認定ランク・負傷状態による目安。装備や相性、乱数で結果は変わります");
 
         if (frontMembers.Count == 0)

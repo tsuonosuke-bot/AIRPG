@@ -24,6 +24,8 @@ public class QuestMasterData
 
     // ---- ストーリー進行 ----
     public bool isStoryQuest;
+    public string storyArcId = "";
+    public string storyArcTitle = "";
     public List<string> requiredQuestIds = new();
     public List<string> requiredClueIds = new();
     public List<string> grantedClueIds = new();

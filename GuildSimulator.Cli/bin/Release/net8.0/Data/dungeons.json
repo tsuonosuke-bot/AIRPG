@@ -712,8 +712,8 @@
     ]
   },
   {
-    "id": "dungeon_highway",
-    "dungeonName": "隊商街道",
+    "id": "dungeon_amashiro",
+    "dungeonName": "天城（あましろ）",
     "eventTable": {
       "EnemyEncounter": 5,
       "Nothing": 6,
@@ -726,72 +726,108 @@
         "unitId": "unit_bandit_lookout",
         "weight": 4,
         "minPhase": 1,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_bandit_ambush",
         "weight": 3,
         "minPhase": 4,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_bandit_gang",
         "weight": 2,
         "minPhase": 8,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_wolf_pair",
         "weight": 2,
         "minPhase": 1,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_raven_flock",
         "weight": 2,
         "minPhase": 1,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_goblin_scouts",
         "weight": 2,
         "minPhase": 2,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_deserter_patrol",
         "weight": 3,
         "minPhase": 4,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_bandit_hawks",
         "weight": 3,
         "minPhase": 6,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_bandit_raiders",
         "weight": 2,
         "minPhase": 8,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_goblin_pair",
         "weight": 2,
         "minPhase": 5,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_bandit_back_line",
         "weight": 2,
         "minPhase": 10,
-        "maxPhase": 0
+        "maxPhase": 15
       },
       {
         "unitId": "unit_highway_coalition",
         "weight": 2,
         "minPhase": 12,
+        "maxPhase": 15
+      },
+      {
+        "unitId": "unit_amashiro_armor_pair",
+        "weight": 4,
+        "minPhase": 16,
+        "maxPhase": 24
+      },
+      {
+        "unitId": "unit_amashiro_sentinel_patrol",
+        "weight": 3,
+        "minPhase": 18,
+        "maxPhase": 28
+      },
+      {
+        "unitId": "unit_amashiro_construct_line",
+        "weight": 2,
+        "minPhase": 21,
+        "maxPhase": 30
+      },
+      {
+        "unitId": "unit_wyvern_fledglings",
+        "weight": 3,
+        "minPhase": 25,
+        "maxPhase": 32
+      },
+      {
+        "unitId": "unit_wyvern_roost",
+        "weight": 2,
+        "minPhase": 28,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_wyvern_storm",
+        "weight": 1,
+        "minPhase": 33,
         "maxPhase": 0
       }
     ],
@@ -959,6 +995,54 @@
         "skillId": "skill_treasureHunter_lv1",
         "weight": 1,
         "unique": true
+      },
+      {
+        "type": 2,
+        "gold": 150,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 4,
+        "maxQuestRank": 4
+      },
+      {
+        "type": 2,
+        "gold": 300,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 5,
+        "maxQuestRank": 5
+      },
+      {
+        "type": 2,
+        "gold": 500,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 6,
+        "maxQuestRank": 7
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_wind_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 4,
+        "maxQuestRank": 7
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_water_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 5,
+        "maxQuestRank": 7
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_wyvern_scale",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 5,
+        "maxQuestRank": 7
       }
     ],
     "turnEndEventIds": [
@@ -973,7 +1057,149 @@
       "event_caravan_supply_wagon",
       "event_caravan_specialist_merchant",
       "event_caravan_rare_broker",
-      "event_caravan_ambush"
+      "event_caravan_ambush",
+      "event_amashiro_broken_lift",
+      "event_amashiro_dragon_inscription"
+    ]
+  },
+  {
+    "id": "dungeon_middle_ocean",
+    "dungeonName": "ミドルオーシャン",
+    "eventTable": {
+      "EnemyEncounter": 7,
+      "Nothing": 4,
+      "Trap": 2,
+      "Treasure": 4,
+      "Heal": 2
+    },
+    "encounterTable": [
+      {
+        "unitId": "unit_skyfish_school",
+        "weight": 5,
+        "minPhase": 1,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_storm_jelly_drift",
+        "weight": 3,
+        "minPhase": 4,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_sky_manta_pair",
+        "weight": 3,
+        "minPhase": 6,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_sky_shark_hunt",
+        "weight": 3,
+        "minPhase": 10,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_middle_ocean_predators",
+        "weight": 2,
+        "minPhase": 18,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_sky_whale",
+        "weight": 2,
+        "minPhase": 25,
+        "maxPhase": 0
+      }
+    ],
+    "treasureTable": [
+      {
+        "type": 2,
+        "gold": 250,
+        "weight": 3,
+        "unique": false,
+        "minQuestRank": 5,
+        "maxQuestRank": 7
+      },
+      {
+        "type": 2,
+        "gold": 500,
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 5,
+        "maxQuestRank": 7
+      },
+      {
+        "type": 2,
+        "gold": 1000,
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 6,
+        "maxQuestRank": 7
+      },
+      {
+        "type": 4,
+        "consumableId": "item_stardust_catalyst",
+        "weight": 3,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_sage_scroll",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_lucky_coin",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 4,
+        "consumableId": "item_vital_tonic",
+        "weight": 2,
+        "unique": false
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_water_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 5,
+        "maxQuestRank": 7
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_wind_03",
+        "weight": 2,
+        "unique": false,
+        "minQuestRank": 5,
+        "maxQuestRank": 7
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_Light_03",
+        "weight": 1,
+        "unique": false,
+        "minQuestRank": 6,
+        "maxQuestRank": 7
+      },
+      {
+        "type": 3,
+        "skillId": "skill_waterMastery_lv3",
+        "weight": 1,
+        "unique": true
+      },
+      {
+        "type": 3,
+        "skillId": "skill_windMastery_lv3",
+        "weight": 1,
+        "unique": true
+      }
+    ],
+    "turnEndEventIds": [
+      "event_mysterious_shrine",
+      "event_middle_ocean_sky_current",
+      "event_middle_ocean_drowned_port"
     ]
   },
   {

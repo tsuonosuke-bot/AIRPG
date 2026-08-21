@@ -17,50 +17,70 @@ public static class StoryJournalScreen
         var completedStories = storyQuests
             .Where(q => questManager.HasClearedQuest(q.id))
             .ToList();
-        QuestChoiceOptionData? selectedOutcome = db.choiceEvents.Values
-            .SelectMany(choiceEvent => choiceEvent.options)
-            .FirstOrDefault(option => !string.IsNullOrWhiteSpace(option.storyBranchId)
-                && questManager.HasSelectedBranch(option.storyBranchId));
+        var storyArcs = storyQuests
+            .GroupBy(q => string.IsNullOrWhiteSpace(q.storyArcId) ? q.id : q.storyArcId)
+            .Where(arc => arc.Any(questManager.IsQuestKnown))
+            .ToList();
+        foreach (var arc in storyArcs)
+        {
+            var quests = arc.ToList();
+            var completed = quests.Where(q => questManager.HasClearedQuest(q.id)).ToList();
+            string title = quests.Select(q => q.storyArcTitle)
+                .FirstOrDefault(candidate => !string.IsNullOrWhiteSpace(candidate))
+                ?? quests[0].questName;
+            if (arc.Key == "skyway"
+                && questManager.HasDiscoveredClue("clue_amashiro_tide_chart"))
+                title = "天城とミドルオーシャン";
+            QuestChoiceOptionData? selectedOutcome = quests
+                .SelectMany(q => q.FixedChoiceEvents)
+                .SelectMany(fixedEvent => fixedEvent.ChoiceEvent!.options)
+                .FirstOrDefault(option => !string.IsNullOrWhiteSpace(option.storyBranchId)
+                    && questManager.HasSelectedBranch(option.storyBranchId));
 
-        Ui.WriteLine("  【青い鉱石事件】");
-        Ui.WriteLine($"    調査進行: {completedStories.Count}/{storyQuests.Count}");
-        if (selectedOutcome != null)
-        {
-            Ui.Info($"    結末: {selectedOutcome.text}");
-            Ui.WriteLine($"       {selectedOutcome.storyOutcomeText}");
-        }
-        else if (questManager.HasClearedQuest(QuestManager.BlueOreFinalQuestId)
-            && db.choiceEvents.TryGetValue("story_blue_ore_final_choice", out var finalChoice))
-        {
-            Ui.Warn("    旧版から引き継いだ記録には、遺物をどう扱ったかだけが残っていません");
-            var choices = finalChoice.options.Select((option, index) => new MenuOption(
-                (index + 1).ToString(),
-                option.text,
-                option.storyOutcomeText,
-                TextStyle.Accent)).ToList();
-            int? selected = await Ui.SelectIndexAsync("過去の判断を一度だけ確定する", choices, "あとで決める");
-            if (selected.HasValue)
+            Ui.WriteLine($"  【{title}】");
+            if (arc.Key == "skyway" && completed.Count < quests.Count)
+                Ui.WriteLine($"    調査進行: {completed.Count}件（行程は未確定）");
+            else
+                Ui.WriteLine($"    調査進行: {completed.Count}/{quests.Count}");
+            if (selectedOutcome != null)
             {
-                var option = finalChoice.options[selected.Value];
-                if (questManager.TryRecordLegacyBlueOreOutcome(option.storyBranchId, out var result))
+                Ui.Info($"    結末: {selectedOutcome.text}");
+                Ui.WriteLine($"       {selectedOutcome.storyOutcomeText}");
+            }
+            else if (arc.Key == "blue_ore"
+                && questManager.HasClearedQuest(QuestManager.BlueOreFinalQuestId)
+                && db.choiceEvents.TryGetValue("story_blue_ore_final_choice", out var finalChoice))
+            {
+                Ui.Warn("    旧版から引き継いだ記録には、遺物をどう扱ったかだけが残っていません");
+                var choices = finalChoice.options.Select((option, index) => new MenuOption(
+                    (index + 1).ToString(),
+                    option.text,
+                    option.storyOutcomeText,
+                    TextStyle.Accent)).ToList();
+                int? selected = await Ui.SelectIndexAsync("過去の判断を一度だけ確定する", choices, "あとで決める");
+                if (selected.HasValue)
                 {
-                    selectedOutcome = option;
-                    Ui.Info($"    結末: {option.text}");
-                    Ui.WriteLine($"       {option.storyOutcomeText}");
+                    var option = finalChoice.options[selected.Value];
+                    if (questManager.TryRecordLegacyBlueOreOutcome(option.storyBranchId, out var result))
+                    {
+                        Ui.Info($"    結末: {option.text}");
+                        Ui.WriteLine($"       {option.storyOutcomeText}");
+                    }
+                    else
+                    {
+                        Ui.Warn($"    {result}");
+                    }
                 }
                 else
                 {
-                    Ui.Warn($"    {result}");
+                    Ui.Dim("    結末は未確定。次に調査記録を開いたときにも選べます");
                 }
             }
             else
             {
-                Ui.Dim("    結末は未確定。次に調査記録を開いたときにも選べます");
+                ShowCurrentLead(quests, questManager);
             }
-        }
-        else
-        {
-            ShowCurrentLead(storyQuests, questManager);
+            Ui.WriteLine();
         }
 
         var clues = questManager.ExportDiscoveredClueIds()
@@ -81,11 +101,13 @@ public static class StoryJournalScreen
             {
                 Ui.Info($"    ◆ {clue.title}");
                 Ui.WriteLine($"       {clue.description}");
-                var unlocked = storyQuests.FirstOrDefault(quest => quest.requiredClueIds.Contains(clue.id));
+                var unlocked = storyQuests.FirstOrDefault(quest =>
+                    quest.requiredClueIds.Contains(clue.id)
+                    && questManager.IsQuestKnown(quest));
                 if (unlocked != null)
                     Ui.Dim($"       → 次の調査「{unlocked.questName}」につながる");
-                else if (selectedOutcome != null)
-                    Ui.Dim("       → ギルドの決断によって事件の結末が確定した");
+                else
+                    Ui.Dim("       → 調査記録に保存されている");
             }
         }
 
@@ -110,11 +132,11 @@ public static class StoryJournalScreen
     {
         var next = storyQuests
             .Where(quest => !questManager.HasClearedQuest(quest.id))
-            .FirstOrDefault(quest => questManager.AreStoryRequirementsMet(quest));
+            .FirstOrDefault(questManager.IsQuestKnown);
         if (next == null)
         {
             if (storyQuests.All(quest => questManager.HasClearedQuest(quest.id)))
-                Ui.Dim("    主要な調査は完了しているが、この古い記録には最終判断が残っていない");
+                Ui.Dim("    この調査は完了している");
             else
                 Ui.Dim("    現在は次の調査につながる手掛かりを探している");
             return;

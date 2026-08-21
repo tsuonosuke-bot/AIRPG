@@ -928,5 +928,276 @@
         "storyOutcomeText": "鉱石交易が始まった。以後、廃坑と旧市街の報酬Goldが15%増える一方、敵との遭遇が増える。"
       }
     ]
+  },
+  {
+    "id": "story_woods_amashiro_discovery",
+    "title": "濃霧の先に立つ巨塔",
+    "description": "流れる森の深部偵察を終えた帰路、風が濃霧を切り裂いた。森の向こうには、雲を貫いてなお終端の見えない白い巨構造が立っている。地図には何も記されていない。",
+    "weight": 0,
+    "options": [
+      {
+        "text": "森の外縁まで接近し、入口を記録する",
+        "resultText": "崩れた石段と古い轍を確認したが、内部は暗く、上層は濃霧に隠れていた。何のための場所かは分からない。",
+        "effectType": "Experience",
+        "value": 12,
+        "grantedClueId": "clue_amashiro_fogbound_silhouette"
+      },
+      {
+        "text": "遠景と方角を写し、ギルドへ急報する",
+        "resultText": "雲へ伸びる姿から、調査隊は未知の巨塔に仮称『天城』を付けた。本格調査はこれからだ。",
+        "effectType": "Morale",
+        "value": 10,
+        "grantedClueId": "clue_amashiro_fogbound_silhouette"
+      }
+    ]
+  },
+  {
+    "id": "event_amashiro_broken_lift",
+    "title": "止まった昇降機",
+    "description": "天城の縦穴で、巨大昇降機が軋んでいる。古い制御盤には上向きの矢印が幾重にも並ぶが、どこまで続くのかを示す文字は削れている。",
+    "weight": 5,
+    "options": [
+      {
+        "text": "制御盤を修理して安全な足場を確保する",
+        "resultText": "歯車がゆっくり噛み合い、上層へ続く古い荷台が一段だけ動いた。",
+        "effectType": "Experience",
+        "value": 12
+      },
+      {
+        "text": "外壁の保守梯子を登って先を急ぐ",
+        "resultText": "強風に煽られながら崩れた梯子を越えたが、鋭い石片で傷を負った。",
+        "effectType": "DamagePercent",
+        "value": 8
+      },
+      {
+        "text": "旧い釣り合い錘の保管庫を調べる",
+        "resultText": "保管庫には、運び出されなかった隊商の荷箱が残っていた。",
+        "effectType": "Treasure",
+        "value": 1
+      }
+    ]
+  },
+  {
+    "id": "event_amashiro_dragon_inscription",
+    "title": "竜爪で上書きされた命令",
+    "description": "守備機の台座では、古い通行規則が削られ、その上に『上る者を拒め』という命令が巨大な爪痕で刻まれている。書き換えた者の正体は分からない。",
+    "weight": 3,
+    "options": [
+      {
+        "text": "刻印を拓本に取り、命令系統を解析する",
+        "resultText": "守備機が同じ竜紋を命令核として共有していることが分かった。",
+        "effectType": "Experience",
+        "value": 15
+      },
+      {
+        "text": "拒絶命令を削り、後続のために道標を残す",
+        "resultText": "古い交易商の印が露出し、天城が人の往来を歓迎していた時代の姿を取り戻した。",
+        "effectType": "Morale",
+        "value": 10
+      },
+      {
+        "text": "罠を疑い、触れずに通過する",
+        "resultText": "一行は正体不明の爪痕を警戒し、隊列を崩さず先へ進んだ。",
+        "effectType": "None",
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": "event_middle_ocean_sky_current",
+    "title": "空を流れる潮",
+    "description": "水面から立ち上がった青い潮流が、魚の群れと壊れた荷箱を空へ運んでいる。",
+    "weight": 5,
+    "options": [
+      {
+        "text": "潮流へ帆を向け、漂う荷箱を追う",
+        "resultText": "上下の感覚が反転する流れを抜け、雲上便の荷箱を回収した。",
+        "effectType": "Treasure",
+        "value": 1
+      },
+      {
+        "text": "流れの縁で休み、清浄な水を補給する",
+        "resultText": "冷たい空海の水が疲労と熱を洗い流した。",
+        "effectType": "HealPercent",
+        "value": 12
+      },
+      {
+        "text": "空魚の進路を観察して安全な潮目を読む",
+        "resultText": "魔物も避ける逆流を見つけ、空海の航法を一つ学んだ。",
+        "effectType": "Experience",
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": "event_middle_ocean_drowned_port",
+    "title": "水中に沈む中継港",
+    "description": "巨大水塊の中に、天城から続く石造りの中継港が逆さに沈んでいる。見慣れない紋章を刻んだ鐘だけが潮に揺れて鳴る。",
+    "weight": 4,
+    "options": [
+      {
+        "text": "耐圧庫へ潜り、残された荷を引き上げる",
+        "resultText": "古い税関封印の残る箱を、崩落寸前の倉庫から持ち帰った。",
+        "effectType": "Treasure",
+        "value": 1
+      },
+      {
+        "text": "港の鐘を鳴らし、失われた交易商を弔う",
+        "resultText": "鐘の音は水塊と雲海へ広がり、一行は道をつないだ人々の意志を胸に刻んだ。",
+        "effectType": "Morale",
+        "value": 12
+      },
+      {
+        "text": "壁面の航路標を写し取る",
+        "resultText": "消えかけた未知の文字と図形から、潮目と遠方の門らしき地点との位置関係を読み解いた。",
+        "effectType": "Experience",
+        "value": 20
+      }
+    ]
+  },
+  {
+    "id": "story_amashiro_last_waybill",
+    "title": "消された行先",
+    "description": "野盗が占拠した旧関所には、大量の荷を上層へ送った帳簿が残っている。しかし、送り状の最終目的地だけが何者かに削り取られていた。",
+    "weight": 0,
+    "options": [
+      {
+        "text": "送り状と帳簿を傷めず回収する",
+        "resultText": "荷の品目、関税、昇降便の時刻まで残っていた。天城が巨大な輸送路だったことは分かったが、行先はなお不明だ。",
+        "effectType": "Experience",
+        "value": 12,
+        "grantedClueId": "clue_amashiro_last_waybill"
+      },
+      {
+        "text": "捕らえた脱走兵から上層の様子を聞く",
+        "resultText": "上層から今も荷車の鐘が聞こえ、登った者は誰も戻らないため人々は道を捨てたという。",
+        "effectType": "Morale",
+        "value": 10,
+        "grantedClueId": "clue_amashiro_last_waybill"
+      }
+    ]
+  },
+  {
+    "id": "story_amashiro_usurper_forge",
+    "title": "『上る者を拒め』",
+    "description": "関所の機兵は、かつての通商規則ではなく、竜爪で上書きされた同じ拒絶命令に従っている。",
+    "weight": 0,
+    "options": [
+      {
+        "text": "命令板を解析し、停止符を探す",
+        "resultText": "古い守備命令の上に、古龍の竜紋と拒絶命令が刻み直されていた。",
+        "effectType": "Experience",
+        "value": 22,
+        "grantedClueId": "clue_amashiro_usurper_edict"
+      },
+      {
+        "text": "制御炉を壊し、後続隊の道を確保する",
+        "resultText": "動甲冑は崩れ、砕けた命令核から古龍の署名にあたる竜紋を回収した。",
+        "effectType": "Treasure",
+        "value": 1,
+        "grantedClueId": "clue_amashiro_usurper_edict"
+      }
+    ]
+  },
+  {
+    "id": "story_amashiro_middle_ocean_sighting",
+    "title": "雲の上の海",
+    "description": "飛竜の巣の向こうで、空に浮かぶ巨大な水塊が潮門へ流れ込んでいる。門を越えた先には、雲より高い水平線が広がる。",
+    "weight": 0,
+    "options": [
+      {
+        "text": "上昇気流と潮の反転を測る",
+        "resultText": "潮門を越えた瞬間、頭上の水塊が水平線を持つ海へ変わる仕組みを記録した。",
+        "effectType": "Experience",
+        "value": 30,
+        "grantedClueId": "clue_amashiro_tide_chart"
+      },
+      {
+        "text": "飛竜の巣から古い航路標を回収する",
+        "resultText": "航路標には『ミドルオーシャン中継港』の名が残っていたが、その先を示す部分は砕けていた。",
+        "effectType": "Treasure",
+        "value": 1,
+        "grantedClueId": "clue_amashiro_tide_chart"
+      }
+    ]
+  },
+  {
+    "id": "story_amashiro_usurper_key",
+    "title": "簒奪者が奪った昇潮鍵",
+    "description": "古竜式ゴーレムの胸部には、潮路図と同じ紋章を持つ鍵が命令核として埋め込まれている。古龍はこれを奪い、天城から空の海へ出る道を封じていた。",
+    "weight": 0,
+    "options": [
+      {
+        "text": "通商鍵を昇潮機関へ戻す",
+        "resultText": "地上側の封鎖が解け、天城の先にミドルオーシャンへの潮路が開いた。",
+        "effectType": "Morale",
+        "value": 25,
+        "grantedClueId": "clue_amashiro_heaven_key"
+      },
+      {
+        "text": "命令核を複製してから鍵を戻す",
+        "resultText": "古龍の改竄箇所を記録した後、昇潮機関を再起動した。",
+        "effectType": "Experience",
+        "value": 35,
+        "grantedClueId": "clue_amashiro_heaven_key"
+      }
+    ]
+  },
+  {
+    "id": "story_middle_ocean_trade_wreck",
+    "title": "空海に沈む異文明船",
+    "description": "空魚と空ザメが回遊する潮目の下に、地上では見たことのない意匠の船が沈んでいる。空鯨の群れがその航路を守るように巡っている。",
+    "weight": 0,
+    "options": [
+      {
+        "text": "耐圧庫から通商記録を回収する",
+        "resultText": "目録には高度な機巧品と『天界南門』の名、そして天界側が非常封鎖を発令した時刻が記録されていた。",
+        "effectType": "Treasure",
+        "value": 2,
+        "grantedClueId": "clue_middle_ocean_trade_manifest"
+      },
+      {
+        "text": "空魚の群れを追い、旧航路を割り出す",
+        "resultText": "未知の碑文を解読し、この海の先に『天界』と呼ばれる高度文明の門があると突き止めた。",
+        "effectType": "Experience",
+        "value": 35,
+        "grantedClueId": "clue_middle_ocean_trade_manifest"
+      }
+    ]
+  },
+  {
+    "id": "story_middle_ocean_celestial_barrier",
+    "title": "閉ざされた天界門",
+    "description": "空海の主を越えた先で、天界門は白い結界に包まれている。地上側の通商鍵は戻ったが、天界側の鍵は沈黙したままだ。",
+    "weight": 0,
+    "options": [
+      {
+        "text": "通商鍵で救難信号を送る",
+        "resultText": "門は開かなかったが、遥か上から一度だけ白い光が返った。",
+        "effectType": "Morale",
+        "value": 30,
+        "grantedClueId": "clue_middle_ocean_celestial_barrier",
+        "storyBranchId": "skyway_signal_sent",
+        "storyOutcomeText": "天界門は閉じたままだが、天界側から応答があった。地上と天界の再会へ、細い通信路が生まれた。"
+      },
+      {
+        "text": "結界式を写し取り、解除手段を研究する",
+        "resultText": "古龍が改竄した箇所と、天界側の封鎖を切り分けて記録した。",
+        "effectType": "Experience",
+        "value": 45,
+        "grantedClueId": "clue_middle_ocean_celestial_barrier",
+        "storyBranchId": "skyway_barrier_studied",
+        "storyOutcomeText": "門は閉じたままだが、解除鍵を地上で再現できる可能性が生まれた。"
+      },
+      {
+        "text": "地上へ危険が及ばぬよう入口を秘匿する",
+        "resultText": "航路標を沈め、入口へギルドの封印を施した。",
+        "effectType": "Treasure",
+        "value": 2,
+        "grantedClueId": "clue_middle_ocean_celestial_barrier",
+        "storyBranchId": "skyway_route_concealed",
+        "storyOutcomeText": "地上は守られたが、天界との交流再開は先送りされた。"
+      }
+    ]
   }
 ]

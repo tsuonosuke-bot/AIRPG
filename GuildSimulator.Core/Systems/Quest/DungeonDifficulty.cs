@@ -1,6 +1,7 @@
 using GuildSimulator.Core.GameData;
 using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
+using GuildSimulator.Core.Systems.Guild;
 
 namespace GuildSimulator.Core.Systems.Quest;
 
@@ -186,10 +187,17 @@ public static class DungeonDifficulty
             < 42 => 4,
             _ => 5,
         };
-        recommendedSize = Math.Max(recommendedSize, Math.Min(5,
+        recommendedSize = Math.Max(recommendedSize, Math.Min(GuildManager.MaximumPartyCapacity,
             (int)Math.Ceiling(Math.Max(
                 difficulty.enemyFormationTypicalSize * 0.75f,
                 difficulty.bossMemberCount * 0.75f))));
+        if (quest.rank >= 6)
+            recommendedSize = Math.Max(recommendedSize, GuildManager.MaximumPartyCapacity);
+        // 受注ランク時点で建設可能な編成施設を超える人数は勧めない。
+        // とくにD→C昇格試験は、Cで解禁される5人目を前提にできない。
+        recommendedSize = Math.Min(
+            recommendedSize,
+            GuildManager.PartyCapacityCeilingForRank(quest.rank));
 
         int memberCount = members.Count;
         int averageRank = memberCount == 0

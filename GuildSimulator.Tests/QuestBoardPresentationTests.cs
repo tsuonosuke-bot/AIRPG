@@ -125,6 +125,23 @@ public class QuestBoardPresentationTests
         Assert.DoesNotContain("⚠ 回復役不在:", text);
     }
 
+    [Fact]
+    public void PartyPreviewExplainsWhenRecommendationExceedsCurrentCapacity()
+    {
+        var formation = new AdventurerData?[GuildManager.FormationSlotCount];
+        formation[0] = AdventurerWithWeapon("先遣役", PhysicalWeapon());
+        var quest = BossQuest();
+        quest.rank = 6;
+
+        string text = CaptureConsole(() => QuestBoardScreen.ShowPartyPreview(
+            formation,
+            quest,
+            partyCapacity: GuildManager.BasePartyCapacity));
+
+        Assert.Contains("現在の編成上限は3人", text);
+        Assert.Contains("ギルド施設で上限を拡張", text);
+    }
+
     static QuestMasterData HuntQuest()
     {
         var soldier = new EnemyMasterData
