@@ -25,7 +25,18 @@ public static class ShopService
         var equipmentPool = equipment
             .Where(e => !e.id.StartsWith(DropOnlyIdPrefix, StringComparison.Ordinal) && e.shopTier <= shopLevel)
             .ToList();
-        var equipmentStock = DrawDistinct(equipmentPool, 8)
+
+        // 最低ランクの防具（shopTierが最小の防具）は品揃えの運に左右されず常に並べる。
+        var armorTiers = equipmentPool
+            .Where(e => e.type == EquipmentType.Armor)
+            .Select(e => e.shopTier);
+        var guaranteedArmor = armorTiers.Any()
+            ? equipmentPool.Where(e => e.type == EquipmentType.Armor && e.shopTier == armorTiers.Min()).ToList()
+            : new List<EquipmentMasterData>();
+        var remainingPool = equipmentPool.Except(guaranteedArmor).ToList();
+
+        var equipmentStock = guaranteedArmor
+            .Concat(DrawDistinct(remainingPool, Math.Max(0, 8 - guaranteedArmor.Count)))
             .ToDictionary(e => e.id, e => e.rarity >= Rarity.Rare ? 1 : GameRandom.Range(1, 4));
         var consumableStock = DrawDistinct(consumables.ToList(), 4)
             .ToDictionary(c => c.id, c => GameRandom.Range(1, 4));
