@@ -67,8 +67,7 @@ dotnet run --project GuildSimulator.Cli
 ### ビルドとテスト
 
 日常開発では `Debug` を使い、テストプロジェクトだけを直接実行します。
-これにより、テストに不要なブラウザ版のビルドと、Git管理されている
-`bin/Release` 配下の更新を避けられます。
+これにより、テストに不要なブラウザ版のビルドを避けられます。
 
 変更に対応するテスト名が分かる場合は、対象テストの成功後に同じビルド成果物で
 全テストを実行します。
@@ -93,7 +92,6 @@ NuGet依存関係を明示的に復元し直す場合は `-Restore` を指定し
 ```
 
 配布前だけ、ソリューション全体を `Release` でビルドしてからテストします。
-`bin/Release` は配布用としてGit管理されているため、生成差分も確認してください。
 
 ```powershell
 dotnet build GuildSimulator.sln -c Release -m:1 -nr:false

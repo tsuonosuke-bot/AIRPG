@@ -1,8 +1,0 @@
-[
-  { "id": "unit_goblin_group", "unitName": "ゴブリンの群れ", "baseLevel": 1,
-    "formationIds": ["enemy_goblin","enemy_goblin","enemy_goblin",null,null,null] },
-  { "id": "unit_goblin_single","unitName": "ゴブリン", "baseLevel": 1,
-    "formationIds": ["enemy_goblin",null,null,null,null,null] },
-  { "id": "unit_goblin_chief", "unitName": "ゴブリン頭目", "baseLevel": 3,
-    "formationIds": ["enemy_goblin","enemy_goblin","enemy_goblin","enemy_goblin","enemy_goblin","enemy_goblin"] }
-]
