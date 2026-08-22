@@ -35,6 +35,12 @@ jobs:
       - name: restore
         run: dotnet restore GuildSimulator.Tests/GuildSimulator.Tests.csproj
 
+      # MasterDataDistributionTestsがCLI配布物（Releaseビルド）とマスタデータの一致を
+      # 検証するため、テスト実行前にビルドしておく。bin/objはgit管理していないので、
+      # チェックアウトのたびにここで作る必要がある。
+      - name: build CLI (Release, for distribution checks)
+        run: dotnet build GuildSimulator.Cli/GuildSimulator.Cli.csproj -c Release -m:1 -nr:false
+
       - name: test
         env:
           DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER: "1"
