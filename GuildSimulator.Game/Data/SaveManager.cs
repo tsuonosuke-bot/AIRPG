@@ -188,6 +188,7 @@ public static class SaveManager
         clearedQuestIds = qm.ExportClearedQuestIds().ToList(),
         discoveredClueIds = qm.ExportDiscoveredClueIds().ToList(),
         selectedBranchIds = qm.ExportSelectedBranchIds().ToList(),
+        questCooldowns = new Dictionary<string, int>(qm.ExportQuestCooldowns()),
     };
 
     static QuestRunSaveData ExportQuestRun(QuestRun q) => new()
@@ -345,7 +346,8 @@ public static class SaveManager
             data.questManager.clearedQuestIds ?? new(),
             data.questManager.discoveredClueIds ?? new(),
             data.questManager.selectedBranchIds ?? new(),
-            history);
+            history,
+            data.questManager.questCooldowns ?? new());
 
         var recruitCandidates = data.recruitCandidateIds
             .Where(adventurerMasterById.ContainsKey)

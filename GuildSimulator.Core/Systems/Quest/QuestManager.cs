@@ -57,6 +57,10 @@ public class QuestManager
     // 一度きりのクエスト（緊急/昇格試験）はクリア後に再掲示しない。
     readonly HashSet<string> clearedOneShotIds = new();
     readonly HashSet<string> clearedQuestIds = new();
+    // 通常クエストはクリア後、しばらく（5～10ターン）再掲示しない。questId -> 再掲示可能になるターン。
+    readonly Dictionary<string, int> questCooldownUntilTurn = new();
+    public const int NormalQuestCooldownMinTurns = 5;
+    public const int NormalQuestCooldownMaxTurns = 10;
     readonly HashSet<string> discoveredClueIds = new();
     readonly List<string> discoveredClueOrder = new();
     readonly HashSet<string> selectedBranchIds = new();
@@ -98,7 +102,7 @@ public class QuestManager
     public void FillBoard(IEnumerable<QuestMasterData> pool, int currentTurn)
     {
         var poolList = pool.ToList();
-        var candidates = poolList.Where(IsPostable).ToList();
+        var candidates = poolList.Where(q => IsPostable(q, currentTurn)).ToList();
         var storyCandidates = candidates
             .Where(q => q.isStoryQuest && !q.isEmergencyQuest)
             .OrderBy(q => q.rank)
@@ -149,13 +153,16 @@ public class QuestManager
         }
     }
 
-    // 掲示条件: 必要GP・ギルドランクを満たす / 掲示済みでも受注中でもない / クリア済みの一度きりクエストでない。
-    bool IsPostable(QuestMasterData q)
+    // 掲示条件: 必要GP・ギルドランクを満たす / 掲示済みでも受注中でもない / クリア済みの一度きりクエストでない
+    // / 通常クエストのクリア後クールダウン中でない。
+    bool IsPostable(QuestMasterData q, int currentTurn)
     {
         if (q.rank > guild.GuildRank) return false;
         if (guild.GuildPoints < q.requiredGuildPoints) return false;
         if (!MeetsStoryRequirements(q)) return false;
         if (IsOneShot(q) && clearedOneShotIds.Contains(q.id)) return false;
+        if (questCooldownUntilTurn.TryGetValue(q.id, out int cooldownUntil) && currentTurn < cooldownUntil)
+            return false;
         if (questBoard.Any(e => e.quest == q)) return false;
         if (activeQuests.Any(r => r.def == q)) return false;
         return true;
@@ -893,7 +900,11 @@ public class QuestManager
         if (q.completed)
         {
             clearedQuestIds.Add(q.def.id);
-            if (IsOneShot(q.def)) clearedOneShotIds.Add(q.def.id);
+            if (IsOneShot(q.def))
+                clearedOneShotIds.Add(q.def.id);
+            else
+                questCooldownUntilTurn[q.def.id] = reportTurn
+                    + GameRandom.Range(NormalQuestCooldownMinTurns, NormalQuestCooldownMaxTurns + 1);
             if (!string.IsNullOrWhiteSpace(q.def.storyBranchId))
                 selectedBranchIds.Add(q.def.storyBranchId);
 
@@ -1004,6 +1015,7 @@ public class QuestManager
     public IReadOnlyCollection<string> ExportClearedQuestIds() => clearedQuestIds;
     public IReadOnlyCollection<string> ExportDiscoveredClueIds() => discoveredClueOrder;
     public IReadOnlyCollection<string> ExportSelectedBranchIds() => selectedBranchIds;
+    public IReadOnlyDictionary<string, int> ExportQuestCooldowns() => questCooldownUntilTurn;
 
     public bool HasClearedQuest(string id) => clearedQuestIds.Contains(id);
     public bool HasDiscoveredClue(string id) => discoveredClueIds.Contains(id);
@@ -1058,7 +1070,8 @@ public class QuestManager
         IEnumerable<string>? clearedQuestIdsToRestore = null,
         IEnumerable<string>? discoveredClueIdsToRestore = null,
         IEnumerable<string>? selectedBranchIdsToRestore = null,
-        IEnumerable<QuestHistoryEntry>? questHistoryToRestore = null)
+        IEnumerable<QuestHistoryEntry>? questHistoryToRestore = null,
+        IEnumerable<KeyValuePair<string, int>>? questCooldownsToRestore = null)
     {
         questBoard = board;
         activeQuests = active;
@@ -1087,6 +1100,10 @@ public class QuestManager
         selectedBranchIds.Clear();
         foreach (var id in selectedBranchIdsToRestore ?? Array.Empty<string>())
             selectedBranchIds.Add(id);
+
+        questCooldownUntilTurn.Clear();
+        foreach (var kv in questCooldownsToRestore ?? Array.Empty<KeyValuePair<string, int>>())
+            questCooldownUntilTurn[kv.Key] = kv.Value;
 
         questBoard.RemoveAll(entry =>
             !MeetsStoryRequirements(entry.quest)

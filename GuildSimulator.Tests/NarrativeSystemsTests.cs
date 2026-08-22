@@ -349,6 +349,43 @@ public class NarrativeSystemsTests
     }
 
     [Fact]
+    public void ClearedNormalQuestGoesOnCooldownBeforeReappearingOnTheBoard()
+    {
+        var guild = new GuildManager();
+        var manager = new QuestManager(guild)
+        {
+            BaseNormalBoardCapacity = 1,
+            EmergencyBoardCapacity = 0,
+            StoryBoardCapacity = 0,
+        };
+        var adventurer = new AdventurerData(BasicAdventurer());
+        guild.AddAdventurer(adventurer);
+
+        var quest = new QuestMasterData
+        {
+            id = "normal_quest",
+            questName = "通常依頼",
+            totalPhases = 1,
+        };
+
+        var formation = new AdventurerData?[6];
+        formation[0] = adventurer;
+        Assert.True(manager.TryStartQuest(quest, formation, 1, out _));
+        var run = Assert.Single(manager.activeQuests);
+        run.currentPhase = quest.totalPhases;
+        manager.FinalizeQuest(run);
+        Assert.True(manager.HasClearedQuest(quest.id));
+
+        // クリア直後～最大10ターン後まではクールダウン中のため再掲示されない。
+        manager.FillBoard(new[] { quest }, currentTurn: 2);
+        Assert.Empty(manager.questBoard);
+
+        // クールダウンの上限(10ターン)を過ぎれば必ず再掲示候補へ戻る。
+        manager.FillBoard(new[] { quest }, currentTurn: 12);
+        Assert.Equal(quest, Assert.Single(manager.questBoard).quest);
+    }
+
+    [Fact]
     public void QuestStartStoresPolicyAndStructuredDeparture()
     {
         var guild = new GuildManager();

@@ -37,20 +37,26 @@ public static class ShopScreen
 
     static async Task BuyAsync(GameMasterData db, GuildManager guild)
     {
-        // 武器→防具の順、価格昇順で並べる。
-        var items = guild.shopEquipmentStock
-            .Where(kv => kv.Value > 0 && db.equipment.ContainsKey(kv.Key))
-            .Select(kv => db.equipment[kv.Key])
-            .OrderBy(e => e.type)
-            .ThenBy(e => e.price)
-            .ToList();
-
         while (true)
         {
+            // 武器→防具の順、価格昇順で並べる。
+            var items = guild.shopEquipmentStock
+                .Where(kv => kv.Value > 0 && db.equipment.ContainsKey(kv.Key))
+                .Select(kv => db.equipment[kv.Key])
+                .OrderBy(e => e.type)
+                .ThenBy(e => e.price)
+                .ToList();
+
             Ui.BeginScreen();
             Ui.Header("装備を購入");
             Ui.WriteLine($"  所持金: {guild.Gold}G");
             Ui.WriteLine();
+            if (items.Count == 0)
+            {
+                Ui.Dim("  今期の在庫は売り切れです");
+                await Ui.PauseAsync();
+                return;
+            }
 
             var options = new List<MenuOption>();
             for (int i = 0; i < items.Count; i++)

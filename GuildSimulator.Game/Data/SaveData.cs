@@ -114,6 +114,7 @@ public class QuestManagerSaveData
     public List<string> clearedQuestIds = new();
     public List<string> discoveredClueIds = new();
     public List<string> selectedBranchIds = new();
+    public Dictionary<string, int> questCooldowns = new();
 }
 
 public class QuestHistoryEntrySaveData
