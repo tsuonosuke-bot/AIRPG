@@ -1,9 +1,6 @@
-# Build output (debug only — release binaries are intentionally committed)
-**/bin/Debug/
+# Build output — バイナリはコミットせず、必要な配布物は都度ビルド/リリースで生成する。
+**/bin/
 **/obj/
-
-# テストプロジェクトは配布物ではないので、Release出力も含めて追跡しない。
-GuildSimulator.Tests/bin/
 
 # OS / editor
 .DS_Store

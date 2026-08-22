@@ -1,7 +1,0 @@
-[
-  { "id": "relic_bank",    "relicName": "銀行屋",        "description": "クエスト報酬の金貨が5倍になる",   "effectType": 2, "rate": 5.0 },
-  { "id": "relic_bandage", "relicName": "包帯",          "description": "ユニットのHPが+200される",        "effectType": 0, "add": { "hp": 200 } },
-  { "id": "relic_eggs",    "relicName": "卵",            "description": "ユニットの攻撃力が1.1倍になる",  "effectType": 1, "mul": { "pAtk": 1.1, "mAtk": 1.1 } },
-  { "id": "relic_meat",    "relicName": "美味しいお肉",  "description": "休息時の回復量が1.5倍になる",    "effectType": 4, "rate": 1.5 },
-  { "id": "relic_red",     "relicName": "赤いガラス",    "description": "維持費が0.8倍になる",            "effectType": 3, "rate": 0.8 }
-]
