@@ -339,6 +339,30 @@ public class CliPresentationTests
         Assert.Null(run.pendingChoice);
     }
 
+    [Fact]
+    public async Task SoldOutEquipmentIsRemovedFromThePurchaseListImmediately()
+    {
+        var db = new GameMasterData();
+        var item = new EquipmentMasterData
+        {
+            id = "test_sword",
+            displayName = "テストの剣",
+            type = EquipmentType.Weapon,
+            price = 10,
+        };
+        db.equipment[item.id] = item;
+        var guild = new GuildManager(startGold: 1000);
+        guild.ReplaceShopStock(1, new Dictionary<string, int> { [item.id] = 1 }, new Dictionary<string, int>());
+
+        string text = await CaptureConsoleAsync(
+            "1\n1\ny\n\n\n0\n",
+            () => ShopScreen.ShowAsync(db, guild, currentTurn: 1));
+
+        Assert.Contains("テストの剣 を購入しました", text);
+        Assert.Contains("今期の在庫は売り切れです", text);
+        Assert.Equal(0, guild.shopEquipmentStock[item.id]);
+    }
+
     static async Task<string> CaptureConsoleAsync(string inputText, Func<Task> action)
     {
         var originalIn = Console.In;
