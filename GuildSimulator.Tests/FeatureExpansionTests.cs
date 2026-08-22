@@ -35,6 +35,35 @@ public class FeatureExpansionTests
     }
 
     [Fact]
+    public void ShopStockAlwaysIncludesLowestRankArmor()
+    {
+        var guild = new GuildManager();
+        var lowestArmorIds = new[] { "eq_armor_low_1", "eq_armor_low_2" };
+        var equipment = new List<EquipmentMasterData>
+        {
+            new() { id = lowestArmorIds[0], displayName = "低ランク防具1", type = EquipmentType.Armor, shopTier = 1, price = 10 },
+            new() { id = lowestArmorIds[1], displayName = "低ランク防具2", type = EquipmentType.Armor, shopTier = 1, price = 10 },
+        };
+        equipment.AddRange(Enumerable.Range(1, 10).Select(i => new EquipmentMasterData
+        {
+            id = $"eq_other_{i}", displayName = $"装備{i}", type = EquipmentType.Weapon, shopTier = 1, price = 10,
+        }));
+        var items = Enumerable.Range(1, 5).Select(i => new ConsumableMasterData
+        {
+            id = $"item_{i}", displayName = $"道具{i}", price = 10,
+        }).ToList();
+
+        for (int turn = 1; turn <= 30; turn += 5)
+        {
+            ShopService.RefreshIfNeeded(guild, turn, equipment, items);
+            foreach (var id in lowestArmorIds)
+            {
+                Assert.True(guild.shopEquipmentStock.ContainsKey(id), $"turn {turn} で {id} が売り出されていない");
+            }
+        }
+    }
+
+    [Fact]
     public void CarriedConsumableIsSpentAndAppliesForTheQuest()
     {
         var guild = new GuildManager();
