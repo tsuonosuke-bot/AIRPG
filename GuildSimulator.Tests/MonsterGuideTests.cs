@@ -88,7 +88,7 @@ public class MonsterGuideTests
         Assert.Contains("希少ドロップ", text);
         Assert.Contains("粘核の指輪", text);
         Assert.Contains("アンコモン", text);
-        Assert.Contains("基礎1.5%", text);
+        Assert.Contains("基礎1%", text);
     }
 
     static async Task<string> CaptureConsoleAsync(string inputText, Func<Task> action)

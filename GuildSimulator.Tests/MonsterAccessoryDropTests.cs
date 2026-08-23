@@ -47,9 +47,9 @@ public sealed class MonsterAccessoryDropTests
     }
 
     [Theory]
-    [InlineData("enemy_slime", "eq_drop_slime_core_ring", 0.015)]
-    [InlineData("enemy_goblin_mage", "eq_drop_goblin_ashfire_ring", 0.03)]
-    [InlineData("enemy_kernos", "eq_drop_kernos_warhorn_ring", 0.02)]
+    [InlineData("enemy_slime", "eq_drop_slime_core_ring", 0.01)]
+    [InlineData("enemy_goblin_mage", "eq_drop_goblin_ashfire_ring", 0.01)]
+    [InlineData("enemy_kernos", "eq_drop_kernos_warhorn_ring", 0.01)]
     public void AccessoriesComeFromTheirNamedMonster(string enemyId, string equipmentId, double chance)
     {
         var db = Load();

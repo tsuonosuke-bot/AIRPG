@@ -1407,5 +1407,348 @@
     "allowedSlots": [
       "Head"
     ]
+  },
+  {
+    "id": "eq_drop_goblin_captain_axe",
+    "displayName": "隊長の鬼刃斧",
+    "rarity": "Uncommon",
+    "shopTier": 2,
+    "type": 0,
+    "weaponType": 1,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d6",
+    "basePv": 3,
+    "maxStatBonus": 8,
+    "armorShred": 2,
+    "price": 190,
+    "weight": 6,
+    "bonus": {
+      "toHit": -3
+    }
+  },
+  {
+    "id": "eq_drop_kernos_greataxe",
+    "displayName": "ケルノスの断角大斧",
+    "rarity": "Rare",
+    "shopTier": 4,
+    "type": 0,
+    "weaponType": 1,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "2d4+1",
+    "basePv": 6,
+    "maxStatBonus": 9,
+    "armorShred": 2,
+    "isTwoHanded": true,
+    "price": 900,
+    "weight": 16,
+    "bonus": {
+      "toHit": -5,
+      "av": 1
+    }
+  },
+  {
+    "id": "eq_drop_sentinel_pike",
+    "displayName": "機巧衛兵の穿槍",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 2,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d6",
+    "basePv": 8,
+    "maxStatBonus": 8,
+    "armorPierce": 2,
+    "isTwoHanded": true,
+    "price": 560,
+    "weight": 11,
+    "bonus": {
+      "toHit": -2
+    }
+  },
+  {
+    "id": "eq_drop_bandit_longbow",
+    "displayName": "野盗の狙撃弓",
+    "rarity": "Uncommon",
+    "shopTier": 2,
+    "type": 0,
+    "weaponType": 3,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d4+1",
+    "basePv": 5,
+    "maxStatBonus": 6,
+    "isTwoHanded": true,
+    "price": 200,
+    "weight": 4,
+    "bonus": {
+      "toHit": 0,
+      "dv": 1
+    }
+  },
+  {
+    "id": "eq_drop_wyvern_flamewand",
+    "displayName": "竜炎の呪杖",
+    "rarity": "Rare",
+    "shopTier": 4,
+    "type": 0,
+    "weaponType": 4,
+    "armorType": 3,
+    "attackKind": "Magic",
+    "damageDice": "1d8",
+    "basePv": 8,
+    "maxStatBonus": 8,
+    "isTwoHanded": true,
+    "price": 620,
+    "weight": 5,
+    "bonus": {
+      "dv": -3
+    }
+  },
+  {
+    "id": "eq_drop_manta_windwand",
+    "displayName": "天帆の風杖",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 5,
+    "armorType": 3,
+    "attackKind": "Magic",
+    "damageDice": "1d4+1",
+    "basePv": 6,
+    "maxStatBonus": 5,
+    "isTwoHanded": true,
+    "price": 300,
+    "weight": 2,
+    "bonus": {
+      "toHit": 3,
+      "dv": 1
+    }
+  },
+  {
+    "id": "eq_drop_wraith_tidewand",
+    "displayName": "坑道の水霊杖",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 6,
+    "armorType": 3,
+    "attackKind": "Magic",
+    "damageDice": "1d6",
+    "basePv": 7,
+    "maxStatBonus": 6,
+    "isTwoHanded": true,
+    "price": 330,
+    "weight": 5,
+    "bonus": {
+      "mav": 4
+    }
+  },
+  {
+    "id": "eq_drop_golem_corewand",
+    "displayName": "ゴーレム核の地杖",
+    "rarity": "Rare",
+    "shopTier": 4,
+    "type": 0,
+    "weaponType": 7,
+    "armorType": 3,
+    "attackKind": "Magic",
+    "damageDice": "1d6",
+    "basePv": 8,
+    "maxStatBonus": 7,
+    "isTwoHanded": true,
+    "price": 640,
+    "weight": 8,
+    "bonus": {
+      "av": 4
+    }
+  },
+  {
+    "id": "eq_drop_necro_darkwand",
+    "displayName": "死霊術師の黒杖",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 8,
+    "armorType": 3,
+    "attackKind": "Magic",
+    "damageDice": "1d6+1",
+    "basePv": 7,
+    "maxStatBonus": 8,
+    "isTwoHanded": true,
+    "price": 340,
+    "weight": 4,
+    "bonus": {
+      "mav": -2,
+      "dv": -2,
+      "toHit": 1
+    }
+  },
+  {
+    "id": "eq_drop_whale_healhorn",
+    "displayName": "空鯨の癒し角笛",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 9,
+    "armorType": 3,
+    "attackKind": "Heal",
+    "healPower": 1.6,
+    "damageDice": "1d3",
+    "basePv": 3,
+    "maxStatBonus": 0,
+    "isTwoHanded": true,
+    "price": 480,
+    "weight": 3,
+    "bonus": {
+      "heal": 60
+    }
+  },
+  {
+    "id": "eq_drop_sporecap_mantle",
+    "displayName": "胞子茸の外套",
+    "rarity": "Uncommon",
+    "shopTier": 2,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 0,
+    "price": 210,
+    "weight": 3,
+    "bonus": {
+      "av": 2,
+      "mav": 4
+    }
+  },
+  {
+    "id": "eq_drop_animated_cuirass",
+    "displayName": "動甲冑の胸当て",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 2,
+    "price": 420,
+    "weight": 15,
+    "bonus": {
+      "av": 6,
+      "mav": 1,
+      "dv": -3
+    }
+  },
+  {
+    "id": "eq_drop_skyshark_hide",
+    "displayName": "空鮫革の胸鎧",
+    "rarity": "Rare",
+    "shopTier": 4,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 1,
+    "price": 700,
+    "weight": 10,
+    "bonus": {
+      "av": 7,
+      "dv": -1
+    }
+  },
+  {
+    "id": "eq_drop_goblin_horned_helm",
+    "displayName": "ゴブリンの角兜",
+    "rarity": "Uncommon",
+    "shopTier": 2,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 2,
+    "price": 180,
+    "weight": 5,
+    "bonus": {
+      "av": 2,
+      "threatWeight": 15
+    },
+    "allowedSlots": [
+      "Head"
+    ]
+  },
+  {
+    "id": "eq_drop_bandit_iron_mask",
+    "displayName": "野盗頭の鉄面",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 2,
+    "price": 400,
+    "weight": 6,
+    "bonus": {
+      "av": 3,
+      "san": 5,
+      "dv": -1
+    },
+    "allowedSlots": [
+      "Head"
+    ]
+  },
+  {
+    "id": "eq_drop_beesting_charm",
+    "displayName": "蜂針の耳飾り",
+    "rarity": "Uncommon",
+    "shopTier": 1,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 85,
+    "weight": 1,
+    "bonus": {
+      "toHit": 2,
+      "dv": -1
+    }
+  },
+  {
+    "id": "eq_drop_batwing_earring",
+    "displayName": "蝙蝠眼の耳環",
+    "rarity": "Uncommon",
+    "shopTier": 1,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 80,
+    "weight": 1,
+    "bonus": {
+      "dv": 2,
+      "av": -1
+    }
+  },
+  {
+    "id": "eq_drop_stormjelly_bead",
+    "displayName": "雷海月の帯電珠",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 360,
+    "weight": 1,
+    "bonus": {
+      "mpv": 2,
+      "mav": -1
+    }
+  },
+  {
+    "id": "eq_drop_leviathan_tideorb",
+    "displayName": "天洋の潮玉",
+    "rarity": "Legend",
+    "shopTier": 5,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 900,
+    "weight": 2,
+    "bonus": {
+      "hp": 30,
+      "san": 10,
+      "av": 2,
+      "mav": 4
+    }
   }
 ]
