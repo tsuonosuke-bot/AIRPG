@@ -167,13 +167,13 @@ public class RankTests
     [Fact]
     public void ManualRankUpGivesStatsMasteryAndUnlocksSkills()
     {
-        // 昇格報酬: 全能力+1 と 現在職業に習熟度+500。到達したスキルは同時に解禁される。
+        // 昇格報酬: 全能力+2 と 現在職業に習熟度+1000。到達したスキルは同時に解禁される。
         var lateSkill = new SkillMasterData { id = "skill_promo_late", skillName = "昇格記念スキル" };
         var cls = new ClassMasterData { id = "cls_promo", className = "昇格試験職" };
         cls.classSkills.Add(new ClassSkillEntry
         {
             skillId = lateSkill.id, Skill = lateSkill,
-            requiredClearCount = AdventurerData.RankUpMasteryGain, // ちょうど+500で開くしきい値
+            requiredClearCount = AdventurerData.RankUpMasteryGain, // ちょうど昇格報酬ぶんで開くしきい値
         });
         var adventurer = new AdventurerData(new AdventurerMasterData
         {
@@ -195,14 +195,15 @@ public class RankTests
         Assert.Equal(Rank.Min, result.PreviousRank);
         Assert.Equal(Rank.Min + 1, result.NewRank);
         Assert.Equal(Rank.Min + 1, adventurer.rank);
-        // 全能力+1（SIZ,APPも含む）
-        Assert.Equal(6, adventurer.vitality);
-        Assert.Equal(6, adventurer.mental);
-        Assert.Equal(6, adventurer.strength);
-        Assert.Equal(6, adventurer.agility);
-        Assert.Equal(6, adventurer.intelligence);
-        Assert.Equal(6, adventurer.constitution);
-        Assert.Equal(6, adventurer.appearance);
+        // 全能力+2（SIZ,APPも含む）
+        int expectedStat = 5 + AdventurerData.RankUpStatGain;
+        Assert.Equal(expectedStat, adventurer.vitality);
+        Assert.Equal(expectedStat, adventurer.mental);
+        Assert.Equal(expectedStat, adventurer.strength);
+        Assert.Equal(expectedStat, adventurer.agility);
+        Assert.Equal(expectedStat, adventurer.intelligence);
+        Assert.Equal(expectedStat, adventurer.constitution);
+        Assert.Equal(expectedStat, adventurer.appearance);
         // 習熟度+500 と、それによるスキル解禁。
         Assert.Equal(AdventurerData.RankUpMasteryGain, result.MasteryGained);
         Assert.Equal(AdventurerData.RankUpMasteryGain, adventurer.CurrentClassMastery);
