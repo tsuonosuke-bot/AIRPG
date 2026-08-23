@@ -345,9 +345,13 @@ public class AdventurerData : IUnitMember
         }
     }
 
-    /// <summary>ランクアップで一律に配る報酬。全能力+1と、その職業への習熟度加算。</summary>
-    public const int RankUpStatGain = 1;
-    public const int RankUpMasteryGain = 500;
+    /// <summary>
+    /// ランクアップで一律に配る報酬。全能力+2と、その職業への習熟度加算。
+    /// 維持費が恒久的に+<see cref="GuildManager.UpkeepGoldPerRank"/>G/Tになる代償に見合うよう、
+    /// 一度きりの報酬側をここで強めにしてある（旧: 能力+1・習熟度+500）。
+    /// </summary>
+    public const int RankUpStatGain = 2;
+    public const int RankUpMasteryGain = 1000;
 
     /// <summary>
     /// 昇格処理そのもの。<see cref="CanRankUp"/> が真のときだけ実行できる。

@@ -933,9 +933,11 @@ HP・士気・AV・mAV・DV・応急処置・狙われやすさ・遠征効果�
 | B → A | 4 | 75 |
 | A → S | 4 | 100 |
 
-昇格1回あたりの報酬は一律で、**全能力値 +`AdventurerData.RankUpStatGain`（=1）** と
-**現在の職業への習熟度 +`AdventurerData.RankUpMasteryGain`（=500）**（およびそこで解禁される
-スキル）です。維持費は既存の `GuildManager.CalculateAdventurerUpkeep` を通じて自動で上がります。
+昇格1回あたりの報酬は一律で、**全能力値 +`AdventurerData.RankUpStatGain`（=2）** と
+**現在の職業への習熟度 +`AdventurerData.RankUpMasteryGain`（=1000）**（およびそこで解禁される
+スキル）です。維持費は既存の `GuildManager.CalculateAdventurerUpkeep` を通じて自動で上がり、
+1ランクにつき恒久的に `GuildManager.UpkeepGoldPerRank`（=15G/T）増えます。報酬側をここまで
+強くしてあるのは、この恒久コストに見合う一度きりの見返りにするためです。
 昇格の内容は冒険者の遠征履歴とギルドの経済ログの双方に、スキル習得も含めた1行にまとめて記録されます。
 
 習熟度は職業ごとに別勘定で、一度覚えたスキルは職業を変えても失われません。
