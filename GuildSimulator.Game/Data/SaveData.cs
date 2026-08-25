@@ -8,7 +8,7 @@ namespace GuildSimulator.Game.Data;
 
 public class SaveGameData
 {
-    public const int CurrentVersion = 12;
+    public const int CurrentVersion = 13;
     public int saveVersion = CurrentVersion;
     public int currentTurn = 1;
     public GuildSaveData guild = new();
@@ -21,6 +21,7 @@ public class GuildSaveData
     public int gold;
     public int guildRank;
     public int guildPoints;
+    public int guildPointsThisRank;
     public List<string> economyLogs = new();
     public List<string> relicIds = new();
     public List<string> facilityIds = new();

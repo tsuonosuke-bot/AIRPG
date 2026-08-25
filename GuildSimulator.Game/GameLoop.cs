@@ -317,8 +317,8 @@ public static class GameLoop
         bool isActive = questManager.activeQuests.Any(q => q.def == promotion);
         if (isPosted || isActive) return;
 
-        int remaining = Math.Max(0, promotion.requiredGuildPoints - guild.GuildPoints);
-        Ui.Dim($"  昇格試験解禁まで: ギルドポイント {guild.GuildPoints}/{promotion.requiredGuildPoints}（あと{remaining}）");
+        int remaining = Math.Max(0, promotion.requiredGuildPoints - guild.GuildPointsThisRank);
+        Ui.Dim($"  昇格試験解禁まで: 現ランクGP {guild.GuildPointsThisRank}/{promotion.requiredGuildPoints}（あと{remaining}）");
     }
 
     static void ShowEconomyForecast(GuildManager guild, int upkeepPerTurn)

@@ -13,7 +13,7 @@ namespace GuildSimulator.Tests;
 public class FeatureExpansionTests
 {
     [Fact]
-    public void ShopStockRefreshesOnTurnOneAndThenTurnSix()
+    public void ShopAlwaysCarriesEveryUnlockedCommercialItem()
     {
         var guild = new GuildManager();
         var equipment = Enumerable.Range(1, 10).Select(i => new EquipmentMasterData
@@ -26,16 +26,14 @@ public class FeatureExpansionTests
         }).ToList();
 
         Assert.True(ShopService.RefreshIfNeeded(guild, 1, equipment, items));
-        var initialEquipment = new Dictionary<string, int>(guild.shopEquipmentStock);
-
+        Assert.Equal(equipment.Select(e => e.id).Order(), guild.shopEquipmentStock.Keys.Order());
+        Assert.Equal(items.Select(i => i.id).Order(), guild.shopConsumableStock.Keys.Order());
         Assert.False(ShopService.RefreshIfNeeded(guild, 5, equipment, items));
-        Assert.Equal(initialEquipment, guild.shopEquipmentStock);
-        Assert.True(ShopService.RefreshIfNeeded(guild, 6, equipment, items));
-        Assert.Equal(6, guild.LastShopRefreshTurn);
+        Assert.Equal(5, guild.LastShopRefreshTurn);
     }
 
     [Fact]
-    public void ShopStockAlwaysIncludesLowestRankArmor()
+    public void ShopStockAlwaysIncludesEveryUnlockedWeaponAndArmor()
     {
         var guild = new GuildManager();
         var lowestArmorIds = new[] { "eq_armor_low_1", "eq_armor_low_2" };
@@ -60,6 +58,7 @@ public class FeatureExpansionTests
             {
                 Assert.True(guild.shopEquipmentStock.ContainsKey(id), $"turn {turn} で {id} が売り出されていない");
             }
+            Assert.All(equipment, e => Assert.True(guild.shopEquipmentStock.ContainsKey(e.id)));
         }
     }
 

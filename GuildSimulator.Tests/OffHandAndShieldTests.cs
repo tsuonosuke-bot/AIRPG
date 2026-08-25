@@ -63,6 +63,7 @@ public class OffHandAndShieldTests
     [Fact]
     public void TheOffHandOnlySwingsSometimesAndNotAtAllWithoutAWeaponThere()
     {
+        using var random = GuildSimulator.Core.GameRandom.UseSeed(2468);
         Assert.Equal(15, QudCombat.OFF_HAND_BASE_CHANCE);
 
         var db = Load();

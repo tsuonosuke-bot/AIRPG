@@ -1750,5 +1750,126 @@
       "av": 2,
       "mav": 4
     }
+  },
+  {
+    "id": "eq_drop_wisp_flarewand",
+    "displayName": "灯火精の火杖",
+    "rarity": "Uncommon",
+    "shopTier": 2,
+    "type": 0,
+    "weaponType": 4,
+    "armorType": 3,
+    "attackKind": "Magic",
+    "damageDice": "1d4+1",
+    "basePv": 5,
+    "maxStatBonus": 8,
+    "price": 230,
+    "weight": 3,
+    "bonus": {
+      "toHit": 1,
+      "dv": -2
+    },
+    "isTwoHanded": true
+  },
+  {
+    "id": "eq_drop_harpy_windspear",
+    "displayName": "風哭きの羽槍",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 2,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d6",
+    "basePv": 8,
+    "maxStatBonus": 7,
+    "armorPierce": 2,
+    "price": 500,
+    "weight": 5,
+    "bonus": {
+      "toHit": -1,
+      "dv": 1
+    }
+  },
+  {
+    "id": "eq_drop_arc_sentinel_shield",
+    "displayName": "雷導機兵の蓄電盾",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 3,
+    "weaponType": 10,
+    "armorType": 1,
+    "blockChance": 40,
+    "blockAv": 12,
+    "price": 480,
+    "weight": 8,
+    "bonus": {
+      "mav": 3,
+      "dv": -1
+    },
+    "allowedSlots": [
+      "LeftHand"
+    ]
+  },
+  {
+    "id": "eq_drop_oracle_veil",
+    "displayName": "冥府の託宣頭巾",
+    "rarity": "Rare",
+    "shopTier": 4,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 0,
+    "price": 650,
+    "weight": 2,
+    "bonus": {
+      "av": 3,
+      "mav": 5,
+      "san": 15,
+      "threatWeight": -15
+    },
+    "allowedSlots": [
+      "Head"
+    ]
+  },
+  {
+    "id": "eq_drop_siren_windwand",
+    "displayName": "星嵐の歌杖",
+    "rarity": "Rare",
+    "shopTier": 4,
+    "type": 0,
+    "weaponType": 5,
+    "armorType": 3,
+    "attackKind": "Magic",
+    "damageDice": "1d6",
+    "basePv": 8,
+    "maxStatBonus": 5,
+    "price": 750,
+    "weight": 2,
+    "bonus": {
+      "toHit": 3,
+      "dv": 2
+    },
+    "isTwoHanded": true
+  },
+  {
+    "id": "eq_drop_void_dragon_helm",
+    "displayName": "虚空竜の角兜",
+    "rarity": "Legend",
+    "shopTier": 5,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 2,
+    "price": 1200,
+    "weight": 8,
+    "bonus": {
+      "hp": 30,
+      "av": 5,
+      "mav": 5,
+      "dv": -1,
+      "threatWeight": 20
+    },
+    "allowedSlots": [
+      "Head"
+    ]
   }
 ]

@@ -477,6 +477,18 @@
         "weight": 1,
         "minPhase": 16,
         "maxPhase": 0
+      },
+      {
+        "unitId": "unit_ember_wisp_pair",
+        "weight": 1,
+        "minPhase": 11,
+        "maxPhase": 15
+      },
+      {
+        "unitId": "unit_ember_wisp_ambush",
+        "weight": 1,
+        "minPhase": 16,
+        "maxPhase": 0
       }
     ],
     "treasureTable": [
@@ -829,6 +841,18 @@
         "weight": 1,
         "minPhase": 33,
         "maxPhase": 0
+      },
+      {
+        "unitId": "unit_amashiro_arc_sentinel",
+        "weight": 2,
+        "minPhase": 18,
+        "maxPhase": 28
+      },
+      {
+        "unitId": "unit_amashiro_arc_line",
+        "weight": 1,
+        "minPhase": 22,
+        "maxPhase": 32
       }
     ],
     "treasureTable": [
@@ -1107,6 +1131,42 @@
         "unitId": "unit_sky_whale",
         "weight": 2,
         "minPhase": 25,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_storm_harpy_pair",
+        "weight": 2,
+        "minPhase": 3,
+        "maxPhase": 12
+      },
+      {
+        "unitId": "unit_storm_harpy_school",
+        "weight": 2,
+        "minPhase": 6,
+        "maxPhase": 16
+      },
+      {
+        "unitId": "unit_tempest_siren",
+        "weight": 2,
+        "minPhase": 22,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_tempest_chorus",
+        "weight": 1,
+        "minPhase": 28,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_void_dragon",
+        "weight": 1,
+        "minPhase": 34,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_void_dragon_retinue",
+        "weight": 1,
+        "minPhase": 38,
         "maxPhase": 0
       }
     ],
@@ -1535,6 +1595,18 @@
         "unitId": "unit_wight_pair",
         "weight": 2,
         "minPhase": 12,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_crypt_oracle",
+        "weight": 2,
+        "minPhase": 19,
+        "maxPhase": 0
+      },
+      {
+        "unitId": "unit_crypt_oracle_procession",
+        "weight": 2,
+        "minPhase": 22,
         "maxPhase": 0
       }
     ],

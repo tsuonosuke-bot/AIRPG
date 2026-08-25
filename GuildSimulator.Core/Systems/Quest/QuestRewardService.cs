@@ -8,6 +8,16 @@ namespace GuildSimulator.Core.Systems.Quest;
 
 public class QuestRewardService
 {
+    /// <summary>GP進行を早めず、資金と育成だけを少し厚くする基本報酬係数。</summary>
+    public const float BaseGoldRewardMultiplier = 1.15f;
+    public const float BaseExpRewardMultiplier = 1.15f;
+
+    public static int AdjustedBaseGold(int baseGold) =>
+        (int)Math.Ceiling(Math.Max(0, baseGold) * BaseGoldRewardMultiplier);
+
+    public static int AdjustedBaseExp(int baseExp) =>
+        (int)Math.Floor(Math.Max(0, baseExp) * BaseExpRewardMultiplier);
+
     /// <summary>撤退時に受け取れる基本報酬の割合。道中の戦利品は減額せず全て持ち帰れる。</summary>
     public const float RetreatRewardRate = 0f;
 
@@ -97,13 +107,14 @@ public class QuestRewardService
     public void ApplyBaseRewards(QuestRun q, GuildManager guild, string prefix)
     {
         int baseGold = q.def.rewardGold;
+        int adjustedBaseGold = AdjustedBaseGold(baseGold);
 
         // 目標数はクエスト達成のための納品分。目標を超えた余剰分だけを買い取る。
         int surplusGathered = q.def.IsGatherQuest
             ? Math.Max(0, q.gatheredCount - q.def.gatherTargetCount)
             : 0;
         int gatherGold = surplusGathered * q.def.gatherGoldPerItem;
-        if (gatherGold > 0)
+        if (gatherGold > 0 && !q.retreated)
             q.logs.Add($"{prefix} {q.def.gatherItemName} 余剰 {surplusGathered}個 買取 +{gatherGold}G");
 
         float rate = q.retreated ? RetreatRewardRate : 1f;
@@ -113,15 +124,25 @@ public class QuestRewardService
         // 連れて行った顔ぶれのスキル（値切り・目利き・教導など）は報酬そのものに効く。
         var partySkills = PartySkillEffects.Of(q.formation);
 
-        int gold = (int)Math.Floor((baseGold + gatherGold) * rate
+        int gold = (int)Math.Floor((adjustedBaseGold + gatherGold) * rate
             * RelicSystem.GetGoldRewardMultiplier() * (1f + q.goldRewardBonusPercent / 100f)
             * partySkills.GoldMultiplier);
         guild.AddGold(gold, $"クエスト報酬: {q.def.questName}");
         string goldSkillNote = partySkills.goldPercent != 0 ? $" / スキル {partySkills.goldPercent:+#;-#;0}%" : "";
-        q.logs.Add($"{prefix} 資金 +{gold}G（基本 {baseGold}G{(gatherGold > 0 ? $" + 買取 {gatherGold}G" : "")}{goldSkillNote}）");
+        if (q.retreated)
+        {
+            int unpaidGold = adjustedBaseGold + gatherGold;
+            q.logs.Add($"{prefix} 資金 +{gold}G（撤退のため基本報酬{unpaidGold}Gは不支給）");
+        }
+        else
+        {
+            q.logs.Add($"{prefix} 資金 +{gold}G（基本 {baseGold}G + 活躍手当 {adjustedBaseGold - baseGold}G"
+                + $"{(gatherGold > 0 ? $" + 買取 {gatherGold}G" : "")}{goldSkillNote}）");
+        }
 
         int totalExp = (int)Math.Floor(
-            q.def.rewardExp * rate * (1f + q.expRewardBonusPercent / 100f) * partySkills.ExpMultiplier);
+            q.def.rewardExp * BaseExpRewardMultiplier * rate
+            * (1f + q.expRewardBonusPercent / 100f) * partySkills.ExpMultiplier);
         var members = q.formation.Where(x => x != null).ToList();
         int memberCount = members.Count;
         for (int i = 0; i < memberCount; i++)
@@ -142,7 +163,11 @@ public class QuestRewardService
         {
             int appearanceBonus = AppearanceSystem.GuildPointBonus(q.def.rewardGuildPoints, q.formation);
             int guildPoints = q.def.rewardGuildPoints + appearanceBonus;
-            guild.AddGuildPoints(guildPoints, $"クエストGP: {q.def.questName}");
+            // 昇格試験の報酬は累積実績には残すが、昇格後の次試験進捗には持ち越さない。
+            guild.AddGuildPoints(
+                guildPoints,
+                $"クエストGP: {q.def.questName}",
+                countTowardRankProgress: q.def.rankUpOnClear <= 0);
             q.logs.Add($"{prefix} ギルドポイント +{guildPoints}"
                 + (appearanceBonus > 0 ? $"（容姿ボーナス +{appearanceBonus}）" : ""));
         }

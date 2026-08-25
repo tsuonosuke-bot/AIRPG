@@ -1591,5 +1591,200 @@
       }
     ],
     "threat": 7
+  },
+  {
+    "id": "enemy_ember_wisp",
+    "baseName": "灯火のウィスプ",
+    "description": "流れる森の魔力だまりに生まれる小さな火精。後衛から揺らめく火弾を放つ。",
+    "exp": 9,
+    "vitality": 4,
+    "mental": 8,
+    "strength": 2,
+    "agility": 8,
+    "intelligence": 10,
+    "constitution": 4,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d3",
+    "skillIds": [
+      "skill_fireMastery_lv1"
+    ],
+    "naturalPv": 3,
+    "naturalAv": 2,
+    "naturalMav": 4,
+    "naturalAttackKind": "Magic",
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_wisp_flarewand",
+        "chance": 0.01,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
+    "threat": 2
+  },
+  {
+    "id": "enemy_storm_harpy",
+    "baseName": "風哭きのハーピー",
+    "description": "雲海の狭間を渡り、圧縮した風を刃にして飛ばす魔鳥。空魚の群れに紛れて獲物を狙う。",
+    "exp": 15,
+    "vitality": 7,
+    "mental": 8,
+    "strength": 5,
+    "agility": 8,
+    "intelligence": 10,
+    "constitution": 6,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "1d6",
+    "skillIds": [
+      "skill_windMastery_lv2"
+    ],
+    "naturalPv": 4,
+    "naturalAv": 2,
+    "naturalMav": 5,
+    "naturalAttackKind": "Magic",
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_harpy_windspear",
+        "chance": 0.006,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
+    "threat": 3
+  },
+  {
+    "id": "enemy_amashiro_arc_sentinel",
+    "baseName": "天城の雷導機兵",
+    "description": "竜紋石に蓄えた雷を射出する天城の機兵。動甲冑を盾にして後方から侵入者を焼く。",
+    "exp": 22,
+    "vitality": 10,
+    "mental": 10,
+    "strength": 6,
+    "agility": 8,
+    "intelligence": 12,
+    "constitution": 8,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "2d4",
+    "skillIds": [
+      "skill_fireMastery_lv3"
+    ],
+    "naturalPv": 5,
+    "naturalAv": 5,
+    "naturalMav": 7,
+    "naturalAttackKind": "Magic",
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_arc_sentinel_shield",
+        "chance": 0.006,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
+    "threat": 4
+  },
+  {
+    "id": "enemy_crypt_oracle",
+    "baseName": "冥府の託宣者",
+    "description": "墓所の死者の声を束ねる異形の司祭。黒い波動で生者の心身を同時に削る。",
+    "exp": 30,
+    "vitality": 12,
+    "mental": 14,
+    "strength": 4,
+    "agility": 10,
+    "intelligence": 14,
+    "constitution": 10,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "2d6",
+    "skillIds": [
+      "skill_darkMastery_lv3",
+      "skill_deathAura"
+    ],
+    "naturalPv": 6,
+    "naturalAv": 4,
+    "naturalMav": 8,
+    "naturalAttackKind": "Magic",
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_oracle_veil",
+        "chance": 0.006,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
+    "threat": 5
+  },
+  {
+    "id": "enemy_tempest_siren",
+    "baseName": "星嵐のセイレーン",
+    "description": "ミドルオーシャンの星明かりを歌に変える魔性。歌声が届いた場所へ暴風の刃が降り注ぐ。",
+    "exp": 38,
+    "vitality": 16,
+    "mental": 16,
+    "strength": 6,
+    "agility": 6,
+    "intelligence": 16,
+    "constitution": 16,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "2d8",
+    "skillIds": [
+      "skill_flight",
+      "skill_windMastery_lv3"
+    ],
+    "naturalPv": 6,
+    "naturalAv": 6,
+    "naturalMav": 10,
+    "naturalAttackKind": "Magic",
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_siren_windwand",
+        "chance": 0.006,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
+    "threat": 6
+  },
+  {
+    "id": "enemy_void_dragon",
+    "baseName": "虚空竜",
+    "description": "天界門の外縁から迷い込む黒い竜。光を呑む吐息は装甲をすり抜け、魔力そのものを砕く。",
+    "exp": 65,
+    "vitality": 24,
+    "mental": 18,
+    "strength": 14,
+    "agility": 8,
+    "intelligence": 18,
+    "constitution": 20,
+    "defaultWeaponId": "",
+    "defaultArmorId": "",
+    "naturalDamageDice": "3d6",
+    "skillIds": [
+      "skill_flight",
+      "skill_darkMastery_lv5"
+    ],
+    "naturalPv": 6,
+    "naturalAv": 7,
+    "naturalMav": 12,
+    "naturalAttackKind": "Magic",
+    "dropTable": [
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_void_dragon_helm",
+        "chance": 0.002,
+        "quantity": 1,
+        "unique": false
+      }
+    ],
+    "threat": 7
   }
 ]

@@ -36,6 +36,7 @@ public class CliPresentationTests
             id = "retreat",
             questName = "撤退テスト",
             totalPhases = 10,
+            rewardGold = 120,
         };
         var run = new QuestRun(quest, startedTurn: 1)
         {
@@ -80,6 +81,9 @@ public class CliPresentationTests
         Assert.Contains("クエスト終了サマリー", text);
         Assert.Contains("結果: 撤退", text);
         Assert.Contains("生還優先の方針", text);
+        Assert.Contains("+0G", text);
+        Assert.Contains("撤退のため基本報酬138Gは不支給", text);
+        Assert.DoesNotContain("活躍手当 18G", text);
         Assert.DoesNotContain("士気が尽き", text);
         Assert.Contains(
             $"生還者: Lv1 → Lv2（{AdventurerData.FormatGrownStats(grownStats)}）",
@@ -124,12 +128,12 @@ public class CliPresentationTests
         Assert.Contains("── 獲得内訳 ──", text);
         Assert.Contains("【基本報酬】", text);
         Assert.Contains("資金", text);
-        Assert.Contains("+80G", text);
-        Assert.Contains("（基本 80G）", text);
+        Assert.Contains("+92G", text);
+        Assert.Contains("（基本 80G + 活躍手当 12G）", text);
         Assert.Contains("ギルドポイント", text);
         Assert.Contains("【経験値】", text);
         Assert.Contains("報酬確認者", text);
-        Assert.Contains($"+{quest.rewardExp}", text);
+        Assert.Contains($"+{(int)Math.Floor(quest.rewardExp * QuestRewardService.BaseExpRewardMultiplier)}", text);
         Assert.Contains("【宝箱・戦利品】", text);
         Assert.Contains("ボスの宝箱", text);
         Assert.Contains("空っぽ", text);
@@ -171,6 +175,7 @@ public class CliPresentationTests
             id = "single",
             questName = "重複しない依頼",
             rewardGold = 50,
+            rewardExp = 10,
         };
         manager.questBoard.Add(new QuestBoardEntry(quest, postedTurn: 1));
 
@@ -181,7 +186,8 @@ public class CliPresentationTests
         Assert.Equal(1, CountOccurrences(text, quest.questName));
         Assert.Contains("1. 【F】", text);
         Assert.DoesNotContain("1. 1. 【F】", text);
-        Assert.Contains("基本報酬", text);
+        Assert.Contains("基本報酬（活躍手当込み） 資金:58G 経験値:11", text);
+        Assert.DoesNotContain("資金:50G", text);
         Assert.DoesNotContain("予想収支", text);
         Assert.DoesNotContain("宝箱・敵ドロップ・選択イベントは上の概算に含みません", text);
     }
@@ -340,7 +346,7 @@ public class CliPresentationTests
     }
 
     [Fact]
-    public async Task SoldOutEquipmentIsRemovedFromThePurchaseListImmediately()
+    public async Task CommercialEquipmentRemainsAvailableAfterPurchase()
     {
         var db = new GameMasterData();
         var item = new EquipmentMasterData
@@ -359,8 +365,30 @@ public class CliPresentationTests
             () => ShopScreen.ShowAsync(db, guild, currentTurn: 1));
 
         Assert.Contains("テストの剣 を購入しました", text);
-        Assert.Contains("今期の在庫は売り切れです", text);
-        Assert.Equal(0, guild.shopEquipmentStock[item.id]);
+        Assert.Contains("[常備]", text);
+        Assert.Equal(1, guild.shopEquipmentStock[item.id]);
+    }
+
+    [Fact]
+    public async Task ShopRendersEachEquipmentOnlyOncePerPurchaseMenu()
+    {
+        var db = new GameMasterData();
+        var item = new EquipmentMasterData
+        {
+            id = "single_shop_sword",
+            displayName = "一度だけ表示される剣",
+            type = EquipmentType.Weapon,
+            price = 10,
+        };
+        db.equipment[item.id] = item;
+        var guild = new GuildManager(startGold: 100);
+        guild.ReplaceShopStock(1, new Dictionary<string, int> { [item.id] = 1 }, new Dictionary<string, int>());
+
+        string text = await CaptureConsoleAsync(
+            "1\n0\n0\n",
+            () => ShopScreen.ShowAsync(db, guild, currentTurn: 1));
+
+        Assert.Equal(1, CountOccurrences(text, item.displayName));
     }
 
     static async Task<string> CaptureConsoleAsync(string inputText, Func<Task> action)

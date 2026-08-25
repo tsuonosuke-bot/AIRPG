@@ -158,7 +158,10 @@ public class QuestManager
     bool IsPostable(QuestMasterData q, int currentTurn)
     {
         if (q.rank > guild.GuildRank) return false;
-        if (guild.GuildPoints < q.requiredGuildPoints) return false;
+        int availableGuildPoints = q.rankUpOnClear > 0
+            ? guild.GuildPointsThisRank
+            : guild.GuildPoints;
+        if (availableGuildPoints < q.requiredGuildPoints) return false;
         if (!MeetsStoryRequirements(q)) return false;
         if (IsOneShot(q) && clearedOneShotIds.Contains(q.id)) return false;
         if (questCooldownUntilTurn.TryGetValue(q.id, out int cooldownUntil) && currentTurn < cooldownUntil)
@@ -1058,7 +1061,8 @@ public class QuestManager
         || activeQuests.Any(run => run.def.id == quest.id)
         || questBoard.Any(entry => entry.quest.id == quest.id)
         || (quest.rank <= guild.GuildRank
-            && guild.GuildPoints >= quest.requiredGuildPoints
+            && (quest.rankUpOnClear > 0 ? guild.GuildPointsThisRank : guild.GuildPoints)
+                >= quest.requiredGuildPoints
             && MeetsStoryRequirements(quest));
     public int GuildRank => guild.GuildRank;
 
@@ -1107,6 +1111,8 @@ public class QuestManager
 
         questBoard.RemoveAll(entry =>
             !MeetsStoryRequirements(entry.quest)
+            || (entry.quest.rankUpOnClear > 0
+                && guild.GuildPointsThisRank < entry.quest.requiredGuildPoints)
             || (IsOneShot(entry.quest) && clearedOneShotIds.Contains(entry.quest.id)));
 
         busyIds.Clear();

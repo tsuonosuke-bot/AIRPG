@@ -50,7 +50,8 @@ public static class QuestBoardScreen
                     ? "物語専用枠: 受注まで継続掲示"
                     : $"掲示期限: あと{e.RemainingTurns(currentTurn, questManager.BoardExpireTurns)}ターン";
                 string summary = $"達成条件: {objective.Summary}　危険度目安: {DifficultyLabel(diff)}"
-                    + $"\n基本報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}"
+                    + $"\n基本報酬（活躍手当込み） 資金:{QuestRewardService.AdjustedBaseGold(q.rewardGold)}G"
+                    + $" 経験値:{QuestRewardService.AdjustedBaseExp(q.rewardExp)} ギルドポイント:{q.rewardGuildPoints}"
                     + $"　{posting}";
 
                 entries.Add(new MenuOption(
@@ -92,7 +93,8 @@ public static class QuestBoardScreen
         Ui.WriteLine($"  所要目安: {estTurns}ターン（予定{q.totalPhases}エリア）");
         Ui.WriteLine($"  依頼ランク: {Rank.Label(q.rank)}　危険度目安: {DifficultyLabel(diff)}");
         Ui.Dim("    危険度の順: 楽勝 < 軽め < 標準 < 危険 < 過酷");
-        Ui.WriteLine($"  基本報酬 資金:{q.rewardGold}G 経験値:{q.rewardExp} ギルドポイント:{q.rewardGuildPoints}");
+        Ui.WriteLine($"  基本報酬（活躍手当込み） 資金:{QuestRewardService.AdjustedBaseGold(q.rewardGold)}G"
+            + $" 経験値:{QuestRewardService.AdjustedBaseExp(q.rewardExp)} ギルドポイント:{q.rewardGuildPoints}");
         if (q.IsGatherQuest)
             Ui.WriteLine($"  採取ルール: 目標超過1個につき +{q.gatherGoldPerItem}G / 必要数を集めた時点で帰還"
                 + $" / {q.totalPhases}エリアで足りなければ延長か撤退を選ぶ");

@@ -1114,5 +1114,149 @@
       null,
       null
     ]
+  },
+  {
+    "id": "unit_ember_wisp_pair",
+    "unitName": "灯火のウィスプ二灯",
+    "formationIds": [
+      null,
+      null,
+      null,
+      "enemy_ember_wisp",
+      "enemy_ember_wisp",
+      null
+    ]
+  },
+  {
+    "id": "unit_ember_wisp_ambush",
+    "unitName": "森火の待ち伏せ",
+    "formationIds": [
+      "enemy_forest_hopper",
+      "enemy_poison_spider",
+      null,
+      "enemy_ember_wisp",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_storm_harpy_pair",
+    "unitName": "風哭きのハーピー二羽",
+    "formationIds": [
+      null,
+      null,
+      null,
+      "enemy_storm_harpy",
+      "enemy_storm_harpy",
+      null
+    ]
+  },
+  {
+    "id": "unit_storm_harpy_school",
+    "unitName": "風哭きと空魚の群れ",
+    "formationIds": [
+      "enemy_skyfish",
+      "enemy_skyfish",
+      null,
+      "enemy_storm_harpy",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_amashiro_arc_sentinel",
+    "unitName": "天城の雷導機兵",
+    "formationIds": [
+      "enemy_amashiro_arc_sentinel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_amashiro_arc_line",
+    "unitName": "雷導機兵の防衛線",
+    "formationIds": [
+      "enemy_amashiro_animated_armor",
+      "enemy_amashiro_animated_armor",
+      null,
+      "enemy_amashiro_arc_sentinel",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_crypt_oracle",
+    "unitName": "冥府の託宣者",
+    "formationIds": [
+      null,
+      null,
+      null,
+      "enemy_crypt_oracle",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_crypt_oracle_procession",
+    "unitName": "託宣者の葬列",
+    "formationIds": [
+      "enemy_skeleton",
+      "enemy_zombie",
+      "enemy_skeleton",
+      "enemy_crypt_oracle",
+      "enemy_skeleton_archer",
+      null
+    ]
+  },
+  {
+    "id": "unit_tempest_siren",
+    "unitName": "星嵐のセイレーン",
+    "formationIds": [
+      null,
+      null,
+      null,
+      "enemy_tempest_siren",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_tempest_chorus",
+    "unitName": "星嵐の合唱群",
+    "formationIds": [
+      "enemy_sky_manta",
+      "enemy_storm_jelly",
+      null,
+      "enemy_tempest_siren",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_void_dragon",
+    "unitName": "虚空竜",
+    "formationIds": [
+      "enemy_void_dragon",
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "id": "unit_void_dragon_retinue",
+    "unitName": "虚空竜の眷属群",
+    "formationIds": [
+      "enemy_sky_whale",
+      "enemy_sky_shark",
+      "enemy_sky_manta",
+      "enemy_void_dragon",
+      null,
+      null
+    ]
   }
 ]

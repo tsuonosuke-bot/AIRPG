@@ -12,9 +12,58 @@ namespace GuildSimulator.Tests;
 public class QuestRewardTests
 {
     [Theory]
-    [InlineData(8, 30)]
-    [InlineData(9, 40)]
-    [InlineData(12, 70)]
+    [InlineData(120, 138, 15, 17)]
+    [InlineData(50, 58, 10, 11)]
+    public void AdjustedBaseRewardsMatchThePlayerFacingAmounts(
+        int baseGold, int expectedGold, int baseExp, int expectedExp)
+    {
+        Assert.Equal(expectedGold, QuestRewardService.AdjustedBaseGold(baseGold));
+        Assert.Equal(expectedExp, QuestRewardService.AdjustedBaseExp(baseExp));
+    }
+
+    [Fact]
+    public void RetreatLogClearlyMarksTheAdjustedBaseRewardAsUnpaid()
+    {
+        var definition = new QuestMasterData
+        {
+            id = "retreat_reward",
+            questName = "撤退報酬テスト",
+            rewardGold = 120,
+            rewardExp = 15,
+        };
+        var run = new QuestRun(definition, startedTurn: 1) { retreated = true };
+        var guild = new GuildManager(startGold: 0);
+
+        new QuestRewardService().ApplyBaseRewards(run, guild, "[報酬]");
+
+        Assert.Equal(0, guild.Gold);
+        Assert.Contains(run.logs, line => line.Contains("資金 +0G（撤退のため基本報酬138Gは不支給）"));
+        Assert.DoesNotContain(run.logs, line => line.Contains("活躍手当 18G"));
+    }
+
+    [Fact]
+    public void PromotionRewardDoesNotAdvanceTheNextPromotionExam()
+    {
+        var definition = new QuestMasterData
+        {
+            id = "promotion",
+            questName = "昇格試験",
+            rankUpOnClear = 1,
+            rewardGuildPoints = 80,
+        };
+        var run = new QuestRun(definition, startedTurn: 1);
+        var guild = new GuildManager(startGold: 0, startRank: 2);
+
+        new QuestRewardService().ApplyBaseRewards(run, guild, "[報酬]");
+
+        Assert.Equal(80, guild.GuildPoints);
+        Assert.Equal(0, guild.GuildPointsThisRank);
+    }
+
+    [Theory]
+    [InlineData(8, 35)]
+    [InlineData(9, 45)]
+    [InlineData(12, 75)]
     public void GatherQuestPaysBaseRewardPlusSurplusOnly(int gatheredCount, int expectedGold)
     {
         var definition = new QuestMasterData

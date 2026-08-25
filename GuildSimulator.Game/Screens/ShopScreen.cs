@@ -17,43 +17,51 @@ public static class ShopScreen
             Ui.BeginScreen();
             Ui.Header("商店");
             Ui.WriteLine($"  所持金: {guild.Gold}G");
-            Ui.WriteLine($"  品ぞろえ更新: Turn {guild.LastShopRefreshTurn + ShopService.RefreshIntervalTurns}"
-                + (refreshed ? "  [入荷しました]" : ""));
+            Ui.Dim("  解禁済みの市販品はいつでも購入できます"
+                + (refreshed ? "  [品ぞろえ更新]" : ""));
             Ui.WriteLine();
 
             string line = await Ui.SelectAsync("選択", new[]
             {
-                new MenuOption("1", "装備を購入する"),
-                new MenuOption("2", "消費アイテムを購入する"),
-                new MenuOption("3", "倉庫の装備を売却する"),
+                new MenuOption("1", "武器を購入する"),
+                new MenuOption("2", "防具を購入する"),
+                new MenuOption("3", "装飾品を購入する"),
+                new MenuOption("4", "消費アイテムを購入する"),
+                new MenuOption("5", "倉庫の装備を売却する"),
                 new MenuOption("0", "戻る", Style: TextStyle.Dim),
             });
-            if (line == "1") await BuyAsync(db, guild);
-            else if (line == "2") await BuyConsumablesAsync(db, guild);
-            else if (line == "3") await SellAsync(guild);
+            if (line == "1") await BuyEquipmentAsync(db, guild, EquipmentType.Weapon, "武器");
+            else if (line == "2") await BuyEquipmentAsync(db, guild, EquipmentType.Armor, "防具");
+            else if (line == "3") await BuyEquipmentAsync(db, guild, EquipmentType.Accessory, "装飾品");
+            else if (line == "4") await BuyConsumablesAsync(db, guild);
+            else if (line == "5") await SellAsync(guild);
             else return;
         }
     }
 
-    static async Task BuyAsync(GameMasterData db, GuildManager guild)
+    static async Task BuyEquipmentAsync(
+        GameMasterData db,
+        GuildManager guild,
+        EquipmentType equipmentType,
+        string categoryName)
     {
         while (true)
         {
-            // 武器→防具の順、価格昇順で並べる。
+            // 選んだカテゴリ内を価格昇順で並べる。
             var items = guild.shopEquipmentStock
-                .Where(kv => kv.Value > 0 && db.equipment.ContainsKey(kv.Key))
+                .Where(kv => db.equipment.ContainsKey(kv.Key))
                 .Select(kv => db.equipment[kv.Key])
-                .OrderBy(e => e.type)
-                .ThenBy(e => e.price)
+                .Where(e => e.type == equipmentType)
+                .OrderBy(e => e.price)
                 .ToList();
 
             Ui.BeginScreen();
-            Ui.Header("装備を購入");
+            Ui.Header($"{categoryName}を購入");
             Ui.WriteLine($"  所持金: {guild.Gold}G");
             Ui.WriteLine();
             if (items.Count == 0)
             {
-                Ui.Dim("  今期の在庫は売り切れです");
+                Ui.Dim($"  現在購入できる{categoryName}はありません");
                 await Ui.PauseAsync();
                 return;
             }
@@ -67,15 +75,9 @@ public static class ShopScreen
                 string ownedTag = owned > 0 ? $"  (所持x{owned})" : "";
                 bool affordable = guild.Gold >= e.price;
                 string price = affordable ? $"{e.price}G" : $"{e.price}G[不足]";
-                int shopCount = guild.shopEquipmentStock[e.id];
-                Ui.Write($"  {i + 1}. [{kind}] ");
-                Ui.WriteRarityName(e.displayName, e.rarity);
-                Ui.WriteLine($"  {price} 在庫x{shopCount}{ownedTag}");
-                Ui.Dim($"       {DescribeEquip(e)}");
-
                 options.Add(new MenuOption(
                     (i + 1).ToString(),
-                    $"[{kind}] {e.displayName}  {price} 在庫x{shopCount}{ownedTag}",
+                    $"[{kind}] {e.displayName}  {price} [常備]{ownedTag}",
                     DescribeEquip(e),
                     affordable ? Ui.RarityStyle(e.rarity) : TextStyle.Dim));
             }
@@ -93,7 +95,6 @@ public static class ShopScreen
             if (!await Ui.ConfirmAsync($"{item.displayName} を {item.price}G で購入しますか？")) continue;
             if (guild.TryBuyEquipment(item))
             {
-                guild.shopEquipmentStock[item.id]--;
                 Ui.Info($"{item.displayName} を購入しました（倉庫へ）");
             }
             else
@@ -107,7 +108,7 @@ public static class ShopScreen
         while (true)
         {
             var items = guild.shopConsumableStock
-                .Where(kv => kv.Value > 0 && db.consumables.ContainsKey(kv.Key))
+                .Where(kv => db.consumables.ContainsKey(kv.Key))
                 .Select(kv => db.consumables[kv.Key])
                 .OrderBy(c => c.price)
                 .ToList();
@@ -116,7 +117,7 @@ public static class ShopScreen
             Ui.WriteLine($"  所持金: {guild.Gold}G");
             if (items.Count == 0)
             {
-                Ui.Dim("  今期の在庫は売り切れです");
+                Ui.Dim("  現在購入できる消費アイテムはありません");
                 await Ui.PauseAsync();
                 return;
             }
@@ -125,15 +126,9 @@ public static class ShopScreen
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i];
-                Ui.Write($"  {i + 1}. ");
-                Ui.WriteRarityName(item.displayName, item.rarity);
-                Ui.WriteLine($"  {item.price}G 在庫x{guild.shopConsumableStock[item.id]}"
-                    + $" (所持x{guild.GetConsumableCount(item)})");
-                Ui.Dim($"       {item.description}");
-
                 options.Add(new MenuOption(
                     (i + 1).ToString(),
-                    $"{item.displayName}  {item.price}G 在庫x{guild.shopConsumableStock[item.id]}"
+                    $"{item.displayName}  {item.price}G [常備]"
                         + $" (所持x{guild.GetConsumableCount(item)})",
                     item.description,
                     guild.Gold >= item.price ? Ui.RarityStyle(item.rarity) : TextStyle.Dim));
@@ -151,7 +146,6 @@ public static class ShopScreen
             if (!await Ui.ConfirmAsync($"{chosen.displayName} を {chosen.price}G で購入しますか？")) continue;
             guild.SpendGold(chosen.price, $"購入: {chosen.displayName}");
             guild.AddConsumable(chosen);
-            guild.shopConsumableStock[chosen.id]--;
             Ui.Info($"{chosen.displayName} を購入しました");
             await Ui.PauseAsync();
         }
@@ -180,10 +174,6 @@ public static class ShopScreen
             {
                 var st = stock[i];
                 string kind = st.item.type switch { EquipmentType.Weapon => "武器", EquipmentType.Accessory => "装飾", _ => "防具" };
-                Ui.Write($"  {i + 1}. [{kind}] ");
-                Ui.WriteRarityName(st.item.displayName, st.item.rarity);
-                Ui.WriteLine($"  x{st.count}  売値{GuildManager.SellPrice(st.item)}G/個");
-
                 options.Add(new MenuOption(
                     (i + 1).ToString(),
                     $"[{kind}] {st.item.displayName}  x{st.count}",

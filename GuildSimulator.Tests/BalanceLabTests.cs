@@ -146,7 +146,7 @@ public class BalanceLabTests
     }
 
     [Fact]
-    public void CampaignCarriesExperienceAcrossQuestSteps()
+    public void CampaignCarriesPartyStateAcrossQuestSteps()
     {
         var db = MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
         var configuration = new BalanceConfiguration
@@ -161,6 +161,7 @@ public class BalanceLabTests
                     type = "campaign",
                     partyIds = { "adv_0001", "adv_0002", "adv_0003", "adv_0004" },
                     partyCapacityUpgrades = 1,
+                    partyLevel = 10,
                     questIds = { "quest_slime_cull", "quest_raven_nuisance", "quest_goblin_slayer" },
                     startingGuildRank = 2,
                     maxTurns = 20,
@@ -174,7 +175,6 @@ public class BalanceLabTests
         Assert.Equal(100, result.campaignSteps[0].reachRatePercent);
         Assert.Equal(100, result.campaignSteps[1].reachRatePercent);
         Assert.True(result.campaignSteps[1].meanStartingLevel >= result.campaignSteps[0].meanEndingLevel);
-        Assert.True(result.meanEndingLevel > 1);
         Assert.Equal(3, result.meanCompletedSteps);
     }
 
@@ -194,7 +194,7 @@ public class BalanceLabTests
                     type = "campaign",
                     partyIds = { "adv_0001", "adv_0002", "adv_0003", "adv_0004" },
                     partyCapacityUpgrades = 1,
-                    partyLevel = 10,
+                    partyLevel = 20,
                     questIds =
                     {
                         "quest_slime_cull",

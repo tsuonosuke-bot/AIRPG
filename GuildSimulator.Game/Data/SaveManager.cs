@@ -96,6 +96,7 @@ public static class SaveManager
         gold = guild.Gold,
         guildRank = guild.GuildRank,
         guildPoints = guild.GuildPoints,
+        guildPointsThisRank = guild.GuildPointsThisRank,
         economyLogs = new List<string>(guild.economyLogs),
         relicIds = guild.relics.Select(r => r.id).ToList(),
         facilityIds = guild.facilities.Select(f => f.id).ToList(),
@@ -282,7 +283,11 @@ public static class SaveManager
         var adventurerMasterById = db.allAdventurers.ToDictionary(a => a.id);
 
         var guild = new GuildManager(startGold: data.guild.gold, startRank: data.guild.guildRank);
-        guild.RestoreEconomy(data.guild.gold, data.guild.guildRank, data.guild.guildPoints);
+        guild.RestoreEconomy(
+            data.guild.gold,
+            data.guild.guildRank,
+            data.guild.guildPoints,
+            data.guild.guildPointsThisRank);
         guild.economyLogs.Clear();
         guild.economyLogs.AddRange(data.guild.economyLogs);
 

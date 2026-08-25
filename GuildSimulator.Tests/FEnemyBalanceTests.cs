@@ -15,26 +15,26 @@ public class FEnemyBalanceTests
         var slime = new EnemyData(db.enemies["enemy_slime"]);
         Assert.Equal(1, slime.Threat);
         Assert.Equal("1d2", slime.DamageDice);
-        Assert.Equal(0, EffectivePv(slime, isFront: true));
+        Assert.Equal(1, EffectivePv(slime, isFront: true));
 
         var goblin = new EnemyData(db.enemies["enemy_goblin"]);
         Assert.Equal(1, goblin.Threat);
         Assert.Null(goblin.Weapon);
         Assert.Equal("1d2", goblin.DamageDice);
         Assert.Equal(AdventurerData.UNARMED_PV, goblin.WeaponBasePv);
-        Assert.Equal(0, EffectivePv(goblin, isFront: true));
+        Assert.Equal(1, EffectivePv(goblin, isFront: true));
 
         var thrower = new EnemyData(db.enemies["enemy_goblin_thrower"]);
         Assert.Equal(1, thrower.Threat);
         Assert.Equal("1d2", thrower.DamageDice);
-        Assert.Equal(2, EffectivePv(thrower, isFront: false));
+        Assert.Equal(3, EffectivePv(thrower, isFront: false));
         Assert.Equal(6, thrower.master.exp);
 
         var lupus = new EnemyData(db.enemies["enemy_forest_wolf"]);
         Assert.Equal(1, lupus.Threat);
         Assert.Equal("ルプス", lupus.Name);
         Assert.Equal("1d3", lupus.DamageDice);
-        Assert.Equal(3, EffectivePv(lupus, isFront: true));
+        Assert.Equal(4, EffectivePv(lupus, isFront: true));
         Assert.Equal(30, lupus.GetFinalCombatStats().hp);
         Assert.Equal(0, lupus.GetFinalCombatStats().av);
         Assert.Equal(6, lupus.master.exp);
@@ -43,7 +43,7 @@ public class FEnemyBalanceTests
         Assert.Equal(1, malfisa.Threat);
         Assert.Equal("マルフィサ", malfisa.Name);
         Assert.Equal("1d2+1", malfisa.DamageDice);
-        Assert.Equal(2, EffectivePv(malfisa, isFront: true));
+        Assert.Equal(3, EffectivePv(malfisa, isFront: true));
         Assert.Equal(30, malfisa.GetFinalCombatStats().hp);
         Assert.Equal(1, malfisa.GetFinalCombatStats().av);
         Assert.Equal(6, malfisa.master.exp);

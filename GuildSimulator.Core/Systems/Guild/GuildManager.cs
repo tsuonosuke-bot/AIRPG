@@ -22,6 +22,8 @@ public class GuildManager
     public int Gold { get; private set; }
     public int GuildRank { get; private set; }
     public int GuildPoints { get; private set; }
+    /// <summary>現在のギルドランクになってから獲得したGP。次の昇格試験の解禁に使う。</summary>
+    public int GuildPointsThisRank { get; private set; }
     public List<RelicMasterData> relics = new();
     public List<FacilityMasterData> facilities = new();
     public List<string> economyLogs = new();
@@ -57,9 +59,10 @@ public class GuildManager
 
     public void SpendGold(int amount, string reason) => AddGold(-amount, reason);
 
-    public void AddGuildPoints(int amount, string reason)
+    public void AddGuildPoints(int amount, string reason, bool countTowardRankProgress = true)
     {
         GuildPoints += amount;
+        if (countTowardRankProgress) GuildPointsThisRank += amount;
         economyLogs.Add($"{reason}: ギルドポイント +{amount}（合計 {GuildPoints}）");
     }
 
@@ -67,6 +70,7 @@ public class GuildManager
     {
         if (amount <= 0 || IsMaxGuildRank) return;
         GuildRank = Rank.Clamp(GuildRank + amount);
+        GuildPointsThisRank = 0;
         economyLogs.Add($"{reason}: 認定ランク → {GuildRankLabel}");
     }
 
@@ -101,11 +105,12 @@ public class GuildManager
     }
 
     /// <summary>セーブデータからの復元専用。経済ログは追加しない。</summary>
-    public void RestoreEconomy(int gold, int guildRank, int guildPoints)
+    public void RestoreEconomy(int gold, int guildRank, int guildPoints, int guildPointsThisRank = 0)
     {
         Gold = gold;
         GuildRank = Rank.Clamp(guildRank);
         GuildPoints = guildPoints;
+        GuildPointsThisRank = Math.Max(0, guildPointsThisRank);
     }
 
     /// <summary>敵を図鑑へ登録する。初遭遇ならtrue、登録済みならfalse。</summary>

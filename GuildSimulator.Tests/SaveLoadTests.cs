@@ -124,6 +124,7 @@ public class SaveLoadTests
             Assert.Equal(guild.Gold, loaded.Guild.Gold);
             Assert.Equal(guild.GuildRank, loaded.Guild.GuildRank);
             Assert.Equal(guild.GuildPoints, loaded.Guild.GuildPoints);
+            Assert.Equal(guild.GuildPointsThisRank, loaded.Guild.GuildPointsThisRank);
             Assert.Equal(guild.economyLogs, loaded.Guild.economyLogs);
             Assert.Equal(
                 discoveredEnemies.Select(enemy => enemy.id).OrderBy(id => id),
@@ -205,6 +206,7 @@ public class SaveLoadTests
     {
         var db = LoadDb();
         var guild = new GuildManager(startGold: 200, startRank: 1);
+        guild.AddGuildPoints(42, "セーブテスト");
         var questManager = new QuestManager(guild);
         var clueOrder = db.clues.Keys.Reverse().ToArray();
 

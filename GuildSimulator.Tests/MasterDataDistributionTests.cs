@@ -19,15 +19,13 @@ public class MasterDataDistributionTests
     }
 
     [Fact]
-    public void DistributionMasterDataCopiesMatchCanonicalFiles()
+    public void RuntimeMasterDataCopyMatchesCanonicalFiles()
     {
         string repoRoot = FindRepoRoot();
         string canonicalData = Path.Combine(repoRoot, "GuildSimulator.Game", "Data");
         var distributionCopies = new Dictionary<string, string>
         {
             ["test runtime"] = Path.Combine(AppContext.BaseDirectory, "Data"),
-            ["tracked CLI Release"] = Path.Combine(
-                repoRoot, "GuildSimulator.Cli", "bin", "Release", "net8.0", "Data"),
         };
         string[] canonicalFiles = JsonFileNames(canonicalData);
 

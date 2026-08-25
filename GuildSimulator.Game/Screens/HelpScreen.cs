@@ -87,7 +87,8 @@ public static class HelpScreen
         Ui.WriteLine($"  ・維持費          : ギルド基本{GuildManager.GuildBaseUpkeepGoldPerTurn}G＋所属冒険者のレベル合計×{GuildManager.UpkeepGoldPerLevel}G＋建設済み施設に応じた毎ターンの固定支出。");
         Ui.WriteLine($"                      冒険者の賃金は認定ランクが1つ上がるごとに{GuildManager.UpkeepGoldPerRank}Gずつ増える（希少さは関係しない）。");
         Ui.WriteLine("                      遺物の効果でこの合計にさらに倍率がかかることがある（実際に引かれる額が実効維持費）。");
-        Ui.WriteLine("  ・ギルドポイント  : クエストクリアで得る昇格試験の解禁ポイント。撤退では入らない。");
+        Ui.WriteLine("  ・ギルドポイント  : クエストクリアで得る実績。撤退では入らない。");
+        Ui.WriteLine("                      昇格試験には累積値ではなく、現在のランクになってから得たGPを使う。");
         Ui.WriteLine("  ・ギルドランク    : 昇格試験（緊急クエスト）に正規クリアすると上がる。");
         Ui.WriteLine("                      ランクが上がると受注できるクエストの幅が広がる。");
         Ui.WriteLine($"  ・ランク表記      : {string.Join(" → ", RankLadder())} の{Rank.Max}段階。{Rank.Label(Rank.Min)}が最も低く、{Rank.Label(Rank.Max)}が最高。");
@@ -111,7 +112,7 @@ public static class HelpScreen
         Ui.WriteLine("  ・掲示期限        : 受注されなかったクエストは掲示から一定ターンで掲示板から消える。");
         Ui.WriteLine("                      残りターン数はクエストボードの各クエストに表示される。");
         Ui.WriteLine("  ・緊急クエスト    : 通常枠とは別枠に掲示される特別なクエスト。昇格試験もこれに含まれる。");
-        Ui.WriteLine("  ・昇格試験        : 必要ギルドポイントを満たすと出現する一度きりのクエスト。");
+        Ui.WriteLine("  ・昇格試験        : 現在のランクになってから必要GPを稼ぐと出現する一度きりのクエスト。");
         Ui.WriteLine("                      クリアするとギルドランクが上がる（撤退・全滅ではランクは上がらない）。");
         Ui.WriteLine("  ・編成相対評価    : 人数・平均認定ランク・通常遭遇の中心脅威・確定ボス・負傷状態による目安。");
         Ui.WriteLine("                      最大脅威は遭遇見込みと分けて表示する。装備・相性・乱数は含まず、勝敗は保証しない。");
@@ -297,6 +298,7 @@ public static class HelpScreen
         Ui.WriteLine("     ・敵にレベルはない。能力値はマスタに書かれた値がそのまま使われる。");
         Ui.WriteLine("       強さの段階は倍率ではなく別々の個体で表す");
         Ui.WriteLine("       （はぐれゴブリン → ゴブリン → ゴブリン兵士 → ゴブリン隊長）。");
+        Ui.WriteLine($"     ・戦闘時は敵全体にHP×{UnitCalculator.EnemyHpMultiplier:0.##}、命中+{UnitCalculator.EnemyToHitBonus}、PV/mPV+{UnitCalculator.EnemyPvBonus}の圧力補正が入る。");
         Ui.WriteLine($"     ・敵の脅威度は冒険者と同じ{Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。能力値には影響せず、");
         Ui.WriteLine("       遭遇時の士気の削られ方と、クエストボードの難易度表示に使われる。");
         Ui.WriteLine("     ・獣は防具を着ていなくても、甲殻や毛皮のぶんのAV・mAVを持つ。");
@@ -634,7 +636,7 @@ public static class HelpScreen
         Ui.WriteLine("  ・装備            : 商店で購入・売却し、冒険者一覧画面で着せ替えできる。");
         Ui.WriteLine("  ・レアリティ      : コモン、アンコモン、レア、ユニーク、レジェンドの順に希少。");
         Ui.WriteLine("  ・消費アイテム    : 出発前に最大2個選び、出発時に消費してクエスト中だけ効果を得る。");
-        Ui.WriteLine("  ・商店            : 品ぞろえと在庫は5ターンごと（Turn 1、6、11…）に更新される。");
+        Ui.WriteLine("  ・商店            : 解禁済みの市販品は常備。武器・防具・装飾品を分けて選べる。");
         if (GameFeatures.RelicsEnabled)
         {
             Ui.WriteLine("  ・遺物            : ギルド全体に常時効果を及ぼす特別なアイテム。クエストの選択報酬や");

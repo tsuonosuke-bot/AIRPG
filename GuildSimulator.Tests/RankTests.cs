@@ -3,6 +3,7 @@ using GuildSimulator.Core.MasterData;
 using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
+using GuildSimulator.Core.Systems.Quest;
 using Xunit;
 
 namespace GuildSimulator.Tests;
@@ -244,6 +245,76 @@ public class RankTests
         Assert.Equal(Rank.Max, guild.GuildRank);
         Assert.Equal("S", guild.GuildRankLabel);
         Assert.True(guild.IsMaxGuildRank);
+    }
+
+    [Fact]
+    public void PromotionUsesPointsEarnedInTheCurrentRankAndResetsThemOnRankUp()
+    {
+        var guild = new GuildManager(startGold: 100, startRank: Rank.Min);
+        guild.RestoreEconomy(100, Rank.Min, guildPoints: 5_000, guildPointsThisRank: 0);
+        var manager = new QuestManager(guild);
+        var promotion = new QuestMasterData
+        {
+            id = "promotion",
+            rank = Rank.Min,
+            isEmergencyQuest = true,
+            rankUpOnClear = 1,
+            requiredGuildPoints = 50,
+        };
+
+        manager.FillBoard(new[] { promotion }, currentTurn: 1);
+        Assert.Empty(manager.questBoard);
+
+        guild.AddGuildPoints(50, "現ランクでの依頼実績");
+        manager.FillBoard(new[] { promotion }, currentTurn: 2);
+        Assert.Contains(manager.questBoard, entry => entry.quest == promotion);
+
+        guild.RankUp(1, "昇格試験");
+        guild.AddGuildPoints(80, "昇格試験報酬", countTowardRankProgress: false);
+        Assert.Equal(5_130, guild.GuildPoints);
+        Assert.Equal(0, guild.GuildPointsThisRank);
+    }
+
+    [Fact]
+    public void LoadingAnOldBoardRemovesPromotionPostedFromLifetimePointsAlone()
+    {
+        var guild = new GuildManager(startGold: 100, startRank: 2);
+        guild.RestoreEconomy(100, 2, guildPoints: 5_000, guildPointsThisRank: 0);
+        var promotion = new QuestMasterData
+        {
+            id = "stale-promotion",
+            rank = 2,
+            isEmergencyQuest = true,
+            rankUpOnClear = 1,
+            requiredGuildPoints = 200,
+        };
+        var manager = new QuestManager(guild);
+
+        manager.RestoreState(
+            new() { new QuestBoardEntry(promotion, postedTurn: 1) },
+            new(),
+            Array.Empty<string>());
+
+        Assert.Empty(manager.questBoard);
+    }
+
+    [Fact]
+    public void EnemyBattlePressureAddsTwentyFivePercentHpAccuracyAndPenetration()
+    {
+        var master = new EnemyMasterData
+        {
+            id = "pressure-test", baseName = "圧力試験", vitality = 4, constitution = 0, agility = 10,
+        };
+        var enemy = new EnemyData(master);
+        IUnitMember?[] formation = { enemy, null, null, null, null, null };
+
+        var raw = enemy.GetFinalCombatStats();
+        var pressured = Assert.Single(UnitCalculator.CalcPerMember(formation, isAllySide: false)).stats;
+
+        Assert.Equal((int)Math.Ceiling(raw.hp * UnitCalculator.EnemyHpMultiplier), pressured.hp);
+        Assert.Equal(raw.toHit + UnitCalculator.EnemyToHitBonus, pressured.toHit);
+        Assert.Equal(raw.pv + UnitCalculator.EnemyPvBonus, pressured.pv);
+        Assert.Equal(raw.mpv + UnitCalculator.EnemyPvBonus, pressured.mpv);
     }
 
     [Fact]

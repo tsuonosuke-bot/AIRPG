@@ -7,6 +7,11 @@ namespace GuildSimulator.Core.Systems.Battle;
 
 public static class UnitCalculator
 {
+    /// <summary>敵全体の戦闘圧を調整する共通係数。マスタ上の個体差はそのまま保つ。</summary>
+    public const float EnemyHpMultiplier = 1.25f;
+    public const int EnemyToHitBonus = 1;
+    public const int EnemyPvBonus = 1;
+
     // isAllySide: レリックのUnitバフは冒険者側にのみ適用する。敵側の計算では常にfalseを渡すこと。
     public static UnitStats Calc(IUnitMember?[] members, bool isAllySide)
     {
@@ -53,6 +58,10 @@ public static class UnitCalculator
             u.critRange += relicAdd.critRange; u.extraAttacks += relicAdd.extraAttacks;
             ApplyMulToStats(ref u, relicMul);
         }
+        else
+        {
+            ApplyEnemyPressure(ref u);
+        }
 
         u.hp = Math.Max(1, u.hp);
         return u;
@@ -90,6 +99,7 @@ public static class UnitCalculator
             ApplyMulToBlock(ref s, auraMul);
             s += relicAdd;
             ApplyMulToBlock(ref s, relicMul);
+            if (!isAllySide) ApplyEnemyPressure(ref s);
             s.hp = Math.Max(1, s.hp);
             result[i] = (m, s);
         }
@@ -177,5 +187,21 @@ public static class UnitCalculator
         u.hp = (int)Math.Floor(u.hp * m.hp);
         u.san = (int)Math.Floor(u.san * m.san);
         u.heal = (int)Math.Floor(u.heal * m.heal);
+    }
+
+    static void ApplyEnemyPressure(ref StatBlock s)
+    {
+        s.hp = (int)Math.Ceiling(s.hp * EnemyHpMultiplier);
+        s.toHit += EnemyToHitBonus;
+        s.pv += EnemyPvBonus;
+        s.mpv += EnemyPvBonus;
+    }
+
+    static void ApplyEnemyPressure(ref UnitStats u)
+    {
+        u.hp = (int)Math.Ceiling(u.hp * EnemyHpMultiplier);
+        u.toHit += EnemyToHitBonus;
+        u.pv += EnemyPvBonus;
+        u.mpv += EnemyPvBonus;
     }
 }
