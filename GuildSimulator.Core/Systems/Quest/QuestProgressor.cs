@@ -135,6 +135,7 @@ public class QuestProgressor
                             int earnedExp = ExperienceRewardSplitter.ShareFor(
                                 totalExp, participants.Count, participantIndex);
                             int levelBefore = a.level;
+                            bool wasAtLevelCap = a.IsAtLevelCap;
                             if (a.AddExperience(earnedExp, out var ups, out var grownStats))
                             {
                                 if (ups > 0) q.RecordLevelGrowth(a.id, grownStats);
@@ -145,6 +146,8 @@ public class QuestProgressor
                                 if (ups > 0)
                                     levelUpSummaries.Add($"{a.name} Lv{levelBefore}→{a.level} {QuestManager.FormatGrownStats(grownStats)}");
                             }
+                            else if (wasAtLevelCap)
+                                q.logs.Add($"  {a.name} 経験値は{a.RankLabel}ランク上限Lv{a.LevelCap}のため蓄積されない");
                         }
                         // ターン進行サマリーはこのイベント結果を表示するため、成長をここにも含める。
                         if (levelUpSummaries.Count > 0)

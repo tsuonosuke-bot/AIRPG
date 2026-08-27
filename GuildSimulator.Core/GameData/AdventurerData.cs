@@ -250,6 +250,16 @@ public class AdventurerData : IUnitMember
     public int CurrentClassMastery =>
         currentClass != null ? GetClassMastery(currentClass.id) : 0;
 
+    /// <summary>現在ランクでのレベル上限。</summary>
+    public int LevelCap => Rank.LevelCap(rank);
+
+    /// <summary>現在ランクでの職業ごとの習熟度上限。</summary>
+    public int MasteryCap => Rank.MasteryCap(rank);
+
+    public bool IsAtLevelCap => level >= LevelCap;
+
+    public bool IsAtMasteryCap => CurrentClassMastery >= MasteryCap;
+
     public int MasteryPerSuitableClear =>
         BaseMasteryPerClear + Math.Clamp(intelligence, 0, MaxIntMasteryBonus);
 
@@ -272,9 +282,10 @@ public class AdventurerData : IUnitMember
         if (!isAlive || !Rank.IsSuitable(questRank, rank)) return ClassMasteryProgress.None;
         if (currentClass == null) return ClassMasteryProgress.None;
 
-        int gained = MasteryPerSuitableClear;
         classMasteryPoints.TryGetValue(currentClass.id, out int current);
-        int total = current + gained;
+        current = Math.Clamp(current, 0, MasteryCap);
+        int total = Math.Min(MasteryCap, current + MasteryPerSuitableClear);
+        int gained = total - current;
         classMasteryPoints[currentClass.id] = total;
         return new ClassMasteryProgress(gained, total, CheckClassSkillUnlock());
     }
@@ -355,7 +366,7 @@ public class AdventurerData : IUnitMember
 
     /// <summary>
     /// 昇格処理そのもの。<see cref="CanRankUp"/> が真のときだけ実行できる。
-    /// プレイヤー選択で呼ばれる想定で、能力+1・習熟度+500・スキル解禁までを一度に返す。
+    /// プレイヤー選択で呼ばれる想定で、能力・習熟度・スキル解禁までを一度に返す。
     /// </summary>
     public bool TryRankUp(out RankUpResult result)
     {
@@ -372,9 +383,11 @@ public class AdventurerData : IUnitMember
         string? className = currentClass?.className;
         if (currentClass != null)
         {
-            masteryGained = RankUpMasteryGain;
             classMasteryPoints.TryGetValue(currentClass.id, out int current);
-            classMasteryPoints[currentClass.id] = current + masteryGained;
+            current = Math.Clamp(current, 0, MasteryCap);
+            int total = Math.Min(MasteryCap, current + RankUpMasteryGain);
+            masteryGained = total - current;
+            classMasteryPoints[currentClass.id] = total;
             unlocked = CheckClassSkillUnlock();
         }
 
@@ -393,7 +406,7 @@ public class AdventurerData : IUnitMember
 
     IReadOnlyList<StatType> ApplyRankUpStatGains()
     {
-        // 全能力値+1。SIZ(体格)とAPP(容姿)を含めて一律。
+        // SIZ(体格)とAPP(容姿)を含む全能力値へ一律に昇格ボーナスを加える。
         vitality += RankUpStatGain;
         mental += RankUpStatGain;
         strength += RankUpStatGain;
@@ -446,15 +459,21 @@ public class AdventurerData : IUnitMember
     {
         levelUps = 0;
         grownStats = new List<StatType>();
-        if (!isAlive || amount <= 0) return false;
+        if (!isAlive || amount <= 0 || IsAtLevelCap)
+        {
+            if (IsAtLevelCap) experience = 0;
+            return false;
+        }
         int levelBefore = level;
         experience += amount;
-        while (experience >= RequiredExpForNextLevel)
+        while (level < LevelCap && experience >= RequiredExpForNextLevel)
         {
             experience -= RequiredExpForNextLevel;
             grownStats.AddRange(LevelUp());
             levelUps++;
         }
+        // 上限到達後に余剰経験値を持ち越すと、昇格直後に何もせずレベルが上がるため破棄する。
+        if (IsAtLevelCap) experience = 0;
         // 戦闘経験値は詳細ログに畳まれることがあるため、成長結果を本人の履歴にも必ず残す。
         if (levelUps > 0)
             AddHistory($"Lv{levelBefore}→{level}、{FormatGrownStats(grownStats)}");
@@ -882,7 +901,7 @@ public class AdventurerData : IUnitMember
 
         classMasteryPoints.Clear();
         foreach (var (classId, points) in masteryPoints)
-            classMasteryPoints[classId] = points;
+            classMasteryPoints[classId] = Math.Clamp(points, 0, MasteryCap);
 
         MarkDirty();
     }

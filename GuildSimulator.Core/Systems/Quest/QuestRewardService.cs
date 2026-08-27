@@ -150,12 +150,16 @@ public class QuestRewardService
             var a = members[i]!;
             int questExp = ExperienceRewardSplitter.ShareFor(totalExp, memberCount, i);
             int levelBefore = a.level;
+            bool wasAtLevelCap = a.IsAtLevelCap;
             a.AddExperience(questExp, out var ups, out var grownStats);
             if (ups > 0) q.RecordLevelGrowth(a.id, grownStats);
             string levelUpText = ups > 0
                 ? $"（レベルアップ {levelBefore}lv→{a.level}lv、{QuestManager.FormatGrownStats(grownStats)}）"
                 : "";
-            q.logs.Add($"{prefix} {a.name} 経験値 +{questExp}{levelUpText}");
+            string expText = wasAtLevelCap
+                ? $"経験値は{a.RankLabel}ランク上限Lv{a.LevelCap}のため蓄積されない"
+                : $"経験値 +{questExp}{levelUpText}";
+            q.logs.Add($"{prefix} {a.name} {expText}");
         }
 
         // ギルドポイントは達成の証なので撤退では入らない。

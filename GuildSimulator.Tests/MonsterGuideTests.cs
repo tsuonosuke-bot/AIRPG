@@ -68,7 +68,7 @@ public class MonsterGuideTests
 
         Assert.Contains($"登録数: 1/{db.enemies.Count}", text);
         Assert.Contains("【F】ルプス", text);
-        Assert.Contains("HP:38 AV:0 DV:6", text);
+        Assert.Contains("HP:41 AV:0 DV:6", text);
         Assert.Contains("ダメージ:1d3 PV:4", text);
         Assert.Contains("獣の牙", text);
         Assert.DoesNotContain("マルフィサ", text);

@@ -146,8 +146,13 @@ public static class RankBandTable
     /// <summary>その帯の冒険者が到達しているはずのレベル。</summary>
     static readonly Dictionary<int, Band> _levels = new()
     {
-        [1] = new(1, 5), [2] = new(6, 10), [3] = new(11, 16), [4] = new(17, 24),
-        [5] = new(25, 32), [6] = new(33, 40), [7] = new(41, 50),
+        [1] = new(1, Rank.LevelCap(1)),
+        [2] = new(Rank.LevelCap(1) + 1, Rank.LevelCap(2)),
+        [3] = new(Rank.LevelCap(2) + 1, Rank.LevelCap(3)),
+        [4] = new(Rank.LevelCap(3) + 1, Rank.LevelCap(4)),
+        [5] = new(Rank.LevelCap(4) + 1, Rank.LevelCap(5)),
+        [6] = new(Rank.LevelCap(5) + 1, Rank.LevelCap(6)),
+        [7] = new(Rank.LevelCap(6) + 1, Rank.LevelCap(7)),
     };
 
     public static EnemyBand? ForThreat(int threat) => _enemies.GetValueOrDefault(threat);

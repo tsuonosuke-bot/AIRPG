@@ -450,6 +450,9 @@ public static class HelpScreen
         Ui.WriteLine("  ■ 習得条件 ── クラス習熟度");
         Ui.WriteLine("     職業スキルは経験値やレベルではなく、その職業の「クラス習熟度」で開く。");
         Ui.WriteLine("     各スキルには必要な習熟度が決まっていて、0のものは職業に就いた瞬間に手に入る。");
+        Ui.WriteLine("     習熟度には冒険者ランクごとの上限があり、昇格すると次の段階まで解放される。");
+        Ui.WriteLine("       " + string.Join(" / ", Enumerable.Range(Rank.Min, Rank.Max - Rank.Min + 1)
+            .Select(r => $"{Rank.Label(r)}:{Rank.MasteryCap(r)}")));
         Ui.WriteLine();
         Ui.WriteLine("     習熟度が入るのは、次をすべて満たしたときだけ。");
         Ui.WriteLine("       ・そのクエストに参加していること");
@@ -600,6 +603,9 @@ public static class HelpScreen
         Ui.BeginScreen();
         Ui.Header(AdventurerSectionTitle);
         Ui.WriteLine("  ・冒険者          : 雇用して編成に加える。クエストで経験値を得てレベルアップする。");
+        Ui.WriteLine("                      レベルには冒険者ランクごとの上限があり、上限中の余剰経験値は蓄積しない。");
+        Ui.WriteLine("                      上限Lv: " + string.Join(" / ", Enumerable.Range(Rank.Min, Rank.Max - Rank.Min + 1)
+            .Select(r => $"{Rank.Label(r)}:{Rank.LevelCap(r)}")));
         Ui.WriteLine($"  ・冒険者ランク    : {Rank.Label(Rank.Min)}〜{Rank.Label(Rank.Max)}。「格上クエストの正規クリア数」と");
         Ui.WriteLine("                      「累積の適正クエスト正規クリア数」の両方を満たすと**昇格可能**になる。");
         Ui.WriteLine("                      条件を満たしても自動では上がらず、冒険者一覧で「昇格させる」を選ぶ。");
@@ -616,7 +622,7 @@ public static class HelpScreen
             Ui.WriteLine($"                        {Rank.Label(r)}→{Rank.Label(r + 1)}: "
                 + $"格上{req.higherRankClears} ／ 累積{req.suitableTotalClears}");
         }
-        Ui.WriteLine($"                      {Rank.Label(Rank.Max)}が上限。レベルとは別の物差し。");
+        Ui.WriteLine($"                      {Rank.Label(Rank.Max)}が上限。昇格するとレベル上限と習熟度上限も上がる。");
         Ui.WriteLine("                      死亡した冒険者は蘇生できない。");
         Ui.WriteLine("  ・負傷            : 戦闘不能から生還すると裂傷・骨折・深い傷・心的外傷などが残ることがある。");
         Ui.WriteLine($"                      帰還時死亡率は重症度により{AdventurerData.MinorTraumaFatalityPercent}%/{AdventurerData.MajorTraumaFatalityPercent}%/{AdventurerData.CriticalTraumaFatalityPercent}%、壊滅時はさらに+{AdventurerData.PartyWipeFatalityBonusPercent}%。");

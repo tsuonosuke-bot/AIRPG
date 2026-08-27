@@ -94,10 +94,16 @@ public sealed class BalanceRunner(GameMasterData db)
                 throw new InvalidDataException($"{scenario.id}: unknown adventurer '{member.id}'.");
             ValidateLevel(member.level, master.defaultLevel, $"{scenario.id}: {member.id}.level");
             ValidateRank(member.rank, master.defaultRank, $"{scenario.id}: {member.id}.rank");
-            int effectiveLevel = member.level > 0 ? member.level : scenario.partyLevel;
-            int effectiveRank = member.rank > 0 ? member.rank : scenario.partyRank;
+            int effectiveLevel = member.level > 0 ? member.level
+                : scenario.partyLevel > 0 ? scenario.partyLevel : master.defaultLevel;
+            int effectiveRank = member.rank > 0 ? member.rank
+                : scenario.partyRank > 0 ? scenario.partyRank : master.defaultRank;
             ValidateLevel(effectiveLevel, master.defaultLevel, $"{scenario.id}: {member.id} effective level");
             ValidateRank(effectiveRank, master.defaultRank, $"{scenario.id}: {member.id} effective rank");
+            if (effectiveLevel > Rank.LevelCap(effectiveRank))
+                throw new InvalidDataException(
+                    $"{scenario.id}: {member.id} level {effectiveLevel} exceeds "
+                    + $"{Rank.Label(effectiveRank)}-rank cap {Rank.LevelCap(effectiveRank)}.");
             foreach (var (slotName, equipmentId) in member.equipment)
             {
                 if (!Enum.TryParse<EquipSlot>(slotName, true, out var slot))
@@ -441,10 +447,6 @@ public sealed class BalanceRunner(GameMasterData db)
         var members = PartyMembers(scenario).Select(spec =>
         {
             var member = new AdventurerData(adventurers[spec.id]);
-            int targetLevel = spec.level > 0 ? spec.level : scenario.partyLevel;
-            while (targetLevel > 0 && member.level < targetLevel)
-                member.AddExperience(member.RequiredExpForNextLevel, out _);
-
             int targetRank = spec.rank > 0 ? spec.rank : scenario.partyRank;
             while (targetRank > 0 && member.rank < targetRank)
             {
@@ -454,6 +456,15 @@ public sealed class BalanceRunner(GameMasterData db)
                     member.suitableRankClearsTotal, requirement.suitableTotalClears);
                 if (!member.TryRankUp(out _))
                     throw new InvalidOperationException($"Could not promote {spec.id} to rank {targetRank}.");
+            }
+
+            int targetLevel = spec.level > 0 ? spec.level : scenario.partyLevel;
+            while (targetLevel > 0 && member.level < targetLevel)
+            {
+                if (!member.AddExperience(member.RequiredExpForNextLevel, out _))
+                    throw new InvalidOperationException(
+                        $"Could not raise {spec.id} to level {targetLevel}; "
+                        + $"{member.RankLabel}-rank cap is {member.LevelCap}.");
             }
 
             foreach (var (slotName, equipmentId) in spec.equipment)

@@ -328,6 +328,7 @@ public class RankTests
         foreach (var adventurer in db.allAdventurers)
         {
             Assert.InRange(adventurer.defaultRank, Rank.Min, Rank.Max);
+            Assert.InRange(adventurer.defaultLevel, 1, Rank.LevelCap(adventurer.defaultRank));
             Assert.InRange(adventurer.recruitGuildRank, Rank.Min, Rank.Max);
         }
         foreach (var facility in db.facilities.Values)

@@ -29,6 +29,8 @@ public class LevelGrowthTests
         {
             currentClass = cls,
             race = race,
+            // このクラスは成長抽選そのものを検証する。ランク上限は専用テストで扱う。
+            rank = Rank.Max,
         };
 
     static int StatTotal(AdventurerData a) =>

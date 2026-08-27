@@ -40,13 +40,13 @@ public static class AdventurerScreen
                 string condition = a.isAlive && a.IsInjured ? $"[負傷{a.injuries.Count}]" : "";
                 Ui.Write($"  {i + 1}. ");
                 Ui.WriteRarityName(a.name, a.master.rarity);
-                Ui.Write($" Lv{a.level} ランク{a.RankLabel} {a.ClassAndRace} {busy}{condition}");
+                Ui.Write($" Lv{a.level}/{a.LevelCap} ランク{a.RankLabel} {a.ClassAndRace} {busy}{condition}");
                 if (!a.isAlive) Ui.Write("[死亡]", TextStyle.Error);
                 Ui.WriteLine();
 
                 entries.Add(new MenuOption(
                     (i + 1).ToString(),
-                    $"{a.name} Lv{a.level}{(a.isAlive ? "" : "[死亡]")}",
+                    $"{a.name} Lv{a.level}/{a.LevelCap}{(a.isAlive ? "" : "[死亡]")}",
                     $"ランク{a.RankLabel} {a.ClassAndRace} {busy}{condition}",
                     a.isAlive ? Ui.RarityStyle(a.master.rarity) : TextStyle.Error));
             }
@@ -64,7 +64,18 @@ public static class AdventurerScreen
             Ui.BeginScreen();
             Ui.Header($"冒険者詳細: {a.name}");
             Ui.WriteLine($"  クラス/種族 : {a.ClassAndRace}");
-            Ui.WriteLine($"  レベル      : {a.level}  (経験値 {a.experience}/{a.RequiredExpForNextLevel})");
+            string levelProgress;
+            if (a.level > a.LevelCap)
+                levelProgress = a.IsMaxRank
+                    ? $"{a.RankLabel}ランク上限Lv{a.LevelCap}を超過・成長停止"
+                    : $"{a.RankLabel}ランク上限Lv{a.LevelCap}を超過・昇格まで成長停止";
+            else if (a.IsAtLevelCap)
+                levelProgress = a.IsMaxRank
+                    ? $"{a.RankLabel}ランク上限"
+                    : $"{a.RankLabel}ランク上限・昇格で上限Lv{Rank.LevelCap(a.rank + 1)}";
+            else
+                levelProgress = $"経験値 {a.experience}/{a.RequiredExpForNextLevel}";
+            Ui.WriteLine($"  レベル      : {a.level}/{a.LevelCap}  ({levelProgress})");
             string rankProgress;
             if (a.IsMaxRank)
                 rankProgress = "最高ランク";
@@ -131,9 +142,17 @@ public static class AdventurerScreen
             {
                 options.Add(new MenuOption("e", "装備を変更する"));
                 if (a.CanRankUp)
+                {
+                    int promotedMasteryCap = Rank.MasteryCap(a.rank + 1);
+                    int promotedMastery = Math.Min(
+                        promotedMasteryCap, a.CurrentClassMastery + AdventurerData.RankUpMasteryGain);
                     options.Add(new MenuOption("r",
                         $"昇格させる（{Rank.Label(a.rank)}→{Rank.Label(a.rank + 1)}）",
-                        $"全能力値+{AdventurerData.RankUpStatGain}、{a.currentClass?.className ?? "職業"}習熟度+{AdventurerData.RankUpMasteryGain}。維持費も上がる。"));
+                        $"レベル上限Lv{a.LevelCap}→Lv{Rank.LevelCap(a.rank + 1)}、"
+                        + $"習熟度上限{a.MasteryCap}→{promotedMasteryCap}、"
+                        + $"全能力値+{AdventurerData.RankUpStatGain}、"
+                        + $"{a.currentClass?.className ?? "職業"}習熟度+{promotedMastery - a.CurrentClassMastery}。"));
+                }
                 bool classChangeUnlocked = IsClassChangeUnlocked(guild);
                 if (classChangeUnlocked)
                 {
@@ -167,16 +186,27 @@ public static class AdventurerScreen
     }
 
     /// <summary>
-    /// 職業スキルの解禁は「その職業での正規クリア回数」で決まる。今どこまで進んでいて、
-    /// 次に何があと何回で開くのかを出しておかないと、プレイヤーからは進捗が見えない。
+    /// 職業スキルの解禁は「その職業での習熟度」で決まる。今どこまで進んでいて、
+    /// 次に何があと何回で開くのか、ランク上限に阻まれているかを表示する。
     /// </summary>
     static void ShowClassMastery(AdventurerData a)
     {
         if (a.currentClass == null) return;
         int mastery = a.CurrentClassMastery;
-        Ui.WriteLine($"  クラス習熟度: {mastery}");
-        Ui.Dim($"    {a.currentClass.className}で適正ランク{a.SuitableRankRangeLabel}を正規クリアすると"
-            + $"、現在のINT {a.intelligence}で+{a.MasteryPerSuitableClear}");
+        Ui.WriteLine($"  クラス習熟度: {mastery}/{a.MasteryCap}");
+        if (a.IsAtMasteryCap)
+        {
+            if (a.IsMaxRank)
+                Ui.Dim($"    {a.RankLabel}ランクの習熟度上限");
+            else
+                Ui.Dim($"    {a.RankLabel}ランクの習熟度上限。"
+                    + $"{Rank.Label(a.rank + 1)}へ昇格すると上限{Rank.MasteryCap(a.rank + 1)}まで解放");
+        }
+        else
+        {
+            Ui.Dim($"    {a.currentClass.className}で適正ランク{a.SuitableRankRangeLabel}を正規クリアすると"
+                + $"、現在のINT {a.intelligence}で+{a.MasteryPerSuitableClear}");
+        }
 
         var next = a.currentClass.classSkills
             .Where(e => e.Skill != null && e.requiredClearCount > mastery)
@@ -184,9 +214,20 @@ public static class AdventurerScreen
             .FirstOrDefault();
         if (next != null)
         {
-            int remaining = next.requiredClearCount - mastery;
-            int estimatedClears = (int)Math.Ceiling(remaining / (double)a.MasteryPerSuitableClear);
-            Ui.Dim($"    次のスキル: {next.Skill!.skillName}（あと{remaining} / 現在のINTなら約{estimatedClears}回）");
+            if (next.requiredClearCount > a.MasteryCap)
+            {
+                string gate = a.IsMaxRank
+                    ? $"{a.RankLabel}ランク上限を超えるため現在は習得不可"
+                    : $"{Rank.Label(a.rank + 1)}ランクへの昇格が必要";
+                Ui.Dim($"    次のスキル: {next.Skill!.skillName}"
+                    + $"（必要習熟度 {next.requiredClearCount}・{gate}）");
+            }
+            else
+            {
+                int remaining = next.requiredClearCount - mastery;
+                int estimatedClears = (int)Math.Ceiling(remaining / (double)a.MasteryPerSuitableClear);
+                Ui.Dim($"    次のスキル: {next.Skill!.skillName}（あと{remaining} / 現在のINTなら約{estimatedClears}回）");
+            }
         }
         else
             Ui.Dim("    この職業のスキルはすべて習得済み");
@@ -348,11 +389,16 @@ public static class AdventurerScreen
             + (a.strength + rankGain + a.vitality + rankGain) / 2
             + a.SkillCarryBonus;
         string suitableBefore = a.SuitableRankRangeLabel;
+        int levelCapAfter = Rank.LevelCap(a.rank + 1);
+        int masteryCapAfter = Rank.MasteryCap(a.rank + 1);
+        int masteryAfter = Math.Min(
+            masteryCapAfter, a.CurrentClassMastery + AdventurerData.RankUpMasteryGain);
+        int masteryGain = masteryAfter - a.CurrentClassMastery;
         var learned = a.AllLearnedSkills.ToHashSet();
         var expectedUnlocks = a.currentClass?.classSkills
             .Where(entry => entry.Skill != null
                 && entry.requiredClearCount > a.CurrentClassMastery
-                && entry.requiredClearCount <= a.CurrentClassMastery + AdventurerData.RankUpMasteryGain
+                && entry.requiredClearCount <= masteryAfter
                 && !learned.Contains(entry.Skill))
             .Select(entry => entry.Skill!)
             .Distinct()
@@ -363,9 +409,11 @@ public static class AdventurerScreen
         Ui.WriteLine($"  現在: {Rank.Label(a.rank)}");
         Ui.WriteLine($"  昇格後: {Rank.Label(a.rank + 1)}");
         Ui.WriteLine();
+        Ui.WriteLine($"  ・レベル上限 Lv{a.LevelCap} → Lv{levelCapAfter}");
+        Ui.WriteLine($"  ・習熟度上限 {a.MasteryCap} → {masteryCapAfter}");
         Ui.WriteLine($"  ・全能力値 +{AdventurerData.RankUpStatGain}");
         if (a.currentClass != null)
-            Ui.WriteLine($"  ・{a.currentClass.className} 習熟度 +{AdventurerData.RankUpMasteryGain}");
+            Ui.WriteLine($"  ・{a.currentClass.className} 習熟度 +{masteryGain}（{a.CurrentClassMastery} → {masteryAfter}）");
         if (expectedUnlocks.Count > 0)
             Ui.Info($"  ・習得見込み: 「{string.Join("」「", expectedUnlocks.Select(skill => skill.skillName))}」");
         Ui.WriteLine($"  ・積載上限 {beforeCarry} → {expectedCarryAfter}");

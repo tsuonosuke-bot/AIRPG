@@ -400,6 +400,12 @@ public class QuestManager
                 q.logs.Add($"[職業習熟] {a.name} {className} +{mastery.PointsGained}"
                     + $"（合計 習熟度 {mastery.TotalPoints}）");
             }
+            else if (a.isAlive && a.currentClass != null
+                && a.IsSuitableQuestRank(q.def.rank) && a.IsAtMasteryCap)
+            {
+                q.logs.Add($"[職業習熟] {a.name} {a.currentClass.className}は"
+                    + $"{a.RankLabel}ランク上限{a.MasteryCap}（昇格まで成長停止）");
+            }
             if (mastery.UnlockedSkills.Count > 0)
             {
                 string names = string.Join("」「", mastery.UnlockedSkills.Select(skill => skill.skillName));
@@ -583,9 +589,13 @@ public class QuestManager
                 foreach (var a in q.EnumerateMembers().Where(a => a.isAlive))
                 {
                     int levelBefore = a.level;
+                    bool wasAtLevelCap = a.IsAtLevelCap;
                     a.AddExperience(outcome.value, out int levelUps, out var grownStats);
                     if (levelUps > 0) q.RecordLevelGrowth(a.id, grownStats);
-                    changes.Add($"{a.name} 経験値+{outcome.value}"
+                    string expText = wasAtLevelCap
+                        ? $"経験値は{a.RankLabel}ランク上限Lv{a.LevelCap}のため蓄積されない"
+                        : $"経験値+{outcome.value}";
+                    changes.Add($"{a.name} {expText}"
                         + (levelUps > 0
                             ? $"（レベルアップ {levelBefore}lv→{a.level}lv、{FormatGrownStats(grownStats)}）"
                             : ""));

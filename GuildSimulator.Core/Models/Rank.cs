@@ -21,12 +21,23 @@ public static class Rank
     // 添字は rank - Min。並べ替えるとセーブデータの意味が変わるので触らないこと。
     static readonly string[] Labels = { "F", "E", "D", "C", "B", "A", "S" };
 
+    // 各ランクで成長できる上限。レベル帯・職業スキルの解禁段階と揃えてある。
+    // UI・成長処理・バランス検証は必ずこの表を参照し、別の数値を持たないこと。
+    static readonly int[] LevelCaps = { 5, 10, 16, 24, 32, 40, 50 };
+    static readonly int[] MasteryCaps = { 700, 1800, 3300, 5200, 6300, 7500, 8800 };
+
     /// <summary>プレイヤーに見せる表記。範囲外は端に丸める。</summary>
     public static string Label(int rank) => Labels[Clamp(rank) - Min];
 
     public static int Clamp(int rank) => Math.Clamp(rank, Min, Max);
 
     public static bool IsMax(int rank) => rank >= Max;
+
+    /// <summary>その冒険者ランクで到達できる最大レベル。</summary>
+    public static int LevelCap(int rank) => LevelCaps[Clamp(rank) - Min];
+
+    /// <summary>その冒険者ランクで各職業に蓄積できる最大習熟度。</summary>
+    public static int MasteryCap(int rank) => MasteryCaps[Clamp(rank) - Min];
 
     /// <summary>
     /// 適正ランクの上限幅。自分のランクからこの数だけ上までが適正帯。

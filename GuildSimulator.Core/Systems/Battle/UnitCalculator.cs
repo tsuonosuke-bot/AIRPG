@@ -8,8 +8,8 @@ namespace GuildSimulator.Core.Systems.Battle;
 public static class UnitCalculator
 {
     /// <summary>敵全体の戦闘圧を調整する共通係数。マスタ上の個体差はそのまま保つ。</summary>
-    public const float EnemyHpMultiplier = 1.25f;
-    public const int EnemyToHitBonus = 1;
+    public const float EnemyHpMultiplier = 1.35f;
+    public const int EnemyToHitBonus = 2;
     public const int EnemyPvBonus = 1;
 
     // isAllySide: レリックのUnitバフは冒険者側にのみ適用する。敵側の計算では常にfalseを渡すこと。
