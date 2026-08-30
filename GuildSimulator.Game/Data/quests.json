@@ -902,6 +902,216 @@
     ]
   },
   {
+    "id": "quest_aptos_herd_hunt",
+    "questName": "アプトスの肉の味",
+    "rank": 2,
+    "totalPhases": 14,
+    "phasesPerTurn": 5,
+    "rewardGold": 430,
+    "rewardGuildPoints": 62,
+    "rewardExp": 68,
+    "dungeonId": "dungeon_meadow",
+    "bossEnemyId": "unit_aptos_herd",
+    "bossPhase": 14,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 75,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_raptor_hide",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leather_01",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 14,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_acid_slime_swarm_hunt",
+    "questName": "アシッド混じりの群体討伐",
+    "rank": 2,
+    "totalPhases": 13,
+    "phasesPerTurn": 5,
+    "rewardGold": 410,
+    "rewardGuildPoints": 58,
+    "rewardExp": 64,
+    "dungeonId": "dungeon_meadow",
+    "bossEnemyId": "unit_acid_slime_swarm",
+    "bossPhase": 13,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 65,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_slime_core_ring",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.15
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leathercap_01",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 13,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_mage_wolf_pack_hunt",
+    "questName": "魔狼混じりの群れ討伐",
+    "rank": 2,
+    "totalPhases": 14,
+    "phasesPerTurn": 5,
+    "rewardGold": 470,
+    "rewardGuildPoints": 70,
+    "rewardExp": 76,
+    "dungeonId": "dungeon_woods",
+    "bossEnemyId": "unit_mage_wolf_pack",
+    "bossPhase": 14,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 85,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_wisp_flarewand",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_fang",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 14,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_deserter_patrol_hunt",
+    "questName": "元王国兵の巡回討伐",
+    "rank": 2,
+    "totalPhases": 12,
+    "phasesPerTurn": 5,
+    "rewardGold": 420,
+    "rewardGuildPoints": 58,
+    "rewardExp": 63,
+    "dungeonId": "dungeon_amashiro",
+    "bossEnemyId": "unit_deserter_patrol",
+    "bossPhase": 12,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 70,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_sporecap_mantle",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leathercap_01",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 12,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_bandit_hawks_hunt",
+    "questName": "狩り鷹の斥候討伐",
+    "rank": 2,
+    "totalPhases": 13,
+    "phasesPerTurn": 5,
+    "rewardGold": 440,
+    "rewardGuildPoints": 65,
+    "rewardExp": 72,
+    "dungeonId": "dungeon_amashiro",
+    "bossEnemyId": "unit_bandit_hawks",
+    "bossPhase": 13,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 80,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_bandit_longbow",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leathercap_01",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 13,
+        "type": 2
+      }
+    ]
+  },
+  {
     "id": "quest_bandit_raiders",
     "questName": "天城下層の襲撃者討伐",
     "clientName": "天城路修復隊",
