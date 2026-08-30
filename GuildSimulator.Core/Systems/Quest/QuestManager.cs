@@ -59,8 +59,8 @@ public class QuestManager
     readonly HashSet<string> clearedQuestIds = new();
     // 通常クエストはクリア後、しばらく（5～10ターン）再掲示しない。questId -> 再掲示可能になるターン。
     readonly Dictionary<string, int> questCooldownUntilTurn = new();
-    public const int NormalQuestCooldownMinTurns = 5;
-    public const int NormalQuestCooldownMaxTurns = 10;
+    public const int NormalQuestCooldownMinTurns = 10;
+    public const int NormalQuestCooldownMaxTurns = 20;
     readonly HashSet<string> discoveredClueIds = new();
     readonly List<string> discoveredClueOrder = new();
     readonly HashSet<string> selectedBranchIds = new();
