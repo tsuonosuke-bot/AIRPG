@@ -30,9 +30,9 @@ public static class ShopScreen
                 new MenuOption("5", "倉庫の装備を売却する"),
                 new MenuOption("0", "戻る", Style: TextStyle.Dim),
             });
-            if (line == "1") await BuyEquipmentAsync(db, guild, EquipmentType.Weapon, "武器");
-            else if (line == "2") await BuyEquipmentAsync(db, guild, EquipmentType.Armor, "防具");
-            else if (line == "3") await BuyEquipmentAsync(db, guild, EquipmentType.Accessory, "装飾品");
+            if (line == "1") await BuyEquipmentAsync(db, guild, new[] { EquipmentType.Weapon }, "武器");
+            else if (line == "2") await BuyEquipmentAsync(db, guild, new[] { EquipmentType.Armor, EquipmentType.Shield }, "防具");
+            else if (line == "3") await BuyEquipmentAsync(db, guild, new[] { EquipmentType.Accessory }, "装飾品");
             else if (line == "4") await BuyConsumablesAsync(db, guild);
             else if (line == "5") await SellAsync(guild);
             else return;
@@ -42,7 +42,7 @@ public static class ShopScreen
     static async Task BuyEquipmentAsync(
         GameMasterData db,
         GuildManager guild,
-        EquipmentType equipmentType,
+        EquipmentType[] equipmentTypes,
         string categoryName)
     {
         while (true)
@@ -51,7 +51,7 @@ public static class ShopScreen
             var items = guild.shopEquipmentStock
                 .Where(kv => db.equipment.ContainsKey(kv.Key))
                 .Select(kv => db.equipment[kv.Key])
-                .Where(e => e.type == equipmentType)
+                .Where(e => equipmentTypes.Contains(e.type))
                 .OrderBy(e => e.price)
                 .ToList();
 
