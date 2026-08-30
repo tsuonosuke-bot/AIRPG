@@ -341,7 +341,6 @@ public class BalanceLabTests
                         "quest_slime_cull",
                         "quest_raven_nuisance",
                         "quest_goblin_slayer",
-                        "quest_wolf_cull",
                         "quest_wolf_pack_hunt",
                         "quest_spider_nest_clear",
                         "quest_promotion_1",
@@ -357,7 +356,7 @@ public class BalanceLabTests
 
         var result = new BalanceRunner(db).Run(configuration).scenarios.Single();
 
-        Assert.Equal(10, result.campaignSteps.Count);
+        Assert.Equal(9, result.campaignSteps.Count);
         Assert.All(result.campaignSteps, step => Assert.InRange(step.reachRatePercent, 0, 100));
     }
 }

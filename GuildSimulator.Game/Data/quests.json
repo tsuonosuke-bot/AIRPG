@@ -175,80 +175,6 @@
     ]
   },
   {
-    "id": "quest_wild_berries",
-    "questName": "野イチゴ摘み",
-    "rank": 1,
-    "totalPhases": 10,
-    "phasesPerTurn": 5,
-    "rewardGold": 80,
-    "rewardGuildPoints": 16,
-    "rewardExp": 10,
-    "dungeonId": "dungeon_meadow",
-    "bossEnemyId": "",
-    "bossPhase": 0,
-    "gatherItemName": "野イチゴ",
-    "gatherTargetCount": 15,
-    "gatherMinPerEvent": 1,
-    "gatherMaxPerEvent": 4,
-    "gatherChance": 0.75,
-    "gatherGoldPerItem": 7,
-    "bossDrops": [],
-    "fixedEvents": []
-  },
-  {
-    "id": "quest_clover_search",
-    "questName": "四つ葉のクローバー探し",
-    "rank": 1,
-    "totalPhases": 10,
-    "phasesPerTurn": 5,
-    "rewardGold": 90,
-    "rewardGuildPoints": 18,
-    "rewardExp": 12,
-    "dungeonId": "dungeon_meadow",
-    "bossEnemyId": "",
-    "bossPhase": 0,
-    "gatherItemName": "四つ葉のクローバー",
-    "gatherTargetCount": 9,
-    "gatherMinPerEvent": 1,
-    "gatherMaxPerEvent": 2,
-    "gatherChance": 0.7,
-    "gatherGoldPerItem": 15,
-    "bossDrops": [],
-    "fixedEvents": []
-  },
-  {
-    "id": "quest_wolf_cull",
-    "questName": "ルプスの間引き",
-    "rank": 1,
-    "totalPhases": 5,
-    "phasesPerTurn": 5,
-    "rewardGold": 80,
-    "rewardGuildPoints": 16,
-    "rewardExp": 10,
-    "dungeonId": "dungeon_woods",
-    "bossEnemyId": "unit_wolf_pair",
-    "bossPhase": 5,
-    "bossDrops": [
-      {
-        "type": 1,
-        "equipmentId": "eq_drop_fang",
-        "weight": 0,
-        "unique": false,
-        "chance": 0.12
-      }
-    ],
-    "fixedEvents": [
-      {
-        "phase": 2,
-        "type": 1
-      },
-      {
-        "phase": 4,
-        "type": 1
-      }
-    ]
-  },
-  {
     "id": "quest_wolf_pack_hunt",
     "questName": "ルプスの群れ討伐",
     "rank": 1,
@@ -887,6 +813,300 @@
     "fixedEvents": [
       {
         "phase": 14,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_raven_flock_hunt",
+    "questName": "コルヴスの群れ討伐",
+    "rank": 2,
+    "totalPhases": 13,
+    "phasesPerTurn": 5,
+    "rewardGold": 400,
+    "rewardGuildPoints": 60,
+    "rewardExp": 65,
+    "dungeonId": "dungeon_meadow",
+    "bossEnemyId": "unit_raven_flock",
+    "bossPhase": 13,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 70,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leathercap_01",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.3
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_batwing_earring",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.2
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 13,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_goblin_warband_hunt",
+    "questName": "ゴブリンの一団討伐",
+    "rank": 2,
+    "totalPhases": 14,
+    "phasesPerTurn": 5,
+    "rewardGold": 480,
+    "rewardGuildPoints": 75,
+    "rewardExp": 78,
+    "dungeonId": "dungeon_woods",
+    "bossEnemyId": "unit_goblin_warband",
+    "bossPhase": 14,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 90,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_goblin_captain_axe",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_goblin_horned_helm",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 14,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_aptos_herd_hunt",
+    "questName": "アプトスの肉の味",
+    "rank": 2,
+    "totalPhases": 14,
+    "phasesPerTurn": 5,
+    "rewardGold": 430,
+    "rewardGuildPoints": 62,
+    "rewardExp": 68,
+    "dungeonId": "dungeon_meadow",
+    "bossEnemyId": "unit_aptos_herd",
+    "bossPhase": 14,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 75,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_raptor_hide",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leather_01",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 14,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_acid_slime_swarm_hunt",
+    "questName": "アシッド混じりの群体討伐",
+    "rank": 2,
+    "totalPhases": 13,
+    "phasesPerTurn": 5,
+    "rewardGold": 410,
+    "rewardGuildPoints": 58,
+    "rewardExp": 64,
+    "dungeonId": "dungeon_meadow",
+    "bossEnemyId": "unit_acid_slime_swarm",
+    "bossPhase": 13,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 65,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_slime_core_ring",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.15
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leathercap_01",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 13,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_mage_wolf_pack_hunt",
+    "questName": "魔狼混じりの群れ討伐",
+    "rank": 2,
+    "totalPhases": 14,
+    "phasesPerTurn": 5,
+    "rewardGold": 470,
+    "rewardGuildPoints": 70,
+    "rewardExp": 76,
+    "dungeonId": "dungeon_woods",
+    "bossEnemyId": "unit_mage_wolf_pack",
+    "bossPhase": 14,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 85,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_wisp_flarewand",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_fang",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 14,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_deserter_patrol_hunt",
+    "questName": "元王国兵の巡回討伐",
+    "rank": 2,
+    "totalPhases": 12,
+    "phasesPerTurn": 5,
+    "rewardGold": 420,
+    "rewardGuildPoints": 58,
+    "rewardExp": 63,
+    "dungeonId": "dungeon_amashiro",
+    "bossEnemyId": "unit_deserter_patrol",
+    "bossPhase": 12,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 70,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_sporecap_mantle",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leathercap_01",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 12,
+        "type": 2
+      }
+    ]
+  },
+  {
+    "id": "quest_bandit_hawks_hunt",
+    "questName": "狩り鷹の斥候討伐",
+    "rank": 2,
+    "totalPhases": 13,
+    "phasesPerTurn": 5,
+    "rewardGold": 440,
+    "rewardGuildPoints": 65,
+    "rewardExp": 72,
+    "dungeonId": "dungeon_amashiro",
+    "bossEnemyId": "unit_bandit_hawks",
+    "bossPhase": 13,
+    "bossDrops": [
+      {
+        "type": 2,
+        "gold": 80,
+        "weight": 0,
+        "unique": false,
+        "chance": 1
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_drop_bandit_longbow",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.2
+      },
+      {
+        "type": 1,
+        "equipmentId": "eq_leathercap_01",
+        "weight": 0,
+        "unique": false,
+        "chance": 0.25
+      }
+    ],
+    "fixedEvents": [
+      {
+        "phase": 13,
         "type": 2
       }
     ]

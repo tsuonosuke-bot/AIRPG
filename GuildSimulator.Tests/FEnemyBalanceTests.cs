@@ -132,10 +132,6 @@ public class FEnemyBalanceTests
         Assert.Equal(2, thrower.weight);
         Assert.Equal(6, thrower.minPhase);
         Assert.Equal(0, thrower.maxPhase);
-
-        var lupusCull = db.allQuests.Single(quest => quest.id == "quest_wolf_cull");
-        Assert.Equal(lupusCull.totalPhases, lupusCull.bossPhase);
-        Assert.Equal("unit_wolf_pair", lupusCull.BossEnemy?.id);
     }
 
     [Fact]
