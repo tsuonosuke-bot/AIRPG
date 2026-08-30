@@ -2,7 +2,7 @@ namespace GuildSimulator.Core.MasterData;
 
 /// <summary>
 /// ギルド施設。建設するとゴールドを消費し、以後は維持費が毎ターン加算される代わりに、
-/// クエスト掲示枠・パーティ編成上限・商店品揃え・休息回復・成長率などを恒常的に強化する。
+/// クエスト掲示枠・在籍上限・パーティ編成上限・商店品揃え・休息回復・成長率などを恒常的に強化する。
 /// </summary>
 public class FacilityMasterData
 {
@@ -18,6 +18,9 @@ public class FacilityMasterData
 
     /// <summary>一度の遠征へ編成できる冒険者の上限を増やす数。</summary>
     public int partySlotBonus;
+
+    /// <summary>ギルドに在籍させられる冒険者の上限を増やす数。</summary>
+    public int rosterSlotBonus;
 
     /// <summary>商店の品揃えレベル（扱える装備のtier上限）を増やす数。</summary>
     public int shopLevelBonus;

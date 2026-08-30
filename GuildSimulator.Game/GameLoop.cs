@@ -57,7 +57,7 @@ public static class GameLoop
             // 経済・進行・資産を短い行へ分ける。
             Ui.WriteLine($"  所持金: {guild.Gold}G（維持費 {upkeepPerTurn}G/T）");
             Ui.WriteLine($"  ギルドランク: {guild.GuildRankLabel}   ギルドポイント: {guild.GuildPoints}");
-            Ui.WriteLine($"  冒険者: {guild.adventurers.Count}人"
+            Ui.WriteLine($"  冒険者: {guild.RosterCount}/{guild.RosterCapacity}人"
                 + (injuredCount > 0 ? $"（負傷 {injuredCount}人）" : "")
                 + $"   進行中クエスト: {questManager.activeQuests.Count}件");
             // 遺物システムの凍結中は所持数の行ごと出さない（復活すれば自動で戻る）。
@@ -76,7 +76,8 @@ public static class GameLoop
                 projectedAfterUpkeep,
                 pendingDecisionCount,
                 GameFeatures.RelicsEnabled,
-                questManager.questBoard.Count(entry => entry.quest.isStoryQuest));
+                questManager.questBoard.Count(entry => entry.quest.isStoryQuest),
+                guild.IsRosterFull);
 
             string input = await Ui.SelectAsync("選択", menu);
 

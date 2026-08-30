@@ -135,5 +135,61 @@
     "restHealBonusPercent": 0,
     "growthRateBonusPercent": 0,
     "recruitMinBonus": 0
+  },
+  {
+    "id": "fac_lodging_01",
+    "displayName": "冒険者宿舎",
+    "description": "ギルドの裏手に寝床と食堂を構え、抱えられる冒険者を1人増やす。",
+    "buildCostGold": 350,
+    "upkeepGoldPerTurn": 10,
+    "requiredGuildRank": 1,
+    "questBoardBonus": 0,
+    "rosterSlotBonus": 1,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
+  },
+  {
+    "id": "fac_lodging_02",
+    "displayName": "宿舎の増築",
+    "description": "宿舎に部屋を足し、住み込みで抱えられる冒険者をさらに1人増やす。",
+    "buildCostGold": 900,
+    "upkeepGoldPerTurn": 20,
+    "requiredGuildRank": 2,
+    "questBoardBonus": 0,
+    "rosterSlotBonus": 1,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
+  },
+  {
+    "id": "fac_lodging_03",
+    "displayName": "冒険者寮",
+    "description": "厨房と洗い場を備えた寮を建て、長く抱えられる冒険者をもう1人増やす。",
+    "buildCostGold": 2200,
+    "upkeepGoldPerTurn": 35,
+    "requiredGuildRank": 4,
+    "questBoardBonus": 0,
+    "rosterSlotBonus": 1,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
+  },
+  {
+    "id": "fac_lodging_04",
+    "displayName": "大宿舎",
+    "description": "街区ひとつを宿舎に変え、在籍できる冒険者を最終段階まで広げる。",
+    "buildCostGold": 4000,
+    "upkeepGoldPerTurn": 55,
+    "requiredGuildRank": 6,
+    "questBoardBonus": 0,
+    "rosterSlotBonus": 1,
+    "shopLevelBonus": 0,
+    "restHealBonusPercent": 0,
+    "growthRateBonusPercent": 0,
+    "recruitMinBonus": 0
   }
 ]

@@ -4,7 +4,7 @@ import crypto from "node:crypto";
 import { FileBlob, SpreadsheetFile, Workbook } from "@oai/artifact-tool";
 
 const command = process.argv[2] ?? "export";
-const workbookSchemaVersion = 7;
+const workbookSchemaVersion = 8;
 const scriptDir = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, "$1");
 const repoRoot = path.resolve(scriptDir, "../..");
 const dataDir = path.join(repoRoot, "GuildSimulator.Game", "Data");
@@ -248,13 +248,13 @@ const sheetDefinitions = {
     unique: true,
     keys: [
       "id", "displayName", "description", "buildCostGold", "upkeepGoldPerTurn",
-      "requiredGuildRank", "questBoardBonus", "partySlotBonus", "shopLevelBonus", "restHealBonusPercent",
+      "requiredGuildRank", "questBoardBonus", "partySlotBonus", "rosterSlotBonus", "shopLevelBonus", "restHealBonusPercent",
       "growthRateBonusPercent", "noviceQuestBoardBonus", "recruitMinBonus", "injuryRecoveryBonus",
       "fatalityReductionPercent", "scarPreventionPercent",
     ],
     labels: [
       "ID", "施設名", "説明", "建設費", "毎ターン維持費", "必要ギルドランク",
-      "掲示板枠加算", "パーティ編成上限加算", "商店Lv加算", "休息回復%", "成長率%", "新人向けF依頼枠", "最低採用候補加算",
+      "掲示板枠加算", "パーティ編成上限加算", "在籍上限加算", "商店Lv加算", "休息回復%", "成長率%", "新人向けF依頼枠", "最低採用候補加算",
       "負傷回復加算", "死亡率軽減%", "傷痕予防%",
     ],
   },
@@ -484,7 +484,8 @@ const makeRows = (data) => {
 
   const facilities = data.facilities.map((f) => [
     f.id, f.displayName, clean(f.description), f.buildCostGold, f.upkeepGoldPerTurn,
-    f.requiredGuildRank, f.questBoardBonus, clean(f.partySlotBonus), f.shopLevelBonus, f.restHealBonusPercent,
+    f.requiredGuildRank, f.questBoardBonus, clean(f.partySlotBonus), clean(f.rosterSlotBonus),
+    f.shopLevelBonus, f.restHealBonusPercent,
     f.growthRateBonusPercent, clean(f.noviceQuestBoardBonus), clean(f.recruitMinBonus), clean(f.injuryRecoveryBonus),
     clean(f.fatalityReductionPercent), clean(f.scarPreventionPercent),
   ]);
@@ -1497,7 +1498,7 @@ const importWorkbook = async (writeMode, allowMissingHeaders = false) => {
     };
     optionalAssign(item, "description", optionalText(x.description));
     for (const key of [
-      "partySlotBonus", "noviceQuestBoardBonus", "recruitMinBonus", "injuryRecoveryBonus", "fatalityReductionPercent", "scarPreventionPercent",
+      "partySlotBonus", "rosterSlotBonus", "noviceQuestBoardBonus", "recruitMinBonus", "injuryRecoveryBonus", "fatalityReductionPercent", "scarPreventionPercent",
     ]) {
       optionalAssign(item, key, optionalNumber(x[key], key, row, true));
     }

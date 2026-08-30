@@ -20,9 +20,10 @@
 職業スキル、敵ドロップ、選択イベント、クエスト、ダンジョンの入れ子配列は、
 親IDと順序を持つ明細シートへ展開します。
 
-schemaVersion 7 では、選択肢の `grantedClueId` / `storyBranchId` / `storyOutcomeText`、
+schemaVersion 8 では、選択肢の `grantedClueId` / `storyBranchId` / `storyOutcomeText`、
 クエスト固定イベントの `choiceEventId`、物語章の `storyArcId` / `storyArcTitle`、
-施設の `partySlotBonus` を編集・往復できます。
+施設の `partySlotBonus` / `rosterSlotBonus` を編集・往復できます。
+schemaVersion 7 のブックは列が1つ足りないので、`migrate` で作り直してください。
 
 ## 実行
 

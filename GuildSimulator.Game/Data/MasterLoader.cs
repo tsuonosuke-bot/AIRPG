@@ -205,6 +205,7 @@ public static class MasterLoader
                 requiredGuildRank = Math.Max(1, f.requiredGuildRank),
                 questBoardBonus = f.questBoardBonus, shopLevelBonus = f.shopLevelBonus,
                 partySlotBonus = f.partySlotBonus,
+                rosterSlotBonus = f.rosterSlotBonus,
                 restHealBonusPercent = f.restHealBonusPercent, growthRateBonusPercent = f.growthRateBonusPercent,
                 noviceQuestBoardBonus = Math.Max(0, f.noviceQuestBoardBonus),
                 recruitMinBonus = f.recruitMinBonus,
@@ -629,7 +630,7 @@ public static class MasterLoader
         int requiredGuildRank, int questBoardBonus, int shopLevelBonus, int restHealBonusPercent,
         int growthRateBonusPercent, int recruitMinBonus,
         int injuryRecoveryBonus = 0, int fatalityReductionPercent = 0, int scarPreventionPercent = 0,
-        int noviceQuestBoardBonus = 0, int partySlotBonus = 0);
+        int noviceQuestBoardBonus = 0, int partySlotBonus = 0, int rosterSlotBonus = 0);
 
     record EnemyJson(string id, string baseName, int exp, int threat, int vitality, int mental, int strength,
         int agility, int intelligence, int constitution, string? defaultWeaponId, string? defaultArmorId,

@@ -17,6 +17,9 @@ public static class FacilityScreen
             Ui.WriteLine($"  所持金: {guild.Gold}G   施設維持費: {guild.FacilityUpkeepPerTurn}G/Turn");
             Ui.WriteLine($"  パーティ編成上限: {guild.PartyCapacity}/{GuildManager.MaximumPartyCapacity}人"
                 + $"（編成枠強化 {guild.PartyCapacityUpgradeCount}/{GuildManager.PartyCapacityUpgradeMaximum}）");
+            Ui.WriteLine($"  在籍上限: {guild.RosterCount}/{guild.RosterCapacity}人"
+                + $"（宿舎強化 {guild.RosterCapacityUpgradeCount}/{GuildManager.RosterCapacityUpgradeMaximum}"
+                + $"・最大{GuildManager.MaximumRosterCapacity}人）");
             Ui.WriteLine();
 
             if (guild.facilities.Count == 0)
@@ -92,6 +95,8 @@ public static class FacilityScreen
                 Ui.Info($"{chosen.displayName} を建設しました");
                 if (chosen.partySlotBonus > 0)
                     Ui.Info($"パーティ編成上限が {guild.PartyCapacity}人になりました");
+                if (chosen.rosterSlotBonus > 0)
+                    Ui.Info($"在籍上限が {guild.RosterCapacity}人になりました");
             }
             else
                 Ui.Error(reason);
@@ -104,6 +109,7 @@ public static class FacilityScreen
         var parts = new List<string>();
         if (f.questBoardBonus != 0) parts.Add($"クエスト掲示枠+{f.questBoardBonus}");
         if (f.partySlotBonus != 0) parts.Add($"パーティ編成上限+{f.partySlotBonus}人");
+        if (f.rosterSlotBonus != 0) parts.Add($"在籍上限+{f.rosterSlotBonus}人");
         if (f.shopLevelBonus != 0) parts.Add($"商店レベル+{f.shopLevelBonus}");
         if (f.restHealBonusPercent != 0) parts.Add($"休息回復量+{f.restHealBonusPercent}%");
         if (f.growthRateBonusPercent != 0) parts.Add($"成長率+{f.growthRateBonusPercent}%");

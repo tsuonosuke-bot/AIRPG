@@ -96,25 +96,43 @@ public class EconomyAndRecruitmentTests
     }
 
     [Theory]
-    [InlineData(1, 55)]
-    [InlineData(3, 165)]
-    public void HireCostKeepsItsExistingLevelRate(int level, int expected)
+    [InlineData(1, 83)]
+    [InlineData(3, 248)]
+    public void HireCostChargesOneAndAHalfTimesTheLevelRate(int level, int expected)
     {
         Assert.Equal(expected, RecruitScreen.CalcHireCost(Master("hire", level)));
     }
 
     [Theory]
-    [InlineData(Rarity.Common, 1, 55)]
-    [InlineData(Rarity.Uncommon, 1, 76)]
-    [InlineData(Rarity.Rare, 1, 97)]
-    [InlineData(Rarity.Uncommon, 5, 300)]
-    [InlineData(Rarity.Rare, 5, 325)]
+    [InlineData(Rarity.Common, 1, 83)]
+    [InlineData(Rarity.Uncommon, 1, 114)]
+    [InlineData(Rarity.Rare, 1, 146)]
+    [InlineData(Rarity.Uncommon, 5, 450)]
+    [InlineData(Rarity.Rare, 5, 488)]
     public void HireCostAddsRarityPremium(Rarity rarity, int level, int expected)
     {
         var master = Master("hire", level);
         master.rarity = rarity;
 
         Assert.Equal(expected, RecruitScreen.CalcHireCost(master));
+    }
+
+    [Theory]
+    [InlineData(Rarity.Common, 1)]
+    [InlineData(Rarity.Uncommon, 1)]
+    [InlineData(Rarity.Rare, 5)]
+    [InlineData(Rarity.Common, 12)]
+    public void HireCostRateAppliesEvenlyToLevelAndRarity(Rarity rarity, int level)
+    {
+        // 倍率はLv単価にもレアリティ上乗せにも同じように掛かる。
+        // 片方だけ据え置くと、レアの相対的な安さが倍率のたびに変わってしまう。
+        var master = Master("hire", level);
+        master.rarity = rarity;
+        int baseCost = Math.Max(10, level * 55)
+            + RecruitScreen.RarityHirePremium(rarity, level);
+
+        Assert.Equal(150, RecruitScreen.HireCostRatePercent);
+        Assert.Equal(RecruitScreen.ApplyHireCostRate(baseCost), RecruitScreen.CalcHireCost(master));
     }
 
     [Theory]

@@ -164,6 +164,15 @@ public static class AdventurerScreen
                     Ui.Dim($"  （クラスチェンジは「{ClassChangeFacilityName(db)}」の建設で解禁されます）");
                 }
             }
+            if (a.isAlive && !busy)
+            {
+                int upkeep = GuildManager.CalculateAdventurerUpkeep(a.level, a.rank);
+                options.Add(new MenuOption(
+                    "x",
+                    "解雇する",
+                    $"在籍枠が1つ空き、維持費が{upkeep}G/T減ります。装備は倉庫に戻ります",
+                    TextStyle.Warn));
+            }
             if (!a.isAlive && !busy)
             {
                 int burialCost = GuildManager.CalculateBurialCost(a.level);
@@ -176,6 +185,11 @@ public static class AdventurerScreen
             if (input == "e" && a.isAlive && !busy) { await ManageEquipmentAsync(a, guild); continue; }
             if (input == "r" && a.isAlive && !busy && a.CanRankUp) { await ConfirmRankUpAsync(a, guild); continue; }
             if (input == "c" && a.isAlive && !busy && IsClassChangeUnlocked(guild)) { await ChangeClassAsync(a, guild, db); continue; }
+            if (input == "x" && a.isAlive && !busy)
+            {
+                if (await DismissAdventurerAsync(a, guild)) return;
+                continue;
+            }
             if (input == "d" && !a.isAlive && !busy)
             {
                 if (await BuryAdventurerAsync(a, guild, currentTurn)) return;
@@ -359,6 +373,33 @@ public static class AdventurerScreen
         var parts = EquipmentText.TraitParts(item.Traits);
         parts.AddRange(EquipmentText.BonusParts(item.bonus));
         return parts.Count == 0 ? "" : $"（{string.Join(" ", parts)}）";
+    }
+
+    /// <summary>
+    /// 在籍枠と維持費を空けるための解雇。埋葬と違って費用は取らないが、
+    /// 育てた分は戻らないので、何を失うかを見せてから確認する。
+    /// </summary>
+    static async Task<bool> DismissAdventurerAsync(AdventurerData a, GuildManager guild)
+    {
+        int upkeep = GuildManager.CalculateAdventurerUpkeep(a.level, a.rank);
+        Ui.WriteLine($"  {a.name}（Lv{a.level} ランク{a.RankLabel} {a.ClassAndRace}）を解雇します。");
+        Ui.WriteLine($"  装備は倉庫に戻り、維持費が{upkeep}G/T減ります（解雇費用はかかりません）。");
+        Ui.WriteLine($"  在籍: {guild.RosterCount}/{guild.RosterCapacity}人"
+            + $" → {guild.RosterCount - 1}/{guild.RosterCapacity}人");
+        Ui.Warn("  ⚠ レベル・ランク・クラス習熟度は戻りません。");
+        Ui.Warn("     同じ人物が雇入れ候補に戻ることはありますが、そのときは初期状態からです。");
+        if (!await Ui.ConfirmAsync($"{a.name} を解雇しますか？")) return false;
+
+        EquipService.UnequipAll(a, guild);
+        if (!guild.TryDismissAdventurer(a, out var reason))
+        {
+            Ui.Error(reason);
+            await Ui.PauseAsync();
+            return false;
+        }
+        Ui.Info($"{a.name} を解雇しました");
+        await Ui.PauseAsync();
+        return true;
     }
 
     static async Task<bool> BuryAdventurerAsync(AdventurerData a, GuildManager guild, int currentTurn)
