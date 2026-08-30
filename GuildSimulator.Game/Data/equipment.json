@@ -1871,5 +1871,170 @@
     "allowedSlots": [
       "Head"
     ]
+  },
+  {
+    "id": "eq_drop_goblin_chief_axe",
+    "displayName": "頭目の鬼哭斧",
+    "rarity": "Unique",
+    "shopTier": 4,
+    "type": 0,
+    "weaponType": 1,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d8+1",
+    "basePv": 6,
+    "maxStatBonus": 8,
+    "armorShred": 2,
+    "price": 380,
+    "weight": 7,
+    "bonus": {
+      "toHit": 2
+    }
+  },
+  {
+    "id": "eq_drop_wight_cursed_blade",
+    "displayName": "彷徨う剣気",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 0,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d6+1",
+    "basePv": 6,
+    "maxStatBonus": 6,
+    "price": 240,
+    "weight": 4,
+    "bonus": {
+      "mav": 2,
+      "toHit": -1
+    }
+  },
+  {
+    "id": "eq_drop_skeleton_archer_bow",
+    "displayName": "白骨の弓",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 0,
+    "weaponType": 3,
+    "armorType": 3,
+    "attackKind": "Physical",
+    "damageDice": "1d6",
+    "basePv": 6,
+    "maxStatBonus": 6,
+    "price": 230,
+    "weight": 4,
+    "bonus": {
+      "toHit": 2,
+      "dv": 1
+    },
+    "isTwoHanded": true
+  },
+  {
+    "id": "eq_drop_aptos_hide",
+    "displayName": "アプトス革の胴当て",
+    "rarity": "Uncommon",
+    "shopTier": 2,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 1,
+    "price": 140,
+    "weight": 7,
+    "bonus": {
+      "av": 2,
+      "mav": 1
+    }
+  },
+  {
+    "id": "eq_drop_zombie_rags",
+    "displayName": "腐れた経帷子",
+    "rarity": "Uncommon",
+    "shopTier": 1,
+    "type": 1,
+    "weaponType": 10,
+    "armorType": 0,
+    "price": 90,
+    "weight": 2,
+    "bonus": {
+      "hp": 10,
+      "av": 1
+    }
+  },
+  {
+    "id": "eq_drop_poisonfang_necklace",
+    "displayName": "毒牙の首飾り",
+    "rarity": "Uncommon",
+    "shopTier": 2,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 110,
+    "weight": 1,
+    "bonus": {
+      "toHit": 3,
+      "dv": -1
+    }
+  },
+  {
+    "id": "eq_drop_amashiro_core",
+    "displayName": "古竜式限界機関の核",
+    "rarity": "Legend",
+    "shopTier": 5,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 950,
+    "weight": 2,
+    "bonus": {
+      "hp": 40,
+      "av": 3,
+      "mav": 3,
+      "threatWeight": 10
+    }
+  },
+  {
+    "id": "eq_drop_wyvernstorm_feather",
+    "displayName": "嵐冠の羽根飾り",
+    "rarity": "Rare",
+    "shopTier": 3,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 340,
+    "weight": 1,
+    "bonus": {
+      "mpv": 1,
+      "dv": 2
+    }
+  },
+  {
+    "id": "eq_drop_malfisa_bracelet",
+    "displayName": "蜘蛛糸の腕輪",
+    "rarity": "Uncommon",
+    "shopTier": 1,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 75,
+    "weight": 1,
+    "bonus": {
+      "toHit": 1,
+      "pv": 1
+    }
+  },
+  {
+    "id": "eq_drop_rockeater_shard",
+    "displayName": "鉱脈の欠片",
+    "rarity": "Uncommon",
+    "shopTier": 1,
+    "type": 2,
+    "weaponType": 10,
+    "armorType": 3,
+    "price": 80,
+    "weight": 2,
+    "bonus": {
+      "av": 1,
+      "hp": 10
+    }
   }
 ]
