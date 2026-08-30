@@ -9,7 +9,8 @@ internal static class MainMenuBuilder
         int projectedAfterUpkeep,
         int pendingDecisionCount,
         bool relicsEnabled,
-        int storyLeadCount = 0)
+        int storyLeadCount = 0,
+        bool rosterIsFull = false)
     {
         var menu = new List<MenuOption>
         {
@@ -21,7 +22,12 @@ internal static class MainMenuBuilder
                 Group: "クエスト"),
             new("2", "進行中クエスト", Group: "クエスト"),
             new("3", "一覧・装備管理", Group: "冒険者"),
-            new("4", "雇う", Group: "冒険者"),
+            new(
+                "4",
+                "雇う",
+                rosterIsFull ? "在籍上限に達しています（施設で宿舎を建てると増やせます）" : null,
+                rosterIsFull ? TextStyle.Dim : TextStyle.Normal,
+                Group: "冒険者"),
             new("5", "倉庫", Group: "拠点運営"),
             new("6", "商店", Group: "拠点運営"),
         };

@@ -412,6 +412,69 @@ public class CliPresentationTests
         }
     }
 
+    [Fact]
+    public async Task RecruitScreenShowsTheRosterCapAndRefusesToHireWhenItIsFull()
+    {
+        var guild = new GuildManager(startGold: 1_000);
+        for (int i = 0; i < GuildManager.BaseRosterCapacity; i++)
+            guild.AddAdventurer(new AdventurerData(Master($"member-{i}", $"在籍者{i}")));
+        var candidate = Master("candidate", "応募者");
+        var candidates = new List<AdventurerMasterData> { candidate };
+        int goldBefore = guild.Gold;
+
+        string text = await RenderRecruitScreenAsync(candidates, guild, "1\n\n0\n");
+
+        Assert.Contains($"在籍冒険者: {GuildManager.BaseRosterCapacity}/{GuildManager.BaseRosterCapacity}人", text);
+        Assert.Contains("在籍上限に達しています", text);
+        Assert.Contains("[在籍上限]", text);
+        Assert.Equal(goldBefore, guild.Gold);
+        Assert.Equal(GuildManager.BaseRosterCapacity, guild.adventurers.Count);
+        Assert.Contains(candidate, candidates);
+    }
+
+    [Fact]
+    public async Task RecruitScreenQuotesTheRaisedHireCost()
+    {
+        var guild = new GuildManager(startGold: 1_000);
+        var candidates = new List<AdventurerMasterData> { Master("candidate", "応募者") };
+
+        string text = await RenderRecruitScreenAsync(candidates, guild, "0\n");
+
+        // Lv1のCommonは 55G の1.5倍。表示と実際の支払いは同じ計算を通す。
+        Assert.Equal(83, RecruitScreen.CalcHireCost(candidates[0]));
+        Assert.Contains("雇用費: 83G", text);
+    }
+
+    static async Task<string> RenderRecruitScreenAsync(
+        List<AdventurerMasterData> candidates,
+        GuildManager guild,
+        string keystrokes)
+    {
+        var originalIn = Console.In;
+        var originalOut = Console.Out;
+        using var input = new StringReader(keystrokes);
+        using var output = new StringWriter();
+        try
+        {
+            Console.SetIn(input);
+            Console.SetOut(output);
+
+            Ui.Use(new ConsoleGameIo());
+            await RecruitScreen.ShowAsync(
+                candidates,
+                guild,
+                currentTurn: 1,
+                candidates,
+                maxCandidateCount: 3);
+        }
+        finally
+        {
+            Console.SetIn(originalIn);
+            Console.SetOut(originalOut);
+        }
+        return output.ToString();
+    }
+
     static int CountOccurrences(string text, string value)
     {
         int count = 0;

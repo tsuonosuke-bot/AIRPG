@@ -19,7 +19,9 @@ public static class RecruitScreen
         {
             Ui.BeginScreen();
             Ui.Header($"冒険者雇入れ  （Turn {currentTurn} の候補）");
-            Ui.WriteLine($"  所持金: {guild.Gold}G   在籍冒険者: {guild.adventurers.Count}人");
+            bool canHire = guild.CanHireAdventurer(out string rosterFullReason);
+            Ui.WriteLine($"  所持金: {guild.Gold}G   在籍冒険者: {guild.RosterCount}/{guild.RosterCapacity}人");
+            if (!canHire) Ui.Warn($"  {rosterFullReason}");
             Ui.WriteLine($"  ※候補は次のターンで入れ替わります");
             Ui.WriteLine();
 
@@ -35,7 +37,9 @@ public static class RecruitScreen
                     var m = candidates[i];
                     bool alreadyHired = guild.adventurers.Any(a => a.master == m);
                     int hireCost = CalcHireCost(m);
-                    string tag = alreadyHired ? " [雇用済]" : $"  雇用費: {hireCost}G";
+                    string tag = alreadyHired ? " [雇用済]"
+                        : !canHire ? $"  雇用費: {hireCost}G [在籍上限]"
+                        : $"  雇用費: {hireCost}G";
                     int candidateAfterHire = guild.Gold - hireCost;
                     int adventurerUpkeep = GuildManager.CalculateAdventurerUpkeep(m.defaultLevel, m.defaultRank);
                     int candidateUpkeep = GuildManager.CalculateEffectiveUpkeep(guild.BaseUpkeepPerTurn + adventurerUpkeep);
@@ -59,7 +63,7 @@ public static class RecruitScreen
                         (i + 1).ToString(),
                         $"{m.baseName}  Lv{m.defaultLevel} ランク{Rank.Label(m.defaultRank)}{tag}",
                         string.Join(Environment.NewLine, detail),
-                        Ui.RarityStyle(m.rarity)));
+                        canHire && !alreadyHired ? Ui.RarityStyle(m.rarity) : TextStyle.Dim));
                 }
             }
 
@@ -79,6 +83,13 @@ public static class RecruitScreen
             if (guild.adventurers.Any(a => a.master == chosen))
             {
                 Ui.Warn("すでに雇用済みです");
+                await Ui.PauseAsync();
+                continue;
+            }
+
+            if (!guild.CanHireAdventurer(out string cannotHireReason))
+            {
+                Ui.Error(cannotHireReason);
                 await Ui.PauseAsync();
                 continue;
             }
@@ -112,10 +123,23 @@ public static class RecruitScreen
         }
     }
 
+    /// <summary>
+    /// 雇入れ費に掛ける倍率（%）。在籍上限が入って人数を絞るぶん、1人あたりの重みを上げてある。
+    /// Lv単価やレアリティ上乗せの比率は触らず、ここだけで全体を動かす。
+    /// </summary>
+    public const int HireCostRatePercent = 150;
+
     public static int CalcHireCost(AdventurerMasterData m)
-        // 維持費バランスの変更で初期雇用費まで連動しないよう、従来のLv単価を維持する。
-        // レアリティは雇入れ時だけの上乗せで、以後の維持費には関係させない。
+        => ApplyHireCostRate(BaseHireCost(m));
+
+    /// <summary>倍率を掛ける前の基準額。維持費バランスとは切り離した従来のLv単価。</summary>
+    // レアリティは雇入れ時だけの上乗せで、以後の維持費には関係させない。
+    static int BaseHireCost(AdventurerMasterData m)
         => Math.Max(10, Math.Max(1, m.defaultLevel) * 55) + RarityHirePremium(m.rarity, m.defaultLevel);
+
+    /// <summary>基準額へ倍率を掛ける。端数は1G単位で四捨五入する。</summary>
+    public static int ApplyHireCostRate(int baseCost)
+        => (Math.Max(0, baseCost) * HireCostRatePercent + 50) / 100;
 
     /// <summary>希少な人材を雇うときだけ乗る上乗せ額。コモンは0。</summary>
     public static int RarityHirePremium(Rarity rarity, int level)

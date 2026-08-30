@@ -15,6 +15,15 @@ public class GuildManager
     public const int PartyCapacityUpgradeMaximum =
         MaximumPartyCapacity - BasePartyCapacity;
 
+    /// <summary>施設を建てる前に在籍させられる冒険者の人数。</summary>
+    public const int BaseRosterCapacity = 4;
+
+    /// <summary>宿舎系の施設をすべて建てたときの在籍上限。</summary>
+    public const int MaximumRosterCapacity = 8;
+
+    public const int RosterCapacityUpgradeMaximum =
+        MaximumRosterCapacity - BaseRosterCapacity;
+
     /// <summary>認定ランクが1つ上がるごとに増える賃金。レアリティは維持費に関係させない。</summary>
     public const int UpkeepGoldPerRank = 15;
 
@@ -144,6 +153,36 @@ public class GuildManager
         0,
         PartyCapacityUpgradeMaximum);
     public int PartyCapacity => BasePartyCapacity + PartyCapacityUpgradeCount;
+
+    /// <summary>
+    /// 在籍上限を数えるときの人数。埋葬待ちの故人は席を埋めない。
+    /// 死者が枠を塞ぐと、埋葬費が払えないだけで雇入れまで止まってしまう。
+    /// </summary>
+    public int RosterCount => adventurers.Count(a => a != null && a.isAlive);
+
+    public int RosterCapacityUpgradeCount => Math.Clamp(
+        facilities.Sum(f => Math.Max(0, f.rosterSlotBonus)),
+        0,
+        RosterCapacityUpgradeMaximum);
+
+    /// <summary>いま在籍させられる冒険者の上限。施設を建てるたびに増える。</summary>
+    public int RosterCapacity => BaseRosterCapacity + RosterCapacityUpgradeCount;
+
+    public bool IsRosterFull => RosterCount >= RosterCapacity;
+
+    /// <summary>
+    /// いま1人雇えるか。上限に達しているときは、増やす手段（施設建設）まで含めて理由を返す。
+    /// </summary>
+    public bool CanHireAdventurer(out string reason)
+    {
+        reason = "";
+        if (!IsRosterFull) return true;
+        reason = $"在籍上限に達しています（{RosterCount}/{RosterCapacity}人）"
+            + (RosterCapacity < MaximumRosterCapacity
+                ? "。ギルド施設で宿舎を建設すると上限が増えます"
+                : "。宿舎はすべて建設済みで、これ以上は増やせません");
+        return false;
+    }
 
     /// <summary>そのランクで対象施設をすべて建てた場合の編成人数上限。</summary>
     public static int PartyCapacityCeilingForRank(int rank) => Math.Clamp(

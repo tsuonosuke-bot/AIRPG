@@ -290,10 +290,22 @@ public static class MasterValidator
                 errors.Add($"{facility.id}: partySlotBonusは0以上にしてください");
             if (facility.partySlotBonus > GuildManager.PartyCapacityUpgradeMaximum)
                 errors.Add($"{facility.id}: partySlotBonusが編成枠の最大強化数を超えています");
+            if (facility.rosterSlotBonus < 0)
+                errors.Add($"{facility.id}: rosterSlotBonusは0以上にしてください");
+            if (facility.rosterSlotBonus > GuildManager.RosterCapacityUpgradeMaximum)
+                errors.Add($"{facility.id}: rosterSlotBonusが在籍枠の最大強化数を超えています");
         }
         if (db.facilities.Values.Sum(facility => facility.partySlotBonus)
             > GuildManager.PartyCapacityUpgradeMaximum)
             errors.Add("facilities.json: パーティ編成枠の強化合計が最大人数を超えています");
+        // 在籍上限は施設をすべて建てたときにちょうど MaximumRosterCapacity へ届く。
+        // 足りなければ上限が死に数値になり、超えれば建てた分が無駄になる。
+        int rosterUpgradeTotal = db.facilities.Values.Sum(facility => facility.rosterSlotBonus);
+        if (rosterUpgradeTotal > GuildManager.RosterCapacityUpgradeMaximum)
+            errors.Add("facilities.json: 在籍枠の強化合計が在籍上限を超えています");
+        if (db.facilities.Count > 0 && rosterUpgradeTotal < GuildManager.RosterCapacityUpgradeMaximum)
+            errors.Add($"facilities.json: 在籍枠の強化合計が{GuildManager.MaximumRosterCapacity}人ぶんに足りていません"
+                + $"（現在 {GuildManager.BaseRosterCapacity + rosterUpgradeTotal}人まで）");
 
         foreach (var clue in db.clues.Values)
         {
