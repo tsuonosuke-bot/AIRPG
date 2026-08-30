@@ -376,12 +376,12 @@ public class NarrativeSystemsTests
         manager.FinalizeQuest(run);
         Assert.True(manager.HasClearedQuest(quest.id));
 
-        // クリア直後～最大10ターン後まではクールダウン中のため再掲示されない。
+        // クリア直後～最大20ターン後まではクールダウン中のため再掲示されない。
         manager.FillBoard(new[] { quest }, currentTurn: 2);
         Assert.Empty(manager.questBoard);
 
-        // クールダウンの上限(10ターン)を過ぎれば必ず再掲示候補へ戻る。
-        manager.FillBoard(new[] { quest }, currentTurn: 12);
+        // クールダウンの上限(20ターン)を過ぎれば必ず再掲示候補へ戻る。
+        manager.FillBoard(new[] { quest }, currentTurn: 22);
         Assert.Equal(quest, Assert.Single(manager.questBoard).quest);
     }
 
