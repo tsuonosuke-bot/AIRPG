@@ -445,6 +445,98 @@ public class CliPresentationTests
         Assert.Contains("雇用費: 83G", text);
     }
 
+    [Fact]
+    public async Task DismissingFromTheAdventurerListFreesTheSlotAndReturnsTheGear()
+    {
+        var guild = new GuildManager(startGold: 500);
+        var leaving = new AdventurerData(Master("leaving", "退職者"));
+        var staying = new AdventurerData(Master("staying", "残留者"));
+        guild.AddAdventurer(leaving);
+        guild.AddAdventurer(staying);
+        var sword = new EquipmentMasterData
+        {
+            id = "eq_test_sword",
+            displayName = "試験用の剣",
+            type = EquipmentType.Weapon,
+        };
+        guild.AddEquipment(sword);
+        Assert.True(EquipService.TryEquip(leaving, sword, guild, out var equipReason), equipReason);
+        Assert.Equal(0, guild.GetCount(sword));
+        int goldBefore = guild.Gold;
+        int upkeepBefore = guild.AdventurerUpkeepPerTurn;
+
+        // 一覧で1人目 → 解雇する → はい → Enter → 一覧へ戻って終了。
+        string text = await RenderAdventurerScreenAsync(guild, questManager: null, "1\nx\ny\n\n0\n");
+
+        Assert.Contains("解雇する", text);
+        Assert.Contains("退職者 を解雇しました", text);
+        Assert.Equal(new[] { staying }, guild.adventurers);
+        Assert.Equal(1, guild.GetCount(sword));
+        Assert.Equal(goldBefore, guild.Gold);
+        Assert.True(guild.AdventurerUpkeepPerTurn < upkeepBefore);
+    }
+
+    [Fact]
+    public async Task DismissalCanBeCalledOffAtTheConfirmation()
+    {
+        var guild = new GuildManager(startGold: 500);
+        var adventurer = new AdventurerData(Master("keeper", "考え直された者"));
+        guild.AddAdventurer(adventurer);
+
+        string text = await RenderAdventurerScreenAsync(guild, questManager: null, "1\nx\nn\n0\n");
+
+        Assert.Contains("レベル・ランク・クラス習熟度は戻りません", text);
+        Assert.DoesNotContain("を解雇しました", text);
+        Assert.Equal(new[] { adventurer }, guild.adventurers);
+    }
+
+    [Fact]
+    public async Task AdventurersOnAnExpeditionCannotBeDismissed()
+    {
+        var guild = new GuildManager(startGold: 500);
+        var adventurer = new AdventurerData(Master("away", "遠征中の者"));
+        guild.AddAdventurer(adventurer);
+        var manager = new QuestManager(guild);
+        var run = new QuestRun(
+            new QuestMasterData { id = "away-quest", questName = "遠征中", totalPhases = 5 },
+            startedTurn: 1);
+        run.formation[0] = adventurer;
+        manager.RestoreState(new(), new() { run }, Array.Empty<string>());
+        Assert.True(manager.IsAdventurerBusy(adventurer.id));
+
+        string text = await RenderAdventurerScreenAsync(guild, manager, "1\n0\n");
+
+        Assert.Contains("冒険者詳細: 遠征中の者", text);
+        Assert.Contains("出発中は装備・クラスを変更できません", text);
+        Assert.DoesNotContain("解雇する", text);
+        Assert.Equal(new[] { adventurer }, guild.adventurers);
+    }
+
+    static async Task<string> RenderAdventurerScreenAsync(
+        GuildManager guild,
+        QuestManager? questManager,
+        string keystrokes)
+    {
+        var originalIn = Console.In;
+        var originalOut = Console.Out;
+        using var input = new StringReader(keystrokes);
+        using var output = new StringWriter();
+        try
+        {
+            Console.SetIn(input);
+            Console.SetOut(output);
+
+            Ui.Use(new ConsoleGameIo());
+            await AdventurerScreen.ShowAsync(new GameMasterData(), guild, questManager, currentTurn: 1);
+        }
+        finally
+        {
+            Console.SetIn(originalIn);
+            Console.SetOut(originalOut);
+        }
+        return output.ToString();
+    }
+
     static async Task<string> RenderRecruitScreenAsync(
         List<AdventurerMasterData> candidates,
         GuildManager guild,

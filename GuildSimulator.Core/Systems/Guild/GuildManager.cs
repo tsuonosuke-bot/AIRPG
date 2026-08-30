@@ -107,6 +107,22 @@ public class GuildManager
         return true;
     }
 
+    /// <summary>
+    /// 生存している冒険者を解雇して在籍枠を空ける。装備の返却は呼び出し側で先に済ませること。
+    /// 費用は取らない。維持費が払えなくなった状況で解雇まで有料にすると、
+    /// 人員を減らして立て直すという唯一の逃げ道まで塞いでしまう。
+    /// </summary>
+    public bool TryDismissAdventurer(AdventurerData adv, out string reason)
+    {
+        reason = "";
+        if (!adv.isAlive) { reason = $"{adv.name} は死亡しています。解雇ではなく埋葬してください"; return false; }
+        if (!adventurers.Remove(adv)) { reason = "対象が見つかりません"; return false; }
+
+        economyLogs.Add(
+            $"解雇: {adv.name}（維持費 -{CalculateAdventurerUpkeep(adv.level, adv.rank)}G/Turn）");
+        return true;
+    }
+
     public void RestoreBurialRecords(IEnumerable<BurialRecord> records)
     {
         burialRecords.Clear();
@@ -179,8 +195,8 @@ public class GuildManager
         if (!IsRosterFull) return true;
         reason = $"在籍上限に達しています（{RosterCount}/{RosterCapacity}人）"
             + (RosterCapacity < MaximumRosterCapacity
-                ? "。ギルド施設で宿舎を建設すると上限が増えます"
-                : "。宿舎はすべて建設済みで、これ以上は増やせません");
+                ? "。ギルド施設で宿舎を建設するか、冒険者を解雇すると空きます"
+                : "。宿舎はすべて建設済みなので、冒険者を解雇して席を空けてください");
         return false;
     }
 

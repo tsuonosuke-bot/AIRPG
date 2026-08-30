@@ -605,6 +605,9 @@ public static class HelpScreen
         Ui.WriteLine("  ・冒険者          : 雇用して編成に加える。クエストで経験値を得てレベルアップする。");
         Ui.WriteLine($"  ・在籍上限        : ギルドに抱えられる人数。初期は{GuildManager.BaseRosterCapacity}人で、宿舎系の施設を");
         Ui.WriteLine($"                      建設するたび1人増え、最大{GuildManager.MaximumRosterCapacity}人。上限に達すると雇入れができない。");
+        Ui.WriteLine("  ・解雇            : 冒険者一覧から本人を選び「解雇する」。費用はかからず、在籍枠と維持費が空く。");
+        Ui.WriteLine("                      装備は倉庫に戻るが、育てたレベル・ランク・習熟度は戻らない。");
+        Ui.WriteLine("                      出発中は解雇できない。死亡者は解雇ではなく埋葬で見送る。");
         Ui.WriteLine("                      レベルには冒険者ランクごとの上限があり、上限中の余剰経験値は蓄積しない。");
         Ui.WriteLine("                      上限Lv: " + string.Join(" / ", Enumerable.Range(Rank.Min, Rank.Max - Rank.Min + 1)
             .Select(r => $"{Rank.Label(r)}:{Rank.LevelCap(r)}")));

@@ -81,6 +81,51 @@ public sealed class RosterCapacityTests
     }
 
     [Fact]
+    public void DismissingSomeoneFreesASlotAndDropsTheirUpkeep()
+    {
+        var guild = new GuildManager();
+        var members = AddMembers(guild, GuildManager.BaseRosterCapacity);
+        int upkeepBefore = guild.AdventurerUpkeepPerTurn;
+        int goldBefore = guild.Gold;
+        Assert.False(guild.CanHireAdventurer(out _));
+
+        Assert.True(guild.TryDismissAdventurer(members[0], out var reason), reason);
+
+        Assert.Equal(GuildManager.BaseRosterCapacity - 1, guild.RosterCount);
+        Assert.DoesNotContain(members[0], guild.adventurers);
+        Assert.True(guild.CanHireAdventurer(out _));
+        Assert.True(guild.AdventurerUpkeepPerTurn < upkeepBefore);
+        // 維持費が払えなくなった状況の逃げ道なので、解雇そのものに費用は取らない。
+        Assert.Equal(goldBefore, guild.Gold);
+        Assert.Contains(guild.economyLogs, log => log.Contains("解雇") && log.Contains(members[0].name));
+    }
+
+    [Fact]
+    public void TheDeadAreBuriedRatherThanDismissed()
+    {
+        var guild = new GuildManager();
+        var members = AddMembers(guild, 1);
+        members[0].isAlive = false;
+
+        Assert.False(guild.TryDismissAdventurer(members[0], out var reason));
+
+        Assert.Contains("埋葬", reason);
+        Assert.Contains(members[0], guild.adventurers);
+    }
+
+    [Fact]
+    public void DismissingSomeoneWhoLeftTheGuildIsRefused()
+    {
+        var guild = new GuildManager();
+        var members = AddMembers(guild, 1);
+        Assert.True(guild.TryDismissAdventurer(members[0], out _));
+
+        Assert.False(guild.TryDismissAdventurer(members[0], out var reason));
+
+        Assert.Contains("見つかりません", reason);
+    }
+
+    [Fact]
     public void TheRosterCanAlwaysFieldAFullParty()
     {
         // 在籍上限が編成上限を下回ると、建てた編成枠が永久に使えない飾りになる。
