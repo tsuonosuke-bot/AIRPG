@@ -175,38 +175,6 @@
     ]
   },
   {
-    "id": "quest_wolf_cull",
-    "questName": "ルプスの間引き",
-    "rank": 1,
-    "totalPhases": 5,
-    "phasesPerTurn": 5,
-    "rewardGold": 80,
-    "rewardGuildPoints": 16,
-    "rewardExp": 10,
-    "dungeonId": "dungeon_woods",
-    "bossEnemyId": "unit_wolf_pair",
-    "bossPhase": 5,
-    "bossDrops": [
-      {
-        "type": 1,
-        "equipmentId": "eq_drop_fang",
-        "weight": 0,
-        "unique": false,
-        "chance": 0.12
-      }
-    ],
-    "fixedEvents": [
-      {
-        "phase": 2,
-        "type": 1
-      },
-      {
-        "phase": 4,
-        "type": 1
-      }
-    ]
-  },
-  {
     "id": "quest_wolf_pack_hunt",
     "questName": "ルプスの群れ討伐",
     "rank": 1,
