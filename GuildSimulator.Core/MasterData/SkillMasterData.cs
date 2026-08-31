@@ -129,6 +129,13 @@ public struct SkillBattleEffect
     /// <summary>回復成功時、対象の有害状態を1つ解除する確率（%）。</summary>
     public int cleanseOnHealChancePercent;
 
+    /// <summary>
+    /// 回復に成功したとき、パーティの士気を最大値のこの割合（%）だけ戻す。
+    /// 士気は編成の san 合計に比例するので、割合で持つと編成規模が変わっても効きがぶれない。
+    /// 手当ては味方が傷ついているときにしか起きないため、削られた直後にだけ返ってくる少量の支え。
+    /// </summary>
+    public int moraleOnHealPercent;
+
     /// <summary>このHP率（%）以下で背水PVを得る。0なら発動しない。</summary>
     public int lowHpThresholdPercent;
 
@@ -141,6 +148,7 @@ public struct SkillBattleEffect
     public bool IsEmpty =>
         protectAllyHpPercent == 0 && protectChancePercent == 0
         && afflictedTargetPv == 0 && cleanseOnHealChancePercent == 0
+        && moraleOnHealPercent == 0
         && lowHpThresholdPercent == 0 && lowHpPv == 0
         && counterChancePercent == 0;
 }

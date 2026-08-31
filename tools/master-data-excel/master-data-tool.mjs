@@ -41,7 +41,8 @@ const expeditionKeys = [
 ];
 const battleSkillKeys = [
   "protectAllyHpPercent", "protectChancePercent", "afflictedTargetPv",
-  "cleanseOnHealChancePercent", "lowHpThresholdPercent", "lowHpPv", "counterChancePercent",
+  "cleanseOnHealChancePercent", "moraleOnHealPercent",
+  "lowHpThresholdPercent", "lowHpPv", "counterChancePercent",
 ];
 const rewardKeys = [
   "type", "relicId", "equipmentId", "skillId", "consumableId",
