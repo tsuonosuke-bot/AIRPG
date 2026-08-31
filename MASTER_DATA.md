@@ -937,9 +937,17 @@ HP・士気・AV・mAV・DV・応急処置・狙われやすさ・遠征効果�
 | `restHealPercent` | 休息イベントで回復するHPへの増減（%） |
 | `enemyDropChancePercent` | 敵ごとのドロップ抽選率への増減（%） |
 | `rareDropChancePercent` | 装備のCommon超過1段階ごとに加える抽選率（%）。品物自体のレアリティは変えない |
+| `phasesPerTurnBonus` | 1ターンに踏み込むエリア数への加算（%ではなくエリア数）。幌馬車系がこれを持つ |
 
 **パーティ全員ぶんが合算されます**（`PartySkillEffects`）。隊列も生死も関係なく、
 その遠征に誰を出したかだけで決まります。ゴールドと経験値の減少は -100% で下げ止まります。
+
+`phasesPerTurnBonus` は `quests.json` の `phasesPerTurn`（全帯5）に足されます。
+**`totalPhases` は変わらない**ので、道中のイベントを飛ばすのではなく、同じ行程が
+少ないターンで終わります（例: 全42エリアなら 9ターン → +1で7ターン）。
+合計は `PartySkillEffects.MaxPhasesPerTurnBonus`（+5）で頭打ちになり、
+どれだけ足を引っ張られても1ターンに1エリアは必ず進みます。
+採取クエストの延長で伸びる行程も、この「1ターンぶんの行軍」と同じ値になります。
 
 イベント確率は `dungeons.json` の `eventTable` の重みに掛かるので、
 **そのダンジョンで重みが0のイベントはスキルでも生やせません**。

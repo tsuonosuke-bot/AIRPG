@@ -584,7 +584,7 @@
         "requiredClearCount": 700
       },
       {
-        "skillId": "skill_porter_lv1",
+        "skillId": "skill_wagon_lv1",
         "requiredClearCount": 1200
       },
       {
@@ -600,7 +600,7 @@
         "requiredClearCount": 3300
       },
       {
-        "skillId": "skill_porter_lv2",
+        "skillId": "skill_wagon_lv2",
         "requiredClearCount": 4200
       },
       {

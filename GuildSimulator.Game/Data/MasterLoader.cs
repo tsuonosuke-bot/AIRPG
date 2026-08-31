@@ -535,6 +535,7 @@ public static class MasterLoader
         d.TryGetValue("restHealPercent", out e.restHealPercent);
         d.TryGetValue("enemyDropChancePercent", out e.enemyDropChancePercent);
         d.TryGetValue("rareDropChancePercent", out e.rareDropChancePercent);
+        d.TryGetValue("phasesPerTurnBonus", out e.phasesPerTurnBonus);
         return e;
     }
 

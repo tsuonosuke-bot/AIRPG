@@ -241,6 +241,7 @@ public static class TraitAnalysis
         Higher(expedition.restHealPercent, "休息回復量", true);
         Higher(expedition.enemyDropChancePercent, "ドロップ率", true);
         Higher(expedition.rareDropChancePercent, "レアドロップ率", true);
+        Higher(expedition.phasesPerTurnBonus, "行軍速度", true);
         Lower(expedition.trapChancePercent, "罠遭遇率", true, "%");
         Lower(expedition.enemyEncounterChancePercent, "敵遭遇率", true, "%");
 

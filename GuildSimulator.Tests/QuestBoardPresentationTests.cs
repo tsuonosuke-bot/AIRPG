@@ -142,6 +142,49 @@ public class QuestBoardPresentationTests
         Assert.Contains("ギルド施設で上限を拡張", text);
     }
 
+    [Fact]
+    public void PartyPreviewSpellsOutTheExpeditionBonusesTheBattleScreenNeverShows()
+    {
+        var db = MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
+        var caravaner = AdventurerWithWeapon("隊商人", PhysicalWeapon());
+        caravaner.LearnPermanentSkill(db.skills["skill_wagon_lv1"]);
+        caravaner.LearnPermanentSkill(db.skills["skill_haggle_lv1"]);
+
+        var formation = new AdventurerData?[6];
+        formation[0] = caravaner;
+        var quest = new QuestMasterData
+        {
+            id = "long-road",
+            questName = "長い街道",
+            totalPhases = 40,
+            phasesPerTurn = 5,
+            Dungeon = new DungeonMasterData(),
+        };
+
+        string text = CaptureConsole(() => QuestBoardScreen.ShowPartyPreview(formation, quest));
+
+        Assert.Contains("遠征補正（隊全体）", text);
+        Assert.Contains("行軍: 6エリア/ターン（全40エリア → 所要目安 7ターン）", text);
+        Assert.Contains("基本5エリア+1", text);
+        Assert.Contains("補正なしなら8ターン", text);
+        Assert.Contains("報酬・道中: 報酬G+6%", text);
+        Assert.Contains("内訳: 隊商人「幌馬車 Lv1」「交渉術 Lv1」", text);
+    }
+
+    [Fact]
+    public void PartyPreviewStillTeachesTheExpeditionBonusWhenNobodyCarriesOne()
+    {
+        var formation = new AdventurerData?[6];
+        formation[0] = AdventurerWithWeapon("剣士", PhysicalWeapon());
+
+        string text = CaptureConsole(() =>
+            QuestBoardScreen.ShowPartyPreview(formation, BossQuest()));
+
+        Assert.Contains("遠征補正（隊全体）", text);
+        Assert.Contains("このスキルの持ち主がいません", text);
+        Assert.DoesNotContain("報酬・道中:", text);
+    }
+
     static QuestMasterData HuntQuest()
     {
         var soldier = new EnemyMasterData

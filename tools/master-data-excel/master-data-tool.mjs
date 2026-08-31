@@ -37,7 +37,7 @@ const mulKeys = ["hp", "san", "heal"];
 const expeditionKeys = [
   "goldPercent", "expPercent", "treasureChancePercent", "trapChancePercent",
   "enemyEncounterChancePercent", "healEventChancePercent", "restHealPercent",
-  "enemyDropChancePercent", "rareDropChancePercent",
+  "enemyDropChancePercent", "rareDropChancePercent", "phasesPerTurnBonus",
 ];
 const battleSkillKeys = [
   "protectAllyHpPercent", "protectChancePercent", "afflictedTargetPv",

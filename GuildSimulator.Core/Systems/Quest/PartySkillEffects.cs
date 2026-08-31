@@ -24,12 +24,19 @@ public readonly record struct PartySkillEffects(
     int healEventChancePercent,
     int restHealPercent,
     int enemyDropChancePercent,
-    int rareDropChancePercent)
+    int rareDropChancePercent,
+    int phasesPerTurnBonus)
 {
     public static readonly PartySkillEffects None = default;
 
     /// <summary>報酬が消し飛ばないための下限（%）。</summary>
     public const int MinRewardPercent = -100;
+
+    /// <summary>
+    /// 1ターンの行軍がどこまで伸びるかの上限（エリア）。
+    /// 荷運び役だけで隊を埋めれば無限に速くなる、という編成を塞ぐための頭打ち。
+    /// </summary>
+    public const int MaxPhasesPerTurnBonus = 5;
 
     public static PartySkillEffects Of(IEnumerable<AdventurerData?>? formation)
     {
@@ -37,6 +44,7 @@ public readonly record struct PartySkillEffects(
 
         int gold = 0, exp = 0, treasure = 0, trap = 0;
         int encounter = 0, healEvent = 0, restHeal = 0, enemyDrop = 0, rareDrop = 0;
+        int phases = 0;
         foreach (var a in formation)
         {
             if (a == null) continue;
@@ -57,6 +65,7 @@ public readonly record struct PartySkillEffects(
                 restHeal += e.restHealPercent;
                 enemyDrop += e.enemyDropChancePercent;
                 rareDrop += e.rareDropChancePercent;
+                phases += e.phasesPerTurnBonus;
             }
         }
 
@@ -69,8 +78,21 @@ public readonly record struct PartySkillEffects(
             healEvent,
             restHeal,
             enemyDrop,
-            rareDrop);
+            rareDrop,
+            Math.Min(MaxPhasesPerTurnBonus, phases));
     }
+
+    /// <summary>
+    /// このパーティが1ターンに踏み込むエリア数。馬車のような行軍スキルで伸びる。
+    /// 踏むエリアの総数は変わらないので、伸びたぶんはそのまま帰還までのターン短縮になる。
+    /// どれだけ足を引っ張られても、1ターンに1エリアは必ず進む。
+    /// </summary>
+    public int PhasesPerTurnFor(QuestMasterData def) =>
+        Math.Max(1, def.phasesPerTurn + phasesPerTurnBonus);
+
+    /// <summary>踏破に要するターン数の見込み。行軍速度の効きを受注前に見せるために使う。</summary>
+    public int EstimatedTurnsFor(QuestMasterData def) =>
+        (int)Math.Ceiling((double)def.totalPhases / PhasesPerTurnFor(def));
 
     /// <summary>報酬にかける倍率。0を下回らない。</summary>
     public float GoldMultiplier => Math.Max(0f, 1f + goldPercent / 100f);
