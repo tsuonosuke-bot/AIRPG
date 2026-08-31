@@ -373,6 +373,73 @@ public static class QuestBoardScreen
         var injured = members.Where(a => a.IsInjured).ToList();
         if (injured.Count > 0)
             Ui.Warn($"  ⚠ 負傷者を編成中: {string.Join("、", injured.Select(a => a.name))}（負傷補正を含む戦力です）");
+
+        // 戦力の警告をひとまとめに読ませてから、戦闘の外の話へ移る。
+        ShowExpeditionEffects(formation, def);
+    }
+
+    /// <summary>
+    /// 戦闘の外に効くスキルの合算を、受注前に見せる。
+    ///
+    /// 報酬や行軍速度を動かすスキルは戦闘画面にも冒険者の実戦値にも出てこないので、
+    /// 「誰を連れて行くと何が変わるのか」はここで見せないとプレイヤーに届かない。
+    /// 効果ゼロのときも行を残すのは、この仕組み自体の存在を知らせるため。
+    /// </summary>
+    static void ShowExpeditionEffects(AdventurerData?[] formation, QuestMasterData def)
+    {
+        var effects = PartySkillEffects.Of(formation);
+
+        Ui.WriteLine();
+        Ui.Header("遠征補正（隊全体）");
+
+        int phasesPerTurn = effects.PhasesPerTurnFor(def);
+        int estTurns = effects.EstimatedTurnsFor(def);
+        int baseTurns = PartySkillEffects.None.EstimatedTurnsFor(def);
+        string march = $"  行軍: {phasesPerTurn}エリア/ターン"
+            + $"（全{def.totalPhases}エリア → 所要目安 {estTurns}ターン）";
+        if (effects.phasesPerTurnBonus != 0)
+            Ui.Info(march + $"　※基本{def.phasesPerTurn}エリア{effects.phasesPerTurnBonus:+#;-#;0}"
+                + $"／補正なしなら{baseTurns}ターン");
+        else
+            Ui.WriteLine(march);
+
+        // 行軍以外はスキル一覧と同じ書式に揃える。同じ効果が画面ごとに違う名前で出ると読み解けない。
+        var otherParts = EquipmentText.ExpeditionParts(new SkillExpeditionEffect
+        {
+            goldPercent = effects.goldPercent,
+            expPercent = effects.expPercent,
+            treasureChancePercent = effects.treasureChancePercent,
+            trapChancePercent = effects.trapChancePercent,
+            enemyEncounterChancePercent = effects.enemyEncounterChancePercent,
+            healEventChancePercent = effects.healEventChancePercent,
+            restHealPercent = effects.restHealPercent,
+            enemyDropChancePercent = effects.enemyDropChancePercent,
+            rareDropChancePercent = effects.rareDropChancePercent,
+        });
+        if (otherParts.Count > 0)
+            Ui.WriteLine("  報酬・道中: " + string.Join("　", otherParts));
+
+        var sources = new List<string>();
+        var dormant = new List<string>();
+        foreach (var member in formation)
+        {
+            if (member == null) continue;
+            var live = new List<string>();
+            foreach (var skill in member.Skills)
+            {
+                if (skill.expedition.IsEmpty) continue;
+                if (UnitCalculator.MeetsGearRequirements(skill, member)) live.Add(skill.skillName);
+                else dormant.Add($"{member.name}「{skill.skillName}」");
+            }
+            if (live.Count > 0) sources.Add($"{member.name}「{string.Join("」「", live)}」");
+        }
+
+        if (sources.Count > 0)
+            Ui.Dim("    内訳: " + string.Join(" / ", sources));
+        else
+            Ui.Dim("    このスキルの持ち主がいません（交渉術・教導・幌馬車などは連れて行くだけで隊全体に効きます）");
+        if (dormant.Count > 0)
+            Ui.Warn($"  ⚠ 装備条件を満たさず効いていない遠征スキル: {string.Join("、", dormant)}");
     }
 
     static bool UsesRangedOrSupportWeapon(AdventurerData member)

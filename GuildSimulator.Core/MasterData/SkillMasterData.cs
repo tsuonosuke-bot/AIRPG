@@ -102,12 +102,18 @@ public struct SkillExpeditionEffect
     /// </summary>
     public int rareDropChancePercent;
 
+    /// <summary>
+    /// 1ターンに踏み込むエリア数への加算。踏むエリアの総数（<c>totalPhases</c>）は変わらないので、
+    /// 道中の取りこぼしはなく、同じ行程をより少ないターンで往復できるようになる。
+    /// </summary>
+    public int phasesPerTurnBonus;
+
     public bool IsEmpty =>
         goldPercent == 0 && expPercent == 0
         && treasureChancePercent == 0 && trapChancePercent == 0
         && enemyEncounterChancePercent == 0 && healEventChancePercent == 0
         && restHealPercent == 0 && enemyDropChancePercent == 0
-        && rareDropChancePercent == 0;
+        && rareDropChancePercent == 0 && phasesPerTurnBonus == 0;
 }
 
 /// <summary>

@@ -270,7 +270,16 @@
       "pv": 2,
       "toHit": 2
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Bleeding",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
   },
   {
     "id": "skill_bowMastery_lv3",
@@ -285,7 +294,16 @@
       "pv": 3,
       "toHit": 3
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Bleeding",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
   },
   {
     "id": "skill_bowMastery_lv4",
@@ -300,7 +318,16 @@
       "pv": 4,
       "toHit": 4
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Bleeding",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
   },
   {
     "id": "skill_bowMastery_lv5",
@@ -316,7 +343,16 @@
       "toHit": 5,
       "critRange": 1
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Bleeding",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
   },
   {
     "id": "skill_daggerMastery_lv1",
@@ -2044,6 +2080,66 @@
     "mul": {},
     "expedition": {
       "expPercent": 20
+    }
+  },
+  {
+    "id": "skill_wagon_lv1",
+    "skillName": "幌馬車 Lv1",
+    "family": "wagon",
+    "level": 1,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "phasesPerTurnBonus": 1
+    }
+  },
+  {
+    "id": "skill_wagon_lv2",
+    "skillName": "幌馬車 Lv2",
+    "family": "wagon",
+    "level": 2,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "phasesPerTurnBonus": 2
+    }
+  },
+  {
+    "id": "skill_wagon_lv3",
+    "skillName": "幌馬車 Lv3",
+    "family": "wagon",
+    "level": 3,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "phasesPerTurnBonus": 3
+    }
+  },
+  {
+    "id": "skill_wagon_lv4",
+    "skillName": "幌馬車 Lv4",
+    "family": "wagon",
+    "level": 4,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "phasesPerTurnBonus": 4
+    }
+  },
+  {
+    "id": "skill_wagon_lv5",
+    "skillName": "幌馬車 Lv5",
+    "family": "wagon",
+    "level": 5,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "phasesPerTurnBonus": 5
     }
   },
   {

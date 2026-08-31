@@ -44,7 +44,7 @@
       "skill_acidBody"
     ],
     "naturalPv": 4,
-    "naturalAv": 4,
+    "naturalAv": 6,
     "naturalMav": 4,
     "threat": 2,
     "dropTable": [
@@ -207,7 +207,7 @@
     "defaultWeaponId": "eq_sling_01",
     "defaultArmorId": "",
     "skillIds": [
-      "skill_bowMastery_lv5"
+      "skill_bowMastery_lv2"
     ],
     "naturalPv": 4,
     "threat": 1,
@@ -227,7 +227,7 @@
     "exp": 10,
     "vitality": 5,
     "mental": 3,
-    "strength": 9,
+    "strength": 10,
     "agility": 7,
     "intelligence": 2,
     "constitution": 6,
@@ -237,6 +237,7 @@
       "skill_swordMastery_lv2"
     ],
     "naturalPv": 4,
+    "naturalAv": 4,
     "threat": 2,
     "dropTable": [
       {
@@ -315,9 +316,9 @@
     "id": "enemy_goblin_archer",
     "baseName": "ゴブリン射手",
     "exp": 8,
-    "vitality": 3,
+    "vitality": 5,
     "mental": 3,
-    "strength": 6,
+    "strength": 10,
     "agility": 7,
     "intelligence": 2,
     "constitution": 5,
@@ -327,6 +328,7 @@
       "skill_bowMastery_lv2"
     ],
     "naturalPv": 4,
+    "naturalAv": 5,
     "threat": 2,
     "dropTable": [
       {
@@ -364,7 +366,7 @@
     ],
     "naturalPv": 4,
     "threat": 2,
-    "naturalAv": 1,
+    "naturalAv": 6,
     "naturalMav": 1
   },
   {
@@ -429,9 +431,9 @@
     "baseName": "フォレストホッパー",
     "description": "木々の間を跳び移って獲物へ襲いかかる、大型の肉食バッタ。硬い脚で幹を蹴り、死角から飛び込む。",
     "exp": 9,
-    "vitality": 3,
+    "vitality": 5,
     "mental": 2,
-    "strength": 8,
+    "strength": 10,
     "agility": 8,
     "intelligence": 1,
     "constitution": 6,
@@ -440,7 +442,7 @@
     "naturalDamageDice": "1d6",
     "skillIds": [],
     "naturalPv": 3,
-    "naturalAv": 1,
+    "naturalAv": 6,
     "threat": 2,
     "dropTable": [
       {
@@ -469,7 +471,7 @@
       "skill_arcaneFang"
     ],
     "naturalPv": 3,
-    "naturalAv": 2,
+    "naturalAv": 4,
     "naturalMav": 3,
     "naturalAttackKind": "Magic",
     "threat": 2,
@@ -489,7 +491,7 @@
     "exp": 16,
     "vitality": 7,
     "mental": 4,
-    "strength": 11,
+    "strength": 12,
     "agility": 9,
     "intelligence": 3,
     "constitution": 8,
@@ -501,7 +503,7 @@
       "skill_beastFang"
     ],
     "naturalPv": 4,
-    "naturalAv": 3,
+    "naturalAv": 6,
     "naturalMav": 1,
     "threat": 3,
     "dropTable": [
@@ -547,7 +549,7 @@
     "exp": 9,
     "vitality": 4,
     "mental": 2,
-    "strength": 8,
+    "strength": 10,
     "agility": 7,
     "intelligence": 1,
     "constitution": 7,
@@ -558,7 +560,7 @@
       "skill_venomFang_lv1"
     ],
     "naturalPv": 3,
-    "naturalAv": 3,
+    "naturalAv": 6,
     "dropTable": [
       {
         "type": 1,
@@ -679,9 +681,9 @@
     "constitution": 8,
     "defaultWeaponId": "",
     "defaultArmorId": "",
-    "naturalDamageDice": "1d4",
+    "naturalDamageDice": "1d6",
     "skillIds": [],
-    "naturalPv": 3,
+    "naturalPv": 5,
     "naturalAv": 5,
     "threat": 2,
     "dropTable": [
@@ -700,7 +702,7 @@
     "exp": 9,
     "vitality": 4,
     "mental": 3,
-    "strength": 9,
+    "strength": 10,
     "agility": 9,
     "intelligence": 2,
     "constitution": 5,
@@ -712,7 +714,7 @@
       "skill_swarm"
     ],
     "naturalPv": 3,
-    "naturalAv": 2,
+    "naturalAv": 7,
     "dropTable": [
       {
         "type": 1,
@@ -730,7 +732,7 @@
     "exp": 15,
     "vitality": 6,
     "mental": 4,
-    "strength": 11,
+    "strength": 12,
     "agility": 9,
     "intelligence": 3,
     "constitution": 7,
@@ -742,7 +744,7 @@
       "skill_swarm"
     ],
     "naturalPv": 4,
-    "naturalAv": 3,
+    "naturalAv": 6,
     "dropTable": [
       {
         "type": 1,
@@ -773,7 +775,7 @@
       "skill_skyDive"
     ],
     "naturalPv": 4,
-    "naturalAv": 4,
+    "naturalAv": 7,
     "naturalMav": 2,
     "dropTable": [
       {
@@ -790,9 +792,9 @@
     "id": "enemy_bandit",
     "baseName": "野盗",
     "exp": 10,
-    "vitality": 5,
+    "vitality": 6,
     "mental": 3,
-    "strength": 8,
+    "strength": 10,
     "agility": 7,
     "intelligence": 2,
     "constitution": 5,
@@ -802,6 +804,7 @@
       "skill_swordMastery_lv2"
     ],
     "naturalPv": 4,
+    "naturalAv": 5,
     "threat": 2,
     "dropTable": [
       {
@@ -817,13 +820,13 @@
     "id": "enemy_bandit_archer",
     "baseName": "野盗の射手",
     "exp": 11,
-    "vitality": 4,
+    "vitality": 6,
     "mental": 3,
-    "strength": 7,
+    "strength": 8,
     "agility": 9,
     "intelligence": 2,
     "constitution": 4,
-    "defaultWeaponId": "eq_bow_01",
+    "defaultWeaponId": "eq_bow_03",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
       "skill_bowMastery_lv2",
@@ -839,6 +842,7 @@
         "unique": false
       }
     ],
+    "naturalAv": 3,
     "threat": 3
   },
   {
@@ -876,7 +880,7 @@
     "exp": 10,
     "vitality": 5,
     "mental": 4,
-    "strength": 11,
+    "strength": 12,
     "agility": 6,
     "intelligence": 3,
     "constitution": 6,
@@ -886,6 +890,7 @@
       "skill_axeMastery_lv2"
     ],
     "naturalPv": 4,
+    "naturalAv": 4,
     "threat": 2,
     "dropTable": [
       {
@@ -903,7 +908,7 @@
     "exp": 9,
     "vitality": 4,
     "mental": 4,
-    "strength": 8,
+    "strength": 10,
     "agility": 9,
     "intelligence": 4,
     "constitution": 5,
@@ -915,6 +920,7 @@
       "skill_dualWield_lv1"
     ],
     "naturalPv": 4,
+    "naturalAv": 5,
     "threat": 2,
     "dropTable": [
       {
@@ -942,6 +948,7 @@
       "skill_darkMastery_lv2"
     ],
     "naturalPv": 4,
+    "naturalAv": 5,
     "threat": 2,
     "dropTable": [
       {
@@ -971,6 +978,7 @@
       "skill_shieldMastery_lv1"
     ],
     "naturalPv": 4,
+    "naturalAv": 3,
     "threat": 2,
     "dropTable": [
       {
@@ -986,9 +994,9 @@
     "id": "enemy_bandit_hawk",
     "baseName": "狩り鷹",
     "exp": 8,
-    "vitality": 3,
+    "vitality": 5,
     "mental": 3,
-    "strength": 7,
+    "strength": 9,
     "agility": 9,
     "intelligence": 2,
     "constitution": 4,
@@ -1000,7 +1008,7 @@
       "skill_beastFang"
     ],
     "naturalPv": 3,
-    "naturalAv": 2,
+    "naturalAv": 7,
     "threat": 2,
     "dropTable": [
       {
@@ -1114,7 +1122,7 @@
       "skill_ironJaw"
     ],
     "naturalPv": 5,
-    "naturalAv": 6,
+    "naturalAv": 8,
     "dropTable": [
       {
         "type": 1,
@@ -1130,7 +1138,7 @@
     "id": "enemy_cave_sporecap",
     "baseName": "胞子茸人",
     "exp": 9,
-    "vitality": 4,
+    "vitality": 5,
     "mental": 4,
     "strength": 6,
     "agility": 4,
@@ -1138,12 +1146,12 @@
     "constitution": 6,
     "defaultWeaponId": "",
     "defaultArmorId": "",
-    "naturalDamageDice": "1d3",
+    "naturalDamageDice": "1d5",
     "skillIds": [
       "skill_sporeBurst"
     ],
-    "naturalPv": 3,
-    "naturalAv": 2,
+    "naturalPv": 5,
+    "naturalAv": 6,
     "naturalMav": 3,
     "dropTable": [
       {
@@ -1220,9 +1228,9 @@
     "id": "enemy_skeleton",
     "baseName": "スケルトン",
     "exp": 10,
-    "vitality": 4,
+    "vitality": 5,
     "mental": 1,
-    "strength": 7,
+    "strength": 10,
     "agility": 5,
     "intelligence": 0,
     "constitution": 6,
@@ -1232,7 +1240,7 @@
       "skill_swordMastery_lv2"
     ],
     "naturalPv": 3,
-    "naturalAv": 2,
+    "naturalAv": 6,
     "naturalMav": 2,
     "threat": 2,
     "dropTable": [
@@ -1249,19 +1257,19 @@
     "id": "enemy_skeleton_archer",
     "baseName": "スケルトン弓兵",
     "exp": 12,
-    "vitality": 3,
+    "vitality": 7,
     "mental": 1,
-    "strength": 6,
+    "strength": 8,
     "agility": 8,
     "intelligence": 0,
     "constitution": 4,
-    "defaultWeaponId": "eq_bow_01",
+    "defaultWeaponId": "eq_bow_03",
     "defaultArmorId": "",
     "skillIds": [
-      "skill_bowMastery_lv2"
+      "skill_bowMastery_lv3"
     ],
     "naturalPv": 3,
-    "naturalAv": 2,
+    "naturalAv": 5,
     "naturalMav": 2,
     "threat": 3,
     "dropTable": [
@@ -1280,7 +1288,7 @@
     "exp": 10,
     "vitality": 5,
     "mental": 7,
-    "strength": 9,
+    "strength": 10,
     "agility": 7,
     "intelligence": 6,
     "constitution": 6,
@@ -1291,7 +1299,7 @@
       "skill_graveChill"
     ],
     "naturalPv": 3,
-    "naturalAv": 2,
+    "naturalAv": 6,
     "naturalMav": 4,
     "threat": 2,
     "dropTable": [
@@ -1310,7 +1318,7 @@
     "exp": 11,
     "vitality": 10,
     "mental": 1,
-    "strength": 7,
+    "strength": 8,
     "agility": 2,
     "intelligence": 0,
     "constitution": 8,
@@ -1320,8 +1328,8 @@
     "skillIds": [
       "skill_undeadTough"
     ],
-    "naturalPv": 3,
-    "naturalAv": 1,
+    "naturalPv": 6,
+    "naturalAv": 4,
     "threat": 3,
     "dropTable": [
       {
@@ -1350,7 +1358,7 @@
       "skill_beastFang"
     ],
     "naturalPv": 5,
-    "naturalAv": 1,
+    "naturalAv": 4,
     "threat": 3,
     "dropTable": [
       {
@@ -1370,7 +1378,7 @@
     "mental": 5,
     "strength": 10,
     "agility": 7,
-    "intelligence": 9,
+    "intelligence": 11,
     "constitution": 7,
     "defaultWeaponId": "",
     "defaultArmorId": "",
@@ -1379,7 +1387,7 @@
       "skill_frostFang"
     ],
     "naturalPv": 4,
-    "naturalAv": 3,
+    "naturalAv": 6,
     "naturalMav": 5,
     "naturalAttackKind": "Magic",
     "threat": 3,
@@ -1518,7 +1526,7 @@
       "skill_toughBody_lv2"
     ],
     "naturalPv": 5,
-    "naturalAv": 5,
+    "naturalAv": 7,
     "naturalMav": 5,
     "dropTable": [
       {
@@ -1669,7 +1677,7 @@
     "exp": 13,
     "vitality": 7,
     "mental": 3,
-    "strength": 7,
+    "strength": 9,
     "agility": 9,
     "intelligence": 2,
     "constitution": 5,
@@ -1681,7 +1689,7 @@
       "skill_swiftStep_lv1"
     ],
     "naturalPv": 4,
-    "naturalAv": 2,
+    "naturalAv": 5,
     "naturalMav": 4,
     "threat": 3,
     "dropTable": [
@@ -1880,7 +1888,7 @@
       "skill_fireMastery_lv1"
     ],
     "naturalPv": 3,
-    "naturalAv": 2,
+    "naturalAv": 7,
     "naturalMav": 4,
     "naturalAttackKind": "Magic",
     "dropTable": [
@@ -1903,7 +1911,7 @@
     "mental": 8,
     "strength": 5,
     "agility": 8,
-    "intelligence": 10,
+    "intelligence": 12,
     "constitution": 6,
     "defaultWeaponId": "",
     "defaultArmorId": "",
@@ -1912,7 +1920,7 @@
       "skill_windMastery_lv2"
     ],
     "naturalPv": 4,
-    "naturalAv": 2,
+    "naturalAv": 5,
     "naturalMav": 5,
     "naturalAttackKind": "Magic",
     "dropTable": [

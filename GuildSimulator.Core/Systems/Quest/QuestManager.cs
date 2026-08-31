@@ -340,7 +340,9 @@ public class QuestManager
             if (q.HasPendingChoice || q.HasGatherDecision) continue;
             if (TryQueueFixedChoice(q, currentTurn)) continue;
 
-            int steps = q.def.phasesPerTurn;
+            // 1ターンに踏み込むエリア数は隊のスキルで伸びる（馬車など）。踏む総数は変わらないので、
+            // 道中の出来事を飛ばすのではなく、同じ行程が少ないターンで終わる。
+            int steps = PartySkillEffects.Of(q.formation).PhasesPerTurnFor(q.def);
             for (int i = 0; i < steps && q.IsInProgress; i++)
             {
                 progressor.AdvanceOnePhase(q, currentTurn);
@@ -449,7 +451,8 @@ public class QuestManager
     /// <summary>
     /// 採取が目標に届かないまま予定エリアを使い切ったときの二択を解決する。
     ///
-    /// 続行を選ぶと <c>phasesPerTurn</c> ぶんエリアが伸びる。伸びたぶんが進むのは次のターンなので、
+    /// 続行を選ぶと「1ターンぶんの行軍」（馬車などの加算込み）だけエリアが伸びる。
+    /// 伸びたぶんが進むのは次のターンなので、
     /// 延長の代価は「もう1ターン帰ってこない」こと——余分な維持費と、踏み足すエリアぶんの
     /// 遭遇・罠・士気の消耗——になる。回数制限はなく、届くまで何度でも聞く。
     /// </summary>
@@ -464,7 +467,7 @@ public class QuestManager
 
         if (keepSearching)
         {
-            int added = Math.Max(1, q.def.phasesPerTurn);
+            int added = PartySkillEffects.Of(q.formation).PhasesPerTurnFor(q.def);
             q.extraPhases += added;
             q.gatherExtensions++;
             result = $"捜索を続けさせた（{progress}）。行程を {added}エリア延ばす"

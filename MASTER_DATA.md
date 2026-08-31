@@ -984,9 +984,18 @@ HP・士気・AV・mAV・DV・応急処置・狙われやすさ・遠征効果�
 | `restHealPercent` | 休息イベントで回復するHPへの増減（%） |
 | `enemyDropChancePercent` | 敵ごとのドロップ抽選率への増減（%） |
 | `rareDropChancePercent` | 装備のCommon超過1段階ごとに加える抽選率（%）。品物自体のレアリティは変えない |
+| `phasesPerTurnBonus` | 1ターンに踏み込むエリア数への加算（%ではなくエリア数）。幌馬車系がこれを持つ |
 
 **パーティ全員ぶんが合算されます**（`PartySkillEffects`）。隊列も生死も関係なく、
 その遠征に誰を出したかだけで決まります。ゴールドと経験値の減少は -100% で下げ止まります。
+
+`phasesPerTurnBonus` は `quests.json` の `phasesPerTurn`（全帯5）に足されます。
+**`totalPhases` は変わらない**ので、道中のイベントを飛ばすのではなく、同じ行程が
+少ないターンで終わります（例: 全42エリアなら 9ターン → +1で7ターン）。
+合計は `PartySkillEffects.MaxPhasesPerTurnBonus`（+5）で頭打ちになり、
+どれだけ足を引っ張られても1ターンに1エリアは必ず進みます。
+幌馬車 Lv5（+5）だけで頭打ちに届くので、馬車は隊に1台あれば足ります。
+採取クエストの延長で伸びる行程も、この「1ターンぶんの行軍」と同じ値になります。
 
 イベント確率は `dungeons.json` の `eventTable` の重みに掛かるので、
 **そのダンジョンで重みが0のイベントはスキルでも生やせません**。
@@ -1072,6 +1081,11 @@ Lv5 は習熟度8,800と遠いので、**終盤の目標**として置いてあ�
 
 同系統は最上位だけが効くので、`classSkills` に Lv1〜Lv5 を全部並べても二重には乗りません。
 低いLvを並べるのは「育つ途中の姿」を作るためです。
+
+**同じ理由で、`onHitStatuses` / `battleStartStatuses` は上位段にも必ず書き写してください。**
+下のLvにしかない付与効果は、Lvを上げた瞬間に黙って消えます（弓マスタリーLv1の出血が
+Lv2で消えていた実例があります）。`SkillProgressionTests` の
+`ATierNeverLosesTheStatusEffectThatALowerTierAlreadyGranted` が全系統を見張っています。
 
 なお `MasterLoader` はスキルIDが解決できない `classSkills` を黙って読み飛ばします。
 ID を打ち間違えるとそのスキルは永久に手に入らないので、追加したら
