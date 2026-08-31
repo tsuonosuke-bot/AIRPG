@@ -6,7 +6,7 @@ namespace GuildSimulator.Core.Systems.Guild;
 
 public class GuildManager
 {
-    public const int GuildBaseUpkeepGoldPerTurn = 10;
+    public const int GuildBaseUpkeepGoldPerTurn = 8;
     public const int UpkeepGoldPerLevel = 1;
     public const int FormationSlotCount = 6;
     public const int FrontRowSlotCount = 3;
@@ -15,17 +15,24 @@ public class GuildManager
     public const int PartyCapacityUpgradeMaximum =
         MaximumPartyCapacity - BasePartyCapacity;
 
-    /// <summary>施設を建てる前に在籍させられる冒険者の人数。</summary>
-    public const int BaseRosterCapacity = 4;
+    /// <summary>
+    /// 施設を建てる前に在籍させられる冒険者の人数。編成上限(3)より2人多いのは、
+    /// 一度の全滅で手駒が尽きないようにするため。控えがいれば負傷者を休ませながら稼げる。
+    /// </summary>
+    public const int BaseRosterCapacity = 5;
 
     /// <summary>宿舎系の施設をすべて建てたときの在籍上限。</summary>
-    public const int MaximumRosterCapacity = 8;
+    public const int MaximumRosterCapacity = 9;
 
     public const int RosterCapacityUpgradeMaximum =
         MaximumRosterCapacity - BaseRosterCapacity;
 
-    /// <summary>認定ランクが1つ上がるごとに増える賃金。レアリティは維持費に関係させない。</summary>
-    public const int UpkeepGoldPerRank = 15;
+    /// <summary>
+    /// 認定ランクが1つ上がるごとに増える賃金。レアリティは維持費に関係させない。
+    /// 高ランク帯では在籍者全員ぶんのこの加算が維持費の大半を占め、依頼の基本報酬だけでは
+    /// 赤字が避けられなくなっていたので、レベル単価に対して支配的にならない幅に抑えてある。
+    /// </summary>
+    public const int UpkeepGoldPerRank = 6;
 
     public List<AdventurerData> adventurers = new();
     public int Gold { get; private set; }
@@ -89,8 +96,8 @@ public class GuildManager
         economyLogs.Add($"雇用: {adv.name}（維持費 {CalculateAdventurerUpkeep(adv.level, adv.rank)}G/Turn）");
     }
 
-    public const int BurialCostBase = 30;
-    public const int BurialCostPerLevel = 10;
+    public const int BurialCostBase = 20;
+    public const int BurialCostPerLevel = 5;
     public List<BurialRecord> burialRecords = new();
 
     public static int CalculateBurialCost(int level) => BurialCostBase + Math.Max(1, level) * BurialCostPerLevel;

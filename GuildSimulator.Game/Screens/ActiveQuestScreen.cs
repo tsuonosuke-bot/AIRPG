@@ -176,7 +176,7 @@ public static class ActiveQuestScreen
         if (q.retreated)
         {
             Ui.Warn(RetreatMessage(q.retreatReason));
-            Ui.Dim($"  基本報酬は{QuestRewardService.RetreatRewardRate:P0}、ギルドポイントはなし");
+            Ui.Dim($"  基本報酬は{QuestRewardService.RetreatRewardRateText}、ギルドポイントはなし");
             Ui.Dim("  道中で拾った戦利品と宝箱は持ち帰れます");
             var downed = q.EnumerateMembers().Where(member => member.isIncapacitated).ToList();
             if (downed.Count > 0)
@@ -604,7 +604,7 @@ public static class ActiveQuestScreen
             new("1", $"捜索を続けさせる（+{added}エリア）",
                 "帰還が1ターン遅れ、そのぶん維持費がかかります。踏み足すエリアでは戦闘も罠も起こります"),
             new("2", "引き上げさせる",
-                $"撤退扱い。基本報酬は{QuestRewardService.RetreatRewardRate:P0}、ギルドポイントはなし。"
+                $"撤退扱い。基本報酬は{QuestRewardService.RetreatRewardRateText}、ギルドポイントはなし。"
                     + "拾った戦利品と宝箱は持ち帰れます"),
         };
         foreach (var option in options)

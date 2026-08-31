@@ -22,7 +22,7 @@ public class QuestRewardTests
     }
 
     [Fact]
-    public void RetreatLogClearlyMarksTheAdjustedBaseRewardAsUnpaid()
+    public void RetreatLogShowsThePartialBaseRewardAgainstTheFullAmount()
     {
         var definition = new QuestMasterData
         {
@@ -36,9 +36,82 @@ public class QuestRewardTests
 
         new QuestRewardService().ApplyBaseRewards(run, guild, "[報酬]");
 
-        Assert.Equal(0, guild.Gold);
-        Assert.Contains(run.logs, line => line.Contains("資金 +0G（撤退のため基本報酬138Gは不支給）"));
+        // 138G（基本120G + 活躍手当18G）の40%だけが支払われる。
+        Assert.Equal(55, guild.Gold);
+        Assert.Contains(run.logs, line => line.Contains("資金 +55G（撤退のため基本報酬138Gの40%のみ支給）"));
         Assert.DoesNotContain(run.logs, line => line.Contains("活躍手当 18G"));
+    }
+
+    [Fact]
+    public void WipedQuestPaysNoGoldAtAllAndLosesEverythingItWasCarrying()
+    {
+        var definition = new QuestMasterData
+        {
+            id = "wipe_reward",
+            questName = "全滅テスト",
+            rewardGold = 500,
+            rewardExp = 100,
+            rewardGuildPoints = 40,
+            // 採取の余剰買取も、全滅では当然1Gも受け取れない。
+            gatherItemName = "薬草",
+            gatherTargetCount = 5,
+            gatherGoldPerItem = 20,
+            Dungeon = new DungeonMasterData
+            {
+                id = "wipe_dungeon",
+                treasureTable =
+                {
+                    new RewardEntryData { type = RewardType.Gold, gold = 999, weight = 1 },
+                },
+            },
+        };
+        var guild = new GuildManager(startGold: 0);
+        var manager = new QuestManager(guild);
+        var run = new QuestRun(definition, startedTurn: 1)
+        {
+            failed = true,
+            gatheredCount = 30,
+        };
+        // 道中で担いだ宝箱と、確定済みの戦利品を抱えたまま倒れた状態にする。
+        run.chests.Add(new TreasureChest { kind = TreasureChestKind.Dungeon, foundPhase = 1 });
+        run.pendingLoot.Add(new RewardEntryData { type = RewardType.Gold, gold = 777 });
+
+        manager.FinalizeQuest(run);
+
+        // 撤退の部分報酬はこの結末には及ばない。
+        Assert.Equal(0, guild.Gold);
+        Assert.Equal(0, guild.GuildPoints);
+        Assert.DoesNotContain(run.logs, line => line.Contains("資金 +"));
+        Assert.DoesNotContain(run.logs, line => line.Contains("宝箱を開けた"));
+    }
+
+    [Fact]
+    public void RetreatPaysThePartialShareOfExperienceButNoGuildPoints()
+    {
+        var definition = new QuestMasterData
+        {
+            id = "retreat_exp",
+            questName = "撤退経験値テスト",
+            rewardGold = 0,
+            rewardExp = 100,
+            rewardGuildPoints = 40,
+        };
+        var member = new AdventurerData(new AdventurerMasterData
+        {
+            id = "adv", baseName = "テスト",
+            vitality = 10, mental = 10, strength = 10,
+            agility = 10, intelligence = 10, constitution = 10,
+        });
+        var run = new QuestRun(definition, startedTurn: 1) { retreated = true };
+        run.formation[0] = member;
+        var guild = new GuildManager(startGold: 0);
+
+        new QuestRewardService().ApplyBaseRewards(run, guild, "[報酬]");
+
+        // 100 × 1.15 × 40% = 46。撤退でも道中ぶんの経験は残る。
+        Assert.Contains(run.logs, line => line.Contains("経験値 +46"));
+        // 依頼を果たした証であるギルドポイントだけは、撤退では一切入らない。
+        Assert.Equal(0, guild.GuildPoints);
     }
 
     [Fact]

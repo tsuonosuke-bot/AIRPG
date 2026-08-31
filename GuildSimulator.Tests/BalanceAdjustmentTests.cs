@@ -38,11 +38,11 @@ public class BalanceAdjustmentTests
     }
 
     [Theory]
-    [InlineData(1, false, 0, 10)]
-    [InlineData(2, false, 0, 20)]
-    [InlineData(3, false, 0, 35)]
-    [InlineData(2, true, 0, 45)]
-    [InlineData(3, true, 10, 50)]
+    [InlineData(1, false, 0, 6)]
+    [InlineData(2, false, 0, 12)]
+    [InlineData(3, false, 0, 22)]
+    [InlineData(2, true, 0, 27)]
+    [InlineData(3, true, 10, 27)]
     [InlineData(1, false, 100, 0)]
     public void FatalityRateIncludesSeverityWipeAndInfirmary(
         int severity,

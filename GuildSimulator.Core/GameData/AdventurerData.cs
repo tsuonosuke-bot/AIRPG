@@ -756,10 +756,12 @@ public class AdventurerData : IUnitMember
         pendingInjurySeverity = Math.Max(pendingInjurySeverity, Math.Clamp(severity, 1, 3));
     }
 
-    public const int MinorTraumaFatalityPercent = 10;
-    public const int MajorTraumaFatalityPercent = 20;
-    public const int CriticalTraumaFatalityPercent = 35;
-    public const int PartyWipeFatalityBonusPercent = 25;
+    // 戦闘不能から死に至る確率。ここが高いと一度の失敗で主力を失い、そのまま立て直せなくなる。
+    // 失敗の代償は「負傷で数ターン働けない」ことに寄せ、死は例外的な結末に留める。
+    public const int MinorTraumaFatalityPercent = 6;
+    public const int MajorTraumaFatalityPercent = 12;
+    public const int CriticalTraumaFatalityPercent = 22;
+    public const int PartyWipeFatalityBonusPercent = 15;
 
     /// <summary>
     /// 帰還時の死亡率。戦闘不能の重症度に壊滅補正を加え、医療院の救命補正を最後に差し引く。

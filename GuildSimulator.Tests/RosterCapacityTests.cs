@@ -9,7 +9,7 @@ using Xunit;
 namespace GuildSimulator.Tests;
 
 /// <summary>
-/// ギルドに抱えられる冒険者の人数（在籍上限）。初期は4人で、宿舎系の施設を建てるたびに増える。
+/// ギルドに抱えられる冒険者の人数（在籍上限）。初期は5人で、宿舎系の施設を建てるたびに増える。
 /// 遠征へ出せる人数（<see cref="GuildManager.PartyCapacity"/>）とは別の蓋であることに注意。
 /// </summary>
 [Collection("Guild static state")]
@@ -22,7 +22,7 @@ public sealed class RosterCapacityTests
         var guild = new GuildManager(startGold: 20_000, startRank: Rank.Max);
         var facilities = LodgingFacilities(db);
 
-        Assert.Equal(4, GuildManager.BaseRosterCapacity);
+        Assert.Equal(5, GuildManager.BaseRosterCapacity);
         Assert.Equal(GuildManager.BaseRosterCapacity, guild.RosterCapacity);
 
         for (int i = 0; i < facilities.Count; i++)
@@ -47,7 +47,7 @@ public sealed class RosterCapacityTests
         Assert.True(guild.IsRosterFull);
         Assert.False(guild.CanHireAdventurer(out string reason));
         Assert.Contains("在籍上限", reason);
-        Assert.Contains("4/4人", reason);
+        Assert.Contains("5/5人", reason);
         Assert.Contains("施設", reason);
     }
 

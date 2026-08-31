@@ -900,6 +900,9 @@ public class QuestManager
         if (!q.baseRewardsApplied)
         {
             q.baseRewardsApplied = true;
+            // 全滅（失敗）は撤退とは別の結末で、報酬も戦利品も一切支払わない。
+            // 撤退の部分報酬（QuestRewardService.RetreatRewardRate）はここを通らないので、
+            // あの割合をいくら動かしても失敗時のゴールドは0のまま。この分岐を緩めないこと。
             if (!q.failed)
             {
                 rewardService.ApplyBaseRewards(q, guild, "[完了]");
