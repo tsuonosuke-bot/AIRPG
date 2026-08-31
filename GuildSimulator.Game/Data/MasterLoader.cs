@@ -546,6 +546,7 @@ public static class MasterLoader
         d.TryGetValue("protectChancePercent", out e.protectChancePercent);
         d.TryGetValue("afflictedTargetPv", out e.afflictedTargetPv);
         d.TryGetValue("cleanseOnHealChancePercent", out e.cleanseOnHealChancePercent);
+        d.TryGetValue("moraleOnHealPercent", out e.moraleOnHealPercent);
         d.TryGetValue("lowHpThresholdPercent", out e.lowHpThresholdPercent);
         d.TryGetValue("lowHpPv", out e.lowHpPv);
         d.TryGetValue("counterChancePercent", out e.counterChancePercent);

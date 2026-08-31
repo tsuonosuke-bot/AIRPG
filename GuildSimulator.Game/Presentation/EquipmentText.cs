@@ -129,6 +129,8 @@ public static class EquipmentText
             parts.Add($"異常敵PV{(e.afflictedTargetPv > 0 ? "+" : "")}{e.afflictedTargetPv}");
         if (e.cleanseOnHealChancePercent > 0)
             parts.Add($"回復時浄化{e.cleanseOnHealChancePercent}%");
+        if (e.moraleOnHealPercent > 0)
+            parts.Add($"回復時士気+{e.moraleOnHealPercent}%");
         if (e.lowHpThresholdPercent > 0 && e.lowHpPv != 0)
             parts.Add($"HP{e.lowHpThresholdPercent}%以下PV{(e.lowHpPv > 0 ? "+" : "")}{e.lowHpPv}");
         if (e.counterChancePercent > 0)

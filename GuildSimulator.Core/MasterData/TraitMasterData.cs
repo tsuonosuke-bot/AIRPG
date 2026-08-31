@@ -225,6 +225,7 @@ public static class TraitAnalysis
         // 回復役だけ。
         Higher(add.heal, "回復量", heal);
         Higher(skill.battle.cleanseOnHealChancePercent, "浄化率", heal);
+        Higher(skill.battle.moraleOnHealPercent, "回復時士気", heal);
         Rate(skill.mul.heal, "回復量", heal);
 
         // 庇護は攻撃でも回復でもなく、狙われ先の付け替えなのでどの型でも働く。

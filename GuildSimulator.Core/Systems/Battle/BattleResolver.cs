@@ -203,6 +203,11 @@ public static class BattleResolver
                                     actor);
                             TryCleanseOnHeal(
                                 actor, healTarget, entry.slot, statuses, logs, phase);
+
+                            // 士気はパーティ側の指標なので、敵の術者が味方を癒しても動かさない。
+                            if (entry.isAdvSide)
+                                TryRestoreMoraleOnHeal(
+                                    actor, entry.slot, morale, logs, phase);
                         }
                     }
                 }
@@ -570,6 +575,34 @@ public static class BattleResolver
 
         if (source == null || !RollPercent(source.battle.cleanseOnHealChancePercent)) return;
         statuses.CleanseOneHarmful(target, source.skillName, logs, phase);
+    }
+
+    /// <summary>
+    /// 手当てが通ったときに士気を少しだけ戻す。回復役が「立て直している」ことを、
+    /// HPだけでなくパーティの粘りにも反映させるための経路。
+    /// 同じ効果を複数のスキルから持っていても、いちばん高い1つだけが効く（浄化と同じ扱い）。
+    /// </summary>
+    static void TryRestoreMoraleOnHeal(
+        IUnitMember healer,
+        int healerSlot,
+        MoraleState morale,
+        List<string> logs,
+        int phase)
+    {
+        int percent = 0;
+        SkillMasterData? source = null;
+        foreach (var skill in healer.Skills)
+        {
+            if (!UnitCalculator.IsSkillActive(skill, healer, isFront: healerSlot < 3)) continue;
+            if (skill.battle.moraleOnHealPercent <= percent) continue;
+            percent = skill.battle.moraleOnHealPercent;
+            source = skill;
+        }
+
+        if (source == null || percent <= 0) return;
+        int restored = morale.RestoreRate(percent / 100f);
+        if (restored <= 0) return;
+        logs.Add($"  エリア {phase}: {healer.Name}の{source.skillName}で士気 +{restored}（{morale.Current}/{morale.Max}）");
     }
 
     /// <summary>瀕死の味方への攻撃を、庇護スキルを持つ別の生存者へ差し替える。</summary>

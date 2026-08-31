@@ -2982,5 +2982,19 @@
       "heal": 3
     },
     "mul": {}
+  },
+  {
+    "id": "skill_unique_silverMaiden",
+    "skillName": "銀色の髪の乙女",
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 9,
+    "add": {},
+    "mul": {
+      "heal": 1.1
+    },
+    "battle": {
+      "moraleOnHealPercent": 2
+    }
   }
 ]

@@ -665,5 +665,30 @@
     "skillIds": [],
     "rarity": "Rare",
     "background": "禁書を写本して糊口をしのいでいた青年。写すうちに覚えた影の術を、いまでは写本より長く使っている。"
+  },
+  {
+    "id": "adv_0030",
+    "baseName": "ミカヤ",
+    "defaultLevel": 8,
+    "defaultRank": 2,
+    "recruitGuildRank": 2,
+    "recruitWeight": 30,
+    "vitality": 9,
+    "mental": 17,
+    "strength": 7,
+    "agility": 10,
+    "intelligence": 13,
+    "constitution": 6,
+    "appearance": 13,
+    "gender": "Female",
+    "defaultClassId": "class_Healer",
+    "raceId": "Race_Human",
+    "defaultWeaponId": "eq_Light_01",
+    "defaultArmorId": "eq_cloth_01",
+    "skillIds": [
+      "skill_unique_silverMaiden"
+    ],
+    "rarity": "Rare",
+    "background": "野戦の治療所で育った小柄な娘。銀の髪を布で括り、担架の間を縫って走りつづけた。傷を塞ぐ手より、隊の心が折れる瞬間を先に見つける目のほうが早いと言われる。"
   }
 ]
