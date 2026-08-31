@@ -43,6 +43,49 @@ public class QuestRewardTests
     }
 
     [Fact]
+    public void WipedQuestPaysNoGoldAtAllAndLosesEverythingItWasCarrying()
+    {
+        var definition = new QuestMasterData
+        {
+            id = "wipe_reward",
+            questName = "全滅テスト",
+            rewardGold = 500,
+            rewardExp = 100,
+            rewardGuildPoints = 40,
+            // 採取の余剰買取も、全滅では当然1Gも受け取れない。
+            gatherItemName = "薬草",
+            gatherTargetCount = 5,
+            gatherGoldPerItem = 20,
+            Dungeon = new DungeonMasterData
+            {
+                id = "wipe_dungeon",
+                treasureTable =
+                {
+                    new RewardEntryData { type = RewardType.Gold, gold = 999, weight = 1 },
+                },
+            },
+        };
+        var guild = new GuildManager(startGold: 0);
+        var manager = new QuestManager(guild);
+        var run = new QuestRun(definition, startedTurn: 1)
+        {
+            failed = true,
+            gatheredCount = 30,
+        };
+        // 道中で担いだ宝箱と、確定済みの戦利品を抱えたまま倒れた状態にする。
+        run.chests.Add(new TreasureChest { kind = TreasureChestKind.Dungeon, foundPhase = 1 });
+        run.pendingLoot.Add(new RewardEntryData { type = RewardType.Gold, gold = 777 });
+
+        manager.FinalizeQuest(run);
+
+        // 撤退の部分報酬はこの結末には及ばない。
+        Assert.Equal(0, guild.Gold);
+        Assert.Equal(0, guild.GuildPoints);
+        Assert.DoesNotContain(run.logs, line => line.Contains("資金 +"));
+        Assert.DoesNotContain(run.logs, line => line.Contains("宝箱を開けた"));
+    }
+
+    [Fact]
     public void RetreatPaysThePartialShareOfExperienceButNoGuildPoints()
     {
         var definition = new QuestMasterData

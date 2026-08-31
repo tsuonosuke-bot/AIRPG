@@ -22,6 +22,8 @@ public class QuestRewardService
     /// 撤退時に受け取れる基本報酬の割合。道中の戦利品は減額せず全て持ち帰れる。
     /// 一度引き返しただけで遠征費が丸ごと焦げ付くと、失敗が即立て直し不能につながる。
     /// 依頼の達成そのものはギルドポイントで報いるので、撤退では金銭だけを部分的に支払う。
+    /// **これは自力で引き返せた撤退だけの話**で、全滅（失敗）は報酬も戦利品も無しのまま。
+    /// 失敗はそもそも ApplyBaseRewards を呼ばない（QuestManager.FinalizeQuest 参照）。
     /// </summary>
     public const float RetreatRewardRate = 0.4f;
 
