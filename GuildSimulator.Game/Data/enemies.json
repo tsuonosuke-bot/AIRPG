@@ -207,7 +207,7 @@
     "defaultWeaponId": "eq_sling_01",
     "defaultArmorId": "",
     "skillIds": [
-      "skill_bowMastery_lv4"
+      "skill_bowMastery_lv2"
     ],
     "naturalPv": 4,
     "threat": 1,
@@ -315,9 +315,9 @@
     "id": "enemy_goblin_archer",
     "baseName": "ゴブリン射手",
     "exp": 8,
-    "vitality": 3,
+    "vitality": 5,
     "mental": 3,
-    "strength": 6,
+    "strength": 8,
     "agility": 7,
     "intelligence": 2,
     "constitution": 5,
@@ -429,7 +429,7 @@
     "baseName": "フォレストホッパー",
     "description": "木々の間を跳び移って獲物へ襲いかかる、大型の肉食バッタ。硬い脚で幹を蹴り、死角から飛び込む。",
     "exp": 9,
-    "vitality": 3,
+    "vitality": 5,
     "mental": 2,
     "strength": 8,
     "agility": 8,
@@ -681,7 +681,7 @@
     "defaultArmorId": "",
     "naturalDamageDice": "1d4",
     "skillIds": [],
-    "naturalPv": 3,
+    "naturalPv": 5,
     "naturalAv": 5,
     "threat": 2,
     "dropTable": [
@@ -790,7 +790,7 @@
     "id": "enemy_bandit",
     "baseName": "野盗",
     "exp": 10,
-    "vitality": 5,
+    "vitality": 6,
     "mental": 3,
     "strength": 8,
     "agility": 7,
@@ -817,13 +817,13 @@
     "id": "enemy_bandit_archer",
     "baseName": "野盗の射手",
     "exp": 11,
-    "vitality": 4,
+    "vitality": 6,
     "mental": 3,
     "strength": 7,
     "agility": 9,
     "intelligence": 2,
     "constitution": 4,
-    "defaultWeaponId": "eq_bow_01",
+    "defaultWeaponId": "eq_bow_03",
     "defaultArmorId": "eq_leather_01",
     "skillIds": [
       "skill_bowMastery_lv2",
@@ -986,7 +986,7 @@
     "id": "enemy_bandit_hawk",
     "baseName": "狩り鷹",
     "exp": 8,
-    "vitality": 3,
+    "vitality": 5,
     "mental": 3,
     "strength": 7,
     "agility": 9,
@@ -1130,7 +1130,7 @@
     "id": "enemy_cave_sporecap",
     "baseName": "胞子茸人",
     "exp": 9,
-    "vitality": 4,
+    "vitality": 5,
     "mental": 4,
     "strength": 6,
     "agility": 4,
@@ -1142,8 +1142,8 @@
     "skillIds": [
       "skill_sporeBurst"
     ],
-    "naturalPv": 3,
-    "naturalAv": 2,
+    "naturalPv": 5,
+    "naturalAv": 4,
     "naturalMav": 3,
     "dropTable": [
       {
@@ -1220,9 +1220,9 @@
     "id": "enemy_skeleton",
     "baseName": "スケルトン",
     "exp": 10,
-    "vitality": 4,
+    "vitality": 5,
     "mental": 1,
-    "strength": 7,
+    "strength": 9,
     "agility": 5,
     "intelligence": 0,
     "constitution": 6,
@@ -1249,16 +1249,16 @@
     "id": "enemy_skeleton_archer",
     "baseName": "スケルトン弓兵",
     "exp": 12,
-    "vitality": 3,
+    "vitality": 7,
     "mental": 1,
     "strength": 6,
     "agility": 8,
     "intelligence": 0,
     "constitution": 4,
-    "defaultWeaponId": "eq_bow_01",
+    "defaultWeaponId": "eq_bow_03",
     "defaultArmorId": "",
     "skillIds": [
-      "skill_bowMastery_lv2"
+      "skill_bowMastery_lv3"
     ],
     "naturalPv": 3,
     "naturalAv": 2,
@@ -1320,7 +1320,7 @@
     "skillIds": [
       "skill_undeadTough"
     ],
-    "naturalPv": 3,
+    "naturalPv": 6,
     "naturalAv": 1,
     "threat": 3,
     "dropTable": [

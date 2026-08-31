@@ -31,9 +31,9 @@ public class FEnemyBalanceTests
         var thrower = new EnemyData(db.enemies["enemy_goblin_thrower"]);
         Assert.Equal(1, thrower.Threat);
         Assert.Equal("1d2", thrower.DamageDice);
-        // 弓マスタリーが全段で出血を配るようになったぶん、投擲兵は1段下げてPVを1点返した。
-        // 出血込みでFランク1対1の敗北率を目標帯へ戻すための調整（GrasslandSoloLossRates参照）。
-        Assert.Equal(7, EffectivePv(thrower, isFront: false));
+        // 投擲兵の弓マスタリーはLv2。かつてLv5を積んでいたが、それは脅威1の枠には過剰で、
+        // ひとつの物差しで測るとE帯13体より手強かった（ThreatBandLadderTests参照）。
+        Assert.Equal(5, EffectivePv(thrower, isFront: false));
         Assert.Equal(6, thrower.master.exp);
 
         var lupus = new EnemyData(db.enemies["enemy_forest_wolf"]);
@@ -72,7 +72,9 @@ public class FEnemyBalanceTests
             (EnemyId: "enemy_horned_rabbit", Min: 6d, Max: 14d),
             (EnemyId: "enemy_goblin_stray", Min: 15d, Max: 28d),
             (EnemyId: "enemy_goblin", Min: 34d, Max: 47d),
-            (EnemyId: "enemy_goblin_thrower", Min: 34d, Max: 47d),
+            // 投擲兵はF帯の壁ではなく、後衛から刺してくる嫌がらせ役に置き直した。
+            // 壁のままだと帯をまたいでE帯の敵より手強くなる（ThreatBandLadderTests参照）。
+            (EnemyId: "enemy_goblin_thrower", Min: 15d, Max: 28d),
         };
 
         const int runsPerMatchup = 200;
