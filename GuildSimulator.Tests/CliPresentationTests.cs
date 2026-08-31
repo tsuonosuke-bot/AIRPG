@@ -37,6 +37,9 @@ public class CliPresentationTests
             questName = "撤退テスト",
             totalPhases = 10,
             rewardGold = 120,
+            // 撤退でも基本報酬の一部は入るため、経験値を0にして
+            // 表示を検証したいレベルアップ（下でわざと起こす1回）だけに絞る。
+            rewardExp = 0,
         };
         var run = new QuestRun(quest, startedTurn: 1)
         {
@@ -81,8 +84,8 @@ public class CliPresentationTests
         Assert.Contains("クエスト終了サマリー", text);
         Assert.Contains("結果: 撤退", text);
         Assert.Contains("生還優先の方針", text);
-        Assert.Contains("+0G", text);
-        Assert.Contains("撤退のため基本報酬138Gは不支給", text);
+        Assert.Contains("+55G", text);
+        Assert.Contains("撤退のため基本報酬138Gの40%のみ支給", text);
         Assert.DoesNotContain("活躍手当 18G", text);
         Assert.DoesNotContain("士気が尽き", text);
         Assert.Contains(

@@ -5,6 +5,7 @@ using GuildSimulator.Core.Models;
 using GuildSimulator.Core.Systems;
 using GuildSimulator.Core.Systems.Battle;
 using GuildSimulator.Core.Systems.Guild;
+using GuildSimulator.Core.Systems.Quest;
 using GuildSimulator.Game.Data;
 using GuildSimulator.Game.Presentation;
 
@@ -124,8 +125,8 @@ public static class HelpScreen
         Ui.WriteLine("  ・物語クエスト    : 通常抽選とは別の物語専用枠へ、受注するまで継続掲示される一度きりのクエスト。");
         Ui.WriteLine("                      道中の固有イベントで手掛かりや結末を選び、以後の依頼にも結果が残る。");
         Ui.WriteLine("                      現在の調査は「G. 記録・資料」→「J. 調査記録」で確認できる。");
-        Ui.WriteLine("  ・撤退            : 士気が尽きるとパーティは自動的に撤退する。基本報酬は無しになるが、");
-        Ui.WriteLine("                      道中で得た戦利品（宝箱など）はそのまま持ち帰れる。");
+        Ui.WriteLine($"  ・撤退            : 士気が尽きるとパーティは自動的に撤退する。基本報酬と経験値は{QuestRewardService.RetreatRewardRateText}まで減るが、");
+        Ui.WriteLine("                      道中で得た戦利品（宝箱など）はそのまま持ち帰れる。ギルドポイントは入らない。");
         Ui.WriteLine("  ・壊滅            : 全員が戦闘不能になった場合。報酬・戦利品はすべて失われる。");
         Ui.WriteLine("                      帰還処理で各自の死亡または負傷が確定し、医療院は死亡率を下げる。");
         Ui.WriteLine("  ・選択イベント    : ターン内の最終エリア後に発生することがある。");

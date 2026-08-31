@@ -124,6 +124,68 @@ public class FeedbackBalanceTests
     }
 
     [Fact]
+    public void ChestsLeanOnItemsRatherThanGold()
+    {
+        var db = Load();
+
+        foreach (var dungeon in db.dungeons.Values)
+            for (int questRank = Rank.Min; questRank <= Rank.Max; questRank++)
+            {
+                // 遺物は凍結中で抽選から外れるため、実際に引ける候補だけで比率を見る。
+                var eligible = dungeon.treasureTable
+                    .Where(entry => entry.weight > 0
+                        && entry.minQuestRank <= questRank && questRank <= entry.maxQuestRank
+                        && entry.type != RewardType.Relic)
+                    .ToList();
+                int total = eligible.Sum(entry => entry.weight);
+                if (total == 0) continue;
+
+                int gold = eligible
+                    .Where(entry => entry.type == RewardType.Gold)
+                    .Sum(entry => entry.weight);
+                Assert.True(gold * 5 <= total,
+                    $"{dungeon.id} rank{questRank}: 宝箱のGold重みが{gold}/{total}で2割を超えています");
+            }
+    }
+
+    [Fact]
+    public void EveryDungeonKeepsUneventfulAreasToAMinority()
+    {
+        var db = Load();
+
+        foreach (var dungeon in db.dungeons.Values)
+        {
+            int total = dungeon.eventTable.Values.Where(weight => weight > 0).Sum();
+            Assert.True(total > 0, $"{dungeon.id}: eventTableが空です");
+
+            int nothing = dungeon.eventTable.GetValueOrDefault(DungeonEventType.Nothing);
+            Assert.True(nothing * 5 <= total,
+                $"{dungeon.id}: 何も起きないエリアが{nothing}/{total}で2割を超えています");
+
+            // 何もなしを削った分が戦闘へ流れ込むと、道中が濃くなるだけでなく難しくなる。
+            int encounter = dungeon.eventTable.GetValueOrDefault(DungeonEventType.EnemyEncounter);
+            Assert.True(encounter * 100 <= total * 40,
+                $"{dungeon.id}: 敵遭遇が{encounter}/{total}で4割を超えています");
+        }
+    }
+
+    [Fact]
+    public void RetreatingStillCoversPartOfTheExpeditionsCost()
+    {
+        // 撤退が完全な無報酬だと、一度引き返しただけで維持費ぶんが丸ごと焦げ付く。
+        Assert.InRange(QuestRewardService.RetreatRewardRate, 0.2f, 0.6f);
+        Assert.Equal("40%", QuestRewardService.RetreatRewardRateText);
+    }
+
+    [Fact]
+    public void TheRosterAlwaysLeavesABenchBehindTheFullParty()
+    {
+        // 控えが居ないと、全滅した次のターンから誰も出せないまま維持費だけが減っていく。
+        Assert.Equal(GuildManager.BasePartyCapacity + 2, GuildManager.BaseRosterCapacity);
+        Assert.Equal(GuildManager.MaximumPartyCapacity + 3, GuildManager.MaximumRosterCapacity);
+    }
+
+    [Fact]
     public void DeterministicSkillEventsHaveMoreWeightAndCoverAmashiro()
     {
         var db = Load();

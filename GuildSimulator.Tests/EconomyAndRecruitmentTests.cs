@@ -21,10 +21,10 @@ public class EconomyAndRecruitmentTests
 
     [Theory]
     [InlineData(1, 1, 1)]
-    [InlineData(1, 2, 16)]
-    [InlineData(1, 7, 91)]
-    [InlineData(10, 3, 40)]
-    public void UpkeepAddsFifteenGoldPerAdventurerRank(int level, int rank, int expected)
+    [InlineData(1, 2, 7)]
+    [InlineData(1, 7, 37)]
+    [InlineData(10, 3, 22)]
+    public void UpkeepAddsSixGoldPerAdventurerRank(int level, int rank, int expected)
     {
         Assert.Equal(expected, GuildManager.CalculateAdventurerUpkeep(level, rank));
     }
@@ -52,8 +52,8 @@ public class EconomyAndRecruitmentTests
 
         adventurer.rank = 3;
 
-        Assert.Equal(31, guild.AdventurerUpkeepPerTurn);
-        Assert.Equal(41, guild.BaseUpkeepPerTurn);
+        Assert.Equal(13, guild.AdventurerUpkeepPerTurn);
+        Assert.Equal(21, guild.BaseUpkeepPerTurn);
     }
 
     [Fact]
@@ -64,12 +64,12 @@ public class EconomyAndRecruitmentTests
         guild.AddAdventurer(adventurer);
 
         Assert.Equal(1, guild.AdventurerUpkeepPerTurn);
-        Assert.Equal(11, guild.BaseUpkeepPerTurn);
+        Assert.Equal(9, guild.BaseUpkeepPerTurn);
 
         adventurer.level = 2;
 
         Assert.Equal(2, guild.AdventurerUpkeepPerTurn);
-        Assert.Equal(12, guild.BaseUpkeepPerTurn);
+        Assert.Equal(10, guild.BaseUpkeepPerTurn);
     }
 
     [Fact]
@@ -79,8 +79,8 @@ public class EconomyAndRecruitmentTests
 
         int paid = guild.PayUpkeepForAll(currentTurn: 2);
 
-        Assert.Equal(10, paid);
-        Assert.Equal(40, guild.Gold);
+        Assert.Equal(8, paid);
+        Assert.Equal(42, guild.Gold);
     }
 
     [Fact]
@@ -90,9 +90,9 @@ public class EconomyAndRecruitmentTests
         guild.AddAdventurer(new AdventurerData(Master("a", level: 1)));
         guild.AddAdventurer(new AdventurerData(Master("b", level: 1)));
 
-        Assert.Equal(12, guild.EffectiveUpkeepPerTurn);
-        Assert.Equal(6, guild.EstimateNetAfterUpkeep(rewardGold: 30, turns: 2));
-        Assert.Equal(36, guild.EstimateNetAfterUpkeep(rewardGold: 60, turns: 2));
+        Assert.Equal(10, guild.EffectiveUpkeepPerTurn);
+        Assert.Equal(10, guild.EstimateNetAfterUpkeep(rewardGold: 30, turns: 2));
+        Assert.Equal(40, guild.EstimateNetAfterUpkeep(rewardGold: 60, turns: 2));
     }
 
     [Theory]

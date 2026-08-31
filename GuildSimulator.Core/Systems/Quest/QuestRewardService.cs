@@ -18,8 +18,19 @@ public class QuestRewardService
     public static int AdjustedBaseExp(int baseExp) =>
         (int)Math.Floor(Math.Max(0, baseExp) * BaseExpRewardMultiplier);
 
-    /// <summary>撤退時に受け取れる基本報酬の割合。道中の戦利品は減額せず全て持ち帰れる。</summary>
-    public const float RetreatRewardRate = 0f;
+    /// <summary>
+    /// 撤退時に受け取れる基本報酬の割合。道中の戦利品は減額せず全て持ち帰れる。
+    /// 一度引き返しただけで遠征費が丸ごと焦げ付くと、失敗が即立て直し不能につながる。
+    /// 依頼の達成そのものはギルドポイントで報いるので、撤退では金銭だけを部分的に支払う。
+    /// </summary>
+    public const float RetreatRewardRate = 0.4f;
+
+    /// <summary>
+    /// 撤退報酬の割合を日本語の文へそのまま差し込める表記にしたもの。
+    /// パーセント書式は実行環境によって「40 %」と空白が入るので、画面表示ではこちらを使う。
+    /// </summary>
+    public static string RetreatRewardRateText =>
+        $"{(int)Math.Round(RetreatRewardRate * 100)}%";
 
     /// <summary>宝箱がハズレ（空っぽ）になる確率。ボスの宝箱はこの抽選を受けない。</summary>
     public const float EmptyChestRate = 0.1f;
@@ -114,12 +125,13 @@ public class QuestRewardService
             ? Math.Max(0, q.gatheredCount - q.def.gatherTargetCount)
             : 0;
         int gatherGold = surplusGathered * q.def.gatherGoldPerItem;
-        if (gatherGold > 0 && !q.retreated)
-            q.logs.Add($"{prefix} {q.def.gatherItemName} 余剰 {surplusGathered}個 買取 +{gatherGold}G");
+        if (gatherGold > 0)
+            q.logs.Add($"{prefix} {q.def.gatherItemName} 余剰 {surplusGathered}個 買取 +{gatherGold}G"
+                + (q.retreated ? $"（撤退のため {RetreatRewardRateText} 支給）" : ""));
 
         float rate = q.retreated ? RetreatRewardRate : 1f;
         if (q.retreated)
-            q.logs.Add($"{prefix} 撤退のため基本報酬は {RetreatRewardRate:P0}（戦利品はそのまま持ち帰り）");
+            q.logs.Add($"{prefix} 撤退のため基本報酬は {RetreatRewardRateText}（戦利品はそのまま持ち帰り）");
 
         // 連れて行った顔ぶれのスキル（値切り・目利き・教導など）は報酬そのものに効く。
         var partySkills = PartySkillEffects.Of(q.formation);
@@ -131,8 +143,9 @@ public class QuestRewardService
         string goldSkillNote = partySkills.goldPercent != 0 ? $" / スキル {partySkills.goldPercent:+#;-#;0}%" : "";
         if (q.retreated)
         {
-            int unpaidGold = adjustedBaseGold + gatherGold;
-            q.logs.Add($"{prefix} 資金 +{gold}G（撤退のため基本報酬{unpaidGold}Gは不支給）");
+            int fullGold = adjustedBaseGold + gatherGold;
+            q.logs.Add($"{prefix} 資金 +{gold}G"
+                + $"（撤退のため基本報酬{fullGold}Gの{RetreatRewardRateText}のみ支給）");
         }
         else
         {

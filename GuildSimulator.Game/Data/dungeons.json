@@ -4,10 +4,10 @@
     "dungeonName": "静寂の草原",
     "eventTable": {
       "EnemyEncounter": 3,
-      "Nothing": 7,
+      "Nothing": 2,
       "Trap": 1,
-      "Treasure": 1,
-      "Heal": 1
+      "Treasure": 3,
+      "Heal": 3
     },
     "encounterTable": [
       {
@@ -111,7 +111,7 @@
       {
         "type": 2,
         "gold": 10,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 1,
         "maxQuestRank": 1
@@ -119,7 +119,7 @@
       {
         "type": 2,
         "gold": 20,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 1,
         "maxQuestRank": 1
@@ -135,7 +135,7 @@
       {
         "type": 2,
         "gold": 25,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -143,7 +143,7 @@
       {
         "type": 2,
         "gold": 50,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -159,7 +159,7 @@
       {
         "type": 2,
         "gold": 50,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -167,7 +167,7 @@
       {
         "type": 2,
         "gold": 100,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -183,7 +183,7 @@
       {
         "type": 1,
         "equipmentId": "eq_spear_01",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 1,
         "maxQuestRank": 1
@@ -191,7 +191,7 @@
       {
         "type": 1,
         "equipmentId": "eq_leathercap_01",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 1,
         "maxQuestRank": 1
@@ -199,7 +199,7 @@
       {
         "type": 1,
         "equipmentId": "eq_accessory_camp_prayer_stone",
-        "weight": 1,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 1,
         "maxQuestRank": 1
@@ -207,7 +207,7 @@
       {
         "type": 1,
         "equipmentId": "eq_spear_02",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -215,7 +215,7 @@
       {
         "type": 1,
         "equipmentId": "eq_leather_01",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -223,7 +223,7 @@
       {
         "type": 1,
         "equipmentId": "eq_spear_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -231,7 +231,7 @@
       {
         "type": 1,
         "equipmentId": "eq_ironplate_01",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -239,19 +239,19 @@
       {
         "type": 4,
         "consumableId": "item_camp_herbal_tea",
-        "weight": 3,
+        "weight": 4,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_trap_kit",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_vital_tonic",
-        "weight": 1,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 3
@@ -304,10 +304,10 @@
     "dungeonName": "流れる森",
     "eventTable": {
       "EnemyEncounter": 6,
-      "Nothing": 6,
+      "Nothing": 3,
       "Trap": 2,
-      "Treasure": 2,
-      "Heal": 1
+      "Treasure": 3,
+      "Heal": 3
     },
     "encounterTable": [
       {
@@ -495,7 +495,7 @@
       {
         "type": 2,
         "gold": 10,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 1,
         "maxQuestRank": 1
@@ -503,7 +503,7 @@
       {
         "type": 2,
         "gold": 20,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 1,
         "maxQuestRank": 1
@@ -519,7 +519,7 @@
       {
         "type": 2,
         "gold": 25,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -527,7 +527,7 @@
       {
         "type": 2,
         "gold": 50,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -543,7 +543,7 @@
       {
         "type": 2,
         "gold": 50,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -551,7 +551,7 @@
       {
         "type": 2,
         "gold": 100,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -567,19 +567,19 @@
       {
         "type": 4,
         "consumableId": "item_trap_kit",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_vital_tonic",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_explorers_pendulum",
-        "weight": 1,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 3
@@ -587,7 +587,7 @@
       {
         "type": 1,
         "equipmentId": "eq_bow_01",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 1,
         "maxQuestRank": 1
@@ -595,7 +595,7 @@
       {
         "type": 1,
         "equipmentId": "eq_wind_01",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 1,
         "maxQuestRank": 1
@@ -603,7 +603,7 @@
       {
         "type": 1,
         "equipmentId": "eq_accessory_caravan_strap",
-        "weight": 1,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 1,
         "maxQuestRank": 1
@@ -611,7 +611,7 @@
       {
         "type": 1,
         "equipmentId": "eq_bow_02",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -619,7 +619,7 @@
       {
         "type": 1,
         "equipmentId": "eq_wind_02",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -627,7 +627,7 @@
       {
         "type": 1,
         "equipmentId": "eq_accessory_moonsilver_charm",
-        "weight": 1,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -635,7 +635,7 @@
       {
         "type": 1,
         "equipmentId": "eq_bow_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -643,7 +643,7 @@
       {
         "type": 1,
         "equipmentId": "eq_wind_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -728,10 +728,10 @@
     "dungeonName": "天城（あましろ）",
     "eventTable": {
       "EnemyEncounter": 5,
-      "Nothing": 6,
+      "Nothing": 3,
       "Trap": 3,
-      "Treasure": 2,
-      "Heal": 3
+      "Treasure": 4,
+      "Heal": 4
     },
     "encounterTable": [
       {
@@ -859,7 +859,7 @@
       {
         "type": 2,
         "gold": 25,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -867,7 +867,7 @@
       {
         "type": 2,
         "gold": 50,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -883,7 +883,7 @@
       {
         "type": 2,
         "gold": 50,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -891,7 +891,7 @@
       {
         "type": 2,
         "gold": 100,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -907,25 +907,25 @@
       {
         "type": 4,
         "consumableId": "item_courage_incense",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_trap_kit",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_lucky_coin",
-        "weight": 1,
+        "weight": 2,
         "unique": false
       },
       {
         "type": 1,
         "equipmentId": "eq_sword_02",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -933,7 +933,7 @@
       {
         "type": 1,
         "equipmentId": "eq_bow_02",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -941,7 +941,7 @@
       {
         "type": 1,
         "equipmentId": "eq_chain_01",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -949,7 +949,7 @@
       {
         "type": 1,
         "equipmentId": "eq_accessory_vanguard_tassel",
-        "weight": 1,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -957,7 +957,7 @@
       {
         "type": 1,
         "equipmentId": "eq_sword_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -965,7 +965,7 @@
       {
         "type": 1,
         "equipmentId": "eq_bow_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -973,7 +973,7 @@
       {
         "type": 1,
         "equipmentId": "eq_axe_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -1023,7 +1023,7 @@
       {
         "type": 2,
         "gold": 150,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 4,
         "maxQuestRank": 4
@@ -1031,7 +1031,7 @@
       {
         "type": 2,
         "gold": 300,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 5,
         "maxQuestRank": 5
@@ -1039,7 +1039,7 @@
       {
         "type": 2,
         "gold": 500,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 6,
         "maxQuestRank": 7
@@ -1047,7 +1047,7 @@
       {
         "type": 1,
         "equipmentId": "eq_wind_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 4,
         "maxQuestRank": 7
@@ -1055,7 +1055,7 @@
       {
         "type": 1,
         "equipmentId": "eq_water_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 5,
         "maxQuestRank": 7
@@ -1063,7 +1063,7 @@
       {
         "type": 1,
         "equipmentId": "eq_drop_wyvern_scale",
-        "weight": 1,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 5,
         "maxQuestRank": 7
@@ -1091,10 +1091,10 @@
     "dungeonName": "ミドルオーシャン",
     "eventTable": {
       "EnemyEncounter": 7,
-      "Nothing": 4,
+      "Nothing": 2,
       "Trap": 2,
-      "Treasure": 4,
-      "Heal": 2
+      "Treasure": 5,
+      "Heal": 3
     },
     "encounterTable": [
       {
@@ -1174,7 +1174,7 @@
       {
         "type": 2,
         "gold": 250,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 5,
         "maxQuestRank": 7
@@ -1182,7 +1182,7 @@
       {
         "type": 2,
         "gold": 500,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 5,
         "maxQuestRank": 7
@@ -1198,31 +1198,31 @@
       {
         "type": 4,
         "consumableId": "item_stardust_catalyst",
-        "weight": 3,
+        "weight": 4,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_sage_scroll",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_lucky_coin",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_vital_tonic",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 1,
         "equipmentId": "eq_water_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 5,
         "maxQuestRank": 7
@@ -1230,7 +1230,7 @@
       {
         "type": 1,
         "equipmentId": "eq_wind_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 5,
         "maxQuestRank": 7
@@ -1238,7 +1238,7 @@
       {
         "type": 1,
         "equipmentId": "eq_Light_03",
-        "weight": 1,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 6,
         "maxQuestRank": 7
@@ -1267,10 +1267,10 @@
     "dungeonName": "打ち捨てられた廃坑",
     "eventTable": {
       "EnemyEncounter": 6,
-      "Nothing": 5,
+      "Nothing": 3,
       "Trap": 4,
-      "Treasure": 3,
-      "Heal": 1
+      "Treasure": 4,
+      "Heal": 2
     },
     "encounterTable": [
       {
@@ -1338,7 +1338,7 @@
       {
         "type": 2,
         "gold": 25,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -1346,7 +1346,7 @@
       {
         "type": 2,
         "gold": 50,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -1362,7 +1362,7 @@
       {
         "type": 2,
         "gold": 50,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -1370,7 +1370,7 @@
       {
         "type": 2,
         "gold": 100,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -1386,19 +1386,19 @@
       {
         "type": 4,
         "consumableId": "item_trap_kit",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_sharpeners_black_oil",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_sage_scroll",
-        "weight": 1,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -1406,7 +1406,7 @@
       {
         "type": 1,
         "equipmentId": "eq_chain_01",
-        "weight": 1,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -1414,7 +1414,7 @@
       {
         "type": 1,
         "equipmentId": "eq_axe_02",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -1422,7 +1422,7 @@
       {
         "type": 1,
         "equipmentId": "eq_spear_02",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -1430,7 +1430,7 @@
       {
         "type": 1,
         "equipmentId": "eq_robe_02",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 2,
         "maxQuestRank": 2
@@ -1438,7 +1438,7 @@
       {
         "type": 1,
         "equipmentId": "eq_axe_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -1446,7 +1446,7 @@
       {
         "type": 1,
         "equipmentId": "eq_spear_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -1454,7 +1454,7 @@
       {
         "type": 1,
         "equipmentId": "eq_earth_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -1462,7 +1462,7 @@
       {
         "type": 1,
         "equipmentId": "eq_accessory_blacksteel_ring",
-        "weight": 1,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -1531,10 +1531,10 @@
     "dungeonName": "古の墓所",
     "eventTable": {
       "EnemyEncounter": 8,
-      "Nothing": 4,
+      "Nothing": 2,
       "Trap": 4,
-      "Treasure": 3,
-      "Heal": 1
+      "Treasure": 4,
+      "Heal": 2
     },
     "encounterTable": [
       {
@@ -1614,7 +1614,7 @@
       {
         "type": 2,
         "gold": 50,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -1622,7 +1622,7 @@
       {
         "type": 2,
         "gold": 100,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -1638,61 +1638,61 @@
       {
         "type": 4,
         "consumableId": "item_courage_incense",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_stardust_catalyst",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_graverobbers_key",
-        "weight": 1,
+        "weight": 2,
         "unique": false
       },
       {
         "type": 1,
         "equipmentId": "eq_robe_02",
-        "weight": 1,
+        "weight": 2,
         "unique": false
       },
       {
         "type": 1,
         "equipmentId": "eq_sword_03",
-        "weight": 1,
+        "weight": 2,
         "unique": false
       },
       {
         "type": 1,
         "equipmentId": "eq_fire_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 1,
         "equipmentId": "eq_Light_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 1,
         "equipmentId": "eq_dark_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 1,
         "equipmentId": "eq_plate_02",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 1,
         "equipmentId": "eq_accessory_lifebond_amber",
-        "weight": 1,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -1773,10 +1773,10 @@
     "dungeonName": "旧市街",
     "eventTable": {
       "EnemyEncounter": 7,
-      "Nothing": 4,
+      "Nothing": 2,
       "Trap": 4,
-      "Treasure": 4,
-      "Heal": 1
+      "Treasure": 5,
+      "Heal": 2
     },
     "encounterTable": [
       {
@@ -1820,7 +1820,7 @@
       {
         "type": 2,
         "gold": 50,
-        "weight": 3,
+        "weight": 2,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -1828,7 +1828,7 @@
       {
         "type": 2,
         "gold": 100,
-        "weight": 2,
+        "weight": 1,
         "unique": false,
         "minQuestRank": 3,
         "maxQuestRank": 3
@@ -1844,37 +1844,37 @@
       {
         "type": 4,
         "consumableId": "item_explorers_pendulum",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_lucky_coin",
-        "weight": 1,
+        "weight": 2,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_sage_scroll",
-        "weight": 1,
+        "weight": 2,
         "unique": false
       },
       {
         "type": 4,
         "consumableId": "item_graverobbers_key",
-        "weight": 1,
+        "weight": 2,
         "unique": false
       },
       {
         "type": 1,
         "equipmentId": "eq_chain_01",
-        "weight": 3,
+        "weight": 4,
         "unique": false
       },
       {
         "type": 1,
         "equipmentId": "eq_sword_03",
-        "weight": 2,
+        "weight": 3,
         "unique": false
       },
       {
