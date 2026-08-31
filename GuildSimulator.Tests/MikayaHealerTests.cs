@@ -21,8 +21,14 @@ public class MikayaHealerTests
     static AdventurerMasterData Mikaya(GameMasterData db) =>
         db.allAdventurers.Single(a => a.id == MikayaId);
 
-    static int FiveStatTotal(AdventurerMasterData a) =>
-        a.vitality + a.mental + a.strength + a.agility + a.intelligence;
+    /// <summary>
+    /// 素質＝Lv1換算の7能力合計。体格と容姿はレベルで伸びないので素質の一部として
+    /// 最初から配られており、5能力だけで比べると体格に振った冒険者が不当に低く見える。
+    /// </summary>
+    static int Talent(AdventurerMasterData a) =>
+        a.vitality + a.mental + a.strength + a.agility + a.intelligence
+        + a.constitution + a.appearance
+        - (a.defaultLevel - 1) * AdventurerData.StatPointsPerLevel;
 
     static IUnitMember?[] Side(params IUnitMember?[] members)
     {
@@ -96,16 +102,26 @@ public class MikayaHealerTests
     }
 
     [Fact]
-    public void MikayaStartsOutJustAboveTheUncommonAdventurers()
+    public void MikayaCarriesTheRarityPremiumOnTopOfHerLevels()
     {
         var db = Load();
         var mikaya = Mikaya(db);
-        int best = db.allAdventurers
-            .Where(a => a.rarity == Rarity.Uncommon)
-            .Max(FiveStatTotal);
 
-        // 「アンコモンより少し高い」。上回っていること自体と、上回りすぎないことの両方を固定する。
-        Assert.InRange(FiveStatTotal(mikaya) - best, 1, 5);
+        // 強さは「素質＋レベル」の2階建て。レアリティは素質の側にだけ乗る。
+        Assert.Equal(70, Talent(mikaya));
+        Assert.Equal(
+            Talent(mikaya) + (mikaya.defaultLevel - 1),
+            mikaya.vitality + mikaya.mental + mikaya.strength + mikaya.agility
+            + mikaya.intelligence + mikaya.constitution + mikaya.appearance);
+
+        // 帯より1段上のレアリティは素質+5。同じE帯のUncommonを4〜5点上回る。
+        int bandBest = db.allAdventurers
+            .Where(a => a.defaultRank == mikaya.defaultRank && a.id != MikayaId)
+            .Max(Talent);
+        Assert.InRange(Talent(mikaya) - bandBest, 4, 5);
+
+        // 上乗せは1段だけ。70が名簿全体の素質上限で、レアでもここより上には行かない。
+        Assert.Equal(70, db.allAdventurers.Max(Talent));
 
         // 小柄な体格。SIZは成長しないので、雇った瞬間の値がそのまま彼女の体つきになる。
         Assert.True(
