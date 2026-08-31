@@ -1028,6 +1028,11 @@ Lv5 は習熟度8,800と遠いので、**終盤の目標**として置いてあ�
 同系統は最上位だけが効くので、`classSkills` に Lv1〜Lv5 を全部並べても二重には乗りません。
 低いLvを並べるのは「育つ途中の姿」を作るためです。
 
+**同じ理由で、`onHitStatuses` / `battleStartStatuses` は上位段にも必ず書き写してください。**
+下のLvにしかない付与効果は、Lvを上げた瞬間に黙って消えます（弓マスタリーLv1の出血が
+Lv2で消えていた実例があります）。`SkillProgressionTests` の
+`ATierNeverLosesTheStatusEffectThatALowerTierAlreadyGranted` が全系統を見張っています。
+
 なお `MasterLoader` はスキルIDが解決できない `classSkills` を黙って読み飛ばします。
 ID を打ち間違えるとそのスキルは永久に手に入らないので、追加したら
 「職業とマスタリー」ヘルプ（`dotnet run --project GuildSimulator.Cli` → `H` → `8`）に

@@ -31,7 +31,9 @@ public class FEnemyBalanceTests
         var thrower = new EnemyData(db.enemies["enemy_goblin_thrower"]);
         Assert.Equal(1, thrower.Threat);
         Assert.Equal("1d2", thrower.DamageDice);
-        Assert.Equal(8, EffectivePv(thrower, isFront: false));
+        // 弓マスタリーが全段で出血を配るようになったぶん、投擲兵は1段下げてPVを1点返した。
+        // 出血込みでFランク1対1の敗北率を目標帯へ戻すための調整（GrasslandSoloLossRates参照）。
+        Assert.Equal(7, EffectivePv(thrower, isFront: false));
         Assert.Equal(6, thrower.master.exp);
 
         var lupus = new EnemyData(db.enemies["enemy_forest_wolf"]);

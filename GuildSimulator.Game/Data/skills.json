@@ -270,7 +270,16 @@
       "pv": 2,
       "toHit": 2
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Bleeding",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
   },
   {
     "id": "skill_bowMastery_lv3",
@@ -285,7 +294,16 @@
       "pv": 3,
       "toHit": 3
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Bleeding",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
   },
   {
     "id": "skill_bowMastery_lv4",
@@ -300,7 +318,16 @@
       "pv": 4,
       "toHit": 4
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Bleeding",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
   },
   {
     "id": "skill_bowMastery_lv5",
@@ -316,7 +343,16 @@
       "toHit": 5,
       "critRange": 1
     },
-    "mul": {}
+    "mul": {},
+    "onHitStatuses": [
+      {
+        "type": "Bleeding",
+        "target": "Enemy",
+        "chancePercent": 35,
+        "durationRounds": 3,
+        "potency": 3
+      }
+    ]
   },
   {
     "id": "skill_daggerMastery_lv1",

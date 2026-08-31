@@ -207,7 +207,7 @@
     "defaultWeaponId": "eq_sling_01",
     "defaultArmorId": "",
     "skillIds": [
-      "skill_bowMastery_lv5"
+      "skill_bowMastery_lv4"
     ],
     "naturalPv": 4,
     "threat": 1,

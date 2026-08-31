@@ -107,6 +107,36 @@ public class SkillProgressionTests
     }
 
     [Fact]
+    public void ATierNeverLosesTheStatusEffectThatALowerTierAlreadyGranted()
+    {
+        // 同系統は最上位1つしか効かない。下のLvにしかない付与効果は、
+        // Lvを上げた瞬間に黙って消える（弓Lv1の出血がLv2で消えていた再発を防ぐ）。
+        var db = Load();
+        var regressions = new List<string>();
+
+        foreach (var family in db.skills.Values
+                     .Where(s => !string.IsNullOrEmpty(s.family))
+                     .GroupBy(s => s.family))
+        {
+            var tiers = family.OrderBy(s => s.level).ToList();
+            for (int i = 0; i < tiers.Count; i++)
+                foreach (var upper in tiers.Skip(i + 1))
+                {
+                    regressions.AddRange(MissingTypes(tiers[i].onHitStatuses, upper.onHitStatuses)
+                        .Select(type => $"{upper.skillName}: 命中時の{type}が{tiers[i].skillName}から引き継がれていない"));
+                    regressions.AddRange(MissingTypes(tiers[i].battleStartStatuses, upper.battleStartStatuses)
+                        .Select(type => $"{upper.skillName}: 開始時の{type}が{tiers[i].skillName}から引き継がれていない"));
+                }
+        }
+
+        Assert.Empty(regressions);
+    }
+
+    static IEnumerable<CombatStatusType> MissingTypes(
+        List<CombatStatusApplicationData> lower, List<CombatStatusApplicationData> upper) =>
+        lower.Select(x => x.type).Distinct().Where(type => upper.All(x => x.type != type));
+
+    [Fact]
     public void ApprovedClassRosterAndNewSignatureTreesArePresent()
     {
         var db = Load();
