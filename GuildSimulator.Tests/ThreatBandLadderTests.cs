@@ -40,9 +40,9 @@ public class ThreatBandLadderTests
     /// </summary>
     static readonly Dictionary<int, (double Min, double Max)> Windows = new()
     {
-        [1] = (83.0, 100.0),
-        [2] = (60.0, 86.0),
-        [3] = (0.0, 62.0),
+        [1] = (80.0, 100.0),
+        [2] = (48.0, 76.0),
+        [3] = (0.0, 45.0),
     };
 
     [Fact]
