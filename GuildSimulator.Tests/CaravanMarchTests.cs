@@ -128,10 +128,18 @@ public class CaravanMarchTests
             .OrderBy(entry => entry.requiredClearCount)
             .ToList();
 
-        Assert.Equal(2, wagonEntries.Count);
+        Assert.Equal(new[] { 1, 2, 3, 4, 5 }, wagonEntries.Select(entry => entry.Skill!.level).ToArray());
         Assert.All(wagonEntries, entry => Assert.True(entry.Skill!.expedition.phasesPerTurnBonus > 0));
         // 就いた瞬間に手に入ると、転職で覚えるだけ覚えて戻る抜き取りができてしまう。
         Assert.All(wagonEntries, entry => Assert.True(entry.requiredClearCount > 0));
+
+        // 弓は狩人に譲った。同じ得物を持つ2職が同じ強さで並ぶのをやめ、
+        // 隊商人は戦闘力ではなく行軍と実入りで選ばれる職業にする。
+        var bowLevels = caravaner.classSkills
+            .Where(entry => entry.Skill?.family == "mastery_bow")
+            .Select(entry => entry.Skill!.level)
+            .ToArray();
+        Assert.Equal(new[] { 1, 2 }, bowLevels);
 
         var others = db.classes.Values
             .Where(cls => cls.id != "class_Caravaner")

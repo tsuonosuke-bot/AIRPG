@@ -2083,6 +2083,30 @@
     }
   },
   {
+    "id": "skill_wagon_lv4",
+    "skillName": "幌馬車 Lv4",
+    "family": "wagon",
+    "level": 4,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "phasesPerTurnBonus": 4
+    }
+  },
+  {
+    "id": "skill_wagon_lv5",
+    "skillName": "幌馬車 Lv5",
+    "family": "wagon",
+    "level": 5,
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "phasesPerTurnBonus": 5
+    }
+  },
+  {
     "id": "skill_treasureHunter_lv1",
     "skillName": "宝探し Lv1",
     "family": "treasure_hunter",

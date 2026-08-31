@@ -133,7 +133,8 @@ public class SkillProgressionTests
 
         AssertSignatureTree(db.classes["class_MartialArtist"], "martial_arts");
         AssertSignatureTree(db.classes["class_Warder"], "mastery_earth");
-        AssertSignatureTree(db.classes["class_Caravaner"], "mastery_bow");
+        // 隊商人の背骨は弓ではなく行軍。弓は狩人に譲ってLv2止まりにしてある。
+        AssertSignatureTree(db.classes["class_Caravaner"], "wagon");
         AssertSignatureTree(db.classes["class_WaterMage"], "mastery_water");
         AssertSignatureTree(db.classes["class_WindMage"], "mastery_wind");
         AssertSignatureTree(db.classes["class_DarkMage"], "mastery_dark");

@@ -588,7 +588,7 @@
         "requiredClearCount": 1200
       },
       {
-        "skillId": "skill_bowMastery_lv3",
+        "skillId": "skill_wagon_lv2",
         "requiredClearCount": 1800
       },
       {
@@ -600,23 +600,23 @@
         "requiredClearCount": 3300
       },
       {
-        "skillId": "skill_wagon_lv2",
+        "skillId": "skill_wagon_lv3",
         "requiredClearCount": 4200
       },
       {
-        "skillId": "skill_bowMastery_lv4",
+        "skillId": "skill_haggle_lv3",
         "requiredClearCount": 5200
       },
       {
-        "skillId": "skill_haggle_lv2",
+        "skillId": "skill_wagon_lv4",
         "requiredClearCount": 6300
       },
       {
-        "skillId": "skill_mentor_lv2",
+        "skillId": "skill_mentor_lv3",
         "requiredClearCount": 7500
       },
       {
-        "skillId": "skill_bowMastery_lv5",
+        "skillId": "skill_wagon_lv5",
         "requiredClearCount": 8800
       }
     ]
