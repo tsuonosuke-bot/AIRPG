@@ -108,12 +108,26 @@ public struct SkillExpeditionEffect
     /// </summary>
     public int phasesPerTurnBonus;
 
+    /// <summary>
+    /// 戦闘に勝ったあと、生き残った隊員が最大HPのこの割合（%）だけ回復する。
+    /// 休息イベントと違って場所を選ばず、勝つたびに少しずつ返ってくる。
+    /// </summary>
+    public int postBattleHealPercent;
+
+    /// <summary>
+    /// 同じ効果を持つ隊員が1人増えるごとに <see cref="postBattleHealPercent"/> へ加える割合（%）。
+    /// この効果だけは人数ぶん素直に足し合わせず、いちばん高い1つを基準に人数で色を付ける。
+    /// 足し算にすると4人で4倍になり、「みんなで囲む食卓」ではなく「4回食べる」になってしまう。
+    /// </summary>
+    public int postBattleHealPerCompanionPercent;
+
     public bool IsEmpty =>
         goldPercent == 0 && expPercent == 0
         && treasureChancePercent == 0 && trapChancePercent == 0
         && enemyEncounterChancePercent == 0 && healEventChancePercent == 0
         && restHealPercent == 0 && enemyDropChancePercent == 0
-        && rareDropChancePercent == 0 && phasesPerTurnBonus == 0;
+        && rareDropChancePercent == 0 && phasesPerTurnBonus == 0
+        && postBattleHealPercent == 0 && postBattleHealPerCompanionPercent == 0;
 }
 
 /// <summary>

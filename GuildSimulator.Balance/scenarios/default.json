@@ -10,7 +10,7 @@
       "party": [
         { "id": "adv_0001", "formationSlot": 1 },
         { "id": "adv_0002", "formationSlot": 2 },
-        { "id": "adv_0003", "formationSlot": 4 }
+        { "id": "adv_0026", "formationSlot": 4 }
       ],
       "enemyUnitId": "unit_goblin_group",
       "policy": "ObjectiveFirst"
@@ -22,7 +22,7 @@
       "party": [
         { "id": "adv_0001", "formationSlot": 1 },
         { "id": "adv_0002", "formationSlot": 2 },
-        { "id": "adv_0003", "formationSlot": 4 }
+        { "id": "adv_0026", "formationSlot": 4 }
       ],
       "questId": "quest_slime_cull",
       "policy": "ObjectiveFirst",
@@ -37,7 +37,7 @@
       "party": [
         { "id": "adv_0001", "formationSlot": 1 },
         { "id": "adv_0002", "formationSlot": 2 },
-        { "id": "adv_0003", "formationSlot": 4 }
+        { "id": "adv_0026", "formationSlot": 4 }
       ],
       "questId": "quest_herb",
       "policy": "SurvivalFirst",

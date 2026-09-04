@@ -48,15 +48,15 @@
   {
     "id": "adv_0003",
     "baseName": "マルシル",
-    "defaultLevel": 1,
-    "defaultRank": 1,
-    "recruitGuildRank": 1,
+    "defaultLevel": 7,
+    "defaultRank": 2,
+    "recruitGuildRank": 2,
     "recruitWeight": 30,
-    "vitality": 7,
-    "mental": 15,
+    "vitality": 8,
+    "mental": 17,
     "strength": 5,
-    "agility": 9,
-    "intelligence": 15,
+    "agility": 10,
+    "intelligence": 17,
     "constitution": 7,
     "appearance": 12,
     "gender": "Female",
@@ -64,9 +64,11 @@
     "raceId": "Race_Elf",
     "defaultWeaponId": "eq_fire_01",
     "defaultArmorId": "eq_cloth_01",
-    "skillIds": [],
+    "skillIds": [
+      "skill_unique_monsterCuisine"
+    ],
     "rarity": "Rare",
-    "background": "エルフの女性。実戦経験はないが魔法学校を首席で卒業した。実際の年齢は不明。"
+    "background": "エルフの女性。魔法学校を首席で卒業したものの実戦は知らなかったが、地下大迷宮へ潜る隊に加わってからは、術より先に鍋の番を覚えたと嘆いている。実際の年齢は不明。"
   },
   {
     "id": "adv_0004",
@@ -690,5 +692,105 @@
     ],
     "rarity": "Rare",
     "background": "野戦の治療所で育った小柄な娘。銀の髪を布で括り、担架の間を縫って走りつづけた。傷を塞ぐ手より、隊の心が折れる瞬間を先に見つける目のほうが早いと言われる。"
+  },
+  {
+    "id": "adv_0031",
+    "baseName": "ライオス",
+    "defaultLevel": 8,
+    "defaultRank": 2,
+    "recruitGuildRank": 2,
+    "recruitWeight": 30,
+    "vitality": 14,
+    "mental": 11,
+    "strength": 14,
+    "agility": 6,
+    "intelligence": 9,
+    "constitution": 15,
+    "appearance": 8,
+    "gender": "Male",
+    "defaultClassId": "class_Steelcoat",
+    "raceId": "Race_Human",
+    "defaultWeaponId": "eq_spear_01",
+    "defaultArmorId": "eq_cloth_01",
+    "skillIds": [
+      "skill_unique_monsterCuisine"
+    ],
+    "rarity": "Rare",
+    "background": "甲冑の重さを苦にしない大柄な男。魔物の生態を語りだすと止まらず、隊列の最前で受け止めながら「こいつはどう食えるか」を考えている。"
+  },
+  {
+    "id": "adv_0032",
+    "baseName": "ファリン",
+    "defaultLevel": 8,
+    "defaultRank": 2,
+    "recruitGuildRank": 2,
+    "recruitWeight": 20,
+    "vitality": 10,
+    "mental": 16,
+    "strength": 7,
+    "agility": 8,
+    "intelligence": 11,
+    "constitution": 12,
+    "appearance": 13,
+    "gender": "Female",
+    "defaultClassId": "class_Healer",
+    "raceId": "Race_Dragon",
+    "defaultWeaponId": "eq_Light_01",
+    "defaultArmorId": "eq_cloth_01",
+    "skillIds": [
+      "skill_unique_monsterCuisine"
+    ],
+    "rarity": "Unique",
+    "background": "長身の龍族の女性。何を持ち帰っても顔色ひとつ変えずに手を合わせ、傷の手当てと同じ落ち着きで魔物の鱗を剥ぐ。隊の誰よりも物怖じしない。"
+  },
+  {
+    "id": "adv_0033",
+    "baseName": "チルチャック",
+    "defaultLevel": 8,
+    "defaultRank": 2,
+    "recruitGuildRank": 2,
+    "recruitWeight": 30,
+    "vitality": 10,
+    "mental": 12,
+    "strength": 10,
+    "agility": 17,
+    "intelligence": 13,
+    "constitution": 6,
+    "appearance": 9,
+    "gender": "Male",
+    "defaultClassId": "class_Rogue",
+    "raceId": "Race_Half",
+    "defaultWeaponId": "eq_dagger_01",
+    "defaultArmorId": "eq_cloth_01",
+    "skillIds": [
+      "skill_unique_monsterCuisine"
+    ],
+    "rarity": "Rare",
+    "background": "鍵と罠だけを引き受ける小柄な男。契約にない仕事は断ると言い張りながら、危ない橋を渡る前に必ず全員ぶんの下拵えを済ませている。"
+  },
+  {
+    "id": "adv_0034",
+    "baseName": "センシ",
+    "defaultLevel": 8,
+    "defaultRank": 2,
+    "recruitGuildRank": 2,
+    "recruitWeight": 30,
+    "vitality": 15,
+    "mental": 9,
+    "strength": 15,
+    "agility": 7,
+    "intelligence": 7,
+    "constitution": 16,
+    "appearance": 8,
+    "gender": "Male",
+    "defaultClassId": "class_warrior",
+    "raceId": "Race_Dwarf",
+    "defaultWeaponId": "eq_axe_01",
+    "defaultArmorId": "eq_cloth_01",
+    "skillIds": [
+      "skill_unique_monsterCuisine"
+    ],
+    "rarity": "Rare",
+    "background": "地下で暮らし続けた髭のドワーフ。斧より先に鍋を担ぎ、倒した魔物をその場で捌いて隊を食わせる。栄養の偏りには容赦がない。"
   }
 ]

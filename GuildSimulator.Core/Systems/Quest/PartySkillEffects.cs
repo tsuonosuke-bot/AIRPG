@@ -25,7 +25,8 @@ public readonly record struct PartySkillEffects(
     int restHealPercent,
     int enemyDropChancePercent,
     int rareDropChancePercent,
-    int phasesPerTurnBonus)
+    int phasesPerTurnBonus,
+    int postBattleHealPercent)
 {
     public static readonly PartySkillEffects None = default;
 
@@ -38,6 +39,11 @@ public readonly record struct PartySkillEffects(
     /// </summary>
     public const int MaxPhasesPerTurnBonus = 5;
 
+    /// <summary>
+    /// 戦闘後回復の上限（%）。人数で色が付く効果なので、編成を埋めれば伸び続ける形にはしない。
+    /// </summary>
+    public const int MaxPostBattleHealPercent = 25;
+
     public static PartySkillEffects Of(IEnumerable<AdventurerData?>? formation)
     {
         if (formation == null) return None;
@@ -45,9 +51,16 @@ public readonly record struct PartySkillEffects(
         int gold = 0, exp = 0, treasure = 0, trap = 0;
         int encounter = 0, healEvent = 0, restHeal = 0, enemyDrop = 0, rareDrop = 0;
         int phases = 0;
+
+        // 戦闘後回復だけは足し合わせない。「その場でいちばん腕の立つ者が振る舞い、
+        // 同じ心得を持つ仲間がいるほど食卓が豊かになる」という効きにしたいので、
+        // いちばん高い1つを基準にして、持ち主の人数で色を付ける（下の畳み込みを参照）。
+        int postBattleHealBase = 0, postBattleHealPerCompanion = 0, postBattleHealCarriers = 0;
+
         foreach (var a in formation)
         {
             if (a == null) continue;
+            bool carriesPostBattleHeal = false;
             foreach (var sk in a.Skills)
             {
                 var e = sk.expedition;
@@ -55,6 +68,14 @@ public readonly record struct PartySkillEffects(
 
                 // 遠征効果でも「構え」の条件は見る。重鎧を脱いだ者に重鎧の目利きは働かない。
                 if (!UnitCalculator.MeetsGearRequirements(sk, a)) continue;
+
+                if (e.postBattleHealPercent > 0)
+                {
+                    carriesPostBattleHeal = true;
+                    postBattleHealBase = Math.Max(postBattleHealBase, e.postBattleHealPercent);
+                    postBattleHealPerCompanion = Math.Max(
+                        postBattleHealPerCompanion, e.postBattleHealPerCompanionPercent);
+                }
 
                 gold += e.goldPercent;
                 exp += e.expPercent;
@@ -67,7 +88,13 @@ public readonly record struct PartySkillEffects(
                 rareDrop += e.rareDropChancePercent;
                 phases += e.phasesPerTurnBonus;
             }
+            if (carriesPostBattleHeal) postBattleHealCarriers++;
         }
+
+        // 1人目は基準値そのまま。2人目以降が1人増えるごとに上乗せが1回分ずつ乗る。
+        int postBattleHeal = postBattleHealCarriers == 0
+            ? 0
+            : postBattleHealBase + (postBattleHealCarriers - 1) * postBattleHealPerCompanion;
 
         return new PartySkillEffects(
             Math.Max(MinRewardPercent, gold),
@@ -79,7 +106,8 @@ public readonly record struct PartySkillEffects(
             restHeal,
             enemyDrop,
             rareDrop,
-            Math.Min(MaxPhasesPerTurnBonus, phases));
+            Math.Min(MaxPhasesPerTurnBonus, phases),
+            Math.Min(MaxPostBattleHealPercent, postBattleHeal));
     }
 
     /// <summary>
@@ -110,6 +138,18 @@ public readonly record struct PartySkillEffects(
 
     /// <summary>休息で回復するHPへの倍率。減少効果を足しても0未満にはしない。</summary>
     public float RestHealMultiplier => Math.Max(0f, 1f + restHealPercent / 100f);
+
+    /// <summary>
+    /// 戦闘に勝った直後、隊員が最大HPのうち何%を取り戻すか。0なら何も起きない。
+    /// 倒れた者は食卓に着けないので、回復するのは戦えるまま戦闘を終えた隊員だけ。
+    /// </summary>
+    public int PostBattleHealPercent => Math.Max(0, postBattleHealPercent);
+
+    /// <summary>この最大HPの隊員が戦闘後に取り戻す量。端数は切り上げ、効果があれば必ず1は返る。</summary>
+    public int PostBattleHealFor(int maxHp) =>
+        PostBattleHealPercent <= 0 || maxHp <= 0
+            ? 0
+            : Math.Max(1, (int)Math.Ceiling(maxHp * PostBattleHealPercent / 100f));
 
     /// <summary>
     /// 敵ドロップ1件の最終抽選率。

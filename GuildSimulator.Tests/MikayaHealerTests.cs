@@ -114,11 +114,12 @@ public class MikayaHealerTests
             mikaya.vitality + mikaya.mental + mikaya.strength + mikaya.agility
             + mikaya.intelligence + mikaya.constitution + mikaya.appearance);
 
-        // 帯より1段上のレアリティは素質+5。同じE帯のUncommonを4〜5点上回る。
-        int bandBest = db.allAdventurers
-            .Where(a => a.defaultRank == mikaya.defaultRank && a.id != MikayaId)
+        // 帯より1段上のレアリティは素質+5。比べる相手は帯の標準レアリティ
+        // （E帯ならUncommon）で、同じ枠のレア同士を比べても差は出ない。
+        int bandStandard = db.allAdventurers
+            .Where(a => a.defaultRank == mikaya.defaultRank && a.rarity == Rarity.Uncommon)
             .Max(Talent);
-        Assert.InRange(Talent(mikaya) - bandBest, 4, 5);
+        Assert.InRange(Talent(mikaya) - bandStandard, 4, 5);
 
         // 上乗せは1段だけ。70が名簿全体の素質上限で、レアでもここより上には行かない。
         Assert.Equal(70, db.allAdventurers.Max(Talent));

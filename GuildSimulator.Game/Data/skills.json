@@ -3092,5 +3092,16 @@
     "battle": {
       "moraleOnHealPercent": 2
     }
+  },
+  {
+    "id": "skill_unique_monsterCuisine",
+    "skillName": "モンスター食",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "postBattleHealPercent": 5,
+      "postBattleHealPerCompanionPercent": 1
+    }
   }
 ]

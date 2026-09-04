@@ -37,14 +37,14 @@ public class BalanceLabTests
                 {
                     id = "battle",
                     type = "battle",
-                    partyIds = { "adv_0001", "adv_0002", "adv_0003", "adv_0004" },
+                    partyIds = { "adv_0001", "adv_0002", "adv_0026", "adv_0004" },
                     enemyUnitId = "unit_slime_pair",
                 },
                 new BalanceScenario
                 {
                     id = "quest",
                     type = "quest",
-                    partyIds = { "adv_0001", "adv_0002", "adv_0003", "adv_0004" },
+                    partyIds = { "adv_0001", "adv_0002", "adv_0026", "adv_0004" },
                     partyCapacityUpgrades = 1,
                     questId = "quest_slime_cull",
                     startingGold = 5000,
@@ -161,7 +161,7 @@ public class BalanceLabTests
                 {
                     id = "growth-campaign",
                     type = "campaign",
-                    partyIds = { "adv_0001", "adv_0002", "adv_0003", "adv_0004" },
+                    partyIds = { "adv_0001", "adv_0002", "adv_0026", "adv_0004" },
                     partyCapacityUpgrades = 1,
                     partyLevel = 10,
                     partyRank = 2,
@@ -202,7 +202,7 @@ public class BalanceLabTests
                 {
                     id = "promotion-campaign",
                     type = "campaign",
-                    partyIds = { "adv_0001", "adv_0002", "adv_0003", "adv_0004" },
+                    partyIds = { "adv_0001", "adv_0002", "adv_0026", "adv_0004" },
                     partyCapacityUpgrades = 1,
                     partyLevel = 5,
                     questIds =
@@ -309,7 +309,7 @@ public class BalanceLabTests
                 {
                     id = "locked-fourth-member",
                     type = "quest",
-                    partyIds = { "adv_0001", "adv_0002", "adv_0003", "adv_0004" },
+                    partyIds = { "adv_0001", "adv_0002", "adv_0026", "adv_0004" },
                     questId = "quest_slime_cull",
                 },
             },
@@ -335,7 +335,7 @@ public class BalanceLabTests
                 {
                     id = "repeated-choice-events",
                     type = "campaign",
-                    partyIds = { "adv_0001", "adv_0002", "adv_0003" },
+                    partyIds = { "adv_0001", "adv_0002", "adv_0026" },
                     questIds =
                     {
                         "quest_slime_cull",
