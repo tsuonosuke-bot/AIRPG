@@ -107,14 +107,37 @@ public class EconomyAndRecruitmentTests
     [InlineData(Rarity.Common, 1, 83)]
     [InlineData(Rarity.Uncommon, 1, 114)]
     [InlineData(Rarity.Rare, 1, 146)]
+    [InlineData(Rarity.Unique, 1, 192)]
+    [InlineData(Rarity.Legend, 1, 254)]
     [InlineData(Rarity.Uncommon, 5, 450)]
     [InlineData(Rarity.Rare, 5, 488)]
+    [InlineData(Rarity.Unique, 5, 540)]
+    [InlineData(Rarity.Legend, 5, 608)]
     public void HireCostAddsRarityPremium(Rarity rarity, int level, int expected)
     {
         var master = Master("hire", level);
         master.rarity = rarity;
 
         Assert.Equal(expected, RecruitScreen.CalcHireCost(master));
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(8)]
+    [InlineData(30)]
+    public void EveryRarityStepCostsMoreThanTheOneBelowIt(int level)
+    {
+        // 書き漏らしたレアリティは switch の既定で0へ落ちるので、値そのものより
+        // 「段が上がるほど高い」という並びのほうを固定する。かつて Unique と Legend が
+        // 抜けていたとき、Uniqueの冒険者がRareより安いという逆転がここをすり抜けていた。
+        var ladder = new[] { Rarity.Common, Rarity.Uncommon, Rarity.Rare, Rarity.Unique, Rarity.Legend }
+            .Select(rarity => RecruitScreen.RarityHirePremium(rarity, level))
+            .ToArray();
+
+        Assert.Equal(0, ladder[0]);
+        for (int i = 1; i < ladder.Length; i++)
+            Assert.True(ladder[i] > ladder[i - 1],
+                $"Lv{level}: {(Rarity)i} の上乗せ {ladder[i]} が {(Rarity)(i - 1)} の {ladder[i - 1]} を上回っていない");
     }
 
     [Theory]

@@ -497,9 +497,21 @@ Balance Labで実測します（遭遇率25%・1戦闘あたり敵3体が基準�
 所属人数は同時に遠征できる編成人数とは別で、初期5人・宿舎をすべて建てて最大9人です。
 
 雇入れ費は `(max(10, Lv × 55) + レアリティ上乗せ) × 1.5`（端数四捨五入）です
-（`RecruitScreen.CalcHireCost`）。上乗せは Uncommon が `20 + Lv × 1`、Rare が `40 + Lv × 2`、
-Common は0です。倍率は `RecruitScreen.HireCostRatePercent` の1か所だけで持ち、
+（`RecruitScreen.CalcHireCost`）。倍率は `RecruitScreen.HireCostRatePercent` の1か所だけで持ち、
 Lv単価にもレアリティ上乗せにも同じように掛かります（Lv1のCommonで83G）。
+
+| レアリティ | 上乗せ | Lv8での上乗せ | Lv8の雇入れ費 |
+| --- | --- | ---: | ---: |
+| Common | 0 | 0 | 660G |
+| Uncommon | `20 + Lv × 1` | 28 | 702G |
+| Rare | `40 + Lv × 2` | 56 | 744G |
+| Unique | `70 + Lv × 3` | 94 | 801G |
+| Legend | `110 + Lv × 4` | 142 | 873G |
+
+**5段階すべてを `RecruitScreen.RarityHirePremium` に書きます。** 書き漏らしたレアリティは
+switch の既定で0へ落ち、**希少なほど安い**という逆転になります。実際 Unique と Legend が
+抜けていたせいで、Uniqueのファリンが Rare のライオスより安く雇えていました。
+`recruitWeight`（出にくさ）とこの表は必ず同じ向きに並べてください。
 在籍上限で人数を絞るぶん、1人あたりの雇入れ費を重くしてあります。
 
 | ランク | F | E | D | C | B | A | S |
