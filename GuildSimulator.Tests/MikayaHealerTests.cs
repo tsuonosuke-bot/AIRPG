@@ -153,7 +153,10 @@ public class MikayaHealerTests
     public void SilverMaidenGivesBackALittleMoraleOnEveryHeal()
     {
         var db = Load();
-        var patient = Plain("患者", 100, 20);
+        // 手当て1回で回復目標(HP70%)を越えてしまうと機会が1〜2回しかなく、
+        // 手元が狂う出目1（5%）が続いただけでテストが落ちる。深く削っておいて
+        // 何度も手当てが起きる形にし、1回ぶんの成功に賭けないようにする。
+        var patient = Plain("患者", 10_000, 2_000);
         var maiden = Plain("ミカヤ");
         maiden.SetEquipped(EquipSlot.RightHand, db.equipment["eq_Light_01"]);
         maiden.LearnPermanentSkill(db.skills[SkillId]);

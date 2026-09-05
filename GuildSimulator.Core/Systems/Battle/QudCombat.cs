@@ -87,6 +87,18 @@ public static class QudCombat
     }
 
     /// <summary>
+    /// 守り手の隙で、当たった一撃を会心へ引き上げる。
+    /// 会心域(critRange)は出目そのものを動かすため5%刻みでしか表せないので、
+    /// それより細かい確率はここで別に振る。外れた攻撃と、すでに会心の一撃は動かさない
+    /// （外れが会心になるのは筋が通らず、会心の二重取りにも意味がないため）。
+    /// </summary>
+    public static HitResult RaiseToCritical(HitResult check, int chancePercent)
+        => check.hit && !check.critical
+            && chancePercent > 0 && GameRandom.Range(0, 100) < Math.Min(chancePercent, 100)
+            ? check with { critical = true }
+            : check;
+
+    /// <summary>
     /// 貫通ダイス1個ぶん。1d10-2を振り、最大の出目(10 → +8)が出るたびに振り足して加算する。
     /// 上振れが青天井なので、AVが高くても薄い可能性で貫通の目が残る。
     /// </summary>

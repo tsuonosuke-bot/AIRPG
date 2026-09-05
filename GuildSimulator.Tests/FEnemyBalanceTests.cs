@@ -63,7 +63,7 @@ public class FEnemyBalanceTests
             .Where(master => master.defaultRank == 1 && master.defaultLevel == 1)
             .ToList();
         // Fランクの採用枠は絞ってあり、E・D帯の人材は雇入れ条件の解禁後に出てくる。
-        Assert.Equal(17, adventurers.Count);
+        Assert.Equal(20, adventurers.Count);
 
         var targets = new[]
         {

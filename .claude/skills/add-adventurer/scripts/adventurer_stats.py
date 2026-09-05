@@ -54,6 +54,29 @@ RARITY_WEIGHT_RANGE = {
     "Legend": (0, 10), "Unique": (11, 25), "Rare": (26, 45),
     "Uncommon": (46, 75), "Common": (76, 10_000),
 }
+RARITY_ORDER = ["Common", "Uncommon", "Rare", "Unique", "Legend"]
+
+
+def band_standard_rarity(rank: int) -> str:
+    """その帯の標準レアリティ。
+
+    帯ごとに違う（F=Common、E=Uncommon、D=Rare、C=Unique、B以上=Legend）ので、
+    「Rareなら上乗せあり」と決め打ちしてはいけない。D帯ではRareが標準で、
+    上乗せは付かない。導出は RecruitmentSystem.DefaultWeightForGuildRank と
+    MasterLoader.DefaultAdventurerRarity を順に引いただけで、独自の表ではない。
+    """
+    weight = DEFAULT_WEIGHT.get(rank, 10)
+    for rarity, (low, high) in RARITY_WEIGHT_RANGE.items():
+        if low <= weight <= high:
+            return rarity
+    return "Common"
+
+
+def is_premium(rank: int, rarity: str) -> bool:
+    """帯の標準レアリティより上か。素質へ +5 が乗るのはこのときだけ。"""
+    if rarity not in RARITY_ORDER:
+        return False
+    return RARITY_ORDER.index(rarity) > RARITY_ORDER.index(band_standard_rarity(rank))
 
 
 def data_dir() -> Path:
@@ -156,7 +179,11 @@ def check(entry: dict, races: dict, classes: dict) -> list[str]:
             "レアなら必ず出にくくする")
 
     actual = talent(entry)
-    premium = weight is not None and weight < band_default
+    premium = is_premium(rank, rarity)
+    if premium and weight is not None and weight >= band_default:
+        problems.append(
+            f"{rarity} は{RANK_LABEL[rank]}帯の標準({band_standard_rarity(rank)})より上なのに、"
+            f"recruitWeight {weight} が帯の既定 {band_default} 以上")
     expected = PREMIUM_TALENT if premium else BAND_TALENT
     if actual > PREMIUM_TALENT:
         problems.append(f"素質 {actual} が上限 {PREMIUM_TALENT} を超えている")
@@ -214,7 +241,7 @@ def cmd_plan(args) -> int:
         sys.exit(f"{race['raceName']} は {cls['className']} に就けません。"
                  f"就ける職業: {', '.join(race['allowedClassIds'])}")
 
-    premium = args.rarity not in ("Common", "Uncommon") or args.premium
+    premium = is_premium(args.rank, args.rarity) or args.premium
     goal = PREMIUM_TALENT if premium else BAND_TALENT
     budget = goal - args.con - args.app
     if budget < len(GROWN):
@@ -249,8 +276,11 @@ def cmd_plan(args) -> int:
     final = {stat: base[stat] + grown[stat] for stat in GROWN}
 
     print(f"{race['raceName']} / {cls['className']} / Lv{args.level} / {args.rarity}")
+    standard = band_standard_rarity(args.rank)
     print(f"素質(7能力) {goal} ＝ 帯の基準{BAND_TALENT}"
-          f"{f' + レアリティ上乗せ{PREMIUM_TALENT - BAND_TALENT}' if premium else ''}\n")
+          + (f" + レアリティ上乗せ{PREMIUM_TALENT - BAND_TALENT}"
+             f"（{RANK_LABEL[args.rank]}帯の標準は{standard}）" if premium
+             else f"（{args.rarity} は{RANK_LABEL[args.rank]}帯の標準レアリティなので上乗せなし）") + "\n")
     print(f"{'':6}{'Lv1':>6}{'成長':>6}{'最終':>6}{'重み':>8}")
     for stat in GROWN:
         print(f"{LABEL[stat]:<6}{base[stat]:>6}{grown[stat]:>+6}{final[stat]:>6}{weights[stat]:>8.2f}")
@@ -304,7 +334,7 @@ def main() -> int:
                         help="省略するとレベル帯から決める")
     p_plan.add_argument("--rarity", default="Uncommon")
     p_plan.add_argument("--premium", action="store_true",
-                        help="Uncommon でも帯より1段上として素質70で組む")
+                        help="帯の標準レアリティのままでも素質70で組む（例外を承知で作るとき）")
     p_plan.add_argument("--con", type=int, required=True, help="体格(SIZ)")
     p_plan.add_argument("--app", type=int, required=True, help="容姿(APP)")
     p_plan.add_argument("--base", help="Lv1の 体力,精神,筋力,敏捷,知力")

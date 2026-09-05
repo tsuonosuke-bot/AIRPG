@@ -98,6 +98,7 @@ public static class EquipmentText
         Add("貫通成功%", b.autoPenetrate);
         Add("会心PV", b.critPv);
         Add("応急処置%", b.emergencyHeal);
+        Add("被会心%", b.incomingCritChancePercent);
         return parts;
     }
 

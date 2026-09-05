@@ -29,8 +29,14 @@ JSONなので）。壊れていることに気づくのは、ゲームを遊ん�
   それは「経験を積んだ人」であって「素質に恵まれた人」ではないからです
 
 上乗せは **+5 の1段だけ**で、70が名簿全体の素質上限です。レアリティが2段上でも70より
-上には行きません（マルシルはF帯のRareですが、Uncommonのサトル・ゴードンと同じ70です）。
+上には行きません（F帯のUniqueであるエリウッドたちは、Uncommonのサトル・ゴードンと同じ70です）。
 レベルで縦に伸ばす帯の設計を、レアリティが横から飛び越えないようにするためです。
+
+**「帯より1段上」の基準は帯ごとに違います。** F=Common、E=Uncommon、D=Rare、
+C=Unique、B以上=Legend が各帯の標準です（`DefaultWeightForGuildRank` の既定重みを
+`DefaultAdventurerRarity` に通したもの）。**D帯のRareは標準なので上乗せは付きません。**
+「Rareなら上乗せあり」と決め打ちすると、D帯のRareに素質を5点多く配ってしまいます。
+判定は `adventurer_stats.py` がやるので、手で決めないでください。
 
 ## 手順
 
@@ -96,9 +102,13 @@ python3 .claude/skills/add-adventurer/scripts/adventurer_stats.py plan \
 - 職業の看板と噛み合う装備条件を付けます。神官のミカヤの「銀色の髪の乙女」は
   `requiredWeaponType: 9`（光魔法）を条件にしています
 - 効果は `skills.json` の既存項目で足りるか先に確かめます。足りないときだけ
-  `SkillBattleEffect` などへ項目を足し、`MasterLoader.ParseBattle`・
-  `EquipmentText`・`TraitMasterData` の3か所と MASTER_DATA.md の表を同時に更新します
+  `StatBlock` や `SkillBattleEffect` へ項目を足し、`MasterLoader` の Parse・
+  `EquipmentText`・`TraitMasterData` の3か所と MASTER_DATA.md の表、
+  `tools/master-data-excel` の列を同時に更新します
   （どれか1つ忘れると、読み込まれない／画面に出ない／特性の検査をすり抜けます）
+- **装備条件を付けたら、初期装備をその条件に合わせます。** 両手斧を要求するスキルの
+  持ち主に片手斧を持たせると、雇った瞬間はスキルが眠ったままになります
+  （ヘクトルの `defaultWeaponId` が `eq_greataxe_01` なのはこのため）
 
 ### 5. 検算する
 

@@ -519,6 +519,7 @@ public static class MasterLoader
         d.TryGetValue("autoPenetrate", out b.autoPenetrate);
         d.TryGetValue("critPv", out b.critPv);
         d.TryGetValue("emergencyHeal", out b.emergencyHeal);
+        d.TryGetValue("incomingCritChancePercent", out b.incomingCritChancePercent);
         return b;
     }
 
