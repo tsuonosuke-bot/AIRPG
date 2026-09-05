@@ -23,7 +23,8 @@ BASE_GROWTH_WEIGHT = 0.2
 # 1レベルにつき伸びる能力の数（AdventurerData.StatPointsPerLevel）。
 STAT_POINTS_PER_LEVEL = 1
 
-# 帯の標準レアリティの素質と、1段上のレアリティの素質（MASTER_DATA.md「素質とレアリティ上乗せ」）。
+# 素質（Lv1換算の7能力合計）。Commonが基準で、それ以外は上乗せが乗る。
+# 上乗せは +5 の1段だけで、70が名簿全体の上限（MASTER_DATA.md「素質とレアリティ上乗せ」）。
 BAND_TALENT = 65
 PREMIUM_TALENT = 70
 
@@ -54,29 +55,14 @@ RARITY_WEIGHT_RANGE = {
     "Legend": (0, 10), "Unique": (11, 25), "Rare": (26, 45),
     "Uncommon": (46, 75), "Common": (76, 10_000),
 }
-RARITY_ORDER = ["Common", "Uncommon", "Rare", "Unique", "Legend"]
 
 
-def band_standard_rarity(rank: int) -> str:
-    """その帯の標準レアリティ。
+def is_premium(rarity: str) -> bool:
+    """素質へレアリティ上乗せが乗るか。Common以外はすべて乗る。
 
-    帯ごとに違う（F=Common、E=Uncommon、D=Rare、C=Unique、B以上=Legend）ので、
-    「Rareなら上乗せあり」と決め打ちしてはいけない。D帯ではRareが標準で、
-    上乗せは付かない。導出は RecruitmentSystem.DefaultWeightForGuildRank と
-    MasterLoader.DefaultAdventurerRarity を順に引いただけで、独自の表ではない。
+    帯は関係ない。D帯のRareもF帯のRareも同じ素質70になる。
     """
-    weight = DEFAULT_WEIGHT.get(rank, 10)
-    for rarity, (low, high) in RARITY_WEIGHT_RANGE.items():
-        if low <= weight <= high:
-            return rarity
-    return "Common"
-
-
-def is_premium(rank: int, rarity: str) -> bool:
-    """帯の標準レアリティより上か。素質へ +5 が乗るのはこのときだけ。"""
-    if rarity not in RARITY_ORDER:
-        return False
-    return RARITY_ORDER.index(rarity) > RARITY_ORDER.index(band_standard_rarity(rank))
+    return rarity != "Common"
 
 
 def data_dir() -> Path:
@@ -172,24 +158,14 @@ def check(entry: dict, races: dict, classes: dict) -> list[str]:
             problems.append(
                 f"recruitWeight {weight} は {rarity} の帯 {low}〜{high} の外"
                 "（MasterLoader.DefaultAdventurerRarity）")
-    band_default = DEFAULT_WEIGHT.get(rank, 10)
-    if weight is not None and weight > band_default:
-        problems.append(
-            f"recruitWeight {weight} が帯の既定 {band_default} 以上。"
-            "レアなら必ず出にくくする")
-
     actual = talent(entry)
-    premium = is_premium(rank, rarity)
-    if premium and weight is not None and weight >= band_default:
-        problems.append(
-            f"{rarity} は{RANK_LABEL[rank]}帯の標準({band_standard_rarity(rank)})より上なのに、"
-            f"recruitWeight {weight} が帯の既定 {band_default} 以上")
+    premium = is_premium(rarity)
     expected = PREMIUM_TALENT if premium else BAND_TALENT
     if actual > PREMIUM_TALENT:
         problems.append(f"素質 {actual} が上限 {PREMIUM_TALENT} を超えている")
     elif abs(actual - expected) > 2:
         problems.append(
-            f"素質 {actual} が想定 {expected}（{'レアリティ上乗せあり' if premium else '帯の標準'}）から離れている")
+            f"素質 {actual} が想定 {expected}（{rarity}）から離れている")
 
     race = races.get(entry.get("raceId", ""))
     cls_id = entry.get("defaultClassId", "")
@@ -241,7 +217,7 @@ def cmd_plan(args) -> int:
         sys.exit(f"{race['raceName']} は {cls['className']} に就けません。"
                  f"就ける職業: {', '.join(race['allowedClassIds'])}")
 
-    premium = is_premium(args.rank, args.rarity) or args.premium
+    premium = is_premium(args.rarity) or args.premium
     goal = PREMIUM_TALENT if premium else BAND_TALENT
     budget = goal - args.con - args.app
     if budget < len(GROWN):
@@ -260,27 +236,23 @@ def cmd_plan(args) -> int:
         sys.exit(f"Lv1の5能力の合計は {budget} にしてください"
                  f"（素質{goal} − 体格{args.con} − 容姿{args.app}）。いまは {sum(base.values())} です。")
 
-    weight = args.weight if args.weight is not None else (
-        30 if premium else DEFAULT_WEIGHT.get(args.rank, 10))
+    # 重みはレアリティの帯（DefaultAdventurerRarity）の真ん中あたりを既定にする。
+    # 出にくさはレアリティが決めるもので、どの帯に置くかとは別の話。
+    low_default, high_default = RARITY_WEIGHT_RANGE.get(args.rarity, (0, 10))
+    weight = args.weight if args.weight is not None else min(
+        high_default, max(low_default, DEFAULT_WEIGHT.get(args.rank, 10)))
     low, high = RARITY_WEIGHT_RANGE.get(args.rarity, (0, 10_000))
     if not low <= weight <= high:
         sys.exit(f"recruitWeight {weight} は {args.rarity} の帯 {low}〜{high} の外です"
                  "（MasterLoader.DefaultAdventurerRarity）。"
                  "--validate-master はこれを素通りするので、ここで止めます。")
-    band_default = DEFAULT_WEIGHT.get(args.rank, 10)
-    if premium and weight >= band_default:
-        sys.exit(f"帯より1段上のレアリティなら recruitWeight は帯の既定 {band_default} 未満に"
-                 f"してください（いまは {weight}）。出にくさこそがレアリティの中身です。")
-
     grown = distribute((args.level - 1) * STAT_POINTS_PER_LEVEL, weights)
     final = {stat: base[stat] + grown[stat] for stat in GROWN}
 
     print(f"{race['raceName']} / {cls['className']} / Lv{args.level} / {args.rarity}")
-    standard = band_standard_rarity(args.rank)
-    print(f"素質(7能力) {goal} ＝ 帯の基準{BAND_TALENT}"
-          + (f" + レアリティ上乗せ{PREMIUM_TALENT - BAND_TALENT}"
-             f"（{RANK_LABEL[args.rank]}帯の標準は{standard}）" if premium
-             else f"（{args.rarity} は{RANK_LABEL[args.rank]}帯の標準レアリティなので上乗せなし）") + "\n")
+    print(f"素質(7能力) {goal} ＝ 基準{BAND_TALENT}"
+          + (f" + レアリティ上乗せ{PREMIUM_TALENT - BAND_TALENT}" if premium
+             else "（Commonは上乗せなし）") + "\n")
     print(f"{'':6}{'Lv1':>6}{'成長':>6}{'最終':>6}{'重み':>8}")
     for stat in GROWN:
         print(f"{LABEL[stat]:<6}{base[stat]:>6}{grown[stat]:>+6}{final[stat]:>6}{weights[stat]:>8.2f}")
@@ -334,7 +306,7 @@ def main() -> int:
                         help="省略するとレベル帯から決める")
     p_plan.add_argument("--rarity", default="Uncommon")
     p_plan.add_argument("--premium", action="store_true",
-                        help="帯の標準レアリティのままでも素質70で組む（例外を承知で作るとき）")
+                        help="Commonでも素質70で組む（例外を承知で作るとき）")
     p_plan.add_argument("--con", type=int, required=True, help="体格(SIZ)")
     p_plan.add_argument("--app", type=int, required=True, help="容姿(APP)")
     p_plan.add_argument("--base", help="Lv1の 体力,精神,筋力,敏捷,知力")
