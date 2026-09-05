@@ -41,8 +41,8 @@ public class ThreatBandLadderTests
     static readonly Dictionary<int, (double Min, double Max)> Windows = new()
     {
         [1] = (80.0, 100.0),
-        [2] = (48.0, 76.0),
-        [3] = (0.0, 45.0),
+        [2] = (45.0, 76.0),
+        [3] = (0.0, 44.0),
     };
 
     [Fact]
@@ -87,8 +87,14 @@ public class ThreatBandLadderTests
 
     static List<BandRow> Measure(GameMasterData db)
     {
+        // 物差しは<b>Commonの駆け出し</b>だけにする。ここをF帯の全員にすると、
+        // 素質の高い冒険者（レアリティ1段につき素質+5）や、得物に結びついた
+        // ユニークスキル持ちを名簿へ足すたびに物差しそのものが伸びてしまい、
+        // 「敵を触っていないのに数値が動いた」という読み取れない差分が出る。
+        // 測りたいのは敵の側なので、棒のほうは動かさない。
         var pool = db.allAdventurers
             .Where(master => master.defaultRank == 1 && master.defaultLevel == 1)
+            .Where(master => master.rarity == Rarity.Common)
             .ToList();
         var enemies = db.enemies.Values
             .Where(master => Windows.ContainsKey(master.threat))

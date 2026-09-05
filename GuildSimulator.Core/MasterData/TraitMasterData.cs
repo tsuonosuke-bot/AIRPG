@@ -198,6 +198,7 @@ public static class TraitAnalysis
         Higher(add.carry, "積載", true);
         Higher(add.emergencyHeal, "応急処置", true);
         Lower(add.threatWeight, "狙われやすさ", true);
+        Lower(add.incomingCritChancePercent, "被会心率", true, "%");
 
         // 攻撃する型だけ。
         Higher(add.toHit, "命中", anyAttack);

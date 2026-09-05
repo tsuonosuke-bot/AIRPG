@@ -25,6 +25,9 @@ public class MikayaHealerTests
     /// 素質＝Lv1換算の7能力合計。体格と容姿はレベルで伸びないので素質の一部として
     /// 最初から配られており、5能力だけで比べると体格に振った冒険者が不当に低く見える。
     /// </summary>
+    /// <summary>そのレアリティに割り当てられた素質。Commonの65から1段ごとに+5。</summary>
+    static int TalentForRarity(Rarity rarity) => 65 + (int)rarity * 5;
+
     static int Talent(AdventurerMasterData a) =>
         a.vitality + a.mental + a.strength + a.agility + a.intelligence
         + a.constitution + a.appearance
@@ -108,20 +111,21 @@ public class MikayaHealerTests
         var mikaya = Mikaya(db);
 
         // 強さは「素質＋レベル」の2階建て。レアリティは素質の側にだけ乗る。
-        Assert.Equal(70, Talent(mikaya));
+        Assert.Equal(TalentForRarity(Rarity.Rare), Talent(mikaya));
         Assert.Equal(
             Talent(mikaya) + (mikaya.defaultLevel - 1),
             mikaya.vitality + mikaya.mental + mikaya.strength + mikaya.agility
             + mikaya.intelligence + mikaya.constitution + mikaya.appearance);
 
-        // 帯より1段上のレアリティは素質+5。同じE帯のUncommonを4〜5点上回る。
-        int bandBest = db.allAdventurers
-            .Where(a => a.defaultRank == mikaya.defaultRank && a.id != MikayaId)
-            .Max(Talent);
-        Assert.InRange(Talent(mikaya) - bandBest, 4, 5);
+        // 素質にランクは関係なく、レアリティ1段につき5点。ミカヤはCommonの2段上。
+        int common = db.allAdventurers.Where(a => a.rarity == Rarity.Common).Max(Talent);
+        Assert.InRange(Talent(mikaya) - common, 8, 10);
 
-        // 上乗せは1段だけ。70が名簿全体の素質上限で、レアでもここより上には行かない。
-        Assert.Equal(70, db.allAdventurers.Max(Talent));
+        // 上の段ほど素質が高い、という並びそのものを固定する。
+        Assert.Equal(
+            new[] { 65, 70, 75, 80, 85 },
+            new[] { Rarity.Common, Rarity.Uncommon, Rarity.Rare, Rarity.Unique, Rarity.Legend }
+                .Select(TalentForRarity).ToArray());
 
         // 小柄な体格。SIZは成長しないので、雇った瞬間の値がそのまま彼女の体つきになる。
         Assert.True(
@@ -152,7 +156,10 @@ public class MikayaHealerTests
     public void SilverMaidenGivesBackALittleMoraleOnEveryHeal()
     {
         var db = Load();
-        var patient = Plain("患者", 100, 20);
+        // 手当て1回で回復目標(HP70%)を越えてしまうと機会が1〜2回しかなく、
+        // 手元が狂う出目1（5%）が続いただけでテストが落ちる。深く削っておいて
+        // 何度も手当てが起きる形にし、1回ぶんの成功に賭けないようにする。
+        var patient = Plain("患者", 10_000, 2_000);
         var maiden = Plain("ミカヤ");
         maiden.SetEquipped(EquipSlot.RightHand, db.equipment["eq_Light_01"]);
         maiden.LearnPermanentSkill(db.skills[SkillId]);

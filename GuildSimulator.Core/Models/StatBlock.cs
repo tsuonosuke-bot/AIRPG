@@ -77,6 +77,13 @@ public struct StatBlock
     /// </summary>
     public int emergencyHeal;
 
+    /// <summary>
+    /// この者へ当たった一撃が会心へ跳ね上がる確率（%）。<b>持ち主にとっての欠点</b>。
+    /// 会心域(critRange)は1d20の出目そのものを動かすので5%刻みでしか表せない。
+    /// 「構えに隙がある」ような細かい確率を表すために、命中したあとで別に振る。
+    /// </summary>
+    public int incomingCritChancePercent;
+
     public static StatBlock operator +(StatBlock a, StatBlock b) => new()
     {
         hp = a.hp + b.hp,
@@ -100,5 +107,6 @@ public struct StatBlock
         autoPenetrate = a.autoPenetrate + b.autoPenetrate,
         critPv = a.critPv + b.critPv,
         emergencyHeal = a.emergencyHeal + b.emergencyHeal,
+        incomingCritChancePercent = a.incomingCritChancePercent + b.incomingCritChancePercent,
     };
 }

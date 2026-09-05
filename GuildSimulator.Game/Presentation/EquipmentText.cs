@@ -98,6 +98,7 @@ public static class EquipmentText
         Add("貫通成功%", b.autoPenetrate);
         Add("会心PV", b.critPv);
         Add("応急処置%", b.emergencyHeal);
+        Add("被会心%", b.incomingCritChancePercent);
         return parts;
     }
 
@@ -116,6 +117,13 @@ public static class EquipmentText
         Add("敵ドロップ率", e.enemyDropChancePercent);
         if (e.rareDropChancePercent != 0)
             parts.Add($"高レア率{(e.rareDropChancePercent > 0 ? "+" : "")}{e.rareDropChancePercent}%/段階");
+        if (e.postBattleHealPercent != 0)
+        {
+            string shared = e.postBattleHealPerCompanionPercent != 0
+                ? $"（同席1人ごと+{e.postBattleHealPerCompanionPercent}%）"
+                : "";
+            parts.Add($"戦闘後回復{e.postBattleHealPercent}%{shared}");
+        }
         // 唯一の非%項目。単位を書かないと「行軍+1%」と読まれてしまう。
         if (e.phasesPerTurnBonus != 0)
             parts.Add($"行軍{(e.phasesPerTurnBonus > 0 ? "+" : "")}{e.phasesPerTurnBonus}エリア/ターン");

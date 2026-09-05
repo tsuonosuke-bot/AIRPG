@@ -27,6 +27,7 @@ const statKeys = [
   "offHandChance", "blockChance",
   // 最新版で追加された戦闘・積載・ヘイト系の補正。
   "blockNegate", "carry", "threatWeight", "autoPenetrate", "critPv", "emergencyHeal",
+  "incomingCritChancePercent",
 ];
 // 武器そのものが持つ個性の列。武器クラスごとに固定で、Tierでは変えない。
 const weaponTraitKeys = ["armorPierce", "armorShred", "critRange", "extraAttacks", "offHandBonus"];
@@ -38,6 +39,7 @@ const expeditionKeys = [
   "goldPercent", "expPercent", "treasureChancePercent", "trapChancePercent",
   "enemyEncounterChancePercent", "healEventChancePercent", "restHealPercent",
   "enemyDropChancePercent", "rareDropChancePercent", "phasesPerTurnBonus",
+  "postBattleHealPercent", "postBattleHealPerCompanionPercent",
 ];
 const battleSkillKeys = [
   "protectAllyHpPercent", "protectChancePercent", "afflictedTargetPv",

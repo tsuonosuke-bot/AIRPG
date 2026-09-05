@@ -153,6 +153,7 @@ public class QuestProgressor
                         if (levelUpSummaries.Count > 0)
                             evResult += $" / 成長: {string.Join("、", levelUpSummaries)}";
                         RollEnemyDrops(q, enemyMembers, phase, partySkills);
+                        ApplyPostBattleHeal(q, phase, partySkills);
                     }
                     break;
                 }
@@ -411,6 +412,32 @@ public class QuestProgressor
         q.chests.Add(chest);
         if (kind == TreasureChestKind.Boss)
             q.logs.Add($"  エリア {phase}: ボスの宝箱を手に入れた（帰還後に開封）");
+    }
+
+    /// <summary>
+    /// 戦闘に勝った直後、「モンスター食」のような戦闘後回復を隊へ配る。
+    /// 倒れた者は食卓に着けないので、対象は戦えるまま戦闘を終えた隊員だけ。
+    /// 休息イベントと違って場所を選ばず、勝つたびに少しずつ返ってくるのが持ち味。
+    /// </summary>
+    static void ApplyPostBattleHeal(QuestRun q, int phase, PartySkillEffects partySkills)
+    {
+        if (partySkills.PostBattleHealPercent <= 0) return;
+
+        var healed = new List<string>();
+        foreach (var a in q.formation)
+        {
+            if (a == null || !a.isAlive || a.isIncapacitated || a.CombatHp <= 0) continue;
+            int heal = Math.Min(
+                partySkills.PostBattleHealFor(a.CombatHpMax),
+                a.CombatHpMax - a.CombatHp);
+            if (heal <= 0) continue;
+            a.CombatHp += heal;
+            healed.Add($"{a.name} +{heal}");
+        }
+
+        if (healed.Count > 0)
+            q.logs.Add($"  エリア {phase}: 戦利品を捌いて腹を満たした"
+                + $"（最大HPの{partySkills.PostBattleHealPercent}% / {string.Join("、", healed)}）");
     }
 
     static void RollEnemyDrops(

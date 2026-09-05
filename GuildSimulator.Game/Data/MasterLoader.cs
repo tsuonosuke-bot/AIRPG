@@ -519,6 +519,7 @@ public static class MasterLoader
         d.TryGetValue("autoPenetrate", out b.autoPenetrate);
         d.TryGetValue("critPv", out b.critPv);
         d.TryGetValue("emergencyHeal", out b.emergencyHeal);
+        d.TryGetValue("incomingCritChancePercent", out b.incomingCritChancePercent);
         return b;
     }
 
@@ -535,6 +536,8 @@ public static class MasterLoader
         d.TryGetValue("restHealPercent", out e.restHealPercent);
         d.TryGetValue("enemyDropChancePercent", out e.enemyDropChancePercent);
         d.TryGetValue("rareDropChancePercent", out e.rareDropChancePercent);
+        d.TryGetValue("postBattleHealPercent", out e.postBattleHealPercent);
+        d.TryGetValue("postBattleHealPerCompanionPercent", out e.postBattleHealPerCompanionPercent);
         d.TryGetValue("phasesPerTurnBonus", out e.phasesPerTurnBonus);
         return e;
     }

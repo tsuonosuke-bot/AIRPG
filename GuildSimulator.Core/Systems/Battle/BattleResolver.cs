@@ -254,6 +254,8 @@ public static class BattleResolver
                             dv += REAR_COVER_DV_BONUS;
 
                         var check = QudCombat.RollToHit(toHit, dv, w.critRange);
+                        // 守りの隙は当たった一撃だけを重くする。外れた攻撃は会心にならない。
+                        check = QudCombat.RaiseToCritical(check, targetStats.incomingCritChancePercent);
 
                         if (!check.hit)
                         {
@@ -753,6 +755,8 @@ public static class BattleResolver
 
         var traits = defender.Traits.Combine(defenderStats);
         var check = QudCombat.RollToHit(toHit, dv, traits.critRange);
+        // 反撃も普通の一撃と同じ扱い。受け手の隙はここでも会心を呼び込む。
+        check = QudCombat.RaiseToCritical(check, attackerStats.incomingCritChancePercent);
         string source = string.Join("+", counterSkills.Select(skill => skill.skillName));
         if (!check.hit)
         {

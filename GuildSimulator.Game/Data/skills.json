@@ -3092,5 +3092,69 @@
     "battle": {
       "moraleOnHealPercent": 2
     }
+  },
+  {
+    "id": "skill_unique_monsterCuisine",
+    "skillName": "モンスター食",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "postBattleHealPercent": 5,
+      "postBattleHealPerCompanionPercent": 1
+    }
+  },
+  {
+    "id": "skill_unique_armads",
+    "skillName": "アルマーズ",
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 1,
+    "requireTwoHanded": true,
+    "add": {
+      "armorPierce": 2,
+      "incomingCritChancePercent": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_unique_durandal",
+    "skillName": "デュランダル",
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 0,
+    "requireTwoHanded": true,
+    "add": {
+      "pv": 2,
+      "incomingCritChancePercent": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_unique_maniKatti",
+    "skillName": "マーニ・カティ",
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 0,
+    "add": {
+      "critRange": 2
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_unique_solarBoy",
+    "skillName": "太陽少年",
+    "scope": 0,
+    "requireWeaponType": true,
+    "requiredWeaponType": 3,
+    "add": {
+      "toHit": 1,
+      "critRange": 1
+    },
+    "mul": {},
+    "expedition": {
+      "enemyEncounterChancePercent": -10,
+      "restHealPercent": 15
+    }
   }
 ]

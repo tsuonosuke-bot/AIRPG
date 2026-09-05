@@ -141,14 +141,24 @@ public static class RecruitScreen
     public static int ApplyHireCostRate(int baseCost)
         => (Math.Max(0, baseCost) * HireCostRatePercent + 50) / 100;
 
-    /// <summary>希少な人材を雇うときだけ乗る上乗せ額。コモンは0。</summary>
+    /// <summary>
+    /// 希少な人材を雇うときだけ乗る上乗せ額。コモンは0。
+    ///
+    /// <b>5段階すべてを明示的に書く。</b>ここに書き漏らしたレアリティは
+    /// 黙って0へ落ち、希少なほど安いという逆転になる。実際 Unique と Legend が
+    /// 抜けていたせいで、Uniqueの冒険者がRareより安く雇えていた。
+    /// 定額は 20/40/70/110、レベル単価は 1/2/3/4 で、段が上がるほど加速する。
+    /// </summary>
     public static int RarityHirePremium(Rarity rarity, int level)
     {
         int lv = Math.Max(1, level);
         return rarity switch
         {
+            Rarity.Common => 0,
             Rarity.Uncommon => 20 + lv * 1,
             Rarity.Rare => 40 + lv * 2,
+            Rarity.Unique => 70 + lv * 3,
+            Rarity.Legend => 110 + lv * 4,
             _ => 0,
         };
     }

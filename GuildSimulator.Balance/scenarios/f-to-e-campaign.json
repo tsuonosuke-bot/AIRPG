@@ -10,7 +10,7 @@
       "party": [
         { "id": "adv_0001", "formationSlot": 1 },
         { "id": "adv_0002", "formationSlot": 2 },
-        { "id": "adv_0003", "formationSlot": 4 }
+        { "id": "adv_0026", "formationSlot": 4 }
       ],
       "questIds": [
         "quest_slime_cull",
@@ -41,7 +41,7 @@
       "party": [
         { "id": "adv_0001", "formationSlot": 1 },
         { "id": "adv_0002", "formationSlot": 2 },
-        { "id": "adv_0003", "formationSlot": 4 },
+        { "id": "adv_0026", "formationSlot": 4 },
         { "id": "adv_0004", "formationSlot": 5 }
       ],
       "questId": "quest_caravan_escort",
@@ -67,7 +67,7 @@
           }
         },
         { "id": "adv_0002", "formationSlot": 2 },
-        { "id": "adv_0003", "formationSlot": 4 },
+        { "id": "adv_0026", "formationSlot": 4 },
         { "id": "adv_0004", "formationSlot": 5 }
       ],
       "enemyUnitId": "unit_goblin_line",
