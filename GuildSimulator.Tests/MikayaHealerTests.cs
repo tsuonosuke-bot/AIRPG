@@ -25,6 +25,9 @@ public class MikayaHealerTests
     /// 素質＝Lv1換算の7能力合計。体格と容姿はレベルで伸びないので素質の一部として
     /// 最初から配られており、5能力だけで比べると体格に振った冒険者が不当に低く見える。
     /// </summary>
+    /// <summary>そのレアリティに割り当てられた素質。Commonの65から1段ごとに+5。</summary>
+    static int TalentForRarity(Rarity rarity) => 65 + (int)rarity * 5;
+
     static int Talent(AdventurerMasterData a) =>
         a.vitality + a.mental + a.strength + a.agility + a.intelligence
         + a.constitution + a.appearance
@@ -108,19 +111,21 @@ public class MikayaHealerTests
         var mikaya = Mikaya(db);
 
         // 強さは「素質＋レベル」の2階建て。レアリティは素質の側にだけ乗る。
-        Assert.Equal(70, Talent(mikaya));
+        Assert.Equal(TalentForRarity(Rarity.Rare), Talent(mikaya));
         Assert.Equal(
             Talent(mikaya) + (mikaya.defaultLevel - 1),
             mikaya.vitality + mikaya.mental + mikaya.strength + mikaya.agility
             + mikaya.intelligence + mikaya.constitution + mikaya.appearance);
 
-        // 素質にランクは関係ない。上乗せが乗るかどうかはレアリティだけで決まり、
-        // Common との差はいつでも5点。
+        // 素質にランクは関係なく、レアリティ1段につき5点。ミカヤはCommonの2段上。
         int common = db.allAdventurers.Where(a => a.rarity == Rarity.Common).Max(Talent);
-        Assert.InRange(Talent(mikaya) - common, 3, 5);
+        Assert.InRange(Talent(mikaya) - common, 8, 10);
 
-        // 上乗せは1段だけ。70が名簿全体の素質上限で、UniqueでもLegendでもここより上には行かない。
-        Assert.Equal(70, db.allAdventurers.Max(Talent));
+        // 上の段ほど素質が高い、という並びそのものを固定する。
+        Assert.Equal(
+            new[] { 65, 70, 75, 80, 85 },
+            new[] { Rarity.Common, Rarity.Uncommon, Rarity.Rare, Rarity.Unique, Rarity.Legend }
+                .Select(TalentForRarity).ToArray());
 
         // 小柄な体格。SIZは成長しないので、雇った瞬間の値がそのまま彼女の体つきになる。
         Assert.True(

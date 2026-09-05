@@ -46,8 +46,9 @@ public class MonsterCuisineTests
             Assert.InRange(master.defaultLevel, 6, 10);
             Assert.Contains(SkillId, master.skillIds);
 
-            // 全員が帯より1段上のレアリティなので、素質は上限の70で揃う。
-            Assert.Equal(70, Talent(master));
+            // 素質はレアリティだけで決まる。Commonの65から1段ごとに+5で、
+            // Rareの4人は75、Uniqueのファリンだけ80になる。
+            Assert.Equal(65 + (int)master.rarity * 5, Talent(master));
             Assert.True(master.recruitWeight < 60,
                 $"{master.baseName} は帯の既定60より出にくくする");
 

@@ -23,10 +23,11 @@ BASE_GROWTH_WEIGHT = 0.2
 # 1レベルにつき伸びる能力の数（AdventurerData.StatPointsPerLevel）。
 STAT_POINTS_PER_LEVEL = 1
 
-# 素質（Lv1換算の7能力合計）。Commonが基準で、それ以外は上乗せが乗る。
-# 上乗せは +5 の1段だけで、70が名簿全体の上限（MASTER_DATA.md「素質とレアリティ上乗せ」）。
-BAND_TALENT = 65
-PREMIUM_TALENT = 70
+# 素質（Lv1換算の7能力合計）。Commonの65を基準に、レアリティが1段上がるごとに +5。
+# ランクは関係ない（MASTER_DATA.md「素質とレアリティ上乗せ」）。
+COMMON_TALENT = 65
+TALENT_PER_RARITY_STEP = 5
+RARITY_ORDER = ["Common", "Uncommon", "Rare", "Unique", "Legend"]
 
 # 成長する5能力。体格(SIZ)と容姿(APP)はレベルでは伸びないので、ここには入らない。
 GROWN = ["vitality", "mental", "strength", "agility", "intelligence"]
@@ -57,12 +58,13 @@ RARITY_WEIGHT_RANGE = {
 }
 
 
-def is_premium(rarity: str) -> bool:
-    """素質へレアリティ上乗せが乗るか。Common以外はすべて乗る。
+def talent_for(rarity: str) -> int:
+    """そのレアリティの素質。Commonの65から1段ごとに +5 で、頭打ちはない。
 
-    帯は関係ない。D帯のRareもF帯のRareも同じ素質70になる。
+    ランクは関係ない。D帯のRareもF帯のRareも同じ75になる。
     """
-    return rarity != "Common"
+    step = RARITY_ORDER.index(rarity) if rarity in RARITY_ORDER else 0
+    return COMMON_TALENT + step * TALENT_PER_RARITY_STEP
 
 
 def data_dir() -> Path:
@@ -159,11 +161,8 @@ def check(entry: dict, races: dict, classes: dict) -> list[str]:
                 f"recruitWeight {weight} は {rarity} の帯 {low}〜{high} の外"
                 "（MasterLoader.DefaultAdventurerRarity）")
     actual = talent(entry)
-    premium = is_premium(rarity)
-    expected = PREMIUM_TALENT if premium else BAND_TALENT
-    if actual > PREMIUM_TALENT:
-        problems.append(f"素質 {actual} が上限 {PREMIUM_TALENT} を超えている")
-    elif abs(actual - expected) > 2:
+    expected = talent_for(rarity)
+    if abs(actual - expected) > 2:
         problems.append(
             f"素質 {actual} が想定 {expected}（{rarity}）から離れている")
 
@@ -217,8 +216,7 @@ def cmd_plan(args) -> int:
         sys.exit(f"{race['raceName']} は {cls['className']} に就けません。"
                  f"就ける職業: {', '.join(race['allowedClassIds'])}")
 
-    premium = is_premium(args.rarity) or args.premium
-    goal = PREMIUM_TALENT if premium else BAND_TALENT
+    goal = talent_for(args.rarity)
     budget = goal - args.con - args.app
     if budget < len(GROWN):
         sys.exit(f"体格{args.con}＋容姿{args.app}で素質{goal}のうち{args.con + args.app}を使い切っています。")
@@ -236,7 +234,7 @@ def cmd_plan(args) -> int:
         sys.exit(f"Lv1の5能力の合計は {budget} にしてください"
                  f"（素質{goal} − 体格{args.con} − 容姿{args.app}）。いまは {sum(base.values())} です。")
 
-    # 重みはレアリティの帯（DefaultAdventurerRarity）の真ん中あたりを既定にする。
+    # 重みはレアリティの帯（DefaultAdventurerRarity）から取る。
     # 出にくさはレアリティが決めるもので、どの帯に置くかとは別の話。
     low_default, high_default = RARITY_WEIGHT_RANGE.get(args.rarity, (0, 10))
     weight = args.weight if args.weight is not None else min(
@@ -250,9 +248,9 @@ def cmd_plan(args) -> int:
     final = {stat: base[stat] + grown[stat] for stat in GROWN}
 
     print(f"{race['raceName']} / {cls['className']} / Lv{args.level} / {args.rarity}")
-    print(f"素質(7能力) {goal} ＝ 基準{BAND_TALENT}"
-          + (f" + レアリティ上乗せ{PREMIUM_TALENT - BAND_TALENT}" if premium
-             else "（Commonは上乗せなし）") + "\n")
+    step = RARITY_ORDER.index(args.rarity) if args.rarity in RARITY_ORDER else 0
+    print(f"素質(7能力) {goal} ＝ Common{COMMON_TALENT}"
+          + (f" + {args.rarity}まで{step}段 × {TALENT_PER_RARITY_STEP}" if step else "") + "\n")
     print(f"{'':6}{'Lv1':>6}{'成長':>6}{'最終':>6}{'重み':>8}")
     for stat in GROWN:
         print(f"{LABEL[stat]:<6}{base[stat]:>6}{grown[stat]:>+6}{final[stat]:>6}{weights[stat]:>8.2f}")
@@ -305,8 +303,6 @@ def main() -> int:
     p_plan.add_argument("--rank", type=int, default=0,
                         help="省略するとレベル帯から決める")
     p_plan.add_argument("--rarity", default="Uncommon")
-    p_plan.add_argument("--premium", action="store_true",
-                        help="Commonでも素質70で組む（例外を承知で作るとき）")
     p_plan.add_argument("--con", type=int, required=True, help="体格(SIZ)")
     p_plan.add_argument("--app", type=int, required=True, help="容姿(APP)")
     p_plan.add_argument("--base", help="Lv1の 体力,精神,筋力,敏捷,知力")

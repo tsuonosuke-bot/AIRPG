@@ -37,18 +37,12 @@ public class ThreatBandLadderTests
     /// 帯ごとの残HP率の窓。帯全体がまとめてずれたときに気づくための粗い網で、
     /// 帯の順序そのものは下の「帯の逆転」検査が見る。窓を狭めすぎると、
     /// 関係のない調整のたびに落ちる番人になってしまう。
-    ///
-    /// <b>物差しはF帯Lv1の冒険者全員</b>なので、F帯の顔ぶれが変わればこの数値も動く。
-    /// 実際、両手武器とユニークスキルを持つ3人（ヘクトル・エリウッド・リンディス）を
-    /// F帯へ足したとき、脅威3でいちばん楽な空魚が 45%台へ乗った。敵を触っていないのに
-    /// 動いた値なので、窓のほうを広げてある。帯の逆転検査には9ポイントの余裕が残っている
-    /// （脅威3の最上 45.3% に対し、脅威2の最下は 54.5%）。
     /// </summary>
     static readonly Dictionary<int, (double Min, double Max)> Windows = new()
     {
         [1] = (80.0, 100.0),
-        [2] = (48.0, 76.0),
-        [3] = (0.0, 48.0),
+        [2] = (45.0, 76.0),
+        [3] = (0.0, 44.0),
     };
 
     [Fact]
@@ -93,8 +87,14 @@ public class ThreatBandLadderTests
 
     static List<BandRow> Measure(GameMasterData db)
     {
+        // 物差しは<b>Commonの駆け出し</b>だけにする。ここをF帯の全員にすると、
+        // 素質の高い冒険者（レアリティ1段につき素質+5）や、得物に結びついた
+        // ユニークスキル持ちを名簿へ足すたびに物差しそのものが伸びてしまい、
+        // 「敵を触っていないのに数値が動いた」という読み取れない差分が出る。
+        // 測りたいのは敵の側なので、棒のほうは動かさない。
         var pool = db.allAdventurers
             .Where(master => master.defaultRank == 1 && master.defaultLevel == 1)
+            .Where(master => master.rarity == Rarity.Common)
             .ToList();
         var enemies = db.enemies.Values
             .Where(master => Windows.ContainsKey(master.threat))
