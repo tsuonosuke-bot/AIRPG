@@ -2453,7 +2453,123 @@
     "mul": {}
   },
   {
-    "id": "skill_spendthrift",
+    "id": "skill_curse_heavyFeet",
+    "skillName": "鉛の足",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "phasesPerTurnBonus": -1
+    }
+  },
+  {
+    "id": "skill_curse_lightSleeper",
+    "skillName": "浅い眠り",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "restHealPercent": -20
+    }
+  },
+  {
+    "id": "skill_curse_noisyTread",
+    "skillName": "耳障りな足音",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "enemyEncounterChancePercent": 25
+    }
+  },
+  {
+    "id": "skill_curse_butterFingers",
+    "skillName": "粗忽",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "enemyDropChancePercent": -20
+    }
+  },
+  {
+    "id": "skill_curse_restlessCamp",
+    "skillName": "寝つけぬ夜",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "healEventChancePercent": -25
+    }
+  },
+  {
+    "id": "skill_curse_lootBlind",
+    "skillName": "曇った目利き",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "rareDropChancePercent": -20
+    }
+  },
+  {
+    "id": "skill_curse_gapingGuard",
+    "skillName": "ざる構え",
+    "scope": 0,
+    "add": {
+      "av": -1,
+      "dv": -1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_curse_shakingHands",
+    "skillName": "震える手",
+    "scope": 0,
+    "add": {
+      "toHit": -1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_curse_bluntedEdge",
+    "skillName": "鈍った刃",
+    "scope": 0,
+    "add": {
+      "pv": -1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_curse_frailFlesh",
+    "skillName": "脆い肉",
+    "scope": 0,
+    "add": {},
+    "mul": {
+      "hp": 0.9
+    }
+  },
+  {
+    "id": "skill_curse_frayedNerve",
+    "skillName": "すり切れた神経",
+    "scope": 0,
+    "add": {},
+    "mul": {
+      "san": 0.85
+    }
+  },
+  {
+    "id": "skill_curse_markedByDark",
+    "skillName": "闇に見初められた者",
+    "scope": 0,
+    "add": {
+      "mav": -1,
+      "threatWeight": 25
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_curse_spendthrift",
     "skillName": "浪費癖",
     "scope": 0,
     "add": {},
@@ -2463,7 +2579,7 @@
     }
   },
   {
-    "id": "skill_sloth",
+    "id": "skill_curse_sloth",
     "skillName": "怠惰",
     "scope": 0,
     "add": {},
@@ -2473,7 +2589,7 @@
     }
   },
   {
-    "id": "skill_cursedLuck",
+    "id": "skill_curse_badLuck",
     "skillName": "貧乏くじ",
     "scope": 0,
     "add": {},

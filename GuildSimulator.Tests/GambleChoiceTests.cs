@@ -20,6 +20,10 @@ public class GambleChoiceTests
 
     public GambleChoiceTests(ITestOutputHelper output) => this.output = output;
 
+    /// <summary>不利益しか持たない呪いスキル。賭けの「当たり」には数えない。</summary>
+    static bool IsCurse(SkillMasterData skill) =>
+        skill.id.StartsWith("skill_curse_", StringComparison.Ordinal);
+
     static AdventurerMasterData Master(string id, string name) => new()
     {
         id = id, baseName = name,
@@ -223,12 +227,16 @@ public class GambleChoiceTests
                 if (option.targetsOneMember)
                 {
                     // 個人の賭けは、恒久的な幸運と個人が負う危険の両方を持つ。
+                    // 呪い（skill_curse_*）は不利益しか持たないので、当たりの側には数えない。
                     Assert.Contains(option.outcomes, o =>
                         o.effectType == QuestChoiceEffectType.AdventurerStatUp
-                        || o.effectType == QuestChoiceEffectType.AdventurerSkill);
+                        || o.effectType == QuestChoiceEffectType.AdventurerSkill
+                        && o.Skill != null && !IsCurse(o.Skill));
                     Assert.Contains(option.outcomes, o =>
                         o.effectType == QuestChoiceEffectType.AdventurerStatDown
                         || o.effectType == QuestChoiceEffectType.AdventurerDamage
+                        || o.effectType == QuestChoiceEffectType.AdventurerSkill
+                        && o.Skill != null && IsCurse(o.Skill)
                         || o.effectType == QuestChoiceEffectType.Morale && o.value < 0);
                 }
                 else

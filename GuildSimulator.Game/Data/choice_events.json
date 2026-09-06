@@ -572,6 +572,655 @@
     ]
   },
   {
+    "id": "event_meadow_stray_hound",
+    "title": "野良犬の道案内",
+    "weight": 4,
+    "description": "痩せた野良犬が、一行の前を行きつ戻りつしている。何かを伝えたがっているようにも見える。",
+    "options": [
+      {
+        "text": "干し肉を分けてやる",
+        "resultText": "犬は肉を平らげると、藪の隙間を抜ける近道へ一行を導いた。",
+        "effectType": "Experience",
+        "value": 14
+      },
+      {
+        "text": "追い払って先を急ぐ",
+        "resultText": "犬は少し離れて付いてきたが、やがて草むらへ消えた。",
+        "effectType": "Morale",
+        "value": 4
+      },
+      {
+        "text": "後を追ってみる",
+        "resultText": "犬が掘り返した土の下から、誰かが埋めた小袋が出てきた。",
+        "effectType": "Gold",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": "event_woods_herbalist",
+    "title": "森の薬師",
+    "weight": 4,
+    "description": "背負い籠いっぱいの薬草を抱えた老女が、道端で一息ついている。",
+    "options": [
+      {
+        "text": "籠を運ぶのを手伝う",
+        "resultText": "礼にと、よく効く煎じ薬を持たせてくれた。",
+        "effectType": "Consumable",
+        "value": 1,
+        "targetId": "item_vital_tonic"
+      },
+      {
+        "text": "その場で手当てを頼む",
+        "resultText": "薬草を潰した湿布が、擦り傷と腫れを引かせた。",
+        "effectType": "HealPercent",
+        "value": 18
+      },
+      {
+        "text": "薬草の相場を教わる",
+        "resultText": "どの草がどの街で高く売れるかを聞き出した。",
+        "effectType": "Gold",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": "event_mine_flooded_shaft",
+    "title": "水没した立坑",
+    "weight": 4,
+    "description": "膝まで水に浸かった立坑の底に、坑夫たちが置き去りにした道具箱が沈んでいる。",
+    "options": [
+      {
+        "text": "水をかき分けて道具箱を引き上げる",
+        "resultText": "泥水を吸った箱の中身は、まだ使えるものばかりだった。",
+        "effectType": "Treasure",
+        "value": 1
+      },
+      {
+        "text": "水位の変わり方を記録する",
+        "resultText": "坑道がどう水を溜めるかを読み取り、後の行程に活かした。",
+        "effectType": "Experience",
+        "value": 16
+      },
+      {
+        "text": "濡れずに済む迂回路を選ぶ",
+        "resultText": "無理をしない判断に、隊の足取りが軽くなった。",
+        "effectType": "Morale",
+        "value": 6
+      }
+    ]
+  },
+  {
+    "id": "event_crypt_mourners",
+    "title": "遅れてきた弔い",
+    "weight": 4,
+    "description": "墓所の入口で、数人が名も刻まれていない石の前に花を置いている。",
+    "options": [
+      {
+        "text": "並んで黙祷を捧げる",
+        "resultText": "誰のためでもない祈りが、隊の背筋を伸ばした。",
+        "effectType": "Morale",
+        "value": 12
+      },
+      {
+        "text": "誰を弔っているのか尋ねる",
+        "resultText": "この墓所で何が起きたのかを、断片ながら聞き出せた。",
+        "effectType": "Experience",
+        "value": 18
+      },
+      {
+        "text": "供物の残りを譲り受ける",
+        "resultText": "手を合わせたうえで、古い供物の銀貨を分けてもらった。",
+        "effectType": "Gold",
+        "value": 35
+      }
+    ]
+  },
+  {
+    "id": "event_middle_ocean_becalmed",
+    "title": "凪の帯",
+    "weight": 4,
+    "description": "空海の潮が完全に止まり、漂流物が身動きせず宙に留まっている。",
+    "options": [
+      {
+        "text": "留まっている荷を手繰り寄せる",
+        "resultText": "手を伸ばすだけで、いくつかの荷を引き寄せられた。",
+        "effectType": "Treasure",
+        "value": 1
+      },
+      {
+        "text": "凪のあいだに体を休める",
+        "resultText": "揺れのない静けさが、久しぶりの深い休息をくれた。",
+        "effectType": "HealPercent",
+        "value": 20
+      },
+      {
+        "text": "凪がいつ解けるかを見極める",
+        "resultText": "潮が動き出す前触れを覚え、次からは巻き込まれずに済む。",
+        "effectType": "Experience",
+        "value": 20
+      }
+    ]
+  },
+  {
+    "id": "event_amashiro_signal_fire",
+    "title": "天城の狼煙台",
+    "weight": 4,
+    "description": "塔の中腹に、まだ焚けそうな狼煙台が残っている。焚けば誰かが気付くかもしれない。",
+    "options": [
+      {
+        "text": "狼煙を上げる",
+        "resultText": "麓の隊商が煙に応え、後日ぶんの謝礼を先に渡してきた。",
+        "effectType": "Gold",
+        "value": 45
+      },
+      {
+        "text": "狼煙の符牒を書き写す",
+        "resultText": "上げ方と回数の意味を読み解き、天城の連絡網を理解した。",
+        "effectType": "Experience",
+        "value": 20
+      },
+      {
+        "text": "灰の下を掘り返す",
+        "resultText": "焚き口の灰の下に、見張りが隠していた包みが埋まっていた。",
+        "effectType": "Treasure",
+        "value": 1
+      }
+    ]
+  },
+  {
+    "id": "event_road_veterans",
+    "title": "街道の古参兵",
+    "weight": 8,
+    "description": "護衛崩れの古参が三人、火を囲んでいる。「一人だけなら、身を守る術を教えてやる」",
+    "options": [
+      {
+        "text": "剣を出す速さを教わる",
+        "resultText": "無駄のない振り出しを覚え、初手が確実に届くようになった。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_quickHands",
+        "targetsOneMember": true
+      },
+      {
+        "text": "受け方を教わる",
+        "resultText": "足場を殺さず受け流す構えを覚えた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_ironStance",
+        "targetsOneMember": true
+      },
+      {
+        "text": "戦いのあとの整え方を教わる",
+        "resultText": "斬り合いの直後に息と傷を整える手順を覚えた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_battleBreathing",
+        "targetsOneMember": true
+      }
+    ]
+  },
+  {
+    "id": "ev_gravedigger_pact",
+    "title": "墓守の契り",
+    "weight": 5,
+    "description": "墓所の奥から、土まみれの墓守が手招きしている。「一人だけ、こちらへ。名を預けてくれるならな」",
+    "options": [
+      {
+        "text": "隊員を一人、墓守のもとへやる",
+        "resultText": "墓守は差し出された手を、しばらく黙って握っていた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 25,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "Vitality",
+            "resultText": "土の匂いに慣れた体が、芯から太くなった。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_event_wardingRite",
+            "resultText": "邪気を遠ざける手つきを、墓守の手が教えていった。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_frayedNerve",
+            "resultText": "以来、夜ごと墓守の声が耳の奥で続いている。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_frailFlesh",
+            "resultText": "握られていた手が、いつまでも冷たいままになった。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerDamage",
+            "value": 18,
+            "targetId": "",
+            "resultText": "指が食い込み、手首まで黒い痣が残った。"
+          }
+        ]
+      },
+      {
+        "text": "名は預けられないと断る",
+        "resultText": "墓守は肩を落とし、また土を掘り始めた。",
+        "effectType": "Morale",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": "ev_gambler_ghost",
+    "title": "賽を振る亡霊",
+    "weight": 4,
+    "description": "崩れた賭場の卓に、透けた男が座っている。「一人でいい。付き合ってくれれば、それでいい」",
+    "options": [
+      {
+        "text": "隊員を一人、卓に着かせる",
+        "resultText": "亡霊が、音のしない賽を振った。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 25,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "Agility",
+            "resultText": "指先の速さだけは、確かに褒められた。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_event_quickHands",
+            "resultText": "手札を伏せる手つきを、そのまま剣に写し取った。"
+          },
+          {
+            "weight": 25,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_spendthrift",
+            "resultText": "勝った感触が抜けず、金の使い方が荒くなった。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_badLuck",
+            "resultText": "卓を離れてから、拾うものがことごとく外れになった。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerDamage",
+            "value": 12,
+            "targetId": "",
+            "resultText": "席を立とうとした腕を、冷たい手が掴んで離さなかった。"
+          }
+        ]
+      },
+      {
+        "text": "卓に着かず素通りする",
+        "resultText": "亡霊は誰もいない椅子へ賽を振り続けた。",
+        "effectType": "Morale",
+        "value": 6
+      }
+    ]
+  },
+  {
+    "id": "ev_black_ledger",
+    "title": "黒い帳簿",
+    "weight": 4,
+    "description": "焼け残った商館に、頁が勝手にめくれる帳簿が置かれている。読んだ者の名がそこに書き足されるという。",
+    "options": [
+      {
+        "text": "隊員を一人、帳簿に目を通させる",
+        "resultText": "頁をめくる音だけが、しばらく続いた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 25,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "Mental",
+            "resultText": "書き込まれた計算の癖が、そのまま頭に残った。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_event_haulingKnack",
+            "resultText": "荷と金の動かし方を、帳簿がそっくり教えてきた。"
+          },
+          {
+            "weight": 25,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_sloth",
+            "resultText": "帳簿の頁を追ううちに、何を学んでも頭に入らなくなった。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_lootBlind",
+            "resultText": "値打ちのある品ほど、なぜか目に留まらなくなった。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerDamage",
+            "value": 10,
+            "targetId": "",
+            "resultText": "頁で指を裂かれ、血が帳簿に吸い込まれていった。"
+          }
+        ]
+      },
+      {
+        "text": "帳簿は閉じたままにしておく",
+        "resultText": "誰も名を書き足されずに済んだ。",
+        "effectType": "Morale",
+        "value": 6
+      }
+    ]
+  },
+  {
+    "id": "ev_pass_witch",
+    "title": "峠の魔女",
+    "weight": 4,
+    "description": "岩陰の小屋から、煮汁の匂いと一緒に声がした。「一人ぶんなら、まだ鍋に残っているよ」",
+    "options": [
+      {
+        "text": "隊員を一人、鍋の前に座らせる",
+        "resultText": "魔女は木匙で、澄んだところだけを掬った。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 25,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "Vitality",
+            "resultText": "腹の底から温まり、体そのものが作り直された。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_event_kettleWatch",
+            "resultText": "鍋を掛ける頃合いを、そっくり教え込まれた。"
+          },
+          {
+            "weight": 25,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_heavyFeet",
+            "resultText": "以来、足が鉛を詰めたように重い。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_lightSleeper",
+            "resultText": "どれだけ横になっても、眠りが浅いままになった。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerDamage",
+            "value": 14,
+            "targetId": "",
+            "resultText": "喉を焼く熱さに、しばらく声が出なかった。"
+          }
+        ]
+      },
+      {
+        "text": "鍋には手を付けず礼だけ言う",
+        "resultText": "魔女は笑って、代わりに峠の抜け道を教えてくれた。",
+        "effectType": "Morale",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": "ev_deep_whisper",
+    "title": "坑底の囁き",
+    "weight": 4,
+    "description": "掘り止めの壁の向こうから、名を呼ぶ声が漏れている。耳を当てれば聞き取れそうだ。",
+    "options": [
+      {
+        "text": "隊員を一人、壁に耳を当てさせる",
+        "resultText": "壁は冷たく、声は確かに名を呼んでいた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 25,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "Mental",
+            "resultText": "聞き取れた言葉が、そのまま理解として残った。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_event_treasureSense",
+            "resultText": "声は、掘るべき場所だけを正確に教えていった。"
+          },
+          {
+            "weight": 25,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_noisyTread",
+            "resultText": "以来、どう歩いても足音が坑道じゅうに響くようになった。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_gapingGuard",
+            "resultText": "声を聞き逃すまいとする癖がつき、構えに穴ができた。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerDamage",
+            "value": 16,
+            "targetId": "",
+            "resultText": "壁越しに強く打ち返され、耳から血が伝った。"
+          }
+        ]
+      },
+      {
+        "text": "耳を貸さず掘り止めを離れる",
+        "resultText": "声は追ってはこなかった。",
+        "effectType": "Morale",
+        "value": 6
+      }
+    ]
+  },
+  {
+    "id": "ev_drowned_shrine_oath",
+    "title": "水没社の誓い",
+    "weight": 4,
+    "description": "空海に沈んだ社の鳥居が、水面の上に半分だけ出ている。誓いを立てた者に加護があるという。",
+    "options": [
+      {
+        "text": "隊員を一人、鳥居をくぐらせる",
+        "resultText": "水膜を抜けた瞬間、あたりの音が消えた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 25,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "Mental",
+            "resultText": "誓いの言葉が、そのまま芯として残った。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_event_seaLegs",
+            "resultText": "揺れる水面の上で、重心の置き方を覚えた。"
+          },
+          {
+            "weight": 25,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_markedByDark",
+            "resultText": "社の底に居る何かに、はっきりと見初められた。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_shakingHands",
+            "resultText": "くぐり抜けてから、手の震えが止まらない。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerDamage",
+            "value": 15,
+            "targetId": "",
+            "resultText": "水膜が肺まで入り込み、しばらく咳が止まらなかった。"
+          }
+        ]
+      },
+      {
+        "text": "鳥居はくぐらず手を合わせるに留める",
+        "resultText": "社は静かなままだった。",
+        "effectType": "Morale",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": "ev_camp_of_ill_omen",
+    "title": "凶兆の野営地",
+    "weight": 4,
+    "description": "先客の焚き火跡に、火を囲むように獣の骨が並べられている。誰かが何かを追い払おうとした跡だ。",
+    "options": [
+      {
+        "text": "隊員を一人、その火で一夜を明かさせる",
+        "resultText": "骨の輪の内側で、一晩を過ごさせた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 25,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "",
+            "resultText": "何に守られたのかは分からないが、朝には力が満ちていた。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_event_dangerSense",
+            "resultText": "夜通し何かの気配を数えるうちに、勘が研ぎ澄まされた。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_restlessCamp",
+            "resultText": "以来、火のそばでは一睡もできなくなった。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_butterFingers",
+            "resultText": "朝、手にした物を次々と取り落とすようになっていた。"
+          },
+          {
+            "weight": 10,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_curse_bluntedEdge",
+            "resultText": "刃に薄く霜が降り、どれだけ研いでも切れ味が戻らない。"
+          },
+          {
+            "weight": 15,
+            "effectType": "AdventurerDamage",
+            "value": 12,
+            "targetId": "",
+            "resultText": "夜明け前、何かに引きずられかけた痕が残っていた。"
+          }
+        ]
+      },
+      {
+        "text": "骨の輪を崩さず、離れた場所で野営する",
+        "resultText": "その夜は何事もなく明けた。",
+        "effectType": "Morale",
+        "value": 6
+      }
+    ]
+  },
+  {
+    "id": "ev_sunken_hoard",
+    "title": "沈んだ財貨",
+    "weight": 5,
+    "description": "空海の底、届くか届かないかの深さに、崩れた宝物庫の輪郭が見えている。",
+    "options": [
+      {
+        "text": "綱を渡して全員で引き上げにかかる",
+        "resultText": "隊は一斉に綱へ取り付いた。",
+        "effectType": "None",
+        "value": 0,
+        "outcomes": [
+          {
+            "weight": 30,
+            "effectType": "Treasure",
+            "value": 2,
+            "targetId": "",
+            "resultText": "宝物庫の棚ごと、抱えきれない量を引き上げた。"
+          },
+          {
+            "weight": 25,
+            "effectType": "Gold",
+            "value": 60,
+            "targetId": "",
+            "resultText": "金目の物だけを選り分けて回収した。"
+          },
+          {
+            "weight": 25,
+            "effectType": "DamagePercent",
+            "value": 15,
+            "targetId": "",
+            "resultText": "綱が切れ、隊はまとめて水面へ叩きつけられた。"
+          },
+          {
+            "weight": 20,
+            "effectType": "Morale",
+            "value": -12,
+            "targetId": "",
+            "resultText": "半日を費やして、引き上がったのは空の棚だけだった。"
+          }
+        ]
+      },
+      {
+        "text": "深追いせず岸に留まる",
+        "resultText": "無理をしない判断に、誰も異を唱えなかった。",
+        "effectType": "Morale",
+        "value": 5
+      }
+    ]
+  },
+  {
     "id": "event_bandit_toll",
     "title": "野盗の通行料",
     "description": "街道を塞いだ数名の野盗が「通行料」を寄越せと凄んでいる。剣の柄に手を掛けたまま、こちらの人数を数えている。",

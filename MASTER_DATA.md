@@ -821,6 +821,41 @@ Tier4の両手剣は既存の `eq_drop_bone`（`basePv` 9 / 2d4）を基準と�
 「別の隊員を選んでください」と促します。全員が全候補を習得済みのときだけ解決を許すので、
 再発しても進行不能にはなりません。
 
+### 呪い (`skill_curse_*`)
+
+**不利益しか持たない**スキルです。賭けの外れとして隊員に恒久的に貼り付き、
+以後その隊員を編成に入れるたび付いて回ります。**賭けの `outcomes` からしか配りません**
+（確定型の3択に混ぜると「損の少ない呪いを選ばされる」だけになるため）。
+
+| スキル | 効果 |
+| --- | --- |
+| `skill_curse_spendthrift` 浪費癖 | 報酬ゴールド -15% |
+| `skill_curse_sloth` 怠惰 | 報酬経験値 -15% |
+| `skill_curse_badLuck` 貧乏くじ | 宝箱 -30% / 罠 +30% |
+| `skill_curse_heavyFeet` 鉛の足 | 行軍速度 -1 |
+| `skill_curse_lightSleeper` 浅い眠り | 休息回復 -20% |
+| `skill_curse_noisyTread` 耳障りな足音 | 敵遭遇 +25% |
+| `skill_curse_butterFingers` 粗忽 | 敵ドロップ率 -20% |
+| `skill_curse_restlessCamp` 寝つけぬ夜 | 休息イベント出現 -25% |
+| `skill_curse_lootBlind` 曇った目利き | レアドロップ -20% |
+| `skill_curse_gapingGuard` ざる構え | AV -1 / DV -1 |
+| `skill_curse_shakingHands` 震える手 | 命中 -1 |
+| `skill_curse_bluntedEdge` 鈍った刃 | PV -1 |
+| `skill_curse_frailFlesh` 脆い肉 | 最大HP ×0.9 |
+| `skill_curse_frayedNerve` すり切れた神経 | 士気 ×0.85 |
+| `skill_curse_markedByDark` 闇に見初められた者 | 狙われやすさ +25 / mAV -1 |
+
+`CurseSkillTests` が次を固定しています。呪いを足すときはこの4点を満たすこと。
+
+- `TraitAnalysis.Evaluate` で見て**利点が1つも無い**こと（数値の向きを取り違えない）
+- 賭け（`outcomes` が2件以上）からしか配られないこと
+- どこかのダンジョンから実際に踏めること（配られない呪いはマスタの死蔵）
+- 呪いを含む選択肢には**必ず見返り**（能力上昇か呪いでないスキル）があり、
+  呪いを引く重みが結果表の半分を超えないこと
+
+恒久的な能力減少と同じ理由で、**草原・森には呪いを置きません**。ランク1のクエストが
+並ぶダンジョンで取り返しのつかない不利益を踏ませると、やり直す以外の手が無くなります。
+
 ## 特性 (`traits.json`)
 
 **その冒険者が実際にどう戦ってきたか**から生える恒久的な変化です。レベルアップの能力成長は
