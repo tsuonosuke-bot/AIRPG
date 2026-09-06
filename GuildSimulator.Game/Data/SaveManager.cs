@@ -111,6 +111,8 @@ public static class SaveManager
         shopConsumableStock = new Dictionary<string, int>(guild.shopConsumableStock),
         adventurers = guild.adventurers.Select(ExportAdventurer).ToList(),
         discoveredEnemyIds = guild.DiscoveredEnemyIds.OrderBy(id => id).ToList(),
+        partyPresets = guild.partyPresets.Select(ExportPartyPreset).ToList(),
+        lastParty = guild.lastParty == null ? null : ExportPartyPreset(guild.lastParty),
         burialRecords = guild.burialRecords.Select(b => new BurialRecordSave
         {
             name = b.name,
@@ -120,6 +122,13 @@ public static class SaveManager
             expeditionCount = b.expeditionCount,
             successCount = b.successCount,
         }).ToList(),
+    };
+
+    static PartyPresetSave ExportPartyPreset(PartyPreset preset) => new()
+    {
+        name = preset.name,
+        memberIds = preset.memberIds.ToArray(),
+        policy = preset.policy,
     };
 
     static AdventurerSaveData ExportAdventurer(AdventurerData a) => new()
@@ -327,6 +336,17 @@ public static class SaveManager
             adventurersById[adv.id] = adv;
         }
 
+        // 在籍していない冒険者のIDは編成から落とす。埋葬・解雇で永久に居なくなった
+        // 相手を残しても、呼び出したときに空席になるだけで意味がない。
+        var presets = (data.guild.partyPresets ?? new())
+            .Select(saved => RestorePartyPreset(saved, adventurersById))
+            .Where(preset => preset.MemberCount > 0)
+            .ToList();
+        var lastParty = data.guild.lastParty == null
+            ? null
+            : RestorePartyPreset(data.guild.lastParty, adventurersById);
+        guild.RestorePartyPresets(presets, lastParty?.MemberCount > 0 ? lastParty : null);
+
         if (data.guild.burialRecords.Count > 0)
             guild.RestoreBurialRecords(data.guild.burialRecords.Select(b =>
                 new BurialRecord(b.name, b.level, b.classAndRace, b.buriedTurn, b.expeditionCount, b.successCount)));
@@ -360,6 +380,25 @@ public static class SaveManager
             .ToList();
 
         return new LoadedGame(guild, questManager, data.currentTurn, recruitCandidates);
+    }
+
+    static PartyPreset RestorePartyPreset(
+        PartyPresetSave saved,
+        IReadOnlyDictionary<string, AdventurerData> adventurersById)
+    {
+        var preset = new PartyPreset
+        {
+            name = string.IsNullOrWhiteSpace(saved.name) ? "編成" : saved.name,
+            policy = saved.policy,
+        };
+        var ids = saved.memberIds ?? Array.Empty<string?>();
+        for (int slot = 0; slot < preset.memberIds.Length && slot < ids.Length; slot++)
+        {
+            string? id = ids[slot];
+            if (!string.IsNullOrEmpty(id) && adventurersById.ContainsKey(id))
+                preset.memberIds[slot] = id;
+        }
+        return preset;
     }
 
     static AdventurerData RestoreAdventurer(

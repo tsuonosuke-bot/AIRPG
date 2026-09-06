@@ -8,7 +8,7 @@ namespace GuildSimulator.Game.Data;
 
 public class SaveGameData
 {
-    public const int CurrentVersion = 13;
+    public const int CurrentVersion = 14;
     public int saveVersion = CurrentVersion;
     public int currentTurn = 1;
     public GuildSaveData guild = new();
@@ -33,6 +33,19 @@ public class GuildSaveData
     public List<AdventurerSaveData> adventurers = new();
     public List<BurialRecordSave> burialRecords = new();
     public List<string> discoveredEnemyIds = new();
+
+    /// <summary>名前を付けて保存したパーティ編成（v14以降）。</summary>
+    public List<PartyPresetSave> partyPresets = new();
+
+    /// <summary>直近に出発したパーティ。null なら未出発。</summary>
+    public PartyPresetSave? lastParty;
+}
+
+public class PartyPresetSave
+{
+    public string name = "";
+    public string?[] memberIds = new string?[6];
+    public ExpeditionPolicy policy = ExpeditionPolicy.SurvivalFirst;
 }
 
 public class BurialRecordSave
