@@ -258,6 +258,10 @@ public class GambleChoiceTests
     [Theory]
     [InlineData("event_forest_lore")]
     [InlineData("event_ruin_tablets")]
+    [InlineData("event_caravan_teamsters")]
+    [InlineData("event_mine_pit_lore")]
+    [InlineData("event_old_city_scavengers")]
+    [InlineData("event_middle_ocean_navigators")]
     public void ShippedSkillChoiceEventsOfferThreeResolvedDeterministicSkills(string eventId)
     {
         var db = MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));

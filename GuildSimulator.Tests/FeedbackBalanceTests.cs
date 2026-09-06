@@ -189,7 +189,12 @@ public class FeedbackBalanceTests
     public void DeterministicSkillEventsHaveMoreWeightAndCoverAmashiro()
     {
         var db = Load();
-        string[] eventIds = { "event_forest_lore", "event_roadside_lessons", "event_ruin_tablets" };
+        string[] eventIds =
+        {
+            "event_forest_lore", "event_roadside_lessons", "event_ruin_tablets",
+            "event_caravan_teamsters", "event_mine_pit_lore",
+            "event_old_city_scavengers", "event_middle_ocean_navigators",
+        };
 
         foreach (string eventId in eventIds)
         {
@@ -202,6 +207,44 @@ public class FeedbackBalanceTests
 
         Assert.Contains(db.dungeons["dungeon_amashiro"].turnEndEvents,
             choiceEvent => choiceEvent.id == "event_roadside_lessons");
+    }
+
+    [Fact]
+    public void EveryDungeonOffersSomeWayToLearnASkillOnTheRoad()
+    {
+        // どこか1つでもスキルを配らないダンジョンがあると、そこへ通うだけの周では
+        // 「遠征で強くなる」経路が丸ごと閉じてしまう。
+        var db = Load();
+
+        foreach (var dungeon in db.dungeons.Values)
+        {
+            var skillEvents = dungeon.turnEndEvents
+                .Where(choiceEvent => choiceEvent.options.Any(option =>
+                    option.Outcomes.Any(o => o.effectType == QuestChoiceEffectType.AdventurerSkill)))
+                .ToList();
+            Assert.True(skillEvents.Count > 0, $"{dungeon.id}: スキルを配る選択イベントが無い");
+        }
+    }
+
+    [Fact]
+    public void EveryEventSkillIsReachableFromSomeDungeon()
+    {
+        // どのダンジョンからも辿れないイベント専用スキルは、マスタに居るだけで一度も配られない。
+        var db = Load();
+
+        var reachable = db.dungeons.Values
+            .SelectMany(dungeon => dungeon.turnEndEvents)
+            .SelectMany(choiceEvent => choiceEvent.options)
+            .SelectMany(option => option.Outcomes)
+            .Where(outcome => outcome.effectType == QuestChoiceEffectType.AdventurerSkill)
+            .Select(outcome => outcome.Skill!.id)
+            .ToHashSet();
+
+        var eventSkills = db.skills.Values
+            .Where(skill => skill.id.StartsWith("skill_event_", StringComparison.Ordinal))
+            .Select(skill => skill.id);
+
+        Assert.All(eventSkills, skillId => Assert.Contains(skillId, reachable));
     }
 
     [Theory]

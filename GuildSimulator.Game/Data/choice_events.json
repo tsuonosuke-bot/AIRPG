@@ -405,6 +405,173 @@
     ]
   },
   {
+    "id": "event_caravan_teamsters",
+    "title": "荷駄隊の夜語り",
+    "description": "焚き火を囲む荷駄隊が、道で生きるための小技を分けてくれるという。教われるのは一人だけだ。",
+    "weight": 8,
+    "options": [
+      {
+        "text": "荷の積み方と値の付け方を教わる",
+        "resultText": "同じ荷でも積み方ひとつで手取りが変わることを知った。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_haulingKnack",
+        "targetsOneMember": true
+      },
+      {
+        "text": "湯と食事の段取りを教わる",
+        "resultText": "行程のどこで火を熾すべきかを覚え、休める場所を見つけやすくなった。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_kettleWatch",
+        "targetsOneMember": true
+      },
+      {
+        "text": "道中の見聞きを書き留める作法を教わる",
+        "resultText": "見たものを整理して残す癖がつき、一度の遠征から学べる量が増えた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_fieldLessons",
+        "targetsOneMember": true
+      }
+    ]
+  },
+  {
+    "id": "event_mine_pit_lore",
+    "title": "先山の口伝",
+    "description": "坑道の壁に、先山（さきやま）たちが後続へ残した符牒が刻まれている。読み解けるのは一人ぶんだ。",
+    "weight": 8,
+    "options": [
+      {
+        "text": "「宝の勘」を読み解く",
+        "resultText": "岩肌の色と湿りから、隠された空洞の在りかを察する目を得た。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_treasureSense",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「危険察知」を読み解く",
+        "resultText": "落盤と仕掛けの前触れを、音と埃で読む勘を身につけた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_dangerSense",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「踏み止まる構え」を読み解く",
+        "resultText": "狭い坑道で足場を殺さず受ける構えを覚えた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_ironStance",
+        "targetsOneMember": true
+      }
+    ]
+  },
+  {
+    "id": "event_old_city_scavengers",
+    "title": "廃都の拾い屋",
+    "description": "瓦礫を漁る拾い屋たちが、この街で生き延びる三つの流儀を教えると言う。",
+    "weight": 8,
+    "options": [
+      {
+        "text": "「屍拾いの流儀」を教わる",
+        "resultText": "倒した相手から持ち帰れるものを見落とさない手際を覚えた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_scavenger",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「戦間の呼吸」を教わる",
+        "resultText": "斬り合いのあと息を整える手順を覚え、次の角までに少し回復できるようになった。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_battleBreathing",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「魔除けの作法」を教わる",
+        "resultText": "廃都に淀む邪気を遠ざける身のこなしを覚えた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_wardingRite",
+        "targetsOneMember": true
+      }
+    ]
+  },
+  {
+    "id": "event_middle_ocean_navigators",
+    "title": "空海の航法",
+    "description": "難破船の甲板に、空海を渡り切った者たちの航法書が残されていた。持ち出せるのは一人が読み切った分だけだ。",
+    "weight": 8,
+    "options": [
+      {
+        "text": "「潮の足取り」を読む",
+        "resultText": "揺れる足場でも重心を失わない歩き方を身につけた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_seaLegs",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「宝の勘」を読む",
+        "resultText": "潮目に集まる漂流物の溜まり場を読む目を得た。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_treasureSense",
+        "targetsOneMember": true
+      },
+      {
+        "text": "「沈着」を読む",
+        "resultText": "上下の感覚が反転する流れの中でも、心を乱さない術を覚えた。",
+        "effectType": "AdventurerSkill",
+        "targetId": "skill_event_composure",
+        "targetsOneMember": true
+      }
+    ]
+  },
+  {
+    "id": "ev_wandering_duelist",
+    "title": "流れの決闘者",
+    "description": "崩れた広場で、剣を杖代わりにした決闘者が立ち上がった。「一人でいい。腕を見せてみろ」",
+    "weight": 5,
+    "options": [
+      {
+        "text": "隊員を一人、立ち合わせる",
+        "resultText": "決闘者が無造作に間合いを詰めた。",
+        "effectType": "None",
+        "value": 0,
+        "targetsOneMember": true,
+        "outcomes": [
+          {
+            "weight": 30,
+            "effectType": "AdventurerStatUp",
+            "value": 1,
+            "targetId": "Agility",
+            "resultText": "打ち合いの中で、体が勝手に正しい位置を覚えた。"
+          },
+          {
+            "weight": 25,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_event_quickHands",
+            "resultText": "決闘者は、剣を出す手順だけを何度も直した。"
+          },
+          {
+            "weight": 20,
+            "effectType": "AdventurerSkill",
+            "value": 0,
+            "targetId": "skill_event_composure",
+            "resultText": "斬り合いのあいだ息を乱さない呼吸を、身体で覚えさせられた。"
+          },
+          {
+            "weight": 25,
+            "effectType": "AdventurerDamage",
+            "value": 22,
+            "targetId": "",
+            "resultText": "峰打ちではあったが、加減はなかった。"
+          }
+        ]
+      },
+      {
+        "text": "立ち合いを断って先へ進む",
+        "resultText": "決闘者は肩をすくめ、また剣にもたれかかった。",
+        "effectType": "Morale",
+        "value": 8
+      }
+    ]
+  },
+  {
     "id": "event_bandit_toll",
     "title": "野盗の通行料",
     "description": "街道を塞いだ数名の野盗が「通行料」を寄越せと凄んでいる。剣の柄に手を掛けたまま、こちらの人数を数えている。",

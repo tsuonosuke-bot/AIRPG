@@ -2366,6 +2366,93 @@
     "mul": {}
   },
   {
+    "id": "skill_event_haulingKnack",
+    "skillName": "荷運びの要領",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "goldPercent": 5
+    }
+  },
+  {
+    "id": "skill_event_fieldLessons",
+    "skillName": "実地の学び",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "expPercent": 5
+    }
+  },
+  {
+    "id": "skill_event_kettleWatch",
+    "skillName": "湯番の心得",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "healEventChancePercent": 15
+    }
+  },
+  {
+    "id": "skill_event_treasureSense",
+    "skillName": "宝の勘",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "treasureChancePercent": 12
+    }
+  },
+  {
+    "id": "skill_event_scavenger",
+    "skillName": "屍拾いの流儀",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "enemyDropChancePercent": 12
+    }
+  },
+  {
+    "id": "skill_event_battleBreathing",
+    "skillName": "戦間の呼吸",
+    "scope": 0,
+    "add": {},
+    "mul": {},
+    "expedition": {
+      "postBattleHealPercent": 3
+    }
+  },
+  {
+    "id": "skill_event_seaLegs",
+    "skillName": "潮の足取り",
+    "scope": 0,
+    "add": {
+      "dv": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_event_ironStance",
+    "skillName": "踏み止まる構え",
+    "scope": 0,
+    "add": {
+      "av": 1
+    },
+    "mul": {}
+  },
+  {
+    "id": "skill_event_quickHands",
+    "skillName": "手早い一手",
+    "scope": 0,
+    "add": {
+      "toHit": 1
+    },
+    "mul": {}
+  },
+  {
     "id": "skill_spendthrift",
     "skillName": "浪費癖",
     "scope": 0,

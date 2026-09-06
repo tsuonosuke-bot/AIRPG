@@ -782,6 +782,45 @@ Tier4の両手剣は既存の `eq_drop_bone`（`basePv` 9 / 2d4）を基準と�
 割り当てています（`dungeons.json` の `turnEndEventIds`）。**どのダンジョンからも
 参照されていないイベントは一度も発生しません。**
 
+### 道中で配るスキル (`skill_event_*`)
+
+遠征中の選択イベントだけが配るスキルには `skill_event_` の接頭辞を付けます。
+レベルアップや職業では手に入らない、**そのダンジョンに通った証**にあたる小さな効果です。
+
+強さの目安は同系統の `_lv1` スキルの半分以下に収めます（例: `skill_haggle_lv1` の
+`goldPercent: 6` に対し `skill_event_haulingKnack` は `5`）。運まかせで配られるものが
+育成の主流より強いと、プレイヤーは「引き直したい」だけの周回を始めてしまいます。
+
+| スキル | 効果 |
+| --- | --- |
+| `skill_event_campWisdom` 野営の知恵 | 休息回復 +10% |
+| `skill_event_dangerSense` 危険察知 | 罠遭遇 -10% |
+| `skill_event_trailcraft` 獣道歩き | 敵遭遇 -10% |
+| `skill_event_antiqueEye` 古物鑑定 | レアドロップ +10% |
+| `skill_event_wardingRite` 魔除けの作法 | mAV +1 |
+| `skill_event_composure` 沈着 | san +10 |
+| `skill_event_haulingKnack` 荷運びの要領 | 報酬ゴールド +5% |
+| `skill_event_fieldLessons` 実地の学び | 報酬経験値 +5% |
+| `skill_event_kettleWatch` 湯番の心得 | 休息イベント出現 +15% |
+| `skill_event_treasureSense` 宝の勘 | 宝箱イベント出現 +12% |
+| `skill_event_scavenger` 屍拾いの流儀 | 敵ドロップ率 +12% |
+| `skill_event_battleBreathing` 戦間の呼吸 | 戦闘後回復 +3% |
+| `skill_event_seaLegs` 潮の足取り | DV +1 |
+| `skill_event_ironStance` 踏み止まる構え | AV +1 |
+| `skill_event_quickHands` 手早い一手 | 命中 +1 |
+
+配布のしかたは2通りあり、どちらのダンジョンにも**確定型が最低1つ**は必要です
+（`FeedbackBalanceTests` が全ダンジョンぶん検証しています）。
+
+- **確定型**: 3択すべてが `AdventurerSkill`。選んだスキルが必ず入るので、
+  そのダンジョンに通えば狙って取れる。`weight` は 8 以上
+- **賭け型**: `outcomes` の一部に `AdventurerSkill` を混ぜる。
+  能力上昇・ダメージと同じ表に並べ、当たりの一つとして扱う
+
+確定型は同じ隊員に同じスキルを配らないよう `QuestManager` が事前に弾き、
+「別の隊員を選んでください」と促します。全員が全候補を習得済みのときだけ解決を許すので、
+再発しても進行不能にはなりません。
+
 ## 特性 (`traits.json`)
 
 **その冒険者が実際にどう戦ってきたか**から生える恒久的な変化です。レベルアップの能力成長は

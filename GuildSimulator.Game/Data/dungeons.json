@@ -296,7 +296,8 @@
       "event_bandit_lookout_spotted",
       "event_caravan_supply_wagon",
       "event_caravan_stuck_wagon",
-      "event_caravan_pack_beast_panic"
+      "event_caravan_pack_beast_panic",
+      "event_caravan_teamsters"
     ]
   },
   {
@@ -720,7 +721,8 @@
       "event_caravan_supply_wagon",
       "event_caravan_stuck_wagon",
       "event_caravan_pack_beast_panic",
-      "event_caravan_ambush"
+      "event_caravan_ambush",
+      "event_caravan_teamsters"
     ]
   },
   {
@@ -1083,7 +1085,9 @@
       "event_caravan_rare_broker",
       "event_caravan_ambush",
       "event_amashiro_broken_lift",
-      "event_amashiro_dragon_inscription"
+      "event_amashiro_dragon_inscription",
+      "event_caravan_teamsters",
+      "ev_wandering_duelist"
     ]
   },
   {
@@ -1259,7 +1263,8 @@
     "turnEndEventIds": [
       "event_mysterious_shrine",
       "event_middle_ocean_sky_current",
-      "event_middle_ocean_drowned_port"
+      "event_middle_ocean_drowned_port",
+      "event_middle_ocean_navigators"
     ]
   },
   {
@@ -1523,7 +1528,8 @@
       "event_hidden_cache",
       "ev_ancient_altar",
       "event_ruin_tablets",
-      "event_caravan_specialist_merchant"
+      "event_caravan_specialist_merchant",
+      "event_mine_pit_lore"
     ]
   },
   {
@@ -1765,7 +1771,9 @@
       "event_hidden_cache",
       "ev_ancient_altar",
       "ev_cursed_spring",
-      "event_ruin_tablets"
+      "event_ruin_tablets",
+      "event_mine_pit_lore",
+      "event_old_city_scavengers"
     ]
   },
   {
@@ -1930,7 +1938,9 @@
       "ev_cursed_spring",
       "event_ruin_tablets",
       "event_caravan_rare_broker",
-      "event_caravan_ambush"
+      "event_caravan_ambush",
+      "event_old_city_scavengers",
+      "ev_wandering_duelist"
     ]
   }
 ]
