@@ -16,6 +16,13 @@ namespace GuildSimulator.Core.GameData;
 /// </summary>
 public static class ExpeditionOutcomeRecorder
 {
+    /// <summary>
+    /// 「誰も倒れなかった」を無傷として数えるのに要る最小人数。少人数の隊は守る相手が少なく、
+    /// 手練れが一人いれば押し切れてしまう。無傷を隊の練度として数えたいので、
+    /// 隊らしい人数が揃っていた遠征だけを対象にする。
+    /// </summary>
+    public const int MinPartySizeForFlawless = 3;
+
     public static void Record(QuestRun run)
     {
         var members = run.EnumerateMembers().ToList();
@@ -26,8 +33,9 @@ public static class ExpeditionOutcomeRecorder
 
         // 「誰も倒れなかった」は戦闘記録から導く。帰還時には戦闘不能が負傷へ解決済みで、
         // その場の状態を見ても道中で倒れたかどうかは分からないため。
-        bool nobodyFell = members.All(m =>
-            run.recorder.Count(m.id, ExpeditionRecordType.TimesDowned) == 0);
+        // 隊と呼べる人数が出ていなければ、無傷で帰っても練度の証にはしない。
+        bool nobodyFell = members.Count >= MinPartySizeForFlawless
+            && members.All(m => run.recorder.Count(m.id, ExpeditionRecordType.TimesDowned) == 0);
 
         foreach (var member in members)
         {

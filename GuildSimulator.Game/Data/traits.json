@@ -9,7 +9,7 @@
     "requirements": [
       {
         "record": "CritKills",
-        "atLeast": 5
+        "atLeast": 10
       }
     ],
     "builds": [
@@ -96,7 +96,7 @@
     "requirements": [
       {
         "record": "Kills",
-        "atLeast": 25
+        "atLeast": 50
       }
     ],
     "builds": [
@@ -214,7 +214,7 @@
     "requirements": [
       {
         "record": "BossKills",
-        "atLeast": 3
+        "atLeast": 6
       }
     ]
   },
@@ -229,7 +229,7 @@
     "requirements": [
       {
         "record": "BossKills",
-        "atLeast": 3
+        "atLeast": 6
       }
     ]
   },
@@ -244,7 +244,7 @@
     "requirements": [
       {
         "record": "BossKills",
-        "atLeast": 3
+        "atLeast": 6
       }
     ]
   },
@@ -345,7 +345,7 @@
     "requirements": [
       {
         "record": "Kills",
-        "atLeast": 25
+        "atLeast": 50
       }
     ]
   },
