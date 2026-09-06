@@ -240,12 +240,14 @@ def cmd_plan(args) -> int:
                  f"（素質{goal} − 体格{args.con} − 容姿{args.app}）。いまは {sum(base.values())} です。")
 
     # 重みの目安はランクとは無関係にレアリティだけで決める（素質と同じ考え方）。
-    # Commonには制約を設けない。ランクが上がっても素質どおりの人はどこにでもいる。
-    low_default, high_default = RARITY_WEIGHT_RANGE.get(args.rarity, (0, 100))
-    weight = args.weight if args.weight is not None else min(
-        high_default, max(low_default, DEFAULT_WEIGHT.get(args.rank, 10)))
-    if args.rarity != "Common" and args.rarity in RARITY_WEIGHT_RANGE:
-        low, high = RARITY_WEIGHT_RANGE[args.rarity]
+    # Commonには制約を設けない――既定はその帯の標準重みでよく、ランクが上がっても
+    # 素質どおりの人はどこにでもいる。それより上だけ目安の帯に収める。
+    band_default = DEFAULT_WEIGHT.get(args.rank, 10)
+    if args.rarity == "Common":
+        weight = args.weight if args.weight is not None else band_default
+    else:
+        low, high = RARITY_WEIGHT_RANGE.get(args.rarity, (0, band_default))
+        weight = args.weight if args.weight is not None else min(high, max(low, band_default))
         if not low <= weight <= high:
             sys.exit(f"recruitWeight {weight} は {args.rarity} の目安 {low}〜{high} の外です"
                      "（ランクに関係なく、レアリティだけで決めます）。"
