@@ -136,6 +136,68 @@ public class GuildManager
         burialRecords.AddRange(records);
     }
 
+    // ---- パーティ編成の保存 ----
+
+    /// <summary>保存できる編成の数。多すぎると呼び出す側の一覧が読めなくなる。</summary>
+    public const int PartyPresetLimit = 6;
+
+    public List<PartyPreset> partyPresets = new();
+
+    /// <summary>直近に出発したパーティ。保存し忘れても「前回と同じ」で出せるようにする。</summary>
+    public PartyPreset? lastParty;
+
+    /// <summary>出発のたびに上書きする。保存済み編成とは別枠で、呼び出し一覧の先頭に出す。</summary>
+    public void RecordLastParty(IReadOnlyList<AdventurerData?> formation, ExpeditionPolicy policy)
+    {
+        var recorded = PartyPreset.From("前回の編成", formation, policy);
+        lastParty = recorded.MemberCount > 0 ? recorded : lastParty;
+    }
+
+    /// <summary>
+    /// 現在の編成に名前を付けて保存する。同名があれば上書きするので、
+    /// 「同じ名前で編成を更新する」が枠を食いつぶさない。
+    /// </summary>
+    public bool TrySavePartyPreset(
+        string name,
+        IReadOnlyList<AdventurerData?> formation,
+        ExpeditionPolicy policy,
+        out string reason)
+    {
+        reason = "";
+        string trimmed = (name ?? "").Trim();
+        if (trimmed.Length == 0) { reason = "編成名を入力してください"; return false; }
+        if (trimmed.Length > PartyPreset.MaxNameLength)
+            trimmed = trimmed[..PartyPreset.MaxNameLength];
+
+        var preset = PartyPreset.From(trimmed, formation, policy);
+        if (preset.MemberCount == 0) { reason = "編成が空です"; return false; }
+
+        int existing = partyPresets.FindIndex(
+            p => string.Equals(p.name, trimmed, StringComparison.Ordinal));
+        if (existing >= 0)
+        {
+            partyPresets[existing] = preset;
+            return true;
+        }
+        if (partyPresets.Count >= PartyPresetLimit)
+        {
+            reason = $"保存できる編成は{PartyPresetLimit}件までです（不要な編成を削除してください）";
+            return false;
+        }
+        partyPresets.Add(preset);
+        return true;
+    }
+
+    public bool RemovePartyPreset(PartyPreset preset) => partyPresets.Remove(preset);
+
+    /// <summary>セーブデータからの復元専用。</summary>
+    public void RestorePartyPresets(IEnumerable<PartyPreset> presets, PartyPreset? last)
+    {
+        partyPresets.Clear();
+        partyPresets.AddRange(presets.Take(PartyPresetLimit));
+        lastParty = last;
+    }
+
     /// <summary>セーブデータからの復元専用。経済ログは追加しない。</summary>
     public void RestoreEconomy(int gold, int guildRank, int guildPoints, int guildPointsThisRank = 0)
     {

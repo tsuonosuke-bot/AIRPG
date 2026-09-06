@@ -68,7 +68,9 @@ public static class HelpScreen
         Ui.BeginScreen();
         Ui.Header("基本の流れ");
         Ui.WriteLine("  1) クエストボードから受注するクエストを選ぶ");
-        Ui.WriteLine("  2) 冒険者を編成して送り出す（前衛/後衛の配置あり）");
+        Ui.WriteLine("  2) 冒険者を編成して送り出す（選ぶと自動配置。位置は編成画面で入れ替えられる）");
+        Ui.WriteLine($"     編成は名前を付けて{GuildManager.PartyPresetLimit}件まで保存でき、次の受注で「保存した編成を呼び出す」から再利用できる。");
+        Ui.WriteLine("     保存し忘れても、直前に出発したパーティは「前回の編成」として同じ場所に残る。");
         Ui.WriteLine("  3) ターンを進めると自動で戦闘・探索が進行する");
         Ui.WriteLine("  4) クエストが完了すると報酬（資金・経験値・選択報酬）を受け取る");
         Ui.WriteLine(GameFeatures.RelicsEnabled

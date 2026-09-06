@@ -120,103 +120,354 @@ public static class QuestBoardScreen
         QuestMasterData def, QuestManager qm, GuildManager guild, int currentTurn)
     {
         var formation = new AdventurerData?[GuildManager.FormationSlotCount];
-        var advs = guild.adventurers;
         int partyCapacity = guild.PartyCapacity;
+        // 方針も毎回選び直させない。前回出発したときの方針を初期値にする。
+        var policy = guild.lastParty?.policy ?? ExpeditionPolicy.SurvivalFirst;
+        var notices = new List<string>();
 
-        while (formation.Any(x => x == null)
-            && formation.Count(member => member != null) < partyCapacity)
+        while (true)
         {
-            // 配置を1人確定するたびに画面を描き直す。Web版で変更前と変更後の
+            // 編成をひとつ動かすたびに画面を描き直す。Web版で変更前と変更後の
             // 「現在の編成」が同じ画面に積み重ならないようにする。
             Ui.BeginScreen();
             Ui.Header($"編成: {def.questName}");
-            Ui.WriteLine("冒険者を選び、次に配置先を指定してください");
+            Ui.WriteLine("冒険者を選ぶと空いている位置へ自動で配置します（位置の調整は「配置を変える」から）");
             Ui.WriteLine();
             ShowFormation(formation, partyCapacity);
-
-            var available = advs.Where((a, i) =>
-                a.isAlive &&
-                !qm.IsAdventurerBusy(a.id) &&
-                !formation.Contains(a)).ToList();
-            if (available.Count == 0)
-            {
-                Ui.Dim("  配置可能な冒険者をすべて編成しました");
-                break;
-            }
-
+            Ui.WriteLine($"  遠征方針: {QuestManager.PolicyName(policy)}");
+            foreach (string notice in notices) Ui.Warn($"  {notice}");
+            notices.Clear();
             Ui.WriteLine();
 
-            var memberOptions = new List<MenuOption>();
-            for (int i = 0; i < available.Count; i++)
+            int memberCount = formation.Count(member => member != null);
+            var available = SelectableMembers(guild, qm, formation);
+            var options = new List<MenuOption>();
+
+            if (memberCount >= partyCapacity)
+                Ui.Dim("  編成上限まで埋まっています。入れ替えるには「配置を変える」で外してください");
+            else if (available.Count == 0)
+                Ui.Dim("  いま出せる冒険者をすべて編成しました");
+            else
+                for (int i = 0; i < available.Count; i++)
+                {
+                    var a = available[i];
+                    options.Add(new MenuOption(
+                        (i + 1).ToString(),
+                        $"{a.name} Lv{a.level}" + (a.IsInjured ? $" [負傷{a.injuries.Count}]" : ""),
+                        a.ClassAndRace + (a.IsInjured ? $" / {a.ConditionSummary}" : ""),
+                        Ui.RarityStyle(a.master.rarity),
+                        Group: "追加する冒険者"));
+                }
+
+            const string menuGroup = "編成メニュー";
+            var saved = SavedPartyChoices(guild);
+            if (saved.Count > 0)
+                options.Add(new MenuOption("l", "保存した編成を呼び出す",
+                    string.Join(" / ", saved.Select(p => p.name)), Group: menuGroup));
+            if (memberCount > 0)
             {
-                var a = available[i];
-                memberOptions.Add(new MenuOption(
-                    (i + 1).ToString(),
-                    $"{a.name} Lv{a.level}" + (a.IsInjured ? $" [負傷{a.injuries.Count}]" : ""),
-                    a.ClassAndRace + (a.IsInjured ? $" / {a.ConditionSummary}" : ""),
-                    Ui.RarityStyle(a.master.rarity)));
+                options.Add(new MenuOption("s", "いまの編成を保存する",
+                    $"名前を付けて{GuildManager.PartyPresetLimit}件まで残せます", Group: menuGroup));
+                options.Add(new MenuOption("e", "配置を変える / 外す", Group: menuGroup));
             }
+            options.Add(new MenuOption("p", "遠征方針を変える",
+                $"現在: {QuestManager.PolicyName(policy)}", Group: menuGroup));
+            if (memberCount > 0)
+                options.Add(new MenuOption("d", "この編成で進む", Role: MenuRole.Primary, Group: menuGroup));
+            options.Add(new MenuOption("0", "受注をやめる", Style: TextStyle.Dim, Group: menuGroup));
 
-            int? pick = await Ui.SelectIndexAsync("追加する冒険者", memberOptions, "編成を確定");
-            if (pick == null) break;
-
-            var openSlots = Enumerable.Range(0, formation.Length)
-                .Where(slot => formation[slot] == null)
-                .ToList();
-            var slotOptions = openSlots
-                .Select((slot, i) => new MenuOption((i + 1).ToString(), PositionName(slot)))
-                .ToList();
-
-            int? slotPick = await Ui.SelectIndexAsync(
-                $"{available[pick.Value - 1].name} の配置先", slotOptions, "配置をやめる");
-            if (slotPick == null)
+            string key = await Ui.SelectAsync("操作", options);
+            if (key == "0") { Ui.Warn("受注をキャンセルしました"); return; }
+            if (key == "l") { await LoadPartyAsync(guild, qm, formation, partyCapacity, notices, value => policy = value); continue; }
+            if (key == "s") { await SavePartyAsync(guild, formation, policy, notices); continue; }
+            if (key == "e") { await EditPlacementAsync(formation); continue; }
+            if (key == "p") { policy = await SelectPolicyAsync(policy); continue; }
+            if (key == "d")
             {
-                Ui.Warn("配置をキャンセルしました");
+                if (await ConfirmAndStartAsync(def, qm, guild, currentTurn, formation, policy, partyCapacity))
+                    return;
                 continue;
             }
-            formation[openSlots[slotPick.Value - 1]] = available[pick.Value - 1];
+            if (int.TryParse(key, out int pick) && pick >= 1 && pick <= available.Count)
+            {
+                var member = available[pick - 1];
+                int? slot = PreferredSlot(member, formation);
+                if (slot == null) notices.Add("空いている配置がありません");
+                else formation[slot.Value] = member;
+            }
+        }
+    }
+
+    /// <summary>いま編成に入れられる冒険者（生存・遠征中でない・未配置）。</summary>
+    static List<AdventurerData> SelectableMembers(
+        GuildManager guild, QuestManager qm, AdventurerData?[] formation) =>
+        guild.adventurers
+            .Where(a => a.isAlive && !qm.IsAdventurerBusy(a.id) && !formation.Contains(a))
+            .ToList();
+
+    /// <summary>
+    /// 追加した冒険者を置く位置。武器の間合いで前衛・後衛を決め、希望の列が埋まっていれば
+    /// 反対の列へ回す。ここで妥当な位置に入るから、追加のたびに配置を選ばせずに済む。
+    /// </summary>
+    static int? PreferredSlot(AdventurerData member, AdventurerData?[] formation)
+    {
+        var front = Enumerable.Range(0, GuildManager.FrontRowSlotCount);
+        var rear = Enumerable.Range(
+            GuildManager.FrontRowSlotCount,
+            formation.Length - GuildManager.FrontRowSlotCount);
+        var order = UsesRangedOrSupportWeapon(member)
+            ? rear.Concat(front)
+            : front.Concat(rear);
+        foreach (int slot in order)
+            if (formation[slot] == null) return slot;
+        return null;
+    }
+
+    /// <summary>呼び出せる編成。「前回の編成」は保存し忘れの受け皿なので先頭に置く。</summary>
+    static List<PartyPreset> SavedPartyChoices(GuildManager guild)
+    {
+        var choices = new List<PartyPreset>();
+        if (guild.lastParty != null) choices.Add(guild.lastParty);
+        choices.AddRange(guild.partyPresets);
+        return choices;
+    }
+
+    static async Task LoadPartyAsync(
+        GuildManager guild,
+        QuestManager qm,
+        AdventurerData?[] formation,
+        int partyCapacity,
+        List<string> notices,
+        Action<ExpeditionPolicy> applyPolicy)
+    {
+        while (true)
+        {
+            var choices = SavedPartyChoices(guild);
+            if (choices.Count == 0) return;
+
+            Ui.BeginScreen();
+            Ui.Header("保存した編成");
+            var options = choices
+                .Select((preset, i) => new MenuOption(
+                    (i + 1).ToString(),
+                    preset.name,
+                    $"{DescribePreset(preset, guild)}　方針:{QuestManager.PolicyName(preset.policy)}"))
+                .ToList();
+            if (guild.partyPresets.Count > 0)
+                options.Add(new MenuOption("x", "保存した編成を削除する", Style: TextStyle.Dim));
+
+            string key = await Ui.SelectAsync("呼び出す編成",
+                new List<MenuOption>(options) { new("0", "戻る", Style: TextStyle.Dim) });
+            if (key == "x") { await DeletePartyPresetAsync(guild); continue; }
+            if (!int.TryParse(key, out int pick) || pick < 1 || pick > choices.Count) return;
+
+            ApplyPreset(choices[pick - 1], formation, guild, qm, partyCapacity, notices);
+            applyPolicy(choices[pick - 1].policy);
+            return;
+        }
+    }
+
+    /// <summary>保存内容を一覧で読めるようにする。いま出せない相手はその理由を添える。</summary>
+    static string DescribePreset(PartyPreset preset, GuildManager guild)
+    {
+        var names = new List<string>();
+        foreach (string? id in preset.memberIds)
+        {
+            if (string.IsNullOrEmpty(id)) continue;
+            var member = guild.adventurers.FirstOrDefault(a => a.id == id);
+            names.Add(member == null ? "（離脱）" : member.isAlive ? member.name : $"{member.name}（死亡）");
+        }
+        return names.Count == 0 ? "メンバーなし" : string.Join("、", names);
+    }
+
+    /// <summary>
+    /// 保存した編成を現在の盤面へ流し込む。いま連れて行けない相手は飛ばし、
+    /// 何が欠けたのかを編成画面へ持ち帰る（黙って人数が減ると気づけない）。
+    /// </summary>
+    static void ApplyPreset(
+        PartyPreset preset,
+        AdventurerData?[] formation,
+        GuildManager guild,
+        QuestManager qm,
+        int partyCapacity,
+        List<string> notices)
+    {
+        for (int slot = 0; slot < formation.Length; slot++) formation[slot] = null;
+
+        var missing = new List<string>();
+        int placed = 0;
+        for (int slot = 0; slot < formation.Length && slot < preset.memberIds.Length; slot++)
+        {
+            string? id = preset.memberIds[slot];
+            if (string.IsNullOrEmpty(id)) continue;
+
+            var member = guild.adventurers.FirstOrDefault(a => a.id == id);
+            if (member == null || !member.isAlive) { missing.Add(member?.name ?? "離脱した隊員"); continue; }
+            if (qm.IsAdventurerBusy(member.id)) { missing.Add($"{member.name}（遠征中）"); continue; }
+            if (placed >= partyCapacity) { missing.Add($"{member.name}（編成上限）"); continue; }
+
+            formation[slot] = member;
+            placed++;
         }
 
-        int count = formation.Count(x => x != null);
-        if (count == 0) { Ui.Warn("編成が空のためキャンセル"); return; }
+        // 上限より前の空きスロットへ詰め直す必要はない。位置ごと保存してあるので並びは保たれる。
+        if (placed == 0) notices.Add("⚠ この編成のメンバーは誰も出せません");
+        else if (missing.Count > 0)
+            notices.Add($"⚠ 外れたメンバー: {string.Join("、", missing)}");
+    }
 
+    static async Task SavePartyAsync(
+        GuildManager guild,
+        AdventurerData?[] formation,
+        ExpeditionPolicy policy,
+        List<string> notices)
+    {
+        Ui.BeginScreen();
+        Ui.Header("編成を保存");
+        Ui.WriteLine($"  保存済み: {guild.partyPresets.Count}/{GuildManager.PartyPresetLimit}件");
+        if (guild.partyPresets.Count > 0)
+            Ui.Dim("    同じ名前で保存すると上書きします: "
+                + string.Join("、", guild.partyPresets.Select(p => p.name)));
+        Ui.WriteLine();
+
+        string? input = await Ui.ReadLineAsync(
+            $"編成名（{PartyPreset.MaxNameLength}文字まで／空欄なら自動）");
+        string name = (input ?? "").Trim();
+        if (name.Length == 0) name = DefaultPresetName(guild, formation);
+
+        if (guild.TrySavePartyPreset(name, formation, policy, out string reason))
+            notices.Add($"編成「{name}」を保存しました");
+        else
+            notices.Add($"⚠ 保存できません: {reason}");
+    }
+
+    static string DefaultPresetName(GuildManager guild, AdventurerData?[] formation)
+    {
+        var members = formation.Where(a => a != null).Select(a => a!).ToList();
+        string lead = members.Count > 0 ? members[0].name : "編成";
+        string candidate = members.Count > 1 ? $"{lead}隊" : lead;
+        if (candidate.Length > PartyPreset.MaxNameLength)
+            candidate = candidate[..PartyPreset.MaxNameLength];
+
+        // 同名を自動で選ぶと既存の編成を黙って上書きしてしまう。空いている番号を足す。
+        string unique = candidate;
+        for (int suffix = 2; guild.partyPresets.Any(p => p.name == unique); suffix++)
+            unique = $"{candidate}{suffix}";
+        return unique;
+    }
+
+    static async Task DeletePartyPresetAsync(GuildManager guild)
+    {
+        var options = guild.partyPresets
+            .Select((preset, i) => new MenuOption(
+                (i + 1).ToString(), preset.name, DescribePreset(preset, guild)))
+            .ToList();
+        int? pick = await Ui.SelectIndexAsync("削除する編成", options);
+        if (pick == null) return;
+
+        var target = guild.partyPresets[pick.Value - 1];
+        if (await Ui.ConfirmAsync($"「{target.name}」を削除しますか？"))
+            guild.RemovePartyPreset(target);
+    }
+
+    /// <summary>配置済みの隊員を選び、位置の入れ替えか編成からの除外を行う。</summary>
+    static async Task EditPlacementAsync(AdventurerData?[] formation)
+    {
+        while (true)
+        {
+            var placed = Enumerable.Range(0, formation.Length)
+                .Where(slot => formation[slot] != null)
+                .ToList();
+            if (placed.Count == 0) return;
+
+            Ui.BeginScreen();
+            Ui.Header("配置の変更");
+            var memberOptions = placed
+                .Select((slot, i) => new MenuOption(
+                    (i + 1).ToString(),
+                    $"{PositionName(slot)}: {formation[slot]!.name}",
+                    formation[slot]!.ClassAndRace,
+                    Ui.RarityStyle(formation[slot]!.master.rarity)))
+                .ToList();
+            int? pick = await Ui.SelectIndexAsync("動かす隊員", memberOptions, "編成へ戻る");
+            if (pick == null) return;
+
+            int from = placed[pick.Value - 1];
+            var target = formation[from]!;
+
+            var slotOptions = Enumerable.Range(0, formation.Length)
+                .Where(slot => slot != from)
+                .Select(slot => new MenuOption(
+                    (slot + 1).ToString(),
+                    formation[slot] == null
+                        ? $"{PositionName(slot)}（空き）へ移す"
+                        : $"{PositionName(slot)}の{formation[slot]!.name}と入れ替える"))
+                .ToList();
+            slotOptions.Add(new MenuOption("x", $"{target.name}を編成から外す", Style: TextStyle.Warn));
+
+            string key = await Ui.SelectAsync($"{target.name}の移動先",
+                new List<MenuOption>(slotOptions) { new("0", "やめる", Style: TextStyle.Dim) });
+            if (key == "x") { formation[from] = null; continue; }
+            if (!int.TryParse(key, out int slotNumber)) continue;
+
+            int to = slotNumber - 1;
+            if (to < 0 || to >= formation.Length || to == from) continue;
+            (formation[from], formation[to]) = (formation[to], formation[from]);
+        }
+    }
+
+    /// <summary>編成確認から出発まで。受注できたらtrue、編成画面へ戻るならfalse。</summary>
+    static async Task<bool> ConfirmAndStartAsync(
+        QuestMasterData def,
+        QuestManager qm,
+        GuildManager guild,
+        int currentTurn,
+        AdventurerData?[] formation,
+        ExpeditionPolicy policy,
+        int partyCapacity)
+    {
         Ui.BeginScreen();
         Ui.Header("編成確認");
         ShowFormation(formation, partyCapacity);
         ShowPartyPreview(formation, def, partyCapacity);
-        var policy = await SelectPolicyAsync();
-        if (policy == null) return;
         var carriedConsumables = await SelectConsumablesAsync(guild, formation);
-        Ui.WriteLine($"  遠征方針: {QuestManager.PolicyName(policy.Value)}");
+        Ui.WriteLine($"  遠征方針: {QuestManager.PolicyName(policy)}");
         if (carriedConsumables.Count > 0)
             Ui.WriteLine($"  持ち込み（出発時消費）: {string.Join(", ", carriedConsumables.Select(x => x.DisplayName))}");
-        if (!await Ui.ConfirmAsync("このメンバーで受注しますか？")) return;
+        if (!await Ui.ConfirmAsync("このメンバーで受注しますか？")) return false;
 
         if (qm.TryStartQuestWithConsumables(
-            def, formation, currentTurn, out var error, carriedConsumables, policy.Value))
+            def, formation, currentTurn, out var error, carriedConsumables, policy))
+        {
+            // 保存し忘れても次の受注で呼び出せるように、出発した編成は必ず控えておく。
+            guild.RecordLastParty(formation, policy);
             Ui.Info($"クエスト「{def.questName}」を受注しました！ （Turn {currentTurn} 開始）");
-        else
-            Ui.Error($"受注失敗: {error}");
+            await Ui.PauseAsync();
+            return true;
+        }
 
+        Ui.Error($"受注失敗: {error}");
         await Ui.PauseAsync();
+        return false;
     }
 
-    static async Task<ExpeditionPolicy?> SelectPolicyAsync()
+    static async Task<ExpeditionPolicy> SelectPolicyAsync(ExpeditionPolicy current)
     {
-        Ui.WriteLine();
+        Ui.BeginScreen();
+        Ui.Header("遠征方針");
         string key = await Ui.SelectAsync("遠征方針", new[]
         {
-            new MenuOption("1", "生還優先",
+            new MenuOption("1", "生還優先" + (current == ExpeditionPolicy.SurvivalFirst ? "（現在）" : ""),
                 $"パーティHP{BattleResolver.SurvivalPartyHpPercent}%以下、または誰かが{BattleResolver.SurvivalMemberHpPercent}%以下で撤退する"),
-            new MenuOption("2", "依頼達成優先",
+            new MenuOption("2", "依頼達成優先" + (current == ExpeditionPolicy.ObjectiveFirst ? "（現在）" : ""),
                 "行動可能な限り任務を続行する。戦闘不能者が出るほど帰還時の死亡リスクが高まる"),
-            new MenuOption("0", "受注をやめる", Style: TextStyle.Dim),
+            new MenuOption("0", "変更しない", Style: TextStyle.Dim),
         });
         return key switch
         {
             "1" => ExpeditionPolicy.SurvivalFirst,
             "2" => ExpeditionPolicy.ObjectiveFirst,
-            _ => null,
+            _ => current,
         };
     }
 
