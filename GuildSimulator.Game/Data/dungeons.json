@@ -296,7 +296,10 @@
       "event_bandit_lookout_spotted",
       "event_caravan_supply_wagon",
       "event_caravan_stuck_wagon",
-      "event_caravan_pack_beast_panic"
+      "event_caravan_pack_beast_panic",
+      "event_caravan_teamsters",
+      "event_meadow_stray_hound",
+      "event_woods_herbalist"
     ]
   },
   {
@@ -720,7 +723,11 @@
       "event_caravan_supply_wagon",
       "event_caravan_stuck_wagon",
       "event_caravan_pack_beast_panic",
-      "event_caravan_ambush"
+      "event_caravan_ambush",
+      "event_caravan_teamsters",
+      "event_meadow_stray_hound",
+      "event_woods_herbalist",
+      "event_road_veterans"
     ]
   },
   {
@@ -1083,7 +1090,14 @@
       "event_caravan_rare_broker",
       "event_caravan_ambush",
       "event_amashiro_broken_lift",
-      "event_amashiro_dragon_inscription"
+      "event_amashiro_dragon_inscription",
+      "event_caravan_teamsters",
+      "ev_wandering_duelist",
+      "event_amashiro_signal_fire",
+      "event_road_veterans",
+      "ev_gambler_ghost",
+      "ev_black_ledger",
+      "ev_pass_witch"
     ]
   },
   {
@@ -1259,7 +1273,11 @@
     "turnEndEventIds": [
       "event_mysterious_shrine",
       "event_middle_ocean_sky_current",
-      "event_middle_ocean_drowned_port"
+      "event_middle_ocean_drowned_port",
+      "event_middle_ocean_navigators",
+      "event_middle_ocean_becalmed",
+      "ev_sunken_hoard",
+      "ev_drowned_shrine_oath"
     ]
   },
   {
@@ -1523,7 +1541,12 @@
       "event_hidden_cache",
       "ev_ancient_altar",
       "event_ruin_tablets",
-      "event_caravan_specialist_merchant"
+      "event_caravan_specialist_merchant",
+      "event_mine_pit_lore",
+      "event_mine_flooded_shaft",
+      "ev_black_ledger",
+      "ev_deep_whisper",
+      "ev_camp_of_ill_omen"
     ]
   },
   {
@@ -1765,7 +1788,13 @@
       "event_hidden_cache",
       "ev_ancient_altar",
       "ev_cursed_spring",
-      "event_ruin_tablets"
+      "event_ruin_tablets",
+      "event_mine_pit_lore",
+      "event_old_city_scavengers",
+      "event_crypt_mourners",
+      "ev_gravedigger_pact",
+      "ev_pass_witch",
+      "ev_deep_whisper"
     ]
   },
   {
@@ -1930,7 +1959,14 @@
       "ev_cursed_spring",
       "event_ruin_tablets",
       "event_caravan_rare_broker",
-      "event_caravan_ambush"
+      "event_caravan_ambush",
+      "event_old_city_scavengers",
+      "ev_wandering_duelist",
+      "event_crypt_mourners",
+      "event_road_veterans",
+      "ev_gravedigger_pact",
+      "ev_gambler_ghost",
+      "ev_camp_of_ill_omen"
     ]
   }
 ]

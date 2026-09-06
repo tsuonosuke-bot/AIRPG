@@ -20,6 +20,10 @@ public class GambleChoiceTests
 
     public GambleChoiceTests(ITestOutputHelper output) => this.output = output;
 
+    /// <summary>不利益しか持たない呪いスキル。賭けの「当たり」には数えない。</summary>
+    static bool IsCurse(SkillMasterData skill) =>
+        skill.id.StartsWith("skill_curse_", StringComparison.Ordinal);
+
     static AdventurerMasterData Master(string id, string name) => new()
     {
         id = id, baseName = name,
@@ -223,12 +227,16 @@ public class GambleChoiceTests
                 if (option.targetsOneMember)
                 {
                     // 個人の賭けは、恒久的な幸運と個人が負う危険の両方を持つ。
+                    // 呪い（skill_curse_*）は不利益しか持たないので、当たりの側には数えない。
                     Assert.Contains(option.outcomes, o =>
                         o.effectType == QuestChoiceEffectType.AdventurerStatUp
-                        || o.effectType == QuestChoiceEffectType.AdventurerSkill);
+                        || o.effectType == QuestChoiceEffectType.AdventurerSkill
+                        && o.Skill != null && !IsCurse(o.Skill));
                     Assert.Contains(option.outcomes, o =>
                         o.effectType == QuestChoiceEffectType.AdventurerStatDown
                         || o.effectType == QuestChoiceEffectType.AdventurerDamage
+                        || o.effectType == QuestChoiceEffectType.AdventurerSkill
+                        && o.Skill != null && IsCurse(o.Skill)
                         || o.effectType == QuestChoiceEffectType.Morale && o.value < 0);
                 }
                 else
@@ -258,6 +266,10 @@ public class GambleChoiceTests
     [Theory]
     [InlineData("event_forest_lore")]
     [InlineData("event_ruin_tablets")]
+    [InlineData("event_caravan_teamsters")]
+    [InlineData("event_mine_pit_lore")]
+    [InlineData("event_old_city_scavengers")]
+    [InlineData("event_middle_ocean_navigators")]
     public void ShippedSkillChoiceEventsOfferThreeResolvedDeterministicSkills(string eventId)
     {
         var db = MasterLoader.Load(Path.Combine(AppContext.BaseDirectory, "Data"));
