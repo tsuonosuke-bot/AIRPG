@@ -300,7 +300,7 @@ public class TraitSystemTests
     {
         var db = Load();
         var adventurer = new AdventurerData(Master());
-        adventurer.records.Add(ExpeditionRecordType.BossKills, 2);
+        adventurer.records.Add(ExpeditionRecordType.BossKills, 5);
 
         Assert.Empty(TraitSystem.BuildOffers(new[] { adventurer }, db.traits.Values));
 
@@ -322,7 +322,7 @@ public class TraitSystemTests
             Assert.Equal("boss_finisher_reward", trait.offerGroup);
             Assert.Contains(trait.requirements, requirement =>
                 requirement.record == ExpeditionRecordType.BossKills
-                && requirement.atLeast == 3);
+                && requirement.atLeast == 6);
             Assert.All(TraitAnalysis.AllLenses, lens => Assert.Contains(lens, trait.Builds));
         });
     }
@@ -635,17 +635,34 @@ public class TraitSystemTests
         [Fact]
         public void FlawlessClearsRequireThatNobodyWentDownAllExpedition()
         {
-            var clean = Run(2, out var untouched);
+            var clean = Run(ExpeditionOutcomeRecorder.MinPartySizeForFlawless, out var untouched);
             clean.completed = true;
             ExpeditionOutcomeRecorder.Record(clean);
             Assert.Equal(1, clean.recorder.Count(untouched[0].id, ExpeditionRecordType.FlawlessClears));
 
             // 帰還時には戦闘不能が負傷へ解決済みなので、道中で倒れたかは戦闘記録から見る。
-            var bloodied = Run(2, out var hurt);
+            var bloodied = Run(ExpeditionOutcomeRecorder.MinPartySizeForFlawless, out var hurt);
             bloodied.completed = true;
             bloodied.recorder.For(hurt[1].id).Add(ExpeditionRecordType.TimesDowned);
             ExpeditionOutcomeRecorder.Record(bloodied);
             Assert.Equal(0, bloodied.recorder.Count(hurt[0].id, ExpeditionRecordType.FlawlessClears));
+        }
+
+        [Fact]
+        public void FlawlessClearsNeedAPartyLargeEnoughToBeCalledOne()
+        {
+            var thin = Run(ExpeditionOutcomeRecorder.MinPartySizeForFlawless - 1, out var few);
+            thin.completed = true;
+            ExpeditionOutcomeRecorder.Record(thin);
+            Assert.All(few, member =>
+                Assert.Equal(0, thin.recorder.Count(member.id, ExpeditionRecordType.FlawlessClears)));
+
+            // 少人数でも単独クリアなど他の記録は従来どおり数える。
+            var solo = Run(1, out var alone);
+            solo.completed = true;
+            ExpeditionOutcomeRecorder.Record(solo);
+            Assert.Equal(0, solo.recorder.Count(alone[0].id, ExpeditionRecordType.FlawlessClears));
+            Assert.Equal(1, solo.recorder.Count(alone[0].id, ExpeditionRecordType.SoloClears));
         }
 
         [Fact]

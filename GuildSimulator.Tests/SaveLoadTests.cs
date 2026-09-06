@@ -442,7 +442,7 @@ public class SaveLoadTests
         var adventurer = new AdventurerData(
             db.allAdventurers.First(candidate => candidate.recruitGuildRank <= 1));
         adventurer.offeredTraitIds.Add("trait_renown");
-        adventurer.records.Add(ExpeditionRecordType.BossKills, 3);
+        adventurer.records.Add(ExpeditionRecordType.BossKills, 6);
         guild.AddAdventurer(adventurer);
 
         string legacyJson = SaveManager.Serialize(
@@ -458,7 +458,7 @@ public class SaveLoadTests
         var loaded = SaveManager.Deserialize(legacyJson, db);
         var loadedAdventurer = Assert.Single(loaded.Guild.adventurers);
 
-        Assert.Equal(3, loadedAdventurer.records[ExpeditionRecordType.BossKills]);
+        Assert.Equal(6, loadedAdventurer.records[ExpeditionRecordType.BossKills]);
         Assert.Contains("trait_renown", loadedAdventurer.offeredTraitIds);
         Assert.Contains("trait_boss_footwork", loadedAdventurer.offeredTraitIds);
         Assert.Contains("trait_trophy_eye", loadedAdventurer.offeredTraitIds);
