@@ -13,3 +13,5 @@
 *.deb
 *.bak
 packages-microsoft-prod.deb
+__pycache__/
+*.pyc

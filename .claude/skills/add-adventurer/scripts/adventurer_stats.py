@@ -154,12 +154,17 @@ def check(entry: dict, races: dict, classes: dict) -> list[str]:
 
     weight = entry.get("recruitWeight")
     rarity = entry.get("rarity", "Common")
-    if weight is not None and rarity in RARITY_WEIGHT_RANGE:
+    # MasterLoader.DefaultAdventurerRarity は rarity が JSON に無いときだけ使う
+    # フォールバックで、全員 rarity を明示しているこの名簿には効かない。
+    # ここでの重みの目安は帯（ランク）とは無関係にレアリティだけで決める
+    # （素質と同じ考え方）。Commonには制約を設けない――ランクが上がっても
+    # 素質どおりの人はどこにでもいる、という扱いにするため。
+    if weight is not None and rarity != "Common" and rarity in RARITY_WEIGHT_RANGE:
         low, high = RARITY_WEIGHT_RANGE[rarity]
         if not low <= weight <= high:
             problems.append(
-                f"recruitWeight {weight} は {rarity} の帯 {low}〜{high} の外"
-                "（MasterLoader.DefaultAdventurerRarity）")
+                f"recruitWeight {weight} は {rarity} の目安 {low}〜{high} の外"
+                "（ランクに関係なく、レアリティだけで決める）")
     actual = talent(entry)
     expected = talent_for(rarity)
     if abs(actual - expected) > 2:
@@ -234,16 +239,17 @@ def cmd_plan(args) -> int:
         sys.exit(f"Lv1の5能力の合計は {budget} にしてください"
                  f"（素質{goal} − 体格{args.con} − 容姿{args.app}）。いまは {sum(base.values())} です。")
 
-    # 重みはレアリティの帯（DefaultAdventurerRarity）から取る。
-    # 出にくさはレアリティが決めるもので、どの帯に置くかとは別の話。
-    low_default, high_default = RARITY_WEIGHT_RANGE.get(args.rarity, (0, 10))
+    # 重みの目安はランクとは無関係にレアリティだけで決める（素質と同じ考え方）。
+    # Commonには制約を設けない。ランクが上がっても素質どおりの人はどこにでもいる。
+    low_default, high_default = RARITY_WEIGHT_RANGE.get(args.rarity, (0, 100))
     weight = args.weight if args.weight is not None else min(
         high_default, max(low_default, DEFAULT_WEIGHT.get(args.rank, 10)))
-    low, high = RARITY_WEIGHT_RANGE.get(args.rarity, (0, 10_000))
-    if not low <= weight <= high:
-        sys.exit(f"recruitWeight {weight} は {args.rarity} の帯 {low}〜{high} の外です"
-                 "（MasterLoader.DefaultAdventurerRarity）。"
-                 "--validate-master はこれを素通りするので、ここで止めます。")
+    if args.rarity != "Common" and args.rarity in RARITY_WEIGHT_RANGE:
+        low, high = RARITY_WEIGHT_RANGE[args.rarity]
+        if not low <= weight <= high:
+            sys.exit(f"recruitWeight {weight} は {args.rarity} の目安 {low}〜{high} の外です"
+                     "（ランクに関係なく、レアリティだけで決めます）。"
+                     "--validate-master はこれを素通りするので、ここで止めます。")
     grown = distribute((args.level - 1) * STAT_POINTS_PER_LEVEL, weights)
     final = {stat: base[stat] + grown[stat] for stat in GROWN}
 

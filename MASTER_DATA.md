@@ -392,8 +392,11 @@ F帯から抜けました。序盤で炎を使いたくなったら、F帯のCom
 - 能力値は Lv1 の素質に `defaultLevel − 1` 点を足す。振り分けはレベルアップと同じ
   「種族の成長率＋職業の成長率＋`AdventurerData.BaseGrowthWeight`」の比で、
   体力・精神・筋力・敏捷・知力の5つにだけ配る（体格と容姿はレベルでは伸びない）
-- `recruitWeight` と `rarity` は `RecruitmentSystem.DefaultWeightForGuildRank` と
-  `MasterLoader.DefaultAdventurerRarity` の対応に合わせる（E=60/Uncommon、D=40/Rare）
+- `recruitWeight` はランクに関係なく**レアリティだけ**で決める。素質と同じ考え方で、
+  Common には制約がなく、それより上は目安の帯に収める（Uncommon 46〜75、Rare 26〜45、
+  Unique 11〜25、Legend 0〜10）。かつては「E帯はUncommon、D帯はRareが標準」という
+  帯とレアリティの結びつきがあったが撤回した。**ランクが上がっても、素質どおりの
+  Commonの人はどこにでもいる**、という扱いにするため
 
 ### 素質とレアリティ上乗せ
 
@@ -412,9 +415,9 @@ F帯から抜けました。序盤で炎を使いたくなったら、F帯のCom
 
 | レアリティ | 素質（7能力・Lv1換算） | 名簿の人数 |
 | --- | --- | ---: |
-| Common | 65（容姿にゆとりを持たせて67まで） | 14 |
-| Uncommon | 70 | 10 |
-| Rare | 75 | 11 |
+| Common | 65（容姿にゆとりを持たせて67まで） | 25 |
+| Uncommon | 70 | 4 |
+| Rare | 75 | 6 |
 | Unique | 80 | 4 |
 | Legend | 85 | 0 |
 
