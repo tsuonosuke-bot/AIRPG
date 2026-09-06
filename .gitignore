@@ -9,6 +9,10 @@
 .vscode/
 .idea/
 
+# Balance Labの実行結果。seedと引数を変えるたびに増えるので、bin/objと同じく都度生成する。
+# --compare の比較元を残したいときだけ git add -f で明示的に追跡する。
+/outputs/
+
 # Temp / install files
 *.deb
 *.bak
